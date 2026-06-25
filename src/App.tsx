@@ -178,16 +178,7 @@ function createSeedData(): AppData {
     status: "ACTIVO",
   };
 
-  const baseNames = [
-    "Poseidon Azul",
-    "Poseidon Roja",
-    "Fondo 3",
-    "Entrada",
-    "Sirena",
-    "Tridente",
-    "Atlantis",
-    "Delfin",
-  ];
+  const baseNames = ["Poseidon Azul", "Poseidon Roja", "Fondo 3"];
 
   return {
     users: [
@@ -229,7 +220,7 @@ function createSeedData(): AppData {
       },
     ],
     locals: [local],
-    machines: Array.from({ length: 40 }, (_, index) => ({
+    machines: Array.from({ length: 3 }, (_, index) => ({
       id: `machine-${index + 1}`,
       visibleId: String(index + 1).padStart(3, "0"),
       name: baseNames[index] ?? `Maquina ${index + 1}`,
@@ -237,7 +228,7 @@ function createSeedData(): AppData {
       location: index < 12 ? "Salon principal" : index < 28 ? "Sector lateral" : "Fondo",
       lastIn: 100000 + index * 12000,
       lastOut: 76000 + index * 8300,
-      status: index === 12 ? "MANTENIMIENTO" : "ACTIVA",
+      status: index === 2 ? "MANTENIMIENTO" : "ACTIVA",
       notes: "",
     })),
     balances: [],
@@ -253,10 +244,21 @@ function readData(): AppData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createSeedData();
-    return JSON.parse(raw) as AppData;
+    return normalizeData(JSON.parse(raw) as AppData);
   } catch {
     return createSeedData();
   }
+}
+
+function normalizeData(data: AppData): AppData {
+  const machines = data.machines.slice(0, 3);
+  const machineIds = new Set(machines.map((machine) => machine.id));
+
+  return {
+    ...data,
+    machines,
+    readings: data.readings.filter((reading) => machineIds.has(reading.machineId)),
+  };
 }
 
 function calcReading(reading: Pick<Reading, "inPrevious" | "inActual" | "outPrevious" | "outActual">) {

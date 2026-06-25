@@ -57,7 +57,7 @@ pnpm run build
 - Pantalla inicial y login.
 - Panel por rol.
 - Apertura / continuacion de caja diaria.
-- Grilla de contadores IN/OUT con autoguardado.
+- Grilla de contadores IN/OUT con autoguardado. La demo inicial queda con 3 maquinas para prueba rapida.
 - Gastos, transferencias y regalos.
 - Cierre de caja con calculos obligatorios.
 - Diferencias de caja por estado.
