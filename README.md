@@ -8,7 +8,7 @@ Aplicacion web operativa para caja diaria, maquinas, gastos, transferencias, reg
 - React
 - TypeScript
 - CSS global simple
-- Usuarios simulados en frontend
+- Supabase Auth + tablas con RLS para estado compartido
 
 ## Ejecutar
 
@@ -43,14 +43,14 @@ Tambien se puede generar el build:
 pnpm run build
 ```
 
-## Usuarios iniciales
+## Autenticacion
 
-| Usuario | Contrasena |
-| --- | --- |
-| cajero1 | cajero123 |
-| cajero2 | cajero123 |
-| encargado | encargado123 |
-| admin | admin123 |
+La app usa Supabase Auth con email y contrasena. No hay usuarios simulados para entrar.
+
+1. En la pantalla de login, usar `Crear usuario con Supabase Auth`.
+2. El primer usuario registrado queda como `Administrador`.
+3. Los siguientes usuarios registrados quedan como `Cajero`.
+4. Si Supabase tiene confirmacion por email activa, primero hay que confirmar el correo y despues iniciar sesion.
 
 ## Modulos incluidos
 
@@ -77,6 +77,13 @@ VITE_SUPABASE_PUBLISHABLE_KEY
 
 La configuracion local real queda en `.env.local`, que no se sube a Git. La app tambien incluye fallback a la URL y clave publicable del proyecto `pose` para funcionar en Vercel.
 
+Las migraciones versionadas quedan en `supabase/migrations`. La base usa estas tablas principales:
+
+- `poseidon_profiles`: perfil operativo por usuario autenticado.
+- `poseidon_app_state`: estado compartido de la aplicacion para el local Poseidon.
+
+Ambas tablas tienen RLS activo. Las politicas permiten acceso solo a usuarios autenticados y activos.
+
 ## Vercel
 
 El proyecto incluye `vercel.json` para publicar como app Vite:
@@ -96,10 +103,10 @@ VITE_SUPABASE_PUBLISHABLE_KEY
 
 ## Prueba rapida
 
-1. Entrar como `cajero1`.
+1. Crear el primer usuario desde el login para obtener rol administrador.
 2. Abrir caja con fecha operativa libre.
-3. Cargar algunos contadores.
+3. Cargar contadores de las 3 maquinas de prueba.
 4. Registrar gasto, transferencia y regalo.
 5. Cerrar caja y exportar Excel desde Reportes.
-6. Entrar como `admin` y revisar reportes, auditoria y administracion.
+6. Revisar reportes, auditoria y administracion.
 7. Ejecutar `pnpm run build`.
