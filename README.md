@@ -1,6 +1,6 @@
 # Poseidon Sistema de Gestion
 
-Base inicial del sistema. Este repositorio contiene solamente el Modulo 0.
+Aplicacion web operativa para caja diaria, maquinas, gastos, transferencias, regalos, cierres, reportes, administracion y auditoria del local Poseidon.
 
 ## Stack
 
@@ -43,13 +43,28 @@ Tambien se puede generar el build:
 pnpm run build
 ```
 
-## Usuarios simulados
+## Usuarios iniciales
 
 | Usuario | Contrasena |
 | --- | --- |
-| cajero | cajero123 |
+| cajero1 | cajero123 |
+| cajero2 | cajero123 |
 | encargado | encargado123 |
-| administrador | admin123 |
+| admin | admin123 |
+
+## Modulos incluidos
+
+- Pantalla inicial y login.
+- Panel por rol.
+- Apertura / continuacion de caja diaria.
+- Grilla de contadores IN/OUT con autoguardado.
+- Gastos, transferencias y regalos.
+- Cierre de caja con calculos obligatorios.
+- Diferencias de caja por estado.
+- Reportes y exportacion Excel-compatible.
+- Administracion inicial de usuarios, locales y maquinas.
+- Auditoria de cambios sensibles.
+- Cierre periodico inicial.
 
 ## Supabase
 
@@ -60,7 +75,7 @@ VITE_SUPABASE_URL
 VITE_SUPABASE_PUBLISHABLE_KEY
 ```
 
-La configuracion local real queda en `.env.local`, que no se sube a Git. Para otros entornos, copiar `.env.example` y completar la clave publicable correspondiente.
+La configuracion local real queda en `.env.local`, que no se sube a Git. La app tambien incluye fallback a la URL y clave publicable del proyecto `pose` para funcionar en Vercel.
 
 ## Vercel
 
@@ -79,11 +94,12 @@ VITE_SUPABASE_URL
 VITE_SUPABASE_PUBLISHABLE_KEY
 ```
 
-## Prueba del Modulo 0
+## Prueba rapida
 
-1. Entrar desde la pantalla inicial.
-2. Iniciar sesion con cada usuario simulado.
-3. Verificar que el menu lateral cambia segun el rol.
-4. Confirmar que la barra superior muestra local activo `Poseidon`.
-5. Probar la vista en ancho desktop y mobile.
-6. Ejecutar `pnpm run build`.
+1. Entrar como `cajero1`.
+2. Abrir caja con fecha operativa libre.
+3. Cargar algunos contadores.
+4. Registrar gasto, transferencia y regalo.
+5. Cerrar caja y exportar Excel desde Reportes.
+6. Entrar como `admin` y revisar reportes, auditoria y administracion.
+7. Ejecutar `pnpm run build`.
