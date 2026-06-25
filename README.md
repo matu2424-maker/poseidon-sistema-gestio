@@ -51,6 +51,17 @@ pnpm run build
 | encargado | encargado123 |
 | administrador | admin123 |
 
+## Supabase
+
+El proyecto esta conectado a Supabase mediante variables de entorno:
+
+```text
+VITE_SUPABASE_URL
+VITE_SUPABASE_PUBLISHABLE_KEY
+```
+
+La configuracion local real queda en `.env.local`, que no se sube a Git. Para otros entornos, copiar `.env.example` y completar la clave publicable correspondiente.
+
 ## Prueba del Modulo 0
 
 1. Entrar desde la pantalla inicial.

@@ -1,5 +1,6 @@
 import { LogOut, Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 import { roleLabels, type MockUser } from "../auth/users";
 import { getMenuForRole } from "./menu";
 
@@ -10,7 +11,14 @@ type DashboardShellProps = {
 
 export function DashboardShell({ user, onLogout }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [backendStatus, setBackendStatus] = useState("Verificando");
   const visibleMenu = getMenuForRole(user.role);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ error }) => {
+      setBackendStatus(error ? "Revisar config" : "Conectado");
+    });
+  }, []);
 
   return (
     <div className="dashboard-shell">
@@ -90,6 +98,10 @@ export function DashboardShell({ user, onLogout }: DashboardShellProps) {
               <article>
                 <span>Menu</span>
                 <strong>{visibleMenu.length} opciones</strong>
+              </article>
+              <article>
+                <span>Supabase</span>
+                <strong>{backendStatus}</strong>
               </article>
             </div>
           </section>
