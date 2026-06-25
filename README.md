@@ -62,6 +62,23 @@ VITE_SUPABASE_PUBLISHABLE_KEY
 
 La configuracion local real queda en `.env.local`, que no se sube a Git. Para otros entornos, copiar `.env.example` y completar la clave publicable correspondiente.
 
+## Vercel
+
+El proyecto incluye `vercel.json` para publicar como app Vite:
+
+```text
+Install Command: pnpm install
+Build Command: pnpm run build
+Output Directory: dist
+```
+
+En Vercel hay que configurar estas variables:
+
+```text
+VITE_SUPABASE_URL
+VITE_SUPABASE_PUBLISHABLE_KEY
+```
+
 ## Prueba del Modulo 0
 
 1. Entrar desde la pantalla inicial.
