@@ -1,0 +1,23 @@
+{
+  "name": "poseidon-sistema-gestion",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.mjs --configLoader native",
+    "build": "tsc -b && vite build --config vite.config.mjs --configLoader native",
+    "preview": "vite preview --config vite.config.mjs --configLoader native"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

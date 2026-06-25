@@ -1,0 +1,524 @@
+:root {
+  color-scheme: light;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #edf1f5;
+  color: #17202a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --surface: #ffffff;
+  --surface-muted: #f6f8fb;
+  --line: #d7dee8;
+  --text-muted: #687487;
+  --primary: #0f766e;
+  --primary-dark: #115e59;
+  --primary-soft: #d9f3ef;
+  --accent: #1d4ed8;
+  --danger: #b42318;
+  --shadow: 0 18px 50px rgba(22, 32, 42, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+.welcome-page,
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(29, 78, 216, 0.08)),
+    #edf1f5;
+}
+
+.welcome-panel,
+.auth-card {
+  width: min(100%, 520px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+}
+
+.welcome-panel {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  padding: clamp(32px, 7vw, 56px);
+  text-align: center;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background: #102a43;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0;
+}
+
+.brand-mark.large {
+  width: 76px;
+  height: 76px;
+  font-size: 2rem;
+}
+
+.brand-mark.compact {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+}
+
+.welcome-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.eyebrow,
+.auth-heading p {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+p {
+  margin-top: 0;
+}
+
+.welcome-copy h1,
+.auth-heading h1,
+.module-placeholder h1 {
+  margin: 0;
+  color: #102a43;
+  letter-spacing: 0;
+}
+
+.welcome-copy h1 {
+  font-size: clamp(2.2rem, 9vw, 4.4rem);
+  line-height: 0.95;
+}
+
+.welcome-description {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.primary-button,
+.secondary-button,
+.icon-button,
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.primary-button {
+  min-width: 160px;
+  padding: 0 18px;
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.primary-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #17202a;
+  font-weight: 700;
+}
+
+.secondary-button:hover {
+  border-color: #b7c2d0;
+  background: var(--surface-muted);
+}
+
+.icon-button {
+  width: 44px;
+  background: #ffffff;
+  color: #17202a;
+  border: 1px solid var(--line);
+}
+
+.icon-button:hover {
+  background: var(--surface-muted);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.auth-card {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  padding: clamp(24px, 6vw, 40px);
+}
+
+.auth-back {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+}
+
+.auth-card .brand-mark {
+  margin: 0 auto;
+}
+
+.auth-heading {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.auth-heading h1 {
+  font-size: clamp(1.7rem, 7vw, 2.4rem);
+}
+
+.auth-heading span {
+  color: var(--text-muted);
+  font-weight: 650;
+}
+
+.login-form {
+  display: grid;
+  gap: 10px;
+}
+
+.login-form label {
+  color: #263747;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.login-form input,
+.login-form select {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #17202a;
+  padding: 0 12px;
+  outline: none;
+}
+
+.login-form input:focus,
+.login-form select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.form-error {
+  margin: 2px 0 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.mock-help {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.mock-help span {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  background: #edf1f5;
+}
+
+.sidebar {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 20px;
+  border-right: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+}
+
+.sidebar-brand strong,
+.topbar-user strong,
+.topbar-local strong {
+  display: block;
+  color: #102a43;
+}
+
+.sidebar-brand span,
+.topbar-user span,
+.topbar-local span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 6px;
+}
+
+.nav-item {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0 12px;
+  color: #465568;
+  background: transparent;
+  font-weight: 750;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.dashboard-content {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 72px 1fr;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.menu-toggle {
+  display: none;
+}
+
+.topbar-local {
+  margin-right: auto;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: right;
+}
+
+.workspace {
+  padding: clamp(18px, 4vw, 36px);
+}
+
+.module-placeholder {
+  min-height: calc(100vh - 144px);
+  display: grid;
+  align-content: space-between;
+  gap: 32px;
+  border: 1px dashed #b7c2d0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: clamp(24px, 5vw, 44px);
+}
+
+.module-placeholder h1 {
+  margin-top: 8px;
+  font-size: clamp(2rem, 7vw, 3.4rem);
+}
+
+.module-placeholder p {
+  max-width: 48rem;
+  margin-bottom: 0;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.status-grid article {
+  min-height: 92px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.status-grid span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.status-grid strong {
+  color: #102a43;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 860px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 4;
+    width: min(82vw, 300px);
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+    box-shadow: var(--shadow);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .dashboard-content {
+    grid-template-rows: auto 1fr;
+  }
+
+  .topbar {
+    min-height: 72px;
+    padding: 10px 14px;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
+  .topbar-user {
+    gap: 8px;
+  }
+
+  .topbar-user > div {
+    display: none;
+  }
+
+  .logout-button {
+    min-width: 44px;
+    padding: 0 12px;
+  }
+
+  .workspace {
+    padding: 16px;
+  }
+
+  .module-placeholder {
+    min-height: calc(100vh - 104px);
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .welcome-page,
+  .auth-page {
+    padding: 14px;
+  }
+
+  .welcome-panel,
+  .auth-card {
+    box-shadow: 0 10px 28px rgba(22, 32, 42, 0.1);
+  }
+
+  .auth-card {
+    padding-top: 56px;
+  }
+
+  .topbar-local span {
+    display: none;
+  }
+
+  .topbar-local strong {
+    font-size: 0.96rem;
+  }
+
+  .secondary-button {
+    gap: 0;
+  }
+
+  .logout-button {
+    font-size: 0;
+  }
+
+  .logout-button svg {
+    margin: 0;
+  }
+}
