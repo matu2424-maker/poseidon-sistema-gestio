@@ -1,6 +1,6 @@
 import { LogOut, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { hasSupabaseConfig, supabase } from "../../lib/supabase";
 import { roleLabels, type MockUser } from "../auth/users";
 import { getMenuForRole } from "./menu";
 
@@ -15,6 +15,11 @@ export function DashboardShell({ user, onLogout }: DashboardShellProps) {
   const visibleMenu = getMenuForRole(user.role);
 
   useEffect(() => {
+    if (!hasSupabaseConfig || !supabase) {
+      setBackendStatus("No configurado");
+      return;
+    }
+
     supabase.auth.getSession().then(({ error }) => {
       setBackendStatus(error ? "Revisar config" : "Conectado");
     });
