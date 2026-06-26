@@ -209,10 +209,21 @@ input:disabled {
   background: #7f8998;
 }
 
+.button.danger {
+  background: var(--red);
+}
+
 .button.small {
   min-height: 38px;
   border-radius: 14px;
   padding-inline: 34px;
+}
+
+.button.compact {
+  min-height: 34px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 0.92rem;
 }
 
 .button.wide {
@@ -452,6 +463,27 @@ input:disabled {
   padding: 28px 20px;
 }
 
+.admin-focus {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-header h2 {
+  margin-bottom: 4px;
+}
+
+.admin-header span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
 .side-notes {
   display: grid;
   gap: 30px;
@@ -472,6 +504,10 @@ input:disabled {
   width: 100%;
   min-width: 900px;
   border-collapse: collapse;
+}
+
+.admin-data-table {
+  min-width: 1120px;
 }
 
 .data-table th {
@@ -498,6 +534,20 @@ input:disabled {
   min-width: 112px;
   border-radius: 7px;
   padding: 0 8px;
+}
+
+.data-table .number-input {
+  min-width: 80px;
+}
+
+.create-row td {
+  background: #edf6ee;
+}
+
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .mini-list {
@@ -598,5 +648,10 @@ input:disabled {
 
   .mini-list div {
     grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

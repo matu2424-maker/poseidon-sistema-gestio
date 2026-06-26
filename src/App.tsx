@@ -1550,35 +1550,243 @@ function AdminMachines({
   patchData: (updater: (current: AppData) => AppData) => void;
   audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
 }) {
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  type MachineDraft = {
+    visibleId: string;
+    name: string;
+    localId: string;
+    location: string;
+    status: MachineStatus;
+    lastIn: string;
+    lastOut: string;
+    notes: string;
+  };
+
+  const machineToDraft = (machine: Machine): MachineDraft => ({
+    visibleId: machine.visibleId,
+    name: machine.name,
+    localId: machine.localId,
+    location: machine.location,
+    status: machine.status,
+    lastIn: String(machine.lastIn),
+    lastOut: String(machine.lastOut),
+    notes: machine.notes,
+  });
+
+  const nextVisibleId = String(Math.max(0, ...data.machines.map((machine) => Number(machine.visibleId) || 0)) + 1).padStart(3, "0");
+  const [drafts, setDrafts] = useState<Record<string, MachineDraft>>({});
+  const [newMachine, setNewMachine] = useState<MachineDraft>({
+    visibleId: nextVisibleId,
+    name: "",
+    localId: POSEIDON_LOCAL_ID,
+    location: "Salon principal",
+    status: "ACTIVA",
+    lastIn: "0",
+    lastOut: "0",
+    notes: "",
+  });
+
+  const draftFor = (machine: Machine) => drafts[machine.id] ?? machineToDraft(machine);
+
+  const updateDraft = (id: string, patch: Partial<MachineDraft>) => {
+    setDrafts((current) => {
+      const machine = data.machines.find((item) => item.id === id);
+      const base = current[id] ?? (machine ? machineToDraft(machine) : newMachine);
+      return { ...current, [id]: { ...base, ...patch } };
+    });
+  };
+
+  const saveMachine = (machine: Machine) => {
+    const draft = draftFor(machine);
+    if (!draft.visibleId.trim() || !draft.name.trim()) return;
+
+    const next: Machine = {
+      ...machine,
+      visibleId: draft.visibleId.trim(),
+      name: draft.name.trim(),
+      localId: draft.localId,
+      location: draft.location.trim() || "Salon",
+      status: draft.status,
+      lastIn: Number(draft.lastIn || 0),
+      lastOut: Number(draft.lastOut || 0),
+      notes: draft.notes.trim(),
+    };
+
+    patchData((current) => {
+      const duplicate = current.machines.some((item) => item.id !== machine.id && item.visibleId === next.visibleId);
+      if (duplicate) return current;
+      const machines = current.machines.map((item) => (item.id === machine.id ? next : item));
+      return audit({ ...current, machines }, "Modificar maquina", "Maquina", machine.id, machine, next);
+    });
+  };
+
+  const addMachine = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
     const machine: Machine = {
       id: uid("machine"),
-      visibleId: String(form.get("visibleId")),
-      name: String(form.get("name")),
-      localId: POSEIDON_LOCAL_ID,
-      location: String(form.get("location") || "Salon"),
-      lastIn: 0,
-      lastOut: 0,
-      status: "ACTIVA",
-      notes: "",
+      visibleId: newMachine.visibleId.trim(),
+      name: newMachine.name.trim(),
+      localId: newMachine.localId,
+      location: newMachine.location.trim() || "Salon",
+      lastIn: Number(newMachine.lastIn || 0),
+      lastOut: Number(newMachine.lastOut || 0),
+      status: newMachine.status,
+      notes: newMachine.notes.trim(),
     };
+    if (!machine.visibleId || !machine.name) return;
+    if (data.machines.some((item) => item.visibleId === machine.visibleId)) return;
+
     patchData((current) => {
-      if (current.machines.some((item) => item.visibleId === machine.visibleId)) return current;
       return audit({ ...current, machines: [...current.machines, machine] }, "Crear maquina", "Maquina", machine.id, "", machine);
     });
-    event.currentTarget.reset();
+    setDrafts((current) => ({ ...current, [machine.id]: machineToDraft(machine) }));
+    setNewMachine({
+      visibleId: String(Number(machine.visibleId) + 1 || data.machines.length + 2).padStart(3, "0"),
+      name: "",
+      localId: machine.localId,
+      location: machine.location,
+      status: "ACTIVA",
+      lastIn: "0",
+      lastOut: "0",
+      notes: "",
+    });
+  };
+
+  const removeMachine = (machine: Machine) => {
+    patchData((current) => {
+      const machines = current.machines.filter((item) => item.id !== machine.id);
+      const readings = current.readings.filter((reading) => reading.machineId !== machine.id);
+      return audit({ ...current, machines, readings }, "Quitar maquina", "Maquina", machine.id, machine, "");
+    });
+    setDrafts((current) => {
+      const next = { ...current };
+      delete next[machine.id];
+      return next;
+    });
   };
 
   return (
-    <AdminTable
-      title="Maquinas"
-      data={data}
-      rows={data.machines.map((machine) => [machine.visibleId, machine.name, machine.status, `${machine.lastIn}/${machine.lastOut}`])}
-      form={submit}
-      fields={["visibleId", "name", "location"]}
-    />
+    <section className="admin-focus">
+      <div className="admin-header">
+        <div>
+          <h2>Maquinas</h2>
+          <p className="helper">Editar la grilla, guardar cambios por fila o quitar una maquina de prueba.</p>
+        </div>
+        <span>{data.machines.length} maquinas</span>
+      </div>
+      <div className="table-wrap grow">
+        <table className="data-table admin-data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Maquina</th>
+              <th>Local</th>
+              <th>Ubicacion</th>
+              <th>Estado</th>
+              <th>IN base</th>
+              <th>OUT base</th>
+              <th>Obs.</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="create-row">
+              <td>
+                <input value={newMachine.visibleId} onChange={(event) => setNewMachine((current) => ({ ...current, visibleId: event.target.value }))} />
+              </td>
+              <td>
+                <input value={newMachine.name} onChange={(event) => setNewMachine((current) => ({ ...current, name: event.target.value }))} placeholder="Nueva maquina" />
+              </td>
+              <td>
+                <select value={newMachine.localId} onChange={(event) => setNewMachine((current) => ({ ...current, localId: event.target.value }))}>
+                  {data.locals.map((local) => (
+                    <option key={local.id} value={local.id}>
+                      {local.name}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td>
+                <input value={newMachine.location} onChange={(event) => setNewMachine((current) => ({ ...current, location: event.target.value }))} />
+              </td>
+              <td>
+                <select value={newMachine.status} onChange={(event) => setNewMachine((current) => ({ ...current, status: event.target.value as MachineStatus }))}>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="MANTENIMIENTO">Mantenimiento</option>
+                  <option value="INACTIVA">Inactiva</option>
+                </select>
+              </td>
+              <td>
+                <input className="number-input" value={newMachine.lastIn} onChange={(event) => setNewMachine((current) => ({ ...current, lastIn: event.target.value }))} inputMode="numeric" />
+              </td>
+              <td>
+                <input className="number-input" value={newMachine.lastOut} onChange={(event) => setNewMachine((current) => ({ ...current, lastOut: event.target.value }))} inputMode="numeric" />
+              </td>
+              <td>
+                <input value={newMachine.notes} onChange={(event) => setNewMachine((current) => ({ ...current, notes: event.target.value }))} />
+              </td>
+              <td>
+                <form onSubmit={addMachine}>
+                  <button className="button success compact" type="submit">
+                    Agregar
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {data.machines.map((machine) => {
+              const draft = draftFor(machine);
+              return (
+                <tr key={machine.id}>
+                  <td>
+                    <input value={draft.visibleId} onChange={(event) => updateDraft(machine.id, { visibleId: event.target.value })} />
+                  </td>
+                  <td>
+                    <input value={draft.name} onChange={(event) => updateDraft(machine.id, { name: event.target.value })} />
+                  </td>
+                  <td>
+                    <select value={draft.localId} onChange={(event) => updateDraft(machine.id, { localId: event.target.value })}>
+                      {data.locals.map((local) => (
+                        <option key={local.id} value={local.id}>
+                          {local.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    <input value={draft.location} onChange={(event) => updateDraft(machine.id, { location: event.target.value })} />
+                  </td>
+                  <td>
+                    <select value={draft.status} onChange={(event) => updateDraft(machine.id, { status: event.target.value as MachineStatus })}>
+                      <option value="ACTIVA">Activa</option>
+                      <option value="MANTENIMIENTO">Mantenimiento</option>
+                      <option value="INACTIVA">Inactiva</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input className="number-input" value={draft.lastIn} onChange={(event) => updateDraft(machine.id, { lastIn: event.target.value })} inputMode="numeric" />
+                  </td>
+                  <td>
+                    <input className="number-input" value={draft.lastOut} onChange={(event) => updateDraft(machine.id, { lastOut: event.target.value })} inputMode="numeric" />
+                  </td>
+                  <td>
+                    <input value={draft.notes} onChange={(event) => updateDraft(machine.id, { notes: event.target.value })} />
+                  </td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="button primary compact" onClick={() => saveMachine(machine)}>
+                        Guardar
+                      </button>
+                      <button className="button danger compact" onClick={() => removeMachine(machine)}>
+                        Quitar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -1591,20 +1799,166 @@ function AdminLocals({
   patchData: (updater: (current: AppData) => AppData) => void;
   audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
 }) {
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const local: Local = {
-      id: uid("local"),
-      name: String(form.get("name")),
-      address: String(form.get("address")),
-      status: "ACTIVO",
-    };
-    patchData((current) => audit({ ...current, locals: [...current.locals, local] }, "Crear local", "Local", local.id, "", local));
-    event.currentTarget.reset();
+  type LocalDraft = {
+    name: string;
+    address: string;
+    status: "ACTIVO" | "INACTIVO";
   };
 
-  return <AdminTable title="Locales" data={data} rows={data.locals.map((local) => [local.name, local.address, local.status, "Preparado multi-local"])} form={submit} fields={["name", "address"]} />;
+  const localToDraft = (local: Local): LocalDraft => ({
+    name: local.name,
+    address: local.address,
+    status: local.status,
+  });
+
+  const [drafts, setDrafts] = useState<Record<string, LocalDraft>>({});
+  const [newLocal, setNewLocal] = useState<LocalDraft>({ name: "", address: "", status: "ACTIVO" });
+
+  const draftFor = (local: Local) => drafts[local.id] ?? localToDraft(local);
+
+  const updateDraft = (id: string, patch: Partial<LocalDraft>) => {
+    setDrafts((current) => {
+      const local = data.locals.find((item) => item.id === id);
+      const base = current[id] ?? (local ? localToDraft(local) : newLocal);
+      return { ...current, [id]: { ...base, ...patch } };
+    });
+  };
+
+  const addLocal = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const local: Local = {
+      id: uid("local"),
+      name: newLocal.name.trim(),
+      address: newLocal.address.trim() || "Sin direccion",
+      status: newLocal.status,
+    };
+    if (!local.name) return;
+
+    patchData((current) => audit({ ...current, locals: [...current.locals, local] }, "Crear local", "Local", local.id, "", local));
+    setDrafts((current) => ({ ...current, [local.id]: localToDraft(local) }));
+    setNewLocal({ name: "", address: "", status: "ACTIVO" });
+  };
+
+  const saveLocal = (local: Local) => {
+    const draft = draftFor(local);
+    if (!draft.name.trim()) return;
+
+    const next: Local = {
+      ...local,
+      name: draft.name.trim(),
+      address: draft.address.trim() || "Sin direccion",
+      status: draft.status,
+    };
+
+    patchData((current) => {
+      const locals = current.locals.map((item) => (item.id === local.id ? next : item));
+      return audit({ ...current, locals }, "Modificar local", "Local", local.id, local, next);
+    });
+  };
+
+  const removeLocal = (local: Local) => {
+    if (local.id === POSEIDON_LOCAL_ID) return;
+    const hasBalances = data.balances.some((balance) => balance.localId === local.id);
+    if (hasBalances) return;
+
+    patchData((current) => {
+      const removedMachineIds = new Set(current.machines.filter((machine) => machine.localId === local.id).map((machine) => machine.id));
+      const locals = current.locals.filter((item) => item.id !== local.id);
+      const machines = current.machines.filter((machine) => machine.localId !== local.id);
+      const readings = current.readings.filter((reading) => !removedMachineIds.has(reading.machineId));
+      return audit({ ...current, locals, machines, readings }, "Quitar local", "Local", local.id, local, "");
+    });
+    setDrafts((current) => {
+      const next = { ...current };
+      delete next[local.id];
+      return next;
+    });
+  };
+
+  return (
+    <section className="admin-focus">
+      <div className="admin-header">
+        <div>
+          <h2>Locales</h2>
+          <p className="helper">La tabla es la vista principal: agregar, modificar y quitar locales desde la misma grilla.</p>
+        </div>
+        <span>{data.locals.length} locales</span>
+      </div>
+      <div className="table-wrap grow">
+        <table className="data-table admin-data-table">
+          <thead>
+            <tr>
+              <th>Local</th>
+              <th>Direccion</th>
+              <th>Estado</th>
+              <th>Maquinas</th>
+              <th>Cajas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="create-row">
+              <td>
+                <input value={newLocal.name} onChange={(event) => setNewLocal((current) => ({ ...current, name: event.target.value }))} placeholder="Nuevo local" />
+              </td>
+              <td>
+                <input value={newLocal.address} onChange={(event) => setNewLocal((current) => ({ ...current, address: event.target.value }))} placeholder="Direccion" />
+              </td>
+              <td>
+                <select value={newLocal.status} onChange={(event) => setNewLocal((current) => ({ ...current, status: event.target.value as Local["status"] }))}>
+                  <option value="ACTIVO">Activo</option>
+                  <option value="INACTIVO">Inactivo</option>
+                </select>
+              </td>
+              <td>-</td>
+              <td>-</td>
+              <td>
+                <form onSubmit={addLocal}>
+                  <button className="button success compact" type="submit">
+                    Agregar
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {data.locals.map((local) => {
+              const draft = draftFor(local);
+              const machinesCount = data.machines.filter((machine) => machine.localId === local.id).length;
+              const balancesCount = data.balances.filter((balance) => balance.localId === local.id).length;
+              const protectedLocal = local.id === POSEIDON_LOCAL_ID || balancesCount > 0;
+              return (
+                <tr key={local.id}>
+                  <td>
+                    <input value={draft.name} onChange={(event) => updateDraft(local.id, { name: event.target.value })} />
+                  </td>
+                  <td>
+                    <input value={draft.address} onChange={(event) => updateDraft(local.id, { address: event.target.value })} />
+                  </td>
+                  <td>
+                    <select value={draft.status} onChange={(event) => updateDraft(local.id, { status: event.target.value as Local["status"] })}>
+                      <option value="ACTIVO">Activo</option>
+                      <option value="INACTIVO">Inactivo</option>
+                    </select>
+                  </td>
+                  <td>{machinesCount}</td>
+                  <td>{balancesCount}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button className="button primary compact" onClick={() => saveLocal(local)}>
+                        Guardar
+                      </button>
+                      <button className="button danger compact" disabled={protectedLocal} onClick={() => removeLocal(local)} title={protectedLocal ? "No se puede quitar el local activo ni locales con cajas registradas" : "Quitar local"}>
+                        Quitar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }
 
 function AdminTable({
