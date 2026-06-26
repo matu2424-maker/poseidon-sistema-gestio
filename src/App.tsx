@@ -19,7 +19,9 @@ type Screen =
   | "reports"
   | "admin-users"
   | "admin-machines"
+  | "admin-machine-edit"
   | "admin-locals"
+  | "admin-local-edit"
   | "differences"
   | "audit"
   | "periodic";
@@ -209,6 +211,9 @@ const today = () => new Date().toISOString().slice(0, 10);
 const uid = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
 const money = (value: number | undefined | null) => currency.format(Number.isFinite(value ?? NaN) ? Number(value) : 0);
 const asNumber = (value: FormDataEntryValue | null) => Number(value || 0);
+const localStatusClass = (status: Local["status"]) => (status === "ACTIVO" ? "status-active" : "status-inactive");
+const machineStatusClass = (status: MachineStatus) =>
+  status === "ACTIVA" ? "status-active" : status === "MANTENIMIENTO" ? "status-maintenance" : "status-inactive";
 
 function createSeedData(): AppData {
   const local: Local = {
@@ -389,6 +394,8 @@ function App() {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
+  const [selectedLocalId, setSelectedLocalId] = useState<string | null>(null);
+  const [selectedMachineId, setSelectedMachineId] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -588,8 +595,54 @@ function App() {
       )}
       {screen === "reports" && <Reports data={data} user={user} />}
       {screen === "admin-users" && <AdminUsers data={data} patchData={patchData} audit={audit} />}
-      {screen === "admin-machines" && <AdminMachines data={data} patchData={patchData} audit={audit} />}
-      {screen === "admin-locals" && <AdminLocals data={data} patchData={patchData} audit={audit} />}
+      {screen === "admin-machines" && (
+        <AdminMachines
+          data={data}
+          onAdd={() => {
+            setSelectedMachineId(null);
+            setScreen("admin-machine-edit");
+          }}
+          onEdit={(machineId) => {
+            setSelectedMachineId(machineId);
+            setScreen("admin-machine-edit");
+          }}
+        />
+      )}
+      {screen === "admin-machine-edit" && (
+        <AdminMachineEditor
+          data={data}
+          user={user}
+          machineId={selectedMachineId}
+          patchData={patchData}
+          audit={audit}
+          setMessage={setMessage}
+          setScreen={setScreen}
+        />
+      )}
+      {screen === "admin-locals" && (
+        <AdminLocals
+          data={data}
+          onAdd={() => {
+            setSelectedLocalId(null);
+            setScreen("admin-local-edit");
+          }}
+          onEdit={(localId) => {
+            setSelectedLocalId(localId);
+            setScreen("admin-local-edit");
+          }}
+        />
+      )}
+      {screen === "admin-local-edit" && (
+        <AdminLocalEditor
+          data={data}
+          user={user}
+          localId={selectedLocalId}
+          patchData={patchData}
+          audit={audit}
+          setMessage={setMessage}
+          setScreen={setScreen}
+        />
+      )}
       {screen === "differences" && <Differences data={data} patchData={patchData} audit={audit} />}
       {screen === "audit" && <Audit data={data} />}
       {screen === "periodic" && <Periodic data={data} />}
@@ -683,11 +736,17 @@ function Shell({
           <span>Sistema de Gestion</span>
         </div>
         <nav>
-          {items.map((item) => (
-            <button key={item.screen} className={screen === item.screen ? "side-link active" : "side-link"} onClick={() => setScreen(item.screen)}>
-              {item.label}
-            </button>
-          ))}
+          {items.map((item) => {
+            const active =
+              screen === item.screen ||
+              (screen === "admin-local-edit" && item.screen === "admin-locals") ||
+              (screen === "admin-machine-edit" && item.screen === "admin-machines");
+            return (
+              <button key={item.screen} className={active ? "side-link active" : "side-link"} onClick={() => setScreen(item.screen)}>
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
         <button className="side-link logout" onClick={onLogout}>
           Salir
@@ -754,7 +813,9 @@ function titleForScreen(screen: Screen, role: Role) {
     reports: "Reportes y administracion",
     "admin-users": "Usuarios",
     "admin-machines": "Maquinas",
+    "admin-machine-edit": "Editar maquina",
     "admin-locals": "Locales",
+    "admin-local-edit": "Editar local",
     differences: "Diferencias de caja",
     audit: "Auditoria",
     periodic: "Cierre periodico",
@@ -1543,135 +1604,26 @@ function AdminUsers({
 
 function AdminMachines({
   data,
-  patchData,
-  audit,
+  onAdd,
+  onEdit,
 }: {
   data: AppData;
-  patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
+  onAdd: () => void;
+  onEdit: (machineId: string) => void;
 }) {
-  type MachineDraft = {
-    visibleId: string;
-    name: string;
-    localId: string;
-    location: string;
-    status: MachineStatus;
-    lastIn: string;
-    lastOut: string;
-    notes: string;
-  };
-
-  const machineToDraft = (machine: Machine): MachineDraft => ({
-    visibleId: machine.visibleId,
-    name: machine.name,
-    localId: machine.localId,
-    location: machine.location,
-    status: machine.status,
-    lastIn: String(machine.lastIn),
-    lastOut: String(machine.lastOut),
-    notes: machine.notes,
-  });
-
-  const nextVisibleId = String(Math.max(0, ...data.machines.map((machine) => Number(machine.visibleId) || 0)) + 1).padStart(3, "0");
-  const [drafts, setDrafts] = useState<Record<string, MachineDraft>>({});
-  const [newMachine, setNewMachine] = useState<MachineDraft>({
-    visibleId: nextVisibleId,
-    name: "",
-    localId: POSEIDON_LOCAL_ID,
-    location: "Salon principal",
-    status: "ACTIVA",
-    lastIn: "0",
-    lastOut: "0",
-    notes: "",
-  });
-
-  const draftFor = (machine: Machine) => drafts[machine.id] ?? machineToDraft(machine);
-
-  const updateDraft = (id: string, patch: Partial<MachineDraft>) => {
-    setDrafts((current) => {
-      const machine = data.machines.find((item) => item.id === id);
-      const base = current[id] ?? (machine ? machineToDraft(machine) : newMachine);
-      return { ...current, [id]: { ...base, ...patch } };
-    });
-  };
-
-  const saveMachine = (machine: Machine) => {
-    const draft = draftFor(machine);
-    if (!draft.visibleId.trim() || !draft.name.trim()) return;
-
-    const next: Machine = {
-      ...machine,
-      visibleId: draft.visibleId.trim(),
-      name: draft.name.trim(),
-      localId: draft.localId,
-      location: draft.location.trim() || "Salon",
-      status: draft.status,
-      lastIn: Number(draft.lastIn || 0),
-      lastOut: Number(draft.lastOut || 0),
-      notes: draft.notes.trim(),
-    };
-
-    patchData((current) => {
-      const duplicate = current.machines.some((item) => item.id !== machine.id && item.visibleId === next.visibleId);
-      if (duplicate) return current;
-      const machines = current.machines.map((item) => (item.id === machine.id ? next : item));
-      return audit({ ...current, machines }, "Modificar maquina", "Maquina", machine.id, machine, next);
-    });
-  };
-
-  const addMachine = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const machine: Machine = {
-      id: uid("machine"),
-      visibleId: newMachine.visibleId.trim(),
-      name: newMachine.name.trim(),
-      localId: newMachine.localId,
-      location: newMachine.location.trim() || "Salon",
-      lastIn: Number(newMachine.lastIn || 0),
-      lastOut: Number(newMachine.lastOut || 0),
-      status: newMachine.status,
-      notes: newMachine.notes.trim(),
-    };
-    if (!machine.visibleId || !machine.name) return;
-    if (data.machines.some((item) => item.visibleId === machine.visibleId)) return;
-
-    patchData((current) => {
-      return audit({ ...current, machines: [...current.machines, machine] }, "Crear maquina", "Maquina", machine.id, "", machine);
-    });
-    setDrafts((current) => ({ ...current, [machine.id]: machineToDraft(machine) }));
-    setNewMachine({
-      visibleId: String(Number(machine.visibleId) + 1 || data.machines.length + 2).padStart(3, "0"),
-      name: "",
-      localId: machine.localId,
-      location: machine.location,
-      status: "ACTIVA",
-      lastIn: "0",
-      lastOut: "0",
-      notes: "",
-    });
-  };
-
-  const removeMachine = (machine: Machine) => {
-    patchData((current) => {
-      const machines = current.machines.filter((item) => item.id !== machine.id);
-      const readings = current.readings.filter((reading) => reading.machineId !== machine.id);
-      return audit({ ...current, machines, readings }, "Quitar maquina", "Maquina", machine.id, machine, "");
-    });
-    setDrafts((current) => {
-      const next = { ...current };
-      delete next[machine.id];
-      return next;
-    });
-  };
-
   return (
     <section className="admin-focus">
       <div className="admin-header">
         <div>
           <h2>Maquinas</h2>
-          <p className="helper">Editar la grilla, guardar cambios por fila o quitar una maquina de prueba.</p>
+          <p className="helper">La grilla muestra el estado actual. Para modificar, abrir la pantalla de edicion.</p>
         </div>
-        <span>{data.machines.length} maquinas</span>
+        <div className="admin-header-actions">
+          <span>{data.machines.length} maquinas</span>
+          <button className="button success compact" onClick={onAdd}>
+            Agregar
+          </button>
+        </div>
       </div>
       <div className="table-wrap grow">
         <table className="data-table admin-data-table">
@@ -1689,94 +1641,247 @@ function AdminMachines({
             </tr>
           </thead>
           <tbody>
-            <tr className="create-row">
-              <td>
-                <input value={newMachine.visibleId} onChange={(event) => setNewMachine((current) => ({ ...current, visibleId: event.target.value }))} />
-              </td>
-              <td>
-                <input value={newMachine.name} onChange={(event) => setNewMachine((current) => ({ ...current, name: event.target.value }))} placeholder="Nueva maquina" />
-              </td>
-              <td>
-                <select value={newMachine.localId} onChange={(event) => setNewMachine((current) => ({ ...current, localId: event.target.value }))}>
-                  {data.locals.map((local) => (
-                    <option key={local.id} value={local.id}>
-                      {local.name}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <input value={newMachine.location} onChange={(event) => setNewMachine((current) => ({ ...current, location: event.target.value }))} />
-              </td>
-              <td>
-                <select value={newMachine.status} onChange={(event) => setNewMachine((current) => ({ ...current, status: event.target.value as MachineStatus }))}>
-                  <option value="ACTIVA">Activa</option>
-                  <option value="MANTENIMIENTO">Mantenimiento</option>
-                  <option value="INACTIVA">Inactiva</option>
-                </select>
-              </td>
-              <td>
-                <input className="number-input" value={newMachine.lastIn} onChange={(event) => setNewMachine((current) => ({ ...current, lastIn: event.target.value }))} inputMode="numeric" />
-              </td>
-              <td>
-                <input className="number-input" value={newMachine.lastOut} onChange={(event) => setNewMachine((current) => ({ ...current, lastOut: event.target.value }))} inputMode="numeric" />
-              </td>
-              <td>
-                <input value={newMachine.notes} onChange={(event) => setNewMachine((current) => ({ ...current, notes: event.target.value }))} />
-              </td>
-              <td>
-                <form onSubmit={addMachine}>
-                  <button className="button success compact" type="submit">
-                    Agregar
-                  </button>
-                </form>
-              </td>
+            {data.machines.map((machine) => (
+              <tr key={machine.id} className={machineStatusClass(machine.status)}>
+                <td>{machine.visibleId}</td>
+                <td>{machine.name}</td>
+                <td>{data.locals.find((local) => local.id === machine.localId)?.name ?? machine.localId}</td>
+                <td>{machine.location}</td>
+                <td>{machine.status}</td>
+                <td>{machine.lastIn}</td>
+                <td>{machine.lastOut}</td>
+                <td>{machine.notes || "-"}</td>
+                <td>
+                  <div className="table-actions">
+                    <button className="button primary compact" onClick={() => onEdit(machine.id)}>
+                      Editar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function AdminMachineEditor({
+  data,
+  user,
+  machineId,
+  patchData,
+  audit,
+  setMessage,
+  setScreen,
+}: {
+  data: AppData;
+  user: User;
+  machineId: string | null;
+  patchData: (updater: (current: AppData) => AppData) => void;
+  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
+  setMessage: (message: string) => void;
+  setScreen: (screen: Screen) => void;
+}) {
+  const existing = machineId ? data.machines.find((machine) => machine.id === machineId) : undefined;
+  const nextVisibleId = String(Math.max(0, ...data.machines.map((machine) => Number(machine.visibleId) || 0)) + 1).padStart(3, "0");
+  const [draft, setDraft] = useState({
+    visibleId: existing?.visibleId ?? nextVisibleId,
+    name: existing?.name ?? "",
+    localId: existing?.localId ?? POSEIDON_LOCAL_ID,
+    location: existing?.location ?? "Salon principal",
+    status: existing?.status ?? "ACTIVA",
+    lastIn: String(existing?.lastIn ?? 0),
+    lastOut: String(existing?.lastOut ?? 0),
+    notes: existing?.notes ?? "",
+    authorization: "",
+  });
+  const [error, setError] = useState("");
+  const isNew = !existing;
+
+  const authorize = () => {
+    if (draft.authorization !== user.password) {
+      setError("Autorizacion invalida. Ingrese la contrasena del usuario actual.");
+      return false;
+    }
+    setError("");
+    return true;
+  };
+
+  const save = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!authorize()) return;
+    if (!draft.visibleId.trim() || !draft.name.trim()) {
+      setError("ID y nombre son obligatorios.");
+      return;
+    }
+    const duplicate = data.machines.some((machine) => machine.id !== existing?.id && machine.visibleId === draft.visibleId.trim());
+    if (duplicate) {
+      setError("Ya existe una maquina con ese ID.");
+      return;
+    }
+
+    const next: Machine = {
+      id: existing?.id ?? uid("machine"),
+      visibleId: draft.visibleId.trim(),
+      name: draft.name.trim(),
+      localId: draft.localId,
+      location: draft.location.trim() || "Salon",
+      status: draft.status as MachineStatus,
+      lastIn: Number(draft.lastIn || 0),
+      lastOut: Number(draft.lastOut || 0),
+      notes: draft.notes.trim(),
+    };
+
+    patchData((current) => {
+      if (isNew) return audit({ ...current, machines: [...current.machines, next] }, "Crear maquina", "Maquina", next.id, "", next, "Autorizado");
+      const machines = current.machines.map((machine) => (machine.id === next.id ? next : machine));
+      return audit({ ...current, machines }, "Modificar maquina", "Maquina", next.id, existing, next, "Autorizado");
+    });
+    setMessage(isNew ? "Maquina creada con autorizacion." : "Maquina modificada con autorizacion.");
+    setScreen("admin-machines");
+  };
+
+  const remove = () => {
+    if (!existing || !authorize()) return;
+    patchData((current) => {
+      const machines = current.machines.filter((machine) => machine.id !== existing.id);
+      const readings = current.readings.filter((reading) => reading.machineId !== existing.id);
+      return audit({ ...current, machines, readings }, "Quitar maquina", "Maquina", existing.id, existing, "", "Autorizado");
+    });
+    setMessage("Maquina quitada con autorizacion.");
+    setScreen("admin-machines");
+  };
+
+  return (
+    <section className="editor-card">
+      <div className="admin-header">
+        <div>
+          <h2>{isNew ? "Agregar maquina" : `Editar maquina ${existing.visibleId}`}</h2>
+          <p className="helper">Los cambios se aplican solo despues de ingresar autorizacion.</p>
+        </div>
+        <button className="button muted compact" onClick={() => setScreen("admin-machines")}>
+          Volver
+        </button>
+      </div>
+      <form className="form-grid" onSubmit={save}>
+        <label>
+          ID
+          <input value={draft.visibleId} onChange={(event) => setDraft((current) => ({ ...current, visibleId: event.target.value }))} />
+        </label>
+        <label>
+          Maquina
+          <input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} />
+        </label>
+        <label>
+          Local
+          <select value={draft.localId} onChange={(event) => setDraft((current) => ({ ...current, localId: event.target.value }))}>
+            {data.locals.map((local) => (
+              <option key={local.id} value={local.id}>
+                {local.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Estado
+          <select value={draft.status} onChange={(event) => setDraft((current) => ({ ...current, status: event.target.value as MachineStatus }))}>
+            <option value="ACTIVA">Activa</option>
+            <option value="MANTENIMIENTO">Mantenimiento</option>
+            <option value="INACTIVA">Inactiva</option>
+          </select>
+        </label>
+        <label>
+          Ubicacion
+          <input value={draft.location} onChange={(event) => setDraft((current) => ({ ...current, location: event.target.value }))} />
+        </label>
+        <label>
+          IN base
+          <input value={draft.lastIn} onChange={(event) => setDraft((current) => ({ ...current, lastIn: event.target.value }))} inputMode="numeric" />
+        </label>
+        <label>
+          OUT base
+          <input value={draft.lastOut} onChange={(event) => setDraft((current) => ({ ...current, lastOut: event.target.value }))} inputMode="numeric" />
+        </label>
+        <label>
+          Observacion
+          <input value={draft.notes} onChange={(event) => setDraft((current) => ({ ...current, notes: event.target.value }))} />
+        </label>
+        <label className="span-2">
+          Autorizacion
+          <input type="password" value={draft.authorization} onChange={(event) => setDraft((current) => ({ ...current, authorization: event.target.value }))} autoComplete="current-password" placeholder="Contrasena del usuario actual" />
+        </label>
+        {error && <p className="validation error span-2">{error}</p>}
+        <div className="form-actions span-2">
+          <div className="button-row end">
+            {!isNew && (
+              <button className="button danger" type="button" onClick={remove}>
+                Quitar maquina
+              </button>
+            )}
+            <button className="button success" type="submit">
+              Guardar con autorizacion
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function AdminLocals({
+  data,
+  onAdd,
+  onEdit,
+}: {
+  data: AppData;
+  onAdd: () => void;
+  onEdit: (localId: string) => void;
+}) {
+  return (
+    <section className="admin-focus">
+      <div className="admin-header">
+        <div>
+          <h2>Locales</h2>
+          <p className="helper">La tabla es la vista principal. El estado cambia el color de la fila.</p>
+        </div>
+        <div className="admin-header-actions">
+          <span>{data.locals.length} locales</span>
+          <button className="button success compact" onClick={onAdd}>
+            Agregar
+          </button>
+        </div>
+      </div>
+      <div className="table-wrap grow">
+        <table className="data-table admin-data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Local</th>
+              <th>Direccion</th>
+              <th>Estado</th>
+              <th>Maquinas</th>
+              <th>Cajas</th>
+              <th>Acciones</th>
             </tr>
-            {data.machines.map((machine) => {
-              const draft = draftFor(machine);
+          </thead>
+          <tbody>
+            {data.locals.map((local) => {
+              const machinesCount = data.machines.filter((machine) => machine.localId === local.id).length;
+              const balancesCount = data.balances.filter((balance) => balance.localId === local.id).length;
               return (
-                <tr key={machine.id}>
-                  <td>
-                    <input value={draft.visibleId} onChange={(event) => updateDraft(machine.id, { visibleId: event.target.value })} />
-                  </td>
-                  <td>
-                    <input value={draft.name} onChange={(event) => updateDraft(machine.id, { name: event.target.value })} />
-                  </td>
-                  <td>
-                    <select value={draft.localId} onChange={(event) => updateDraft(machine.id, { localId: event.target.value })}>
-                      {data.locals.map((local) => (
-                        <option key={local.id} value={local.id}>
-                          {local.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <input value={draft.location} onChange={(event) => updateDraft(machine.id, { location: event.target.value })} />
-                  </td>
-                  <td>
-                    <select value={draft.status} onChange={(event) => updateDraft(machine.id, { status: event.target.value as MachineStatus })}>
-                      <option value="ACTIVA">Activa</option>
-                      <option value="MANTENIMIENTO">Mantenimiento</option>
-                      <option value="INACTIVA">Inactiva</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input className="number-input" value={draft.lastIn} onChange={(event) => updateDraft(machine.id, { lastIn: event.target.value })} inputMode="numeric" />
-                  </td>
-                  <td>
-                    <input className="number-input" value={draft.lastOut} onChange={(event) => updateDraft(machine.id, { lastOut: event.target.value })} inputMode="numeric" />
-                  </td>
-                  <td>
-                    <input value={draft.notes} onChange={(event) => updateDraft(machine.id, { notes: event.target.value })} />
-                  </td>
+                <tr key={local.id} className={localStatusClass(local.status)}>
+                  <td>{local.id}</td>
+                  <td>{local.name}</td>
+                  <td>{local.address}</td>
+                  <td>{local.status}</td>
+                  <td>{machinesCount}</td>
+                  <td>{balancesCount}</td>
                   <td>
                     <div className="table-actions">
-                      <button className="button primary compact" onClick={() => saveMachine(machine)}>
-                        Guardar
-                      </button>
-                      <button className="button danger compact" onClick={() => removeMachine(machine)}>
-                        Quitar
+                      <button className="button primary compact" onClick={() => onEdit(local.id)}>
+                        Editar
                       </button>
                     </div>
                   </td>
@@ -1790,173 +1895,137 @@ function AdminMachines({
   );
 }
 
-function AdminLocals({
+function AdminLocalEditor({
   data,
+  user,
+  localId,
   patchData,
   audit,
+  setMessage,
+  setScreen,
 }: {
   data: AppData;
+  user: User;
+  localId: string | null;
   patchData: (updater: (current: AppData) => AppData) => void;
   audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
+  setMessage: (message: string) => void;
+  setScreen: (screen: Screen) => void;
 }) {
-  type LocalDraft = {
-    name: string;
-    address: string;
-    status: "ACTIVO" | "INACTIVO";
-  };
-
-  const localToDraft = (local: Local): LocalDraft => ({
-    name: local.name,
-    address: local.address,
-    status: local.status,
+  const existing = localId ? data.locals.find((local) => local.id === localId) : undefined;
+  const [draft, setDraft] = useState({
+    id: existing?.id ?? uid("local"),
+    name: existing?.name ?? "",
+    address: existing?.address ?? "",
+    status: existing?.status ?? "ACTIVO",
+    authorization: "",
   });
+  const [error, setError] = useState("");
+  const isNew = !existing;
+  const balancesCount = existing ? data.balances.filter((balance) => balance.localId === existing.id).length : 0;
+  const protectedLocal = Boolean(existing && (existing.id === POSEIDON_LOCAL_ID || balancesCount > 0));
 
-  const [drafts, setDrafts] = useState<Record<string, LocalDraft>>({});
-  const [newLocal, setNewLocal] = useState<LocalDraft>({ name: "", address: "", status: "ACTIVO" });
-
-  const draftFor = (local: Local) => drafts[local.id] ?? localToDraft(local);
-
-  const updateDraft = (id: string, patch: Partial<LocalDraft>) => {
-    setDrafts((current) => {
-      const local = data.locals.find((item) => item.id === id);
-      const base = current[id] ?? (local ? localToDraft(local) : newLocal);
-      return { ...current, [id]: { ...base, ...patch } };
-    });
+  const authorize = () => {
+    if (draft.authorization !== user.password) {
+      setError("Autorizacion invalida. Ingrese la contrasena del usuario actual.");
+      return false;
+    }
+    setError("");
+    return true;
   };
 
-  const addLocal = (event: FormEvent<HTMLFormElement>) => {
+  const save = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const local: Local = {
-      id: uid("local"),
-      name: newLocal.name.trim(),
-      address: newLocal.address.trim() || "Sin direccion",
-      status: newLocal.status,
-    };
-    if (!local.name) return;
-
-    patchData((current) => audit({ ...current, locals: [...current.locals, local] }, "Crear local", "Local", local.id, "", local));
-    setDrafts((current) => ({ ...current, [local.id]: localToDraft(local) }));
-    setNewLocal({ name: "", address: "", status: "ACTIVO" });
-  };
-
-  const saveLocal = (local: Local) => {
-    const draft = draftFor(local);
-    if (!draft.name.trim()) return;
+    if (!authorize()) return;
+    if (!draft.id.trim() || !draft.name.trim()) {
+      setError("ID y nombre son obligatorios.");
+      return;
+    }
+    const duplicate = data.locals.some((local) => local.id !== existing?.id && local.id === draft.id.trim());
+    if (duplicate) {
+      setError("Ya existe un local con ese ID.");
+      return;
+    }
 
     const next: Local = {
-      ...local,
+      id: existing?.id ?? draft.id.trim(),
       name: draft.name.trim(),
       address: draft.address.trim() || "Sin direccion",
-      status: draft.status,
+      status: draft.status as Local["status"],
     };
 
     patchData((current) => {
-      const locals = current.locals.map((item) => (item.id === local.id ? next : item));
-      return audit({ ...current, locals }, "Modificar local", "Local", local.id, local, next);
+      if (isNew) return audit({ ...current, locals: [...current.locals, next] }, "Crear local", "Local", next.id, "", next, "Autorizado");
+      const locals = current.locals.map((local) => (local.id === next.id ? next : local));
+      return audit({ ...current, locals }, "Modificar local", "Local", next.id, existing, next, "Autorizado");
     });
+    setMessage(isNew ? "Local creado con autorizacion." : "Local modificado con autorizacion.");
+    setScreen("admin-locals");
   };
 
-  const removeLocal = (local: Local) => {
-    if (local.id === POSEIDON_LOCAL_ID) return;
-    const hasBalances = data.balances.some((balance) => balance.localId === local.id);
-    if (hasBalances) return;
+  const remove = () => {
+    if (!existing || protectedLocal || !authorize()) return;
 
     patchData((current) => {
-      const removedMachineIds = new Set(current.machines.filter((machine) => machine.localId === local.id).map((machine) => machine.id));
-      const locals = current.locals.filter((item) => item.id !== local.id);
-      const machines = current.machines.filter((machine) => machine.localId !== local.id);
+      const removedMachineIds = new Set(current.machines.filter((machine) => machine.localId === existing.id).map((machine) => machine.id));
+      const locals = current.locals.filter((local) => local.id !== existing.id);
+      const machines = current.machines.filter((machine) => machine.localId !== existing.id);
       const readings = current.readings.filter((reading) => !removedMachineIds.has(reading.machineId));
-      return audit({ ...current, locals, machines, readings }, "Quitar local", "Local", local.id, local, "");
+      return audit({ ...current, locals, machines, readings }, "Quitar local", "Local", existing.id, existing, "", "Autorizado");
     });
-    setDrafts((current) => {
-      const next = { ...current };
-      delete next[local.id];
-      return next;
-    });
+    setMessage("Local quitado con autorizacion.");
+    setScreen("admin-locals");
   };
 
   return (
-    <section className="admin-focus">
+    <section className="editor-card">
       <div className="admin-header">
         <div>
-          <h2>Locales</h2>
-          <p className="helper">La tabla es la vista principal: agregar, modificar y quitar locales desde la misma grilla.</p>
+          <h2>{isNew ? "Agregar local" : `Editar local ${existing.name}`}</h2>
+          <p className="helper">Los cambios se aplican solo despues de ingresar autorizacion.</p>
         </div>
-        <span>{data.locals.length} locales</span>
+        <button className="button muted compact" onClick={() => setScreen("admin-locals")}>
+          Volver
+        </button>
       </div>
-      <div className="table-wrap grow">
-        <table className="data-table admin-data-table">
-          <thead>
-            <tr>
-              <th>Local</th>
-              <th>Direccion</th>
-              <th>Estado</th>
-              <th>Maquinas</th>
-              <th>Cajas</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="create-row">
-              <td>
-                <input value={newLocal.name} onChange={(event) => setNewLocal((current) => ({ ...current, name: event.target.value }))} placeholder="Nuevo local" />
-              </td>
-              <td>
-                <input value={newLocal.address} onChange={(event) => setNewLocal((current) => ({ ...current, address: event.target.value }))} placeholder="Direccion" />
-              </td>
-              <td>
-                <select value={newLocal.status} onChange={(event) => setNewLocal((current) => ({ ...current, status: event.target.value as Local["status"] }))}>
-                  <option value="ACTIVO">Activo</option>
-                  <option value="INACTIVO">Inactivo</option>
-                </select>
-              </td>
-              <td>-</td>
-              <td>-</td>
-              <td>
-                <form onSubmit={addLocal}>
-                  <button className="button success compact" type="submit">
-                    Agregar
-                  </button>
-                </form>
-              </td>
-            </tr>
-            {data.locals.map((local) => {
-              const draft = draftFor(local);
-              const machinesCount = data.machines.filter((machine) => machine.localId === local.id).length;
-              const balancesCount = data.balances.filter((balance) => balance.localId === local.id).length;
-              const protectedLocal = local.id === POSEIDON_LOCAL_ID || balancesCount > 0;
-              return (
-                <tr key={local.id}>
-                  <td>
-                    <input value={draft.name} onChange={(event) => updateDraft(local.id, { name: event.target.value })} />
-                  </td>
-                  <td>
-                    <input value={draft.address} onChange={(event) => updateDraft(local.id, { address: event.target.value })} />
-                  </td>
-                  <td>
-                    <select value={draft.status} onChange={(event) => updateDraft(local.id, { status: event.target.value as Local["status"] })}>
-                      <option value="ACTIVO">Activo</option>
-                      <option value="INACTIVO">Inactivo</option>
-                    </select>
-                  </td>
-                  <td>{machinesCount}</td>
-                  <td>{balancesCount}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button className="button primary compact" onClick={() => saveLocal(local)}>
-                        Guardar
-                      </button>
-                      <button className="button danger compact" disabled={protectedLocal} onClick={() => removeLocal(local)} title={protectedLocal ? "No se puede quitar el local activo ni locales con cajas registradas" : "Quitar local"}>
-                        Quitar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <form className="form-grid" onSubmit={save}>
+        <label>
+          ID
+          <input value={draft.id} disabled={!isNew} onChange={(event) => setDraft((current) => ({ ...current, id: event.target.value }))} />
+        </label>
+        <label>
+          Local
+          <input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} />
+        </label>
+        <label>
+          Direccion
+          <input value={draft.address} onChange={(event) => setDraft((current) => ({ ...current, address: event.target.value }))} />
+        </label>
+        <label>
+          Estado
+          <select value={draft.status} onChange={(event) => setDraft((current) => ({ ...current, status: event.target.value as Local["status"] }))}>
+            <option value="ACTIVO">Activo</option>
+            <option value="INACTIVO">Inactivo</option>
+          </select>
+        </label>
+        <label className="span-2">
+          Autorizacion
+          <input type="password" value={draft.authorization} onChange={(event) => setDraft((current) => ({ ...current, authorization: event.target.value }))} autoComplete="current-password" placeholder="Contrasena del usuario actual" />
+        </label>
+        {error && <p className="validation error span-2">{error}</p>}
+        <div className="form-actions span-2">
+          <div className="button-row end">
+            {!isNew && (
+              <button className="button danger" type="button" disabled={protectedLocal} onClick={remove}>
+                Quitar local
+              </button>
+            )}
+            <button className="button success" type="submit">
+              Guardar con autorizacion
+            </button>
+          </div>
+        </div>
+      </form>
     </section>
   );
 }

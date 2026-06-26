@@ -475,6 +475,12 @@ input:disabled {
   gap: 18px;
 }
 
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .admin-header h2 {
   margin-bottom: 4px;
 }
@@ -482,6 +488,16 @@ input:disabled {
 .admin-header span {
   color: var(--muted);
   font-weight: 900;
+}
+
+.editor-card {
+  width: min(980px, 100%);
+  display: grid;
+  gap: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  padding: 30px 34px;
 }
 
 .side-notes {
@@ -526,6 +542,21 @@ input:disabled {
 
 .data-table tr:nth-child(even) td {
   background: #f6f9fd;
+}
+
+.data-table tr.status-active td {
+  background: #f1fbf4;
+  border-bottom-color: #b8dfc3;
+}
+
+.data-table tr.status-maintenance td {
+  background: #fff7e8;
+  border-bottom-color: #e8c987;
+}
+
+.data-table tr.status-inactive td {
+  background: #f6f7f9;
+  color: #6b7280;
 }
 
 .data-table input,
@@ -651,6 +682,11 @@ input:disabled {
   }
 
   .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-header-actions {
     align-items: flex-start;
     flex-direction: column;
   }
