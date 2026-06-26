@@ -1,6 +1,4 @@
-import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { hasSupabaseConfig, supabase } from "./lib/supabase";
+import { FormEvent, ReactNode, useEffect, useState } from "react";
 
 type Role = "CAJERO" | "ENCARGADO" | "ADMINISTRADOR";
 type BalanceStatus = "EN_PROCESO" | "CERRADO" | "AJUSTADO" | "ANULADO";
@@ -30,6 +28,7 @@ type User = {
   id: string;
   name: string;
   username: string;
+  password: string;
   role: Role;
   status: "ACTIVO" | "INACTIVO";
   localIds: string[];
@@ -137,14 +136,6 @@ type AuditEvent = {
   createdAt: string;
 };
 
-type PoseidonProfile = {
-  user_id: string;
-  display_name: string;
-  role: Role;
-  status: "ACTIVO" | "INACTIVO";
-  local_ids: string[];
-};
-
 type AppData = {
   users: User[];
   locals: Local[];
@@ -159,7 +150,47 @@ type AppData = {
 
 const STORAGE_KEY = "poseidon-sistema-gestion-v2";
 const POSEIDON_LOCAL_ID = "local-poseidon";
-const LEGACY_DEMO_USERS = new Set(["user-cajero1", "user-cajero2", "user-encargado", "user-admin"]);
+
+function createDemoUsers(localId: string): User[] {
+  return [
+    {
+      id: "user-cajero1",
+      name: "Cajero 1",
+      username: "cajero1",
+      password: "cajero123",
+      role: "CAJERO",
+      status: "ACTIVO",
+      localIds: [localId],
+    },
+    {
+      id: "user-cajero2",
+      name: "Cajero 2",
+      username: "cajero2",
+      password: "cajero123",
+      role: "CAJERO",
+      status: "ACTIVO",
+      localIds: [localId],
+    },
+    {
+      id: "user-encargado",
+      name: "Encargado",
+      username: "encargado",
+      password: "encargado123",
+      role: "ENCARGADO",
+      status: "ACTIVO",
+      localIds: [localId],
+    },
+    {
+      id: "user-admin",
+      name: "Administrador",
+      username: "admin",
+      password: "admin123",
+      role: "ADMINISTRADOR",
+      status: "ACTIVO",
+      localIds: [localId],
+    },
+  ];
+}
 
 const roleLabels: Record<Role, string> = {
   CAJERO: "Cajero",
@@ -190,7 +221,7 @@ function createSeedData(): AppData {
   const baseNames = ["Poseidon Azul", "Poseidon Roja", "Fondo 3"];
 
   return {
-    users: [],
+    users: createDemoUsers(local.id),
     locals: [local],
     machines: Array.from({ length: 3 }, (_, index) => ({
       id: `machine-${index + 1}`,
@@ -225,7 +256,9 @@ function readData(): AppData {
 function normalizeData(data: AppData): AppData {
   const machines = data.machines.slice(0, 3);
   const machineIds = new Set(machines.map((machine) => machine.id));
-  const users = data.users.filter((item) => !LEGACY_DEMO_USERS.has(item.id));
+  const demoUsers = createDemoUsers(POSEIDON_LOCAL_ID);
+  const existingUserIds = new Set(data.users.map((item) => item.id));
+  const users = [...demoUsers.filter((item) => !existingUserIds.has(item.id)), ...data.users];
 
   return {
     ...data,
@@ -356,155 +389,16 @@ function App() {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
-  const [supabaseStatus, setSupabaseStatus] = useState("Sin configurar");
-  const [cloudReady, setCloudReady] = useState(false);
-  const saveTimer = useRef<number | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    if (!supabase || !user || !cloudReady) return;
-    const client = supabase;
-
-    if (saveTimer.current) window.clearTimeout(saveTimer.current);
-    saveTimer.current = window.setTimeout(() => {
-      client
-        .from("poseidon_app_state")
-        .update({
-          data,
-          updated_by: user.id,
-        })
-        .eq("id", "main")
-        .then(({ error }) => {
-          setSupabaseStatus(error ? "Error al guardar" : "Conectado");
-        });
-    }, 650);
-  }, [data, user, cloudReady]);
-
-  useEffect(() => {
-    if (!hasSupabaseConfig || !supabase) {
-      setSupabaseStatus("Sin configurar");
-      return;
-    }
-
-    supabase.auth.getSession().then(({ data: sessionData, error }) => {
-      if (error) {
-        setSupabaseStatus("Revisar config");
-        return;
-      }
-      if (sessionData.session?.user) {
-        loadAuthenticatedUser(sessionData.session.user);
-      } else {
-        setSupabaseStatus("Esperando login");
-      }
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        loadAuthenticatedUser(session.user);
-      } else {
-        setUser(null);
-        setCloudReady(false);
-        setSupabaseStatus("Esperando login");
-      }
-    });
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
+  }, [data]);
 
   const activeLocal = data.locals.find((local) => local.id === POSEIDON_LOCAL_ID) ?? data.locals[0];
   const openBalance = data.balances.find((balance) => balance.localId === activeLocal.id && balance.status === "EN_PROCESO");
 
   const patchData = (updater: (current: AppData) => AppData) => {
     setData((current) => updater(current));
-  };
-
-  const profileToUser = (profile: PoseidonProfile, authUser: SupabaseUser): User => ({
-    id: profile.user_id,
-    name: profile.display_name,
-    username: authUser.email ?? profile.display_name,
-    role: profile.role,
-    status: profile.status,
-    localIds: profile.local_ids ?? [POSEIDON_LOCAL_ID],
-  });
-
-  const ensureProfile = async (authUser: SupabaseUser, displayName?: string): Promise<User | null> => {
-    if (!supabase) return null;
-
-    const existing = await supabase
-      .from("poseidon_profiles")
-      .select("user_id, display_name, role, status, local_ids")
-      .eq("user_id", authUser.id)
-      .maybeSingle();
-
-    if (existing.data) return profileToUser(existing.data as PoseidonProfile, authUser);
-
-    const baseName = displayName?.trim() || authUser.email?.split("@")[0] || "Usuario";
-    const adminInsert = await supabase
-      .from("poseidon_profiles")
-      .insert({
-        user_id: authUser.id,
-        display_name: baseName,
-        role: "ADMINISTRADOR",
-        status: "ACTIVO",
-        local_ids: [POSEIDON_LOCAL_ID],
-      })
-      .select("user_id, display_name, role, status, local_ids")
-      .single();
-
-    if (adminInsert.data) return profileToUser(adminInsert.data as PoseidonProfile, authUser);
-
-    const cashierInsert = await supabase
-      .from("poseidon_profiles")
-      .insert({
-        user_id: authUser.id,
-        display_name: baseName,
-        role: "CAJERO",
-        status: "ACTIVO",
-        local_ids: [POSEIDON_LOCAL_ID],
-      })
-      .select("user_id, display_name, role, status, local_ids")
-      .single();
-
-    if (cashierInsert.data) return profileToUser(cashierInsert.data as PoseidonProfile, authUser);
-
-    setMessage(cashierInsert.error?.message ?? adminInsert.error?.message ?? "No se pudo crear el perfil.");
-    return null;
-  };
-
-  const loadCloudData = async (currentUser: User) => {
-    if (!supabase) return;
-    setSupabaseStatus("Cargando nube");
-    const result = await supabase.from("poseidon_app_state").select("data").eq("id", "main").maybeSingle();
-    const nextData = result.data?.data ? normalizeData(result.data.data as AppData) : createSeedData();
-    const withCurrentUser = {
-      ...nextData,
-      users: [
-        ...nextData.users.filter((item) => item.id !== currentUser.id),
-        currentUser,
-      ],
-    };
-
-    setData(withCurrentUser);
-
-    if (!result.data) {
-      await supabase.from("poseidon_app_state").insert({
-        id: "main",
-        data: withCurrentUser,
-        created_by: currentUser.id,
-        updated_by: currentUser.id,
-      });
-    }
-
-    setCloudReady(true);
-    setSupabaseStatus(result.error ? "Fallback local" : "Conectado");
-  };
-
-  const loadAuthenticatedUser = async (authUser: SupabaseUser, displayName?: string) => {
-    const nextUser = await ensureProfile(authUser, displayName);
-    if (!nextUser) return;
-    setUser(nextUser);
-    setScreen("panel");
-    await loadCloudData(nextUser);
   };
 
   const audit = (
@@ -541,54 +435,25 @@ function App() {
     setScreen("panel");
   };
 
-  const login = async (email: string, password: string) => {
-    if (!supabase) {
-      setMessage("Supabase no esta configurado.");
+  const login = (username: string, password: string) => {
+    const normalized = username.trim().toLowerCase();
+    const aliases: Record<string, string> = {
+      cajero: "cajero1",
+      administrador: "admin",
+    };
+    const resolved = aliases[normalized] ?? normalized;
+    const nextUser = data.users.find(
+      (item) => item.username.toLowerCase() === resolved && item.password === password && item.status === "ACTIVO",
+    );
+
+    if (!nextUser) {
+      setMessage("Usuario, contrasena o estado invalido.");
       return;
     }
 
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-
-    if (error || !authData.user) {
-      setMessage(error?.message ?? "No se pudo iniciar sesion.");
-      return;
-    }
-
+    setUser(nextUser);
     setMessage("");
-    await loadAuthenticatedUser(authData.user);
-  };
-
-  const register = async (email: string, password: string, displayName: string) => {
-    if (!supabase) {
-      setMessage("Supabase no esta configurado.");
-      return;
-    }
-
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: {
-          display_name: displayName,
-        },
-      },
-    });
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    if (!authData.session || !authData.user) {
-      setMessage("Usuario creado. Revisa tu email si Supabase pide confirmacion antes de entrar.");
-      return;
-    }
-
-    setMessage("");
-    await loadAuthenticatedUser(authData.user, displayName);
+    setScreen("panel");
   };
 
   if (screen === "welcome") {
@@ -596,7 +461,7 @@ function App() {
   }
 
   if (screen === "login" || !user) {
-    return <Login onBack={() => setScreen("welcome")} onLogin={login} onRegister={register} message={message} />;
+    return <Login onBack={() => setScreen("welcome")} onLogin={login} message={message} />;
   }
 
   return (
@@ -606,9 +471,7 @@ function App() {
       screen={screen}
       setScreen={setScreen}
       onLogout={() => {
-        supabase?.auth.signOut();
         setUser(null);
-        setCloudReady(false);
         setScreen("login");
       }}
     >
@@ -619,7 +482,7 @@ function App() {
           user={user}
           local={activeLocal}
           openBalance={openBalance}
-          supabaseStatus={supabaseStatus}
+          modeStatus="Prueba local"
           setScreen={setScreen}
           resetDemo={resetDemo}
         />
@@ -724,7 +587,7 @@ function App() {
         />
       )}
       {screen === "reports" && <Reports data={data} user={user} />}
-      {screen === "admin-users" && <AdminUsers data={data} />}
+      {screen === "admin-users" && <AdminUsers data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-machines" && <AdminMachines data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-locals" && <AdminLocals data={data} patchData={patchData} audit={audit} />}
       {screen === "differences" && <Differences data={data} patchData={patchData} audit={audit} />}
@@ -755,65 +618,40 @@ function Welcome({ onEnter }: { onEnter: () => void }) {
   );
 }
 
-function Login({
-  onBack,
-  onLogin,
-  onRegister,
-  message,
-}: {
-  onBack: () => void;
-  onLogin: (email: string, password: string) => void;
-  onRegister: (email: string, password: string, displayName: string) => void;
-  message: string;
-}) {
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
+function Login({ onBack, onLogin, message }: { onBack: () => void; onLogin: (username: string, password: string) => void; message: string }) {
+  const [username, setUsername] = useState("cajero1");
+  const [password, setPassword] = useState("cajero123");
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (mode === "register") {
-      onRegister(email, password, displayName);
-      return;
-    }
-    onLogin(email, password);
+    onLogin(username, password);
   };
 
   return (
     <main className="login-screen">
       <header className="login-top">POSEIDON</header>
       <section className="login-card">
-        <h1>{mode === "login" ? "Ingreso al sistema" : "Crear cuenta"}</h1>
+        <h1>Ingreso al sistema</h1>
         <form onSubmit={submit} className="form-stack">
-          {mode === "register" && (
-            <label>
-              Nombre
-              <input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required />
-            </label>
-          )}
           <label>
-            Email
-            <input value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" type="email" required />
+            Usuario
+            <input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" />
           </label>
           <label>
             Contrasena
-            <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={6} />
+            <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete="current-password" />
           </label>
           <div className="button-row">
             <button className="button primary" type="submit">
-              {mode === "login" ? "Iniciar sesion" : "Crear cuenta"}
+              Iniciar sesion
             </button>
             <button className="button muted" type="button" onClick={onBack}>
               Volver
             </button>
           </div>
-          <button className="link-button centered" type="button" onClick={() => setMode(mode === "login" ? "register" : "login")}>
-            {mode === "login" ? "Crear usuario con Supabase Auth" : "Ya tengo usuario"}
-          </button>
         </form>
         <p className={message ? "validation error" : "validation"}>
-          {message || "El primer usuario registrado queda como administrador. Los siguientes entran como cajero."}
+          {message || "Usuarios: cajero1, cajero2, encargado, admin."}
         </p>
       </section>
     </main>
@@ -930,7 +768,7 @@ function Panel({
   user,
   local,
   openBalance,
-  supabaseStatus,
+  modeStatus,
   setScreen,
   resetDemo,
 }: {
@@ -938,7 +776,7 @@ function Panel({
   user: User;
   local: Local;
   openBalance: Balance | undefined;
-  supabaseStatus: string;
+  modeStatus: string;
   setScreen: (screen: Screen) => void;
   resetDemo: () => void;
 }) {
@@ -956,7 +794,7 @@ function Panel({
         </div>
         <h2>Panel administrativo</h2>
         <div className="card-grid three">
-          <ActionCard title="Usuarios" text="Cuentas creadas con Supabase Auth" onClick={() => setScreen("admin-users")} />
+          <ActionCard title="Usuarios" text="Cajero, encargado, admin" onClick={() => setScreen("admin-users")} />
           <ActionCard title="Maquinas" text="ID unico, activa, mantenimiento" onClick={() => setScreen("admin-machines")} />
           <ActionCard title="Auditoria" text="Cambios sensibles e historial" onClick={() => setScreen("audit")} />
         </div>
@@ -997,7 +835,7 @@ function Panel({
           lines={[
             `Efectivo esperado: ${money(totals?.expectedCash)}`,
             `Diferencia: ${money(activeBalance?.cashDifference ?? totals?.difference)}`,
-            `Supabase: ${supabaseStatus}`,
+            `Modo: ${modeStatus}`,
           ]}
         />
       </div>
@@ -1675,46 +1513,32 @@ function Reports({ data, user }: { data: AppData; user: User }) {
   );
 }
 
-function AdminUsers({ data }: { data: AppData }) {
-  return (
-    <div className="admin-layout">
-      <section className="form-card">
-        <h2>Usuarios</h2>
-        <p className="helper">
-          Las cuentas reales se crean desde la pantalla de login con Supabase Auth. El primer usuario registrado queda
-          como administrador y los siguientes ingresan como cajero.
-        </p>
-      </section>
-      <section className="table-wrap grow">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Usuario</th>
-              <th>Rol</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.users.length ? (
-              data.users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.username}</td>
-                  <td>{roleLabels[user.role]}</td>
-                  <td>{user.status}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4}>Todavia no hay usuarios cargados en esta sesion.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
-    </div>
-  );
+function AdminUsers({
+  data,
+  patchData,
+  audit,
+}: {
+  data: AppData;
+  patchData: (updater: (current: AppData) => AppData) => void;
+  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
+}) {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const user: User = {
+      id: uid("user"),
+      name: String(form.get("name")),
+      username: String(form.get("username")),
+      password: String(form.get("password") || "poseidon123"),
+      role: String(form.get("role")) as Role,
+      status: "ACTIVO",
+      localIds: [POSEIDON_LOCAL_ID],
+    };
+    patchData((current) => audit({ ...current, users: [...current.users, user] }, "Crear usuario", "Usuario", user.id, "", user));
+    event.currentTarget.reset();
+  };
+
+  return <AdminTable title="Usuarios" data={data} rows={data.users.map((user) => [user.name, user.username, roleLabels[user.role], user.status])} form={submit} fields={["name", "username", "password"]} selectRole />;
 }
 
 function AdminMachines({
@@ -1805,7 +1629,7 @@ function AdminTable({
           {fields.map((field) => (
             <label key={field}>
               {field}
-              <input name={field} required />
+              <input name={field} required={field !== "password"} />
             </label>
           ))}
           {selectRole && (

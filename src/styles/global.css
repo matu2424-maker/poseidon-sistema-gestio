@@ -528,11 +528,6 @@ input:disabled {
   cursor: pointer;
 }
 
-.link-button.centered {
-  justify-self: center;
-  text-align: center;
-}
-
 .empty-state {
   max-width: 560px;
   padding: 34px;
