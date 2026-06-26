@@ -57,14 +57,21 @@ pnpm run build
 - Pantalla inicial y login.
 - Panel por rol.
 - Apertura / continuacion de caja diaria.
-- Grilla de contadores IN/OUT con autoguardado. La demo inicial queda con 3 maquinas para prueba rapida.
+- Grilla de contadores IN/OUT con guardado manual por boton. La demo inicial queda con 3 maquinas para prueba rapida.
 - Gastos, transferencias y regalos.
-- Cierre de caja con calculos obligatorios.
+- Retiros y aportes de capital.
+- Cierre de caja con calculos economicos y financieros separados.
 - Diferencias de caja por estado.
 - Reportes y exportacion Excel-compatible.
-- Administracion inicial de usuarios, locales y maquinas.
+- Administracion de usuarios, locales, maquinas, taller, categorias de gastos, personal, liquidacion de sueldos, clientes, papelera y cuentas corrientes.
 - Auditoria de cambios sensibles.
 - Cierre periodico inicial.
+
+## Documentacion viva
+
+- Reglas funcionales actuales: `docs/POSEIDON_FUNCIONAMIENTO.md`.
+- Resumen para retomar trabajo: `docs/RETOMAR_MANANA.md`.
+- Instrucciones para Codex/agentes: `AGENTS.md`.
 
 ## Vercel
 
@@ -82,6 +89,7 @@ Output Directory: dist
 2. Abrir caja con fecha operativa libre.
 3. Cargar algunos contadores.
 4. Registrar gasto, transferencia y regalo.
-5. Cerrar caja y exportar Excel desde Reportes.
-6. Entrar como `admin` y revisar reportes, auditoria y administracion.
-7. Ejecutar `pnpm run build`.
+5. Registrar sueldo, retiro o aporte si corresponde.
+6. Cerrar caja y revisar resumen.
+7. Entrar como `admin` y revisar reportes, auditoria y administracion.
+8. Ejecutar `pnpm run build`.
