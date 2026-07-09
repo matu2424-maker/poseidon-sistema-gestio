@@ -29,6 +29,9 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 - Al cambiar a cajero conserva usuario real y registra funcion usada.
 - Puede revisar diferencias, gastos, cuentas corrientes, cierres periodicos, personal, salarios, clientes, reportes y auditoria.
 - En Diferencias, el encargado gestiona desde una pantalla de control con filtros y ventana flotante de detalle, no con formularios largos dentro de la tabla.
+- Control de gastos vive en `src/features/manager/Expenses.tsx`.
+- En Control de gastos la tabla permite ordenar por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision.
+- Revisar, observar o anular un gasto queda auditado; anular no borra el movimiento.
 
 ## Calculos mensuales
 

@@ -104,6 +104,7 @@ pnpm run build
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final y sincronizacion de diferencias/cuentas.
 - `src/features/cashier/Movements.tsx`: gastos, transferencias, regalos, salarios desde caja, retiros/aportes y clientes del cajero.
 - `src/features/manager/Differences.tsx`: pantalla de diferencias de caja.
+- `src/features/manager/Expenses.tsx`: control de gastos del encargado/admin.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios y detalle de empleado.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
 - `src/features/admin/Staff.tsx`: personal, editor de personal y papelera.
@@ -196,7 +197,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios y categorias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios y categorias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 

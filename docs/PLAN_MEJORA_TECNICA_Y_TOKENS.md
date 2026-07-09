@@ -57,6 +57,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Staff.tsx`
 - `src/features/admin/Settings.tsx`
+- `src/features/manager/Expenses.tsx`
 
 ## Proximos cortes recomendados
 
@@ -102,6 +103,11 @@ Ya salieron de `src/App.tsx`:
    - Estado: implementado para usuarios y categorias/subcategorias de gastos.
    - Mantiene tablas ordenables, selector de columnas para usuarios y auditoria de altas/cambios.
    - Referencias: `CODEX_ADMINISTRACION`, modulos 08/10/12.
+
+10. `src/features/manager/Expenses.tsx`
+   - Estado: implementado para control de gastos de encargado/admin.
+   - Mantiene detalle modal, revision, observacion, anulacion auditada y ordenamiento por todas las columnas visibles de datos.
+   - Referencias: `CODEX_ENCARGADO`, modulos 04/07/11/12.
 
 ## Validacion obligatoria por corte
 

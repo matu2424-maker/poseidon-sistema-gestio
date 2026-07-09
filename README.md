@@ -220,7 +220,7 @@ src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
 src/components/ui.tsx          Componentes compartidos: tarjetas, modales, botones basicos y selector de columnas
 src/features/cashier/          Pantallas extraidas de caja diaria y resumen
-src/features/manager/          Pantallas extraidas de encargado/control
+src/features/manager/          Diferencias y control de gastos del encargado/admin
 src/features/salaries/         Liquidacion de salarios y detalle de empleado
 src/features/admin/            Clientes, personal, papelera, usuarios y categorias extraidos
 src/styles/global.css          Estilos globales
@@ -264,6 +264,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `src/features/cashier/Counters.tsx`
 - `src/features/cashier/CloseCash.tsx`
 - `src/features/cashier/Movements.tsx`
+- `src/features/manager/Expenses.tsx`
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Staff.tsx`

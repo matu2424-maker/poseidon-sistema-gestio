@@ -64,7 +64,7 @@ src/features/cashier/
 src/features/manager/
   ManagerPanel.tsx
   Differences.tsx
-  ManagerExpenses.tsx
+  Expenses.tsx
   PeriodicClosures.tsx
 
 src/features/accounts/
@@ -248,6 +248,14 @@ Riesgo medio/alto porque personal se usa en salarios, pagos desde caja, historia
 Estado: implementado en `src/features/admin/Settings.tsx` y `src/components/ui.tsx`.
 
 Riesgo medio porque usuarios impactan permisos/auditoria y categorias de gastos impactan carga de gastos desde cajero y revision por encargado. Antes de modificar revisar `CODEX_ADMINISTRACION`, modulo 08, modulo 04 y modulo 12.
+
+### Corte 14: control de gastos del encargado
+
+- `Expenses.tsx`: `ManagerExpenses`.
+
+Estado: implementado en `src/features/manager/Expenses.tsx`.
+
+Riesgo medio porque revisar/anular gastos impacta caja, cuentas corrientes, auditoria y reportes. La tabla queda ordenable por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision. Antes de modificar revisar `CODEX_ENCARGADO`, modulo 04, modulo 07, modulo 11 y modulo 12.
 
 ## Validacion por corte
 

@@ -1,6 +1,6 @@
 # Contexto Codex - Encargado
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar panel del encargado, diferencias, control de gastos, cuentas corrientes o cierres periodicos. Referencias asociadas:
 
@@ -15,7 +15,8 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 
 ## Codigo actual
 
-- Panel, menu y pantallas de encargado siguen en `src/App.tsx`.
+- Panel y menu de encargado siguen en `src/App.tsx`.
+- Control de gastos vive en `src/features/manager/Expenses.tsx`.
 - Diferencias usan helpers de `src/lib/differences.ts`.
 - Movimientos de cuenta usan `src/lib/accountMovements.ts`.
 - Saldos de local usan `src/lib/currentAccounts.ts`.
@@ -32,7 +33,7 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 ## Asociaciones
 
 - Diferencias impactan cuentas local efectivo/banco.
-- Control de gastos impacta caja, cuenta local efectivo y auditoria.
+- Control de gastos impacta caja, cuenta local efectivo y auditoria. Su tabla debe ordenar por todas las columnas visibles de datos.
 - Cuentas corrientes deben permitir rastrear movimientos hasta la recaudacion.
 - Salarios se revisan en `CODEX_SALARIOS`, aunque el encargado pueda gestionarlos.
 

@@ -8,6 +8,8 @@
 - Comprobante guarda solo metadatos.
 - Se pueden eliminar/anular antes de cerrar caja.
 - Categorias y subcategorias se definen desde administrador.
+- Encargado/admin revisan gastos en `Control de gastos`, pantalla ubicada en `src/features/manager/Expenses.tsx`.
+- La tabla de control permite ordenar por todas las columnas visibles de datos.
 
 ## Transferencias
 
