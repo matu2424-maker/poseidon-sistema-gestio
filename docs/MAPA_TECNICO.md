@@ -21,7 +21,9 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
 - `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
+- `src/lib/clients.ts`: documento de clientes, normalizacion, busqueda y duplicados.
 - `src/lib/export.ts`: descarga de archivos y exportacion CSV.
+- `src/lib/files.ts`: metadatos locales de archivos subidos.
 - `src/lib/storage.ts`: lectura/escritura de `localStorage`, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
 - `src/lib/accountMovements.ts`: movimientos contables por origen y totales corridos desde movimientos.
@@ -39,6 +41,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final, retiros finales y sincronizacion de diferencias/cuentas.
 - `src/features/manager/Differences.tsx`: pantalla de gestion e historial de diferencias.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios, detalle de empleado, cuenta personal y cierres de liquidacion.
+- `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido por administrador/cajero.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons` y `Modal`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
@@ -114,7 +117,9 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/money.ts` - implementado.
 - `src/lib/dates.ts` - implementado.
 - `src/lib/audit.ts` - implementado: construccion de eventos con usuario real y funcion usada.
+- `src/lib/clients.ts` - implementado.
 - `src/lib/export.ts` - implementado.
+- `src/lib/files.ts` - implementado.
 - `src/lib/storage.ts` - implementado: almacenamiento principal, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts` - implementado: ids, cuentas y saldos.
 - `src/lib/accountMovements.ts` - implementado: movimientos por origen y saldo corrido de movimientos.
@@ -133,7 +138,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/cashier/Counters.tsx` - implementado.
 - `src/features/cashier/CloseCash.tsx` - implementado.
 - `src/features/salaries/SalarySettlements.tsx` - implementado.
-- `src/features/admin/Clients.tsx`
+- `src/features/admin/Clients.tsx` - implementado.
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
 
@@ -178,7 +183,8 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `Gifts`: regalos con selector de clientes.
 - `CashierSalaryPayments`: carga simple de salarios.
 - `CapitalMovements`: retiros y aportes.
-- `CashierClients` / `AdminClients`: clientes.
+- `CashierClients`: clientes desde cajero. Sigue en `src/App.tsx`.
+- `AdminClients`: clientes administrativos. Vive en `src/features/admin/Clients.tsx`.
 - `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
 - `Reports`: reportes/exportaciones.
 - `AdminCurrentAccounts`: cuentas corrientes.

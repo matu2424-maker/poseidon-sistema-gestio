@@ -87,8 +87,8 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 
 - `src/types.ts` contiene los tipos principales del sistema.
 - `src/App.tsx` sigue concentrando la mayor parte de pantallas y acciones de UI, pero reglas compartidas ya viven en `src/types.ts` y `src/lib/`.
-- Ya salieron de `src/App.tsx`: auditoria, storage, ordenamiento, componentes UI compartidos, `src/features/manager/Differences.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx` y `src/features/salaries/SalarySettlements.tsx`.
-- Los siguientes destinos de refactor siguen pendientes: `src/features/admin/Clients.tsx`, movimientos operativos del cajero y administracion general.
+- Ya salieron de `src/App.tsx`: auditoria, storage, ordenamiento, helpers de clientes/archivos, componentes UI compartidos, `src/features/manager/Differences.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx`, `src/features/salaries/SalarySettlements.tsx` y `src/features/admin/Clients.tsx`.
+- Los siguientes destinos de refactor siguen pendientes: movimientos operativos del cajero, personal/papelera y administracion general.
 - `docs/MAPA_TECNICO.md` documenta el mapa de pantallas, clases CSS principales, calculos y deuda tecnica actual.
 - `src/components/WelcomeScreen.tsx` existe como componente heredado/no conectado al flujo principal actual.
 

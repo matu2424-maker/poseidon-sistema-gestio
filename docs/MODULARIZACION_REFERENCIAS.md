@@ -38,7 +38,9 @@ src/lib/
   ids.ts
   machineHistory.ts
   audit.ts
+  clients.ts
   export.ts
+  files.ts
   people.ts
   storage.ts
   sorting.ts
@@ -214,6 +216,17 @@ Riesgo bajo porque conserva clases CSS y estructura visual existente.
 Estado: implementado en `src/features/salaries/SalarySettlements.tsx`, `src/lib/export.ts` y `src/lib/people.ts`.
 
 Riesgo medio/alto porque salarios cruza personal, caja, cuentas corrientes, auditoria y cierres de liquidacion. Antes de modificar revisar `CODEX_SALARIOS`, modulos 10/11 y reglas contables.
+
+### Corte 10: clientes administrativos
+
+- `Clients.tsx`: `AdminClients` y `ClientEditor`.
+- `clients.ts`: documento, busqueda y duplicados.
+- `files.ts`: metadatos locales de archivos.
+- `ids.ts`: IDs cortos compartidos.
+
+Estado: implementado en `src/features/admin/Clients.tsx`, `src/lib/clients.ts`, `src/lib/files.ts` y `src/lib/ids.ts`.
+
+Riesgo medio porque clientes se usan en regalos, transferencias y papelera. `CashierClients` queda en `src/App.tsx` hasta el corte de movimientos/panel cajero.
 
 ## Validacion por corte
 

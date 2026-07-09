@@ -1,6 +1,6 @@
 # Contexto Codex - Clientes y personal
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar clientes, personal, papelera, documentos, fotos, datos laborales o relaciones con regalos, transferencias y salarios. Referencias asociadas:
 
@@ -13,7 +13,10 @@ Leer este contexto antes de modificar clientes, personal, papelera, documentos, 
 
 ## Codigo actual
 
-- `AdminClients`, `ClientEditor`, `CashierClients`, `AdminStaff`, `StaffEditor` y `AdminTrash` siguen en `src/App.tsx`.
+- `AdminClients` y `ClientEditor` viven en `src/features/admin/Clients.tsx`.
+- `CashierClients`, `AdminStaff`, `StaffEditor` y `AdminTrash` siguen en `src/App.tsx`.
+- Reglas de documento de clientes viven en `src/lib/clients.ts`.
+- Metadatos de archivos viven en `src/lib/files.ts`.
 - Reglas de salario y periodos trabajados estan en `src/lib/salaryRules.ts`.
 - Pagos de salario y cuenta personal usan `src/lib/accountMovements.ts`.
 

@@ -35,7 +35,9 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/ids.ts`
 - `src/lib/machineHistory.ts`
 - `src/lib/audit.ts`
+- `src/lib/clients.ts`
 - `src/lib/export.ts`
+- `src/lib/files.ts`
 - `src/lib/people.ts`
 - `src/lib/storage.ts`
 - `src/lib/currentAccounts.ts`
@@ -51,6 +53,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/cashier/Counters.tsx`
 - `src/features/cashier/CloseCash.tsx`
 - `src/features/salaries/SalarySettlements.tsx`
+- `src/features/admin/Clients.tsx`
 
 ## Proximos cortes recomendados
 
@@ -79,7 +82,8 @@ Ya salieron de `src/App.tsx`:
    - Referencias: `CODEX_SALARIOS`, modulos 10/11/12.
 
 6. `src/features/admin/Clients.tsx`
-   - Extraer clientes admin y clientes cajero cuando convenga.
+   - Estado: implementado para clientes administrativos y editor compartido.
+   - Queda pendiente extraer `CashierClients` cuando se aborde movimientos/panel cajero.
    - Mantener documento como identificador, foto/cedula como metadata local y papelera.
 
 7. Movimientos de cajero
