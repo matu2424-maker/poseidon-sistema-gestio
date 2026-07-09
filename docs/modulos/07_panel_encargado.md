@@ -33,6 +33,8 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 - En Control de gastos la tabla permite ordenar por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision.
 - Revisar, observar o anular un gasto queda auditado; anular no borra el movimiento.
 - Reportes vive en `src/features/reports/Reports.tsx` y comparte exportaciones desde `src/lib/export.ts`.
+- Cierre periodico vive en `src/features/reports/Periodic.tsx`.
+- En Cierre periodico, las tablas de cajas incluidas y cierres guardados son ordenables por columnas visibles.
 
 ## Calculos mensuales
 

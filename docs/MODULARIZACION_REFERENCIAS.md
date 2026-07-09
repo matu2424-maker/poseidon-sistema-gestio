@@ -90,6 +90,7 @@ src/features/audit/
 
 src/features/reports/
   Reports.tsx
+  Periodic.tsx
 ```
 
 ## Dependencias criticas
@@ -276,6 +277,14 @@ Riesgo bajo/medio porque es principalmente lectura, pero depende de que todos lo
 Estado: implementado en `src/features/reports/Reports.tsx` y `src/lib/export.ts`.
 
 Riesgo medio porque los reportes leen caja, maquinas, diferencias y exportaciones. La tabla de historial de cierres queda ordenable por ID, fecha, estado, efectivo esperado, declarado y diferencias. Antes de modificar revisar modulos 02/05/07/08 y reglas de tablas ordenables.
+
+### Corte 17: cierres periodicos
+
+- `Periodic.tsx`: cierre semanal, quincenal, mensual o por fechas.
+
+Estado: implementado en `src/features/reports/Periodic.tsx`.
+
+Riesgo medio/alto porque consolida cajas cerradas, diferencias, retiros/aportes, salidas y auditoria. Las tablas de cajas incluidas y cierres guardados quedan ordenables por columnas visibles de datos. Antes de modificar revisar modulos 05/07/08/12 y reglas contables.
 
 ## Validacion por corte
 

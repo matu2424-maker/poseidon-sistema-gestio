@@ -44,10 +44,9 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - `src/features/admin/Staff.tsx`: personal, historial salarial y papelera.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios.
 - `src/features/reports/Reports.tsx`: reportes iniciales y exportaciones.
+- `src/features/reports/Periodic.tsx`: cierres periodicos.
 - `src/components/ui.tsx`: componentes compartidos y selector de columnas.
 
 ## Refactor pendiente
 
 - Extraer locales, maquinas y taller manteniendo referencias a caja, contadores e historial.
-- Extraer auditoria como modulo propio.
-- Extraer cierres periodicos cuando se estabilice la salida/exportacion.

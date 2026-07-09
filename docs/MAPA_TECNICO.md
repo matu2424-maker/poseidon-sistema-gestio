@@ -48,6 +48,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
 - `src/features/audit/Audit.tsx`: bitacora general con ordenamiento por fecha, usuario, accion y entidad.
 - `src/features/reports/Reports.tsx`: reportes iniciales, exportaciones y tabla ordenable de cierres.
+- `src/features/reports/Periodic.tsx`: cierres periodicos, resumen por rango y cierres guardados.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
@@ -150,6 +151,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/admin/Settings.tsx` - implementado.
 - `src/features/audit/Audit.tsx` - implementado.
 - `src/features/reports/Reports.tsx` - implementado.
+- `src/features/reports/Periodic.tsx` - implementado.
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
 
@@ -209,7 +211,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `AdminLocalEditor`: alta/edicion/cierre/quitar local y asociar maquinas.
 - `Differences`: gestion de diferencias de caja. Vive en `src/features/manager/Differences.tsx`.
 - `Audit`: auditoria. Vive en `src/features/audit/Audit.tsx`.
-- `Periodic`: cierres periodicos.
+- `Periodic`: cierres periodicos. Vive en `src/features/reports/Periodic.tsx`.
 
 ## Calculos criticos
 

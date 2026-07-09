@@ -60,6 +60,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/manager/Expenses.tsx`
 - `src/features/audit/Audit.tsx`
 - `src/features/reports/Reports.tsx`
+- `src/features/reports/Periodic.tsx`
 
 ## Proximos cortes recomendados
 
@@ -99,7 +100,7 @@ Ya salieron de `src/App.tsx`:
 
 8. Administracion general
    - Estado: clientes, personal, papelera, usuarios y categorias ya extraidos.
-   - Extraer locales, maquinas, taller, auditoria y cierres periodicos.
+   - Extraer locales, maquinas, taller y administracion general restante.
 
 9. `src/features/admin/Settings.tsx`
    - Estado: implementado para usuarios y categorias/subcategorias de gastos.
@@ -121,6 +122,11 @@ Ya salieron de `src/App.tsx`:
    - `exportDailyExcel` vive en `src/lib/export.ts` junto con `exportCsv`.
    - Mantiene historial de cierres ordenable por columnas visibles de datos.
    - Referencias: modulos 07/08 y reglas de tablas ordenables.
+
+13. `src/features/reports/Periodic.tsx`
+   - Estado: implementado para cierres periodicos.
+   - Mantiene generacion/anulacion auditada y tablas ordenables de cajas incluidas y cierres guardados.
+   - Referencias: modulos 05/07/08/12 y reglas de tablas ordenables.
 
 ## Validacion obligatoria por corte
 

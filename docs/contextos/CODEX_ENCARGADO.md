@@ -17,6 +17,7 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 
 - Panel y menu de encargado siguen en `src/App.tsx`.
 - Control de gastos vive en `src/features/manager/Expenses.tsx`.
+- Cierre periodico vive en `src/features/reports/Periodic.tsx`.
 - Diferencias usan helpers de `src/lib/differences.ts`.
 - Movimientos de cuenta usan `src/lib/accountMovements.ts`.
 - Saldos de local usan `src/lib/currentAccounts.ts`.
