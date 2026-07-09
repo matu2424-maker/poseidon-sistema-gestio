@@ -220,6 +220,7 @@ src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
 src/components/ui.tsx          Componentes compartidos: tarjetas, modales, botones basicos y selector de columnas
 src/features/layout/           Pantalla inicial, login, layout lateral, layout cajero y navegacion base
+src/features/dashboard/        Paneles iniciales por rol y accesos rapidos
 src/features/accounts/         Cuentas corrientes y detalle de movimientos
 src/features/cashier/          Pantallas extraidas de caja diaria y resumen
 src/features/manager/          Diferencias y control de gastos del encargado/admin
@@ -263,6 +264,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `salaryRules.ts`
 - `src/components/ui.tsx`
 - `src/features/layout/AppShell.tsx`
+- `src/features/dashboard/RoleDashboard.tsx`
 - `src/features/accounts/CurrentAccounts.tsx`
 - `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
@@ -282,7 +284,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 Pendientes naturales:
 
-- Paneles iniciales por rol y helpers restantes de datos demo/normalizacion.
+- Helpers restantes de datos demo/normalizacion, si conviene separarlos para bajar contexto.
 
 ## Documentacion viva
 

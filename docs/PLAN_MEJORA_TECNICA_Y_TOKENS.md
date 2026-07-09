@@ -48,6 +48,7 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/sorting.ts`
 - `src/components/ui.tsx`
 - `src/features/layout/AppShell.tsx`
+- `src/features/dashboard/RoleDashboard.tsx`
 - `src/features/accounts/CurrentAccounts.tsx`
 - `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
@@ -138,9 +139,7 @@ Ya salieron de `src/App.tsx`:
 
 ## Pendientes despues del corte actual
 
-- Reducir `src/App.tsx` extrayendo:
-  - paneles iniciales por rol;
-  - helpers restantes de datos demo/normalizacion si conviene separarlos.
+- Reducir `src/App.tsx` extrayendo helpers restantes de datos demo/normalizacion si conviene separarlos.
 - Crear contextos cortos para esos cortes antes de mover codigo.
 - Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.
 

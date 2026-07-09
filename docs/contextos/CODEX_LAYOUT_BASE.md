@@ -18,7 +18,7 @@ Referencias asociadas:
 
 - Pantalla inicial, login, layout lateral de encargado/admin, layout del cajero y estado vacio operativo viven en `src/features/layout/AppShell.tsx`.
 - `src/App.tsx` conserva estado global, datos, persistencia, acciones y composicion de pantallas.
-- `Panel` sigue en `src/App.tsx` hasta un corte posterior porque cruza datos de caja, diferencias, cuentas y accesos por rol.
+- `Panel` vive en `src/features/dashboard/RoleDashboard.tsx` porque cruza datos de caja, diferencias, cuentas y accesos por rol.
 
 ## Reglas criticas
 

@@ -15,7 +15,8 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 
 ## Codigo actual
 
-- Panel y menu de encargado siguen en `src/App.tsx`.
+- Panel del encargado vive en `src/features/dashboard/RoleDashboard.tsx`.
+- Menu y layout del encargado viven en `src/features/layout/AppShell.tsx`.
 - Control de gastos vive en `src/features/manager/Expenses.tsx`.
 - Cierre periodico vive en `src/features/reports/Periodic.tsx`.
 - Diferencias usan helpers de `src/lib/differences.ts`.

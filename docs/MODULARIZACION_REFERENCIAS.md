@@ -56,6 +56,9 @@ src/components/
 src/features/layout/
   AppShell.tsx
 
+src/features/dashboard/
+  RoleDashboard.tsx
+
 src/features/cashier/
   OpenCash.tsx
   ClosedBalanceSummary.tsx
@@ -307,6 +310,14 @@ Riesgo medio porque concentra navegacion, rol efectivo, cambio a funcion Cajero 
 Estado: implementado en `src/features/accounts/CurrentAccounts.tsx`.
 
 Riesgo medio porque la pantalla lee movimientos de caja, diferencias, transferencias, salarios, retiros/aportes y saldos por cuenta. La tabla de movimientos queda ordenable por fecha, tipo, detalle, usuario, debito, credito y saldo. Antes de modificar revisar `CODEX_CUENTAS_CORRIENTES`, reglas contables y modulo 11.
+
+### Corte 21: paneles iniciales por rol
+
+- `RoleDashboard.tsx`: panel inicial de administrador, encargado y cajero, junto con las tarjetas de acceso rapido.
+
+Estado: implementado en `src/features/dashboard/RoleDashboard.tsx`.
+
+Riesgo medio porque el panel cruza caja abierta, diferencias, cuentas corrientes, resultado mensual, accesos por rol y reinicio demo. Antes de modificar revisar `CODEX_LAYOUT_BASE`, `CODEX_CAJA`, `CODEX_ENCARGADO`, modulos 01/07/08 y reglas visuales.
 
 ## Validacion por corte
 

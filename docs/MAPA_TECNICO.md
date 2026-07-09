@@ -186,7 +186,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `Login`: seleccion local de usuario sin password. Vive en `src/features/layout/AppShell.tsx`.
 - `Shell`: layout con barra lateral para encargado/admin. Vive en `src/features/layout/AppShell.tsx`.
 - `CashierWorkspace`: layout sin barra lateral para cajero. Vive en `src/features/layout/AppShell.tsx`.
-- `Panel`: panel inicial segun rol efectivo.
+- `Panel`: panel inicial segun rol efectivo. Vive en `src/features/dashboard/RoleDashboard.tsx`.
 - `OpenCash`: apertura y resumen de ultimas cajas. Vive en `src/features/cashier/OpenCash.tsx`.
 - `ClosedBalanceSummary`: resumen solo lectura de caja cerrada. Vive en `src/features/cashier/ClosedBalanceSummary.tsx`.
 - `Counters`: carga manual de IN/OUT. Vive en `src/features/cashier/Counters.tsx`.
