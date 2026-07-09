@@ -42,6 +42,7 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/differences.ts`
 - `src/lib/salaryRules.ts`
 - `src/lib/sorting.ts`
+- `src/components/ui.tsx`
 - `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
 - `src/features/cashier/ClosedBalanceSummary.tsx`
@@ -65,20 +66,24 @@ Ya salieron de `src/App.tsx`:
    - Mantiene la regla general de ordenar por cada columna visible, salvo columnas de acciones.
    - Evita duplicar helpers en pantallas administrativas, encargado y futuras extracciones.
 
-4. `src/features/salaries/SalarySettlements.tsx`
+4. `src/components/ui.tsx`
+   - Estado: implementado para tarjetas informativas, botones basicos de formulario y modales.
+   - Evita que cada modulo extraido copie el mismo markup visual.
+
+5. `src/features/salaries/SalarySettlements.tsx`
    - Extraer liquidacion de salarios y detalle de empleado.
    - Mantener reglas de periodo trabajado, salario base, adelantos, descuentos y cierre mensual.
    - Referencias: `CODEX_SALARIOS`, modulos 10/11/12.
 
-5. `src/features/admin/Clients.tsx`
+6. `src/features/admin/Clients.tsx`
    - Extraer clientes admin y clientes cajero cuando convenga.
    - Mantener documento como identificador, foto/cedula como metadata local y papelera.
 
-6. Movimientos de cajero
+7. Movimientos de cajero
    - Extraer gastos, transferencias, regalos, salarios, retiros/aportes y tablas auxiliares.
    - Mantener impacto contable y auditoria en helpers compartidos.
 
-7. Administracion general
+8. Administracion general
    - Extraer locales, maquinas, taller, personal, usuarios, categorias, auditoria y cierres periodicos.
 
 ## Validacion obligatoria por corte
@@ -96,9 +101,10 @@ Primero se extraen piezas que reducen mucho contexto y tienen reglas compartidas
 1. auditoria;
 2. storage;
 3. ordenamiento compartido;
-4. salarios;
-5. clientes;
-6. movimientos de cajero;
-7. administracion.
+4. componentes UI compartidos;
+5. salarios;
+6. clientes;
+7. movimientos de cajero;
+8. administracion.
 
 Esto deberia reducir el costo porque cada nueva tarea podra leer el contexto corto del modulo y 1-3 archivos concretos, no todo `App.tsx` ni todo el historial del chat.

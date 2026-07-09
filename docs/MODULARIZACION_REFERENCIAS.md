@@ -46,6 +46,9 @@ src/lib/
   salaryRules.ts
   validators.ts
 
+src/components/
+  ui.tsx
+
 src/features/cashier/
   CashierWorkspace.tsx
   OpenCash.tsx
@@ -183,13 +186,23 @@ Riesgo medio porque apertura y resumen dependen de saldos de cuentas, totales de
 
 Estado: implementado en `src/lib/audit.ts` y `src/lib/storage.ts`.
 
+Riesgo medio porque afecta arranque, demo, reset y trazabilidad.
+
 ### Corte 7: ordenamiento de tablas
 
 - `sorting.ts`: estado de ordenamiento, comparador compartido y texto indicador de direccion.
 
 Estado: implementado en `src/lib/sorting.ts`. Usado por `src/App.tsx` y `src/features/manager/Differences.tsx`; las proximas pantallas extraidas deben reutilizarlo para cumplir la regla de tablas ordenables.
 
-Riesgo medio porque afecta arranque, demo, reset y trazabilidad.
+Riesgo bajo/medio porque no cambia datos, pero afecta la consistencia visual y funcional de tablas.
+
+### Corte 8: componentes UI compartidos
+
+- `ui.tsx`: `InfoCard`, `FormButtons` y `Modal`.
+
+Estado: implementado en `src/components/ui.tsx`. Usado por `src/App.tsx`; las proximas pantallas extraidas deben reutilizarlo para no duplicar tarjetas, botones basicos ni modales.
+
+Riesgo bajo porque conserva clases CSS y estructura visual existente.
 
 ## Validacion por corte
 

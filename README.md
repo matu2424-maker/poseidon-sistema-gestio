@@ -218,6 +218,7 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 src/App.tsx                    Estado, pantallas y acciones de UI principales
 src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, auditoria, storage, presentacion, IDs, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
+src/components/ui.tsx          Componentes compartidos: tarjetas, modales y botones basicos
 src/features/cashier/          Pantallas extraidas de caja diaria y resumen
 src/features/manager/          Pantallas extraidas de encargado/control
 src/styles/global.css          Estilos globales
@@ -250,6 +251,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `ids.ts`
 - `machineHistory.ts`
 - `salaryRules.ts`
+- `src/components/ui.tsx`
 - `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
 - `src/features/cashier/ClosedBalanceSummary.tsx`

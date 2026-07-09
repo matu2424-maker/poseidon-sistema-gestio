@@ -36,8 +36,10 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final, retiros finales y sincronizacion de diferencias/cuentas.
 - `src/features/manager/Differences.tsx`: pantalla de gestion e historial de diferencias.
+- `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons` y `Modal`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
+- `src/components/ui.tsx`: componentes UI compartidos activos.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no usado por el flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
 - `docs/RETOMAR_MANANA.md`: resumen rapido para continuar.
@@ -119,6 +121,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/machineHistory.ts` - implementado.
 - `src/lib/salaryRules.ts` - implementado.
 - `src/lib/sorting.ts` - implementado.
+- `src/components/ui.tsx` - implementado.
 - `src/features/manager/Differences.tsx` - implementado.
 - `src/features/cashier/OpenCash.tsx` - implementado.
 - `src/features/cashier/ClosedBalanceSummary.tsx` - implementado.
