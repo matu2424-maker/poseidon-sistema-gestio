@@ -94,7 +94,6 @@ import {
 } from "./lib/clients";
 import { formatDateTime, formatTime, monthRange, nowIso, today } from "./lib/dates";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceActionImpact, differenceIsPending, pendingDifferenceCount } from "./lib/differences";
-import { downloadFile, exportCsv } from "./lib/export";
 import { fileMetaLabel, normalizeStoredFileMeta, readUploadFile } from "./lib/files";
 import { nextShortId, shortNumberId, uid } from "./lib/ids";
 import { machineHistoryEvent } from "./lib/machineHistory";
@@ -153,6 +152,7 @@ import { AdminClients, ClientEditor } from "./features/admin/Clients";
 import { AdminStaff, AdminTrash } from "./features/admin/Staff";
 import { AdminExpenseCategories, AdminUsers } from "./features/admin/Settings";
 import { Audit } from "./features/audit/Audit";
+import { Reports } from "./features/reports/Reports";
 import { ColumnChooser, FormButtons, InfoCard, Modal, type TableColumn } from "./components/ui";
 
 const LEGACY_POSEIDON_LOCAL_ID = "local-poseidon";
@@ -1475,90 +1475,6 @@ function normalizeData(data: AppData): AppData {
   };
 }
 
-function tableToRows(rows: string[][]) {
-  return rows
-    .map((row) => `<tr>${row.map((cell) => `<td>${String(cell).replace(/&/g, "&amp;")}</td>`).join("")}</tr>`)
-    .join("");
-}
-
-function exportDailyExcel(data: AppData, balance: Balance) {
-  const totals = totalsForBalance(data, balance.id);
-  const declaredBank = balance.declaredBank ?? balance.nextBankBase ?? 0;
-  const bankDifference = balance.bankDifference ?? 0;
-  const expectedBank = declaredBank - bankDifference;
-  const readings = data.readings.filter((reading) => reading.balanceId === balance.id);
-  const expenses = data.expenses.filter((expense) => expense.balanceId === balance.id);
-  const transfers = data.transfers.filter((transfer) => transfer.balanceId === balance.id);
-  const gifts = data.gifts.filter((gift) => gift.balanceId === balance.id);
-  const machineRows = readings.map((reading) => {
-    const machine = data.machines.find((item) => item.id === reading.machineId);
-    return [
-      machine?.visibleId ?? "",
-      machine?.name ?? "",
-      String(reading.inPrevious),
-      String(reading.inActual ?? ""),
-      String(reading.outPrevious),
-      String(reading.outActual ?? ""),
-      String(reading.result),
-      reading.status,
-      reading.observation,
-    ];
-  });
-
-  const html = `
-    <html><body>
-      <h1>Poseidon - Cierre diario ${balance.operatingDate}</h1>
-      <table border="1">${tableToRows([
-        ["Efectivo inicial", String(balance.initialFund)],
-        ["Banco inicial", String(balance.initialBankFund ?? 0)],
-        ["Apertura por", userDisplayName(data, balance.openedBy)],
-        ["Funcion apertura", balance.openedByRole ? roleLabels[balance.openedByRole] : ""],
-        ["Cierre por", userDisplayName(data, balance.closedBy)],
-        ["Funcion cierre", balance.closedByRole ? roleLabels[balance.closedByRole] : ""],
-        ["Total IN", String(totals.totalIn)],
-        ["Total OUT", String(totals.totalOut)],
-        ["Resultado maquinas", String(totals.resultMachines)],
-        ["Gastos", String(totals.totalExpenses)],
-        ["Salarios", String(totals.totalSalaries)],
-        ["Regalos efectivo", String(totals.giftCash)],
-        ["Regalos credito", String(totals.giftCredit)],
-        ["Transferencias", String(totals.totalTransfers)],
-        ["Retiros efectivo", String(totals.withdrawalsCash)],
-        ["Retiros transferencia", String(totals.withdrawalsBank)],
-        ["Aportes efectivo", String(totals.capitalContributionsCash)],
-        ["Aportes transferencia", String(totals.capitalContributionsBank)],
-        ["Efectivo esperado", String(totals.expectedCash)],
-        ["Efectivo declarado", String(balance.declaredCash ?? 0)],
-        ["Efectivo proxima caja", String(balance.nextBase ?? 0)],
-        ["Banco esperado", String(expectedBank)],
-        ["Banco declarado", String(declaredBank)],
-        ["Banco proxima caja", String(balance.nextBankBase ?? 0)],
-        ["Retiro final efectivo", String(balance.finalWithdrawalCash ?? 0)],
-        ["Retiro final banco", String(balance.finalWithdrawalBank ?? 0)],
-        ["Diferencia efectivo", String(balance.cashDifference ?? totals.difference)],
-        ["Diferencia banco", String(bankDifference)],
-      ])}</table>
-      <h2>Maquinas</h2>
-      <table border="1">${tableToRows([
-        ["ID", "Maquina", "IN anterior", "IN actual", "OUT anterior", "OUT actual", "Resultado", "Estado", "Obs."],
-        ...machineRows,
-      ])}</table>
-      <h2>Movimientos</h2>
-      <table border="1">${tableToRows([
-        ["Tipo", "Detalle", "Monto", "Estado"],
-        ...expenses.map((expense) => ["Gasto", `${expense.category} / ${expense.subcategory || "-"} - ${expense.description}`, String(expense.amount), expense.status]),
-        ...transfers.map((transfer) => ["Transferencia", `${transfer.name} - ${transfer.receipt}`, String(transfer.amount), transfer.status]),
-        ...gifts.map((gift) => ["Regalo", `${gift.type} - ${gift.description}`, String(gift.cashAmount + gift.creditAmount), gift.status]),
-        ...data.capitalMovements
-          .filter((movement) => movement.balanceId === balance.id)
-          .map((movement) => [movement.type, `${movement.person} - ${movement.medium} - ${movement.note}`, String(movement.amount), movement.status]),
-      ])}</table>
-    </body></html>
-  `;
-
-  downloadFile(`poseidon-cierre-${balance.operatingDate}.xls`, html, "application/vnd.ms-excel;charset=utf-8");
-}
-
 function App() {
   const [data, setData] = useState<AppData>(() => readData());
   const [screen, setScreen] = useState<Screen>("welcome");
@@ -2744,100 +2660,6 @@ function MovementList({
         </div>
       ))}
     </div>
-  );
-}
-
-function Reports({ data, user }: { data: AppData; user: User }) {
-  const closedBalances = data.balances.filter((balance) => balance.status === "CERRADO");
-  const latest = closedBalances[0];
-  const diffs = closedBalances.filter((balance) => (balance.cashDifference ?? 0) !== 0 || (balance.bankDifference ?? 0) !== 0);
-
-  return (
-    <>
-      <h2>Reportes iniciales</h2>
-      <div className="card-grid three">
-        <article className="action-card">
-          <h3>Cierre diario</h3>
-          <p>Exportacion Excel con caja, maquinas y movimientos</p>
-          <button className="button primary small" disabled={!latest} onClick={() => latest && exportDailyExcel(data, latest)}>
-            Exportar
-          </button>
-        </article>
-        <article className="action-card">
-          <h3>Maquinas</h3>
-          <p>Resultado por maquina e historial de lecturas</p>
-          <button
-            className="button primary small"
-            onClick={() =>
-              exportCsv("poseidon-maquinas.csv", [
-                ["ID", "Nombre", "Estado", "Ultimo IN", "Ultimo OUT"],
-                ...data.machines.map((machine) => [machine.visibleId, machine.name, machine.status, String(machine.lastIn), String(machine.lastOut)]),
-              ])
-            }
-          >
-            Exportar
-          </button>
-        </article>
-        <article className="action-card">
-          <h3>Diferencias</h3>
-          <p>Pendientes / revisadas con observacion</p>
-          <button
-            className="button primary small"
-            onClick={() =>
-              exportCsv("poseidon-diferencias.csv", [
-                ["Fecha", "Diferencia efectivo", "Diferencia banco", "Estado", "Observacion"],
-                ...diffs.map((balance) => [
-                  balance.operatingDate,
-                  String(balance.cashDifference ?? 0),
-                  String(balance.bankDifference ?? 0),
-                  balance.differenceStatus ?? "",
-                  balance.differenceNote ?? "",
-                ]),
-              ])
-            }
-          >
-            Exportar
-          </button>
-        </article>
-      </div>
-      <h2>Historial de cierres</h2>
-      <div className="table-wrap">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Estado</th>
-              <th>Efectivo esperado</th>
-              <th>Declarado</th>
-              <th>Diferencia efectivo</th>
-              <th>Diferencia banco</th>
-              <th>Accion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {closedBalances.map((balance) => {
-              const totals = totalsForBalance(data, balance.id);
-              return (
-                <tr key={balance.id}>
-                  <td>{balance.operatingDate}</td>
-                  <td>{balance.status}</td>
-                  <td>{money(totals.expectedCash)}</td>
-                  <td>{money(balance.declaredCash)}</td>
-                  <td>{money(balance.cashDifference)}</td>
-                  <td>{money(balance.bankDifference)}</td>
-                  <td>
-                    <button className="link-button" onClick={() => exportDailyExcel(data, balance)}>
-                      Excel
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {user.role === "CAJERO" && <p className="helper">El cajero ve reportes de la caja operativa, no historicos generales.</p>}
-    </>
   );
 }
 

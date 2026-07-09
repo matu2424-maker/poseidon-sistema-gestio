@@ -22,7 +22,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
 - `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
 - `src/lib/clients.ts`: documento de clientes, normalizacion, busqueda y duplicados.
-- `src/lib/export.ts`: descarga de archivos y exportacion CSV.
+- `src/lib/export.ts`: descarga de archivos, exportacion CSV y exportacion Excel-compatible de cierre diario.
 - `src/lib/files.ts`: metadatos locales de archivos subidos.
 - `src/lib/storage.ts`: lectura/escritura de `localStorage`, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
@@ -47,6 +47,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/admin/Staff.tsx`: personal, editor de personal, historial salarial y papelera.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
 - `src/features/audit/Audit.tsx`: bitacora general con ordenamiento por fecha, usuario, accion y entidad.
+- `src/features/reports/Reports.tsx`: reportes iniciales, exportaciones y tabla ordenable de cierres.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
@@ -148,6 +149,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/admin/Staff.tsx` - implementado.
 - `src/features/admin/Settings.tsx` - implementado.
 - `src/features/audit/Audit.tsx` - implementado.
+- `src/features/reports/Reports.tsx` - implementado.
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
 
@@ -195,7 +197,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `CashierClients`: clientes desde cajero. Vive en `src/features/cashier/Movements.tsx`.
 - `AdminClients`: clientes administrativos. Vive en `src/features/admin/Clients.tsx`.
 - `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
-- `Reports`: reportes/exportaciones.
+- `Reports`: reportes/exportaciones. Vive en `src/features/reports/Reports.tsx`.
 - `AdminCurrentAccounts`: cuentas corrientes.
 - `AdminStaff`: personal. Vive en `src/features/admin/Staff.tsx`.
 - `AdminSalarySettlements`: liquidacion simple. Vive en `src/features/salaries/SalarySettlements.tsx`.

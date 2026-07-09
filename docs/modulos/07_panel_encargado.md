@@ -32,6 +32,7 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 - Control de gastos vive en `src/features/manager/Expenses.tsx`.
 - En Control de gastos la tabla permite ordenar por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision.
 - Revisar, observar o anular un gasto queda auditado; anular no borra el movimiento.
+- Reportes vive en `src/features/reports/Reports.tsx` y comparte exportaciones desde `src/lib/export.ts`.
 
 ## Calculos mensuales
 

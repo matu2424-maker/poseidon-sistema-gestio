@@ -87,6 +87,9 @@ src/features/admin/
 
 src/features/audit/
   Audit.tsx
+
+src/features/reports/
+  Reports.tsx
 ```
 
 ## Dependencias criticas
@@ -264,6 +267,15 @@ Riesgo medio porque revisar/anular gastos impacta caja, cuentas corrientes, audi
 Estado: implementado en `src/features/audit/Audit.tsx`.
 
 Riesgo bajo/medio porque es principalmente lectura, pero depende de que todos los modulos registren usuario real, rol real y funcion usada. La tabla queda ordenable por fecha/hora, usuario, accion y entidad. Antes de modificar revisar `CODEX_AUDITORIA` y modulo 12.
+
+### Corte 16: reportes iniciales
+
+- `Reports.tsx`: tarjetas de exportacion e historial de cierres.
+- `export.ts`: `exportDailyExcel` compartido junto con `exportCsv`.
+
+Estado: implementado en `src/features/reports/Reports.tsx` y `src/lib/export.ts`.
+
+Riesgo medio porque los reportes leen caja, maquinas, diferencias y exportaciones. La tabla de historial de cierres queda ordenable por ID, fecha, estado, efectivo esperado, declarado y diferencias. Antes de modificar revisar modulos 02/05/07/08 y reglas de tablas ordenables.
 
 ## Validacion por corte
 

@@ -59,6 +59,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/admin/Settings.tsx`
 - `src/features/manager/Expenses.tsx`
 - `src/features/audit/Audit.tsx`
+- `src/features/reports/Reports.tsx`
 
 ## Proximos cortes recomendados
 
@@ -114,6 +115,12 @@ Ya salieron de `src/App.tsx`:
    - Estado: implementado para bitacora general.
    - Mantiene logs sinteticos de usuarios y ordenamiento por fecha, usuario, accion y entidad.
    - Referencias: `CODEX_AUDITORIA`, modulo 12.
+
+12. `src/features/reports/Reports.tsx`
+   - Estado: implementado para reportes iniciales y exportaciones.
+   - `exportDailyExcel` vive en `src/lib/export.ts` junto con `exportCsv`.
+   - Mantiene historial de cierres ordenable por columnas visibles de datos.
+   - Referencias: modulos 07/08 y reglas de tablas ordenables.
 
 ## Validacion obligatoria por corte
 

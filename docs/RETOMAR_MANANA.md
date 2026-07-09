@@ -110,6 +110,7 @@ pnpm run build
 - `src/features/admin/Staff.tsx`: personal, editor de personal y papelera.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
 - `src/features/audit/Audit.tsx`: bitacora general de auditoria.
+- `src/features/reports/Reports.tsx`: reportes iniciales y exportaciones.
 - `src/styles/global.css`: estilos globales.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no conectado al flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
@@ -198,7 +199,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias y pantalla de Auditoria ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias, pantalla de Auditoria y Reportes ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
@@ -215,9 +216,9 @@ pnpm run build
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
 - Refactor pendiente por cortes chicos:
   - Locales/maquinas/taller.
-  - Reportes/cierres periodicos.
+  - Cierres periodicos.
 - Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
-- Revisar reportes/exportacion cuando el flujo de caja quede estable.
+- Revisar exportaciones avanzadas cuando el flujo de caja quede estable.
 - Reimplementar Supabase/Auth real cuando el modelo local este confirmado.
 - Implementar storage real para comprobantes e imagenes cuando se reactive Supabase u otro proveedor.
