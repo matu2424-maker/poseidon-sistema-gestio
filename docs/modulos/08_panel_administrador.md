@@ -35,3 +35,18 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - Auditoria.
 - Cuentas corrientes.
 - Diferencias.
+
+## Codigo actual
+
+- `src/App.tsx`: layout, menu, panel general y pantallas administrativas aun no extraidas.
+- `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
+- `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
+- `src/features/admin/Staff.tsx`: personal, historial salarial y papelera.
+- `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios.
+- `src/components/ui.tsx`: componentes compartidos y selector de columnas.
+
+## Refactor pendiente
+
+- Extraer locales, maquinas y taller manteniendo referencias a caja, contadores e historial.
+- Extraer auditoria como modulo propio.
+- Extraer reportes y cierres periodicos cuando se estabilice la salida/exportacion.

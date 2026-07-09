@@ -27,7 +27,7 @@ Fecha de cierre: 2026-07-09
 - No hay storage real de archivos: comprobantes e imagenes guardan metadatos para evitar romper `localStorage`.
 - No publicar en Vercel hasta que el usuario lo pida explicitamente.
 - Localhost se levanta solo con `iniciar-poseidon.bat`; si queda ocupado, usar `detener-poseidon.bat`.
-- Ultimo commit local realizado: `7ef6bc3 refactor: modulariza reglas compartidas y contextos codex`.
+- Ultimo commit local estable antes del bloque actual: `1bcd54a refactor: extrae personal y papelera`.
 
 ## Usuarios de prueba
 
@@ -97,12 +97,17 @@ pnpm run build
 - `src/lib/people.ts`: nombres visibles de personal.
 - `src/lib/salaryRules.ts`: conceptos, periodos, salario base, importes y validaciones de salarios.
 - `src/lib/sorting.ts`: ordenamiento compartido de tablas por columnas visibles.
-- `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons` y `Modal`.
+- `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.
 - `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
 - `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de caja cerrada.
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final y sincronizacion de diferencias/cuentas.
+- `src/features/cashier/Movements.tsx`: gastos, transferencias, regalos, salarios desde caja, retiros/aportes y clientes del cajero.
 - `src/features/manager/Differences.tsx`: pantalla de diferencias de caja.
+- `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios y detalle de empleado.
+- `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
+- `src/features/admin/Staff.tsx`: personal, editor de personal y papelera.
+- `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
 - `src/styles/global.css`: estilos globales.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no conectado al flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
@@ -191,7 +196,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, liquidacion de salarios, clientes administrativos, personal y papelera ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios y categorias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
@@ -207,8 +212,9 @@ pnpm run build
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
 - Refactor pendiente por cortes chicos:
-  - Usuarios/categorias.
   - Locales/maquinas/taller.
+  - Auditoria.
+  - Reportes/cierres periodicos.
 - Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar reportes/exportacion cuando el flujo de caja quede estable.

@@ -1,6 +1,6 @@
 # Contexto Codex - Administracion
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar panel administrador, menus administrativos, usuarios, configuraciones, categorias, papelera o funciones de control global. Referencias asociadas:
 
@@ -17,10 +17,14 @@ Leer este contexto antes de modificar panel administrador, menus administrativos
 
 ## Codigo actual
 
-- Panel, menu y pantallas administrativas siguen en `src/App.tsx`.
+- Panel, menu y parte de las pantallas administrativas siguen en `src/App.tsx`.
+- Usuarios y categorias/subcategorias de gastos viven en `src/features/admin/Settings.tsx`.
+- Clientes administrativos viven en `src/features/admin/Clients.tsx`.
+- Personal y papelera viven en `src/features/admin/Staff.tsx`.
 - Tipos principales estan en `src/types.ts`.
 - Reglas monetarias y fechas compartidas estan en `src/lib/money.ts` y `src/lib/dates.ts`.
 - Reglas contables reutilizables estan en `src/lib/currentAccounts.ts`, `src/lib/accountMovements.ts`, `src/lib/cashTotals.ts`, `src/lib/differences.ts` y `src/lib/salaryRules.ts`.
+- Tablas configurables deben reutilizar `ColumnChooser` y `TableColumn` desde `src/components/ui.tsx`.
 
 ## Reglas criticas
 

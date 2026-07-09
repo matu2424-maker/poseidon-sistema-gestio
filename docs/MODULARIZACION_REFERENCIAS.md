@@ -83,8 +83,7 @@ src/features/admin/
   Workshop.tsx
   Clients.tsx
   Staff.tsx
-  Users.tsx
-  ExpenseCategories.tsx
+  Settings.tsx
 
 src/features/audit/
   Audit.tsx
@@ -240,6 +239,15 @@ Riesgo medio/alto porque impacta caja abierta, cuentas corrientes, salarios, reg
 Estado: implementado en `src/features/admin/Staff.tsx` y `src/lib/people.ts`.
 
 Riesgo medio/alto porque personal se usa en salarios, pagos desde caja, historial salarial, papelera y auditoria. Antes de modificar revisar `CODEX_CLIENTES_PERSONAL`, `CODEX_SALARIOS` y modulo 10.
+
+### Corte 13: usuarios y categorias de gastos
+
+- `Settings.tsx`: `AdminUsers` y `AdminExpenseCategories`.
+- `ui.tsx`: `ColumnChooser` y `TableColumn` compartidos para tablas configurables.
+
+Estado: implementado en `src/features/admin/Settings.tsx` y `src/components/ui.tsx`.
+
+Riesgo medio porque usuarios impactan permisos/auditoria y categorias de gastos impactan carga de gastos desde cajero y revision por encargado. Antes de modificar revisar `CODEX_ADMINISTRACION`, modulo 08, modulo 04 y modulo 12.
 
 ## Validacion por corte
 

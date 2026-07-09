@@ -44,10 +44,10 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios, detalle de empleado, cuenta personal y cierres de liquidacion.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido por administrador/cajero.
 - `src/features/admin/Staff.tsx`: personal, editor de personal, historial salarial y papelera.
-- `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons` y `Modal`.
+- `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
+- `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
-- `src/components/ui.tsx`: componentes UI compartidos activos.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no usado por el flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
 - `docs/RETOMAR_MANANA.md`: resumen rapido para continuar.
@@ -133,7 +133,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/people.ts` - implementado.
 - `src/lib/salaryRules.ts` - implementado.
 - `src/lib/sorting.ts` - implementado.
-- `src/components/ui.tsx` - implementado.
+- `src/components/ui.tsx` - implementado: tarjetas, botones, modales y selector de columnas.
 - `src/features/manager/Differences.tsx` - implementado.
 - `src/features/cashier/OpenCash.tsx` - implementado.
 - `src/features/cashier/ClosedBalanceSummary.tsx` - implementado.
@@ -143,6 +143,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/salaries/SalarySettlements.tsx` - implementado.
 - `src/features/admin/Clients.tsx` - implementado.
 - `src/features/admin/Staff.tsx` - implementado.
+- `src/features/admin/Settings.tsx` - implementado.
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
 
@@ -194,8 +195,8 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `AdminCurrentAccounts`: cuentas corrientes.
 - `AdminStaff`: personal. Vive en `src/features/admin/Staff.tsx`.
 - `AdminSalarySettlements`: liquidacion simple. Vive en `src/features/salaries/SalarySettlements.tsx`.
-- `AdminUsers`: usuarios.
-- `AdminExpenseCategories`: categorias/subcategorias de gastos.
+- `AdminUsers`: usuarios. Vive en `src/features/admin/Settings.tsx`.
+- `AdminExpenseCategories`: categorias/subcategorias de gastos. Vive en `src/features/admin/Settings.tsx`.
 - `AdminMachines`: maquinas y taller.
 - `AdminMachineEditor`: alta/edicion/reset/envio a taller/eliminacion de maquina.
 - `AdminLocals`: locales.

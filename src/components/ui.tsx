@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 
+export type TableColumn<Key extends string> = {
+  key: Key;
+  label: string;
+  sortable?: boolean;
+};
+
 export function InfoCard({
   title,
   lines,
@@ -89,5 +95,34 @@ export function Modal({
         {children}
       </section>
     </div>
+  );
+}
+
+export function ColumnChooser<Key extends string>({
+  label,
+  columns,
+  visible,
+  fixed,
+  onToggle,
+}: {
+  label: string;
+  columns: TableColumn<Key>[];
+  visible: Key[];
+  fixed: Key[];
+  onToggle: (key: Key) => void;
+}) {
+  return (
+    <details className="column-menu">
+      <summary>{label}</summary>
+      <div className="column-chooser" aria-label="Columnas visibles">
+        {columns.map((column) => (
+          <label key={column.key}>
+            <input type="checkbox" checked={visible.includes(column.key)} disabled={fixed.includes(column.key)} onChange={() => onToggle(column.key)} />
+            {column.label}
+            {fixed.includes(column.key) && <span>fijo</span>}
+          </label>
+        ))}
+      </div>
+    </details>
   );
 }

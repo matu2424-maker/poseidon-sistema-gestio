@@ -56,6 +56,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Staff.tsx`
+- `src/features/admin/Settings.tsx`
 
 ## Proximos cortes recomendados
 
@@ -75,8 +76,8 @@ Ya salieron de `src/App.tsx`:
    - Evita duplicar helpers en pantallas administrativas, encargado y futuras extracciones.
 
 4. `src/components/ui.tsx`
-   - Estado: implementado para tarjetas informativas, botones basicos de formulario y modales.
-   - Evita que cada modulo extraido copie el mismo markup visual.
+   - Estado: implementado para tarjetas informativas, botones basicos de formulario, modales, selector de columnas y tipos compartidos de columnas.
+   - Evita que cada modulo extraido copie el mismo markup visual o la misma logica base de columnas configurables.
 
 5. `src/features/salaries/SalarySettlements.tsx`
    - Estado: implementado para liquidacion de salarios y detalle de empleado.
@@ -94,7 +95,13 @@ Ya salieron de `src/App.tsx`:
    - Mantener impacto contable y auditoria en helpers compartidos.
 
 8. Administracion general
-   - Extraer locales, maquinas, taller, personal, usuarios, categorias, auditoria y cierres periodicos.
+   - Estado: clientes, personal, papelera, usuarios y categorias ya extraidos.
+   - Extraer locales, maquinas, taller, auditoria y cierres periodicos.
+
+9. `src/features/admin/Settings.tsx`
+   - Estado: implementado para usuarios y categorias/subcategorias de gastos.
+   - Mantiene tablas ordenables, selector de columnas para usuarios y auditoria de altas/cambios.
+   - Referencias: `CODEX_ADMINISTRACION`, modulos 08/10/12.
 
 ## Validacion obligatoria por corte
 
