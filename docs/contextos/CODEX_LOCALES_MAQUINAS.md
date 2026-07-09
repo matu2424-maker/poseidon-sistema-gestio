@@ -1,6 +1,6 @@
 # Contexto Codex - Locales, maquinas y taller
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en desuso, historial de maquinas o asociaciones entre local y maquina. Referencias asociadas:
 
@@ -14,7 +14,8 @@ Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en des
 
 ## Codigo actual
 
-- `AdminLocals`, `AdminMachines`, `AdminLocalEditor`, `AdminMachineEditor`, `WorkshopMachinePicker`, `LocalMachinesModal`, `MachineHistoryModal` y `LocalHistoryModal` siguen en `src/App.tsx`.
+- `AdminLocals`, `AdminMachines`, `AdminLocalEditor`, `AdminMachineEditor`, `WorkshopMachinePicker`, `LocalMachinesModal`, `MachineHistoryModal` y `LocalHistoryModal` viven en `src/features/admin/LocationsMachines.tsx`.
+- `src/App.tsx` importa `AdminLocals` y `AdminMachines` desde ese modulo y conserva solo el enrutamiento/layout general.
 - Contadores usan `calcReading` desde `src/lib/cashTotals.ts`.
 - Reset y ajustes de contadores deben quedar auditados.
 

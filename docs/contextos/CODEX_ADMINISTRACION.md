@@ -19,6 +19,7 @@ Leer este contexto antes de modificar panel administrador, menus administrativos
 
 - Panel, menu y parte de las pantallas administrativas siguen en `src/App.tsx`.
 - Usuarios y categorias/subcategorias de gastos viven en `src/features/admin/Settings.tsx`.
+- Locales, maquinas y taller viven en `src/features/admin/LocationsMachines.tsx`.
 - Clientes administrativos viven en `src/features/admin/Clients.tsx`.
 - Personal y papelera viven en `src/features/admin/Staff.tsx`.
 - Tipos principales estan en `src/types.ts`.

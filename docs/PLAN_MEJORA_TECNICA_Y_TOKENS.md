@@ -57,6 +57,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Staff.tsx`
 - `src/features/admin/Settings.tsx`
+- `src/features/admin/LocationsMachines.tsx`
 - `src/features/manager/Expenses.tsx`
 - `src/features/audit/Audit.tsx`
 - `src/features/reports/Reports.tsx`
@@ -127,6 +128,21 @@ Ya salieron de `src/App.tsx`:
    - Estado: implementado para cierres periodicos.
    - Mantiene generacion/anulacion auditada y tablas ordenables de cajas incluidas y cierres guardados.
    - Referencias: modulos 05/07/08/12 y reglas de tablas ordenables.
+
+14. `src/features/admin/LocationsMachines.tsx`
+   - Estado: implementado para Locales, Maquinas, Taller, editores, modales de historial y modales de maquinas asociadas.
+   - Se mantuvo como un corte unico porque Locales, Maquinas y Taller comparten historial, asociaciones, cierres de local, maquinas en desuso, reset de contadores y auditoria.
+   - Referencias: `CODEX_LOCALES_MAQUINAS`, modulos 03/05/09 y reglas de tablas ordenables.
+
+## Pendientes despues del corte actual
+
+- Reducir `src/App.tsx` extrayendo layout/base:
+  - `Shell`;
+  - `CashierWorkspace`;
+  - paneles iniciales por rol;
+  - `AdminTable` o tabla administrativa general si sigue teniendo uso transversal.
+- Crear contextos cortos para esos cortes antes de mover codigo.
+- Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.
 
 ## Validacion obligatoria por corte
 

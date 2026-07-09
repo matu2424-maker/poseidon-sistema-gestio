@@ -271,13 +271,14 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Staff.tsx`
 - `src/features/admin/Settings.tsx`
+- `src/features/admin/LocationsMachines.tsx`
 - `src/features/audit/Audit.tsx`
 - `src/features/reports/Reports.tsx`
 - `src/features/reports/Periodic.tsx`
 
 Pendientes naturales:
 
-- Locales/maquinas/taller.
+- Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace`, paneles iniciales por rol y tabla administrativa general.
 
 ## Documentacion viva
 

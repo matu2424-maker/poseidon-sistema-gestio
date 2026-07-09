@@ -78,9 +78,7 @@ src/features/salaries/
   salaryTotals.ts
 
 src/features/admin/
-  Locals.tsx
-  Machines.tsx
-  Workshop.tsx
+  LocationsMachines.tsx
   Clients.tsx
   Staff.tsx
   Settings.tsx
@@ -285,6 +283,14 @@ Riesgo medio porque los reportes leen caja, maquinas, diferencias y exportacione
 Estado: implementado en `src/features/reports/Periodic.tsx`.
 
 Riesgo medio/alto porque consolida cajas cerradas, diferencias, retiros/aportes, salidas y auditoria. Las tablas de cajas incluidas y cierres guardados quedan ordenables por columnas visibles de datos. Antes de modificar revisar modulos 05/07/08/12 y reglas contables.
+
+### Corte 18: locales, maquinas y taller
+
+- `LocationsMachines.tsx`: `AdminLocals`, `AdminMachines`, editores, selector de maquinas del Taller, modales de historial y modales de maquinas asociadas.
+
+Estado: implementado en `src/features/admin/LocationsMachines.tsx`.
+
+Riesgo medio/alto porque locales y maquinas alimentan caja, contadores, reset, cierre de local, maquinas en desuso, cuentas corrientes indirectas e historial. Se mantuvo como modulo consolidado para conservar referencias entre Locales, Maquinas y Taller. Antes de modificar revisar `CODEX_LOCALES_MAQUINAS`, modulos 03/05/09 y reglas de tablas ordenables.
 
 ## Validacion por corte
 

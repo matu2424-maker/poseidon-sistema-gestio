@@ -1,5 +1,11 @@
 # Modulo 09 - Locales, maquinas y taller
 
+## Codigo actual
+
+- La pantalla de Locales, la pantalla de Maquinas/Taller, los editores flotantes y los modales de historial viven en `src/features/admin/LocationsMachines.tsx`.
+- `src/App.tsx` solo enruta hacia `AdminLocals` y `AdminMachines`.
+- Las reglas de contadores y totales se comparten con `src/lib/cashTotals.ts`, `src/lib/machineHistory.ts`, `src/lib/currentAccounts.ts` y `src/lib/accountMovements.ts`.
+
 ## Locales
 
 - ID numerico corto.
@@ -44,4 +50,3 @@
 - No puede hacerse si hay caja abierta para el local.
 - Pone IN y OUT en 0.
 - Queda en auditoria e historial de maquina.
-

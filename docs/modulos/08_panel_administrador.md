@@ -40,6 +40,7 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 - `src/App.tsx`: layout, menu, panel general y pantallas administrativas aun no extraidas.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
+- `src/features/admin/LocationsMachines.tsx`: locales, maquinas, taller, editores y modales de historial/asociaciones.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
 - `src/features/admin/Staff.tsx`: personal, historial salarial y papelera.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios.
@@ -49,4 +50,4 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Refactor pendiente
 
-- Extraer locales, maquinas y taller manteniendo referencias a caja, contadores e historial.
+- Extraer layout/base administrativo restante: `Shell`, paneles iniciales por rol y tabla administrativa general si sigue siendo transversal.

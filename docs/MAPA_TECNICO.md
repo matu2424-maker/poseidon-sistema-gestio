@@ -205,10 +205,10 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `AdminSalarySettlements`: liquidacion simple. Vive en `src/features/salaries/SalarySettlements.tsx`.
 - `AdminUsers`: usuarios. Vive en `src/features/admin/Settings.tsx`.
 - `AdminExpenseCategories`: categorias/subcategorias de gastos. Vive en `src/features/admin/Settings.tsx`.
-- `AdminMachines`: maquinas y taller.
-- `AdminMachineEditor`: alta/edicion/reset/envio a taller/eliminacion de maquina.
-- `AdminLocals`: locales.
-- `AdminLocalEditor`: alta/edicion/cierre/quitar local y asociar maquinas.
+- `AdminMachines`: maquinas y taller. Vive en `src/features/admin/LocationsMachines.tsx`.
+- `AdminMachineEditor`: alta/edicion/reset/envio a taller/eliminacion de maquina. Vive en `src/features/admin/LocationsMachines.tsx`.
+- `AdminLocals`: locales. Vive en `src/features/admin/LocationsMachines.tsx`.
+- `AdminLocalEditor`: alta/edicion/cierre/quitar local y asociar maquinas. Vive en `src/features/admin/LocationsMachines.tsx`.
 - `Differences`: gestion de diferencias de caja. Vive en `src/features/manager/Differences.tsx`.
 - `Audit`: auditoria. Vive en `src/features/audit/Audit.tsx`.
 - `Periodic`: cierres periodicos. Vive en `src/features/reports/Periodic.tsx`.
