@@ -39,6 +39,7 @@ src/lib/
   machineHistory.ts
   audit.ts
   storage.ts
+  sorting.ts
   currentAccounts.ts
   cashTotals.ts
   differences.ts
@@ -181,6 +182,12 @@ Riesgo medio porque apertura y resumen dependen de saldos de cuentas, totales de
 - `audit.ts`: construccion de eventos y helpers de usuario/funcion.
 
 Estado: implementado en `src/lib/audit.ts` y `src/lib/storage.ts`.
+
+### Corte 7: ordenamiento de tablas
+
+- `sorting.ts`: estado de ordenamiento, comparador compartido y texto indicador de direccion.
+
+Estado: implementado en `src/lib/sorting.ts`. Usado por `src/App.tsx` y `src/features/manager/Differences.tsx`; las proximas pantallas extraidas deben reutilizarlo para cumplir la regla de tablas ordenables.
 
 Riesgo medio porque afecta arranque, demo, reset y trazabilidad.
 

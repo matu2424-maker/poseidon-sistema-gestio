@@ -92,6 +92,7 @@ pnpm run build
 - `src/lib/ids.ts`: generacion de IDs locales.
 - `src/lib/machineHistory.ts`: eventos de historial de maquinas.
 - `src/lib/salaryRules.ts`: conceptos, periodos, salario base, importes y validaciones de salarios.
+- `src/lib/sorting.ts`: ordenamiento compartido de tablas por columnas visibles.
 - `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
 - `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de caja cerrada.
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
@@ -185,7 +186,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores y pantalla de Diferencias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores y pantalla de Diferencias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 

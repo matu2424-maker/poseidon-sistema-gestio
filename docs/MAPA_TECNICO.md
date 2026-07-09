@@ -30,6 +30,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/ids.ts`: generacion de IDs locales para entidades demo/localStorage.
 - `src/lib/machineHistory.ts`: construccion de eventos de historial de maquinas.
 - `src/lib/salaryRules.ts`: conceptos, periodos, base salarial, importes y validaciones de salarios.
+- `src/lib/sorting.ts`: estado y helpers compartidos para ordenar tablas por columnas visibles.
 - `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
 - `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de una caja cerrada.
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
@@ -96,7 +97,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 ## Deuda tecnica actual
 
 - `src/App.tsx` sigue siendo demasiado grande. Conviene refactorizar de a poco despues de estabilizar flujos.
-- Modularizacion iniciada con utilidades puras, helpers de presentacion, reglas de salarios, movimientos contables, totales de caja, apertura/resumen de caja y diferencias. Falta mover storage, auditoria y mas componentes UI.
+- Modularizacion iniciada con utilidades puras, helpers de presentacion, storage, auditoria, ordenamiento, reglas de salarios, movimientos contables, totales de caja, apertura/resumen/cierre de caja, contadores y diferencias. Falta mover mas componentes UI.
 - `src/components/WelcomeScreen.tsx` no esta conectado al flujo actual y sus clases no son parte del CSS activo.
 - Hay textos sin acentos por decision de mantener ASCII y evitar problemas de codificacion.
 - El servidor local necesita iniciarse fuera del sandbox cuando se quiere usar el navegador integrado.
@@ -117,6 +118,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/ids.ts` - implementado.
 - `src/lib/machineHistory.ts` - implementado.
 - `src/lib/salaryRules.ts` - implementado.
+- `src/lib/sorting.ts` - implementado.
 - `src/features/manager/Differences.tsx` - implementado.
 - `src/features/cashier/OpenCash.tsx` - implementado.
 - `src/features/cashier/ClosedBalanceSummary.tsx` - implementado.
