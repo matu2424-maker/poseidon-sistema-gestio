@@ -257,6 +257,14 @@ Estado: implementado en `src/features/manager/Expenses.tsx`.
 
 Riesgo medio porque revisar/anular gastos impacta caja, cuentas corrientes, auditoria y reportes. La tabla queda ordenable por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision. Antes de modificar revisar `CODEX_ENCARGADO`, modulo 04, modulo 07, modulo 11 y modulo 12.
 
+### Corte 15: pantalla de auditoria
+
+- `Audit.tsx`: bitacora general y logs sinteticos de usuarios.
+
+Estado: implementado en `src/features/audit/Audit.tsx`.
+
+Riesgo bajo/medio porque es principalmente lectura, pero depende de que todos los modulos registren usuario real, rol real y funcion usada. La tabla queda ordenable por fecha/hora, usuario, accion y entidad. Antes de modificar revisar `CODEX_AUDITORIA` y modulo 12.
+
 ## Validacion por corte
 
 Cada corte debe cerrar con:

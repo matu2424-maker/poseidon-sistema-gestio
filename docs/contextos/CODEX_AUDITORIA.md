@@ -16,7 +16,7 @@ Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, 
 
 - La construccion central de eventos vive en `src/lib/audit.ts`.
 - `App` conserva un wrapper local `audit(...)` para pasar usuario real y funcion activa a `appendAuditEvent(...)`.
-- Pantalla `Audit` sigue en `src/App.tsx`.
+- Pantalla `Audit` vive en `src/features/audit/Audit.tsx`.
 - Eventos se guardan en `data.audit`.
 - Muchos historiales especificos viven dentro de sus entidades: balances, maquinas, locales, salarios y movimientos.
 

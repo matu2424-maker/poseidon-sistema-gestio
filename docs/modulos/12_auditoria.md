@@ -4,6 +4,12 @@
 
 Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 
+## Codigo actual
+
+- La construccion central de eventos vive en `src/lib/audit.ts`.
+- La pantalla general de bitacora vive en `src/features/audit/Audit.tsx`.
+- `src/App.tsx` conserva el wrapper `audit(...)` para inyectar usuario real, rol real y funcion activa al crear eventos.
+
 ## Eventos a registrar
 
 - Crear.
@@ -50,3 +56,4 @@ Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 - Los cambios de salario base deben auditar fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
 - Los descuentos salariales deben quedar auditados como reduccion de pendiente/base cubierta, no como salida de caja.
 - Las eliminaciones definitivas requieren confirmacion.
+- La tabla principal de auditoria permite ordenar por fecha/hora, usuario, accion y entidad.

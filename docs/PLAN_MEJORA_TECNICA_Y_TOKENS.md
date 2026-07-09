@@ -58,13 +58,14 @@ Ya salieron de `src/App.tsx`:
 - `src/features/admin/Staff.tsx`
 - `src/features/admin/Settings.tsx`
 - `src/features/manager/Expenses.tsx`
+- `src/features/audit/Audit.tsx`
 
 ## Proximos cortes recomendados
 
 1. `src/lib/audit.ts`
    - Estado: iniciado/implementado para construccion centralizada de eventos.
    - Mantiene usuario real, rol real y funcion usada.
-   - Queda pendiente extraer la pantalla `Audit` cuando se aborde administracion/auditoria.
+   - La pantalla `Audit` ya vive en `src/features/audit/Audit.tsx`.
 
 2. `src/lib/storage.ts`
    - Estado: implementado para lectura/escritura de `localStorage`, compactacion, reset operativo y preferencias de columnas.
@@ -109,6 +110,11 @@ Ya salieron de `src/App.tsx`:
    - Mantiene detalle modal, revision, observacion, anulacion auditada y ordenamiento por todas las columnas visibles de datos.
    - Referencias: `CODEX_ENCARGADO`, modulos 04/07/11/12.
 
+11. `src/features/audit/Audit.tsx`
+   - Estado: implementado para bitacora general.
+   - Mantiene logs sinteticos de usuarios y ordenamiento por fecha, usuario, accion y entidad.
+   - Referencias: `CODEX_AUDITORIA`, modulo 12.
+
 ## Validacion obligatoria por corte
 
 - `pnpm run build`
@@ -128,6 +134,7 @@ Primero se extraen piezas que reducen mucho contexto y tienen reglas compartidas
 5. salarios;
 6. clientes;
 7. movimientos de cajero;
-8. administracion.
+8. auditoria;
+9. administracion.
 
 Esto deberia reducir el costo porque cada nueva tarea podra leer el contexto corto del modulo y 1-3 archivos concretos, no todo `App.tsx` ni todo el historial del chat.

@@ -87,9 +87,9 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 
 - `src/types.ts` contiene los tipos principales del sistema.
 - `src/App.tsx` sigue concentrando la mayor parte de pantallas y acciones de UI, pero reglas compartidas ya viven en `src/types.ts` y `src/lib/`.
-- Ya salieron de `src/App.tsx`: auditoria, storage, ordenamiento, helpers de clientes/archivos, componentes UI compartidos, `src/features/manager/Differences.tsx`, `src/features/manager/Expenses.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx`, `src/features/cashier/Movements.tsx`, `src/features/salaries/SalarySettlements.tsx`, `src/features/admin/Clients.tsx`, `src/features/admin/Staff.tsx` y `src/features/admin/Settings.tsx`.
+- Ya salieron de `src/App.tsx`: auditoria, storage, ordenamiento, helpers de clientes/archivos, componentes UI compartidos, `src/features/manager/Differences.tsx`, `src/features/manager/Expenses.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx`, `src/features/cashier/Movements.tsx`, `src/features/salaries/SalarySettlements.tsx`, `src/features/admin/Clients.tsx`, `src/features/admin/Staff.tsx`, `src/features/admin/Settings.tsx` y `src/features/audit/Audit.tsx`.
 - `src/components/ui.tsx` tambien centraliza `ColumnChooser` y `TableColumn` para que las tablas configurables no dupliquen markup ni tipos.
-- Los siguientes destinos de refactor siguen pendientes: locales/maquinas/taller, auditoria, reportes/cierres y administracion general.
+- Los siguientes destinos de refactor siguen pendientes: locales/maquinas/taller, reportes/cierres y administracion general.
 - `docs/MAPA_TECNICO.md` documenta el mapa de pantallas, clases CSS principales, calculos y deuda tecnica actual.
 - `src/components/WelcomeScreen.tsx` existe como componente heredado/no conectado al flujo principal actual.
 

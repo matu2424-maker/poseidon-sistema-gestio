@@ -223,6 +223,7 @@ src/features/cashier/          Pantallas extraidas de caja diaria y resumen
 src/features/manager/          Diferencias y control de gastos del encargado/admin
 src/features/salaries/         Liquidacion de salarios y detalle de empleado
 src/features/admin/            Clientes, personal, papelera, usuarios y categorias extraidos
+src/features/audit/            Bitacora general de auditoria
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
@@ -269,11 +270,11 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Staff.tsx`
 - `src/features/admin/Settings.tsx`
+- `src/features/audit/Audit.tsx`
 
 Pendientes naturales:
 
 - Locales/maquinas/taller.
-- Auditoria.
 - Reportes/cierres periodicos.
 
 ## Documentacion viva
