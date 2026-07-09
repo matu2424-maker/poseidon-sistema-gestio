@@ -48,6 +48,7 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/sorting.ts`
 - `src/components/ui.tsx`
 - `src/features/layout/AppShell.tsx`
+- `src/features/accounts/CurrentAccounts.tsx`
 - `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
 - `src/features/cashier/ClosedBalanceSummary.tsx`
@@ -139,7 +140,6 @@ Ya salieron de `src/App.tsx`:
 
 - Reducir `src/App.tsx` extrayendo:
   - paneles iniciales por rol;
-  - cuentas corrientes;
   - helpers restantes de datos demo/normalizacion si conviene separarlos.
 - Crear contextos cortos para esos cortes antes de mover codigo.
 - Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.

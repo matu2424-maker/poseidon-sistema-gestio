@@ -1,6 +1,6 @@
 # Contexto Codex - Cuentas corrientes
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de movimientos. Referencias asociadas:
 
@@ -13,10 +13,11 @@ Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de 
 
 ## Codigo actual
 
-- Pantalla: `AdminCurrentAccounts` en `src/App.tsx`.
+- Pantalla: `AdminCurrentAccounts` en `src/features/accounts/CurrentAccounts.tsx`.
 - Tipos: `CurrentAccount`, `AccountMovement`, `CurrentAccountKind`, `AccountMovementSource`.
 - Helpers extraidos: ids de cuenta local/personal/transferencias, creacion/asegurado de cuentas, `accountTotals` y `localAccountBalances` viven en `src/lib/currentAccounts.ts`.
 - Movimientos por origen, sincronizacion y `accountTotalsFromMovements` viven en `src/lib/accountMovements.ts`.
+- La tabla de movimientos es ordenable por fecha, tipo, detalle, usuario, debito, credito y saldo.
 
 ## Reglas criticas
 

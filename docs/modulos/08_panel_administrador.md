@@ -47,8 +47,9 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios.
 - `src/features/reports/Reports.tsx`: reportes iniciales y exportaciones.
 - `src/features/reports/Periodic.tsx`: cierres periodicos.
+- `src/features/accounts/CurrentAccounts.tsx`: cuentas corrientes.
 - `src/components/ui.tsx`: componentes compartidos y selector de columnas.
 
 ## Refactor pendiente
 
-- Extraer paneles iniciales por rol y cuentas corrientes.
+- Extraer paneles iniciales por rol.

@@ -71,8 +71,6 @@ src/features/manager/
 
 src/features/accounts/
   CurrentAccounts.tsx
-  accountMovements.ts
-  accountTotals.ts
 
 src/features/salaries/
   SalarySettlements.tsx
@@ -301,6 +299,14 @@ Riesgo medio/alto porque locales y maquinas alimentan caja, contadores, reset, c
 Estado: implementado en `src/features/layout/AppShell.tsx`.
 
 Riesgo medio porque concentra navegacion, rol efectivo, cambio a funcion Cajero y estructura visual base. No cambia reglas contables. Antes de modificar revisar `CODEX_LAYOUT_BASE`, modulos 00/01/07/08 y reglas visuales.
+
+### Corte 20: cuentas corrientes
+
+- `CurrentAccounts.tsx`: pantalla de cuentas corrientes, filtro de periodo, selector de cuentas, tabla de movimientos, saldo corrido y modal de detalle/recaudacion asociada.
+
+Estado: implementado en `src/features/accounts/CurrentAccounts.tsx`.
+
+Riesgo medio porque la pantalla lee movimientos de caja, diferencias, transferencias, salarios, retiros/aportes y saldos por cuenta. La tabla de movimientos queda ordenable por fecha, tipo, detalle, usuario, debito, credito y saldo. Antes de modificar revisar `CODEX_CUENTAS_CORRIENTES`, reglas contables y modulo 11.
 
 ## Validacion por corte
 

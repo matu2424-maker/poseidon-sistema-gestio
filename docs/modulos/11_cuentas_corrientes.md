@@ -4,6 +4,12 @@
 
 Llevar libro interno de saldos y movimientos sin cargar saldos manuales.
 
+## Codigo actual
+
+- La pantalla principal vive en `src/features/accounts/CurrentAccounts.tsx`.
+- Los helpers de cuentas viven en `src/lib/currentAccounts.ts`.
+- Los movimientos y totales derivados viven en `src/lib/accountMovements.ts`.
+
 ## Tipos de cuenta
 
 - Transferencias.
@@ -29,6 +35,7 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 - En `Consulta historica` se selecciona manualmente un intervalo de fechas.
 - Los saldos, entradas, salidas, listado de cuentas y movimientos respetan el periodo seleccionado.
 - La tabla de movimientos muestra: fecha, tipo, detalle, usuario, debito, credito y saldo.
+- La tabla de movimientos permite ordenar por fecha, tipo, detalle, usuario, debito, credito y saldo.
 - `Debito` representa salidas de la cuenta y `Credito` representa entradas.
 - El saldo es corrido: toma el saldo activo anterior al rango y acumula los movimientos visibles.
 - Al hacer clic en un movimiento se abre una ventana flotante con el detalle completo.
