@@ -1854,33 +1854,6 @@ function App() {
   );
 }
 
-function MovementList({
-  items,
-  onAnnul,
-}: {
-  items: { id: string; title: string; amount: number; status: MovementStatus }[];
-  onAnnul: (id: string) => void;
-}) {
-  if (items.length === 0) return <p className="helper">Sin movimientos cargados.</p>;
-
-  return (
-    <div className="mini-list">
-      {items.map((item) => (
-        <div key={item.id}>
-          <span>{item.title}</span>
-          <strong>{money(item.amount)}</strong>
-          <em>{item.status}</em>
-          {item.status === "ACTIVO" && (
-            <button className="link-button" onClick={() => onAnnul(item.id)}>
-              Anular
-            </button>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default App;
 
 
