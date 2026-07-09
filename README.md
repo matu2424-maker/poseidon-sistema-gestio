@@ -278,7 +278,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 Pendientes naturales:
 
-- Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace`, paneles iniciales por rol y tabla administrativa general.
+- Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace` y paneles iniciales por rol.
 
 ## Documentacion viva
 

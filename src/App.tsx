@@ -1,49 +1,33 @@
 import { ChangeEvent, FocusEvent, FormEvent, ReactNode, useEffect, useState } from "react";
 import type {
   AccountMovement,
-  AccountMovementDirection,
-  AccountMovementSource,
   AppData,
   AuditEvent,
   Balance,
-  BalanceStatus,
   CapitalMovement,
   CapitalMovementMedium,
   CapitalMovementPerson,
   CapitalMovementTiming,
   CapitalMovementType,
   Client,
-  ClientDocumentType,
   ClientStatus,
   CurrentAccount,
-  CurrentAccountKind,
-  CurrentAccountStatus,
-  DifferenceStatus,
   Expense,
   ExpenseCategory,
   Gift,
   Local,
-  LocalImage,
   Machine,
-  MachineLocalHistory,
-  MachineStatus,
   MenuGroup,
   MenuItem,
   MovementStatus,
   Reading,
-  ReadingStatus,
   Role,
   SalaryConcept,
-  SalaryClosure,
-  SalaryHistory,
   SalarySettlement,
-  SalarySettlementStatus,
-  SalaryType,
   Screen,
   StaffMember,
   StaffSchedule,
   StaffStatus,
-  StoredFileMeta,
   Transfer,
   User,
   WeekDay,
@@ -87,17 +71,15 @@ import {
   hasClientDocumentDuplicate,
   normalizeClientDocument,
   normalizeClientDocumentType,
-  sanitizeDigits,
 } from "./lib/clients";
 import { formatDateTime, formatTime, monthRange, nowIso, today } from "./lib/dates";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceActionImpact, differenceIsPending, pendingDifferenceCount } from "./lib/differences";
-import { fileMetaLabel, normalizeStoredFileMeta, readUploadFile } from "./lib/files";
+import { normalizeStoredFileMeta } from "./lib/files";
 import { nextShortId, shortNumberId, uid } from "./lib/ids";
 import { machineHistoryEvent } from "./lib/machineHistory";
 import {
   clearZeroMoneyInput,
   counter,
-  formatCounterInput,
   formatMoneyInput,
   handleMoneyBlur,
   handleMoneyFocus,
@@ -105,7 +87,6 @@ import {
   money,
   moneyInputValue,
   normalizeMoneyInput,
-  parseCounter,
   parseMoneyInput,
 } from "./lib/money";
 import { salaryHistoryEvent, staffFullName } from "./lib/people";
@@ -131,9 +112,7 @@ import {
 import {
   isOperationalResetMarked,
   markOperationalReset,
-  readColumnPreference,
   readStoredAppData,
-  writeColumnPreference,
   writeStoredAppData,
 } from "./lib/storage";
 import { compareValues, nextSort, sortIndicator, type SortState } from "./lib/sorting";
@@ -152,7 +131,7 @@ import { AdminExpenseCategories, AdminUsers } from "./features/admin/Settings";
 import { Audit } from "./features/audit/Audit";
 import { Periodic } from "./features/reports/Periodic";
 import { Reports } from "./features/reports/Reports";
-import { ColumnChooser, FormButtons, InfoCard, Modal, type TableColumn } from "./components/ui";
+import { FormButtons, InfoCard, Modal } from "./components/ui";
 
 const LEGACY_POSEIDON_LOCAL_ID = "local-poseidon";
 const POSEIDON_LOCAL_ID = "1";
@@ -221,10 +200,6 @@ const roleLabels: Record<Role, string> = {
 };
 
 const asNumber = (value: FormDataEntryValue | null) => Number(value || 0);
-const sanitizeNumberId = (value: string) => value.replace(/\D/g, "").slice(0, 4);
-const localStatusClass = (status: Local["status"]) => (status === "ACTIVO" ? "status-active" : status === "CERRADO" ? "status-closed" : "status-inactive");
-const machineStatusClass = (status: MachineStatus) =>
-  status === "ACTIVA" ? "status-active" : status === "MANTENIMIENTO" ? "status-maintenance" : status === "DESUSO" ? "status-disused" : "status-inactive";
 const staffStatusClass = (status: StaffStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
 const clientStatusClass = (status: ClientStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
 const localName = (data: AppData, localId: string) =>
@@ -247,7 +222,6 @@ const clientNameWithDocument = (data: AppData, clientId: string | undefined) => 
   const client = data.clients.find((item) => item.id === clientId);
   return client ? `${client.name} - ${clientDocumentLabel(client)}` : "";
 };
-const auditUserName = (data: AppData, event: AuditEvent) => event.userName || data.users.find((user) => user.id === event.userId)?.name || "Sistema";
 const userDisplayName = (data: AppData, userId: string | undefined) => (userId ? data.users.find((item) => item.id === userId)?.name ?? userId : "-");
 const userDisplayNameWithRole = (data: AppData, userId: string | undefined, role: Role | undefined) => {
   const name = userDisplayName(data, userId);
@@ -255,37 +229,7 @@ const userDisplayNameWithRole = (data: AppData, userId: string | undefined, role
 };
 const localOptionName = (local: Local) => `${local.id} - ${local.name}`;
 const capitalize = (value: string) => (value ? `${value.charAt(0).toLocaleUpperCase("es-UY")}${value.slice(1)}` : value);
-const mapsHref = (local: Local) =>
-  local.googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.address || local.name)}`;
-const parseAuditValue = (value: string): Record<string, unknown> => {
-  try {
-    const parsed = JSON.parse(value);
-    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
-  } catch {
-    return {};
-  }
-};
 const confirmAction = (message: string) => window.confirm(message);
-
-function readLocalImages(files: FileList): Promise<LocalImage[]> {
-  return Promise.all(
-    Array.from(files).map(
-      (file) =>
-        new Promise<LocalImage>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () =>
-            resolve({
-              id: uid("local-image"),
-              name: file.name,
-              dataUrl: String(reader.result ?? ""),
-              createdAt: nowIso(),
-            });
-          reader.onerror = () => reject(reader.error);
-          reader.readAsDataURL(file);
-        }),
-    ),
-  );
-}
 
 function clearOperationalData(data: AppData): AppData {
   return {
@@ -2951,63 +2895,6 @@ function AdminCurrentAccounts({ data, user, effectiveRole, local }: { data: AppD
         </Modal>
       )}
     </section>
-  );
-}
-
-function AdminTable({
-  title,
-  rows,
-  form,
-  fields,
-  selectRole,
-}: {
-  title: string;
-  data: AppData;
-  rows: string[][];
-  form: (event: FormEvent<HTMLFormElement>) => void;
-  fields: string[];
-  selectRole?: boolean;
-}) {
-  return (
-    <div className="admin-layout">
-      <section className="form-card">
-        <h2>Crear {title.toLowerCase()}</h2>
-        <form className="form-stack" onSubmit={form}>
-          {fields.map((field) => (
-            <label key={field}>
-              {field}
-              <input name={field} required={field !== "password"} />
-            </label>
-          ))}
-          {selectRole && (
-            <label>
-              role
-              <select name="role">
-                <option value="CAJERO">Cajero</option>
-                <option value="ENCARGADO">Encargado</option>
-                <option value="ADMINISTRADOR">Administrador</option>
-              </select>
-            </label>
-          )}
-          <button className="button success" type="submit">
-            Guardar
-          </button>
-        </form>
-      </section>
-      <section className="table-wrap grow">
-        <table className="data-table">
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={`${row[0]}-${index}`}>
-                {row.map((cell) => (
-                  <td key={cell}>{cell}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-    </div>
   );
 }
 

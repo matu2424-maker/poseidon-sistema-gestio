@@ -50,4 +50,4 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Refactor pendiente
 
-- Extraer layout/base administrativo restante: `Shell`, paneles iniciales por rol y tabla administrativa general si sigue siendo transversal.
+- Extraer layout/base administrativo restante: `Shell` y paneles iniciales por rol.

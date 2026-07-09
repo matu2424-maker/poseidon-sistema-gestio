@@ -139,8 +139,7 @@ Ya salieron de `src/App.tsx`:
 - Reducir `src/App.tsx` extrayendo layout/base:
   - `Shell`;
   - `CashierWorkspace`;
-  - paneles iniciales por rol;
-  - `AdminTable` o tabla administrativa general si sigue teniendo uso transversal.
+  - paneles iniciales por rol.
 - Crear contextos cortos para esos cortes antes de mover codigo.
 - Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.
 

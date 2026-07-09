@@ -216,7 +216,7 @@ pnpm run build
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
 - Refactor pendiente por cortes chicos:
-  - Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace`, paneles iniciales por rol y tabla administrativa general.
+  - Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace` y paneles iniciales por rol.
 - Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar exportaciones avanzadas cuando el flujo de caja quede estable.
