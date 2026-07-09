@@ -268,7 +268,9 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 Pendientes naturales:
 
-- `CashierClients` cuando se aborde movimientos/panel cajero.
+- Personal/papelera.
+- Usuarios/categorias.
+- Locales/maquinas/taller.
 
 ## Documentacion viva
 

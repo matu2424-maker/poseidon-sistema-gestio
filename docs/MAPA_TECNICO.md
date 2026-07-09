@@ -39,6 +39,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de una caja cerrada.
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final, retiros finales y sincronizacion de diferencias/cuentas.
+- `src/features/cashier/Movements.tsx`: gastos, transferencias, regalos, salarios desde caja, retiros/aportes y clientes del cajero.
 - `src/features/manager/Differences.tsx`: pantalla de gestion e historial de diferencias.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios, detalle de empleado, cuenta personal y cierres de liquidacion.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido por administrador/cajero.
@@ -137,6 +138,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/cashier/ClosedBalanceSummary.tsx` - implementado.
 - `src/features/cashier/Counters.tsx` - implementado.
 - `src/features/cashier/CloseCash.tsx` - implementado.
+- `src/features/cashier/Movements.tsx` - implementado.
 - `src/features/salaries/SalarySettlements.tsx` - implementado.
 - `src/features/admin/Clients.tsx` - implementado.
 - `src/features/admin/Locals.tsx`
@@ -177,13 +179,13 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `OpenCash`: apertura y resumen de ultimas cajas. Vive en `src/features/cashier/OpenCash.tsx`.
 - `ClosedBalanceSummary`: resumen solo lectura de caja cerrada. Vive en `src/features/cashier/ClosedBalanceSummary.tsx`.
 - `Counters`: carga manual de IN/OUT. Vive en `src/features/cashier/Counters.tsx`.
-- `Expenses`: carga de gastos desde tabla.
+- `Expenses`: carga de gastos desde tabla. Vive en `src/features/cashier/Movements.tsx`.
 - `ManagerExpenses`: control y revision de gastos por encargado/admin.
-- `Transfers`: transferencias.
-- `Gifts`: regalos con selector de clientes.
-- `CashierSalaryPayments`: carga simple de salarios.
-- `CapitalMovements`: retiros y aportes.
-- `CashierClients`: clientes desde cajero. Sigue en `src/App.tsx`.
+- `Transfers`: transferencias. Vive en `src/features/cashier/Movements.tsx`.
+- `Gifts`: regalos con selector de clientes. Vive en `src/features/cashier/Movements.tsx`.
+- `CashierSalaryPayments`: carga simple de salarios. Vive en `src/features/cashier/Movements.tsx`.
+- `CapitalMovements`: retiros y aportes. Vive en `src/features/cashier/Movements.tsx`.
+- `CashierClients`: clientes desde cajero. Vive en `src/features/cashier/Movements.tsx`.
 - `AdminClients`: clientes administrativos. Vive en `src/features/admin/Clients.tsx`.
 - `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
 - `Reports`: reportes/exportaciones.

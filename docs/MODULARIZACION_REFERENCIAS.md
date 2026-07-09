@@ -59,11 +59,7 @@ src/features/cashier/
   ClosedBalanceSummary.tsx
   CloseCash.tsx
   Counters.tsx
-  Expenses.tsx
-  Transfers.tsx
-  Gifts.tsx
-  SalaryPayments.tsx
-  CapitalMovements.tsx
+  Movements.tsx
 
 src/features/manager/
   ManagerPanel.tsx
@@ -226,7 +222,15 @@ Riesgo medio/alto porque salarios cruza personal, caja, cuentas corrientes, audi
 
 Estado: implementado en `src/features/admin/Clients.tsx`, `src/lib/clients.ts`, `src/lib/files.ts` y `src/lib/ids.ts`.
 
-Riesgo medio porque clientes se usan en regalos, transferencias y papelera. `CashierClients` queda en `src/App.tsx` hasta el corte de movimientos/panel cajero.
+Riesgo medio porque clientes se usan en regalos, transferencias y papelera.
+
+### Corte 11: movimientos operativos del cajero
+
+- `Movements.tsx`: gastos, transferencias, regalos, pagos de salarios, retiros/aportes, clientes desde caja y tablas auxiliares.
+
+Estado: implementado en `src/features/cashier/Movements.tsx`.
+
+Riesgo medio/alto porque impacta caja abierta, cuentas corrientes, salarios, regalos, transferencias, clientes y auditoria. Antes de modificar revisar `CODEX_CAJA`, `CODEX_CUENTAS_CORRIENTES`, `CODEX_CLIENTES_PERSONAL`, `CODEX_SALARIOS` y modulo 04.
 
 ## Validacion por corte
 

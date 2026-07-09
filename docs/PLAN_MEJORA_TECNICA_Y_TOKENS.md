@@ -52,6 +52,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/cashier/ClosedBalanceSummary.tsx`
 - `src/features/cashier/Counters.tsx`
 - `src/features/cashier/CloseCash.tsx`
+- `src/features/cashier/Movements.tsx`
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
 
@@ -83,11 +84,12 @@ Ya salieron de `src/App.tsx`:
 
 6. `src/features/admin/Clients.tsx`
    - Estado: implementado para clientes administrativos y editor compartido.
-   - Queda pendiente extraer `CashierClients` cuando se aborde movimientos/panel cajero.
+   - `CashierClients` ya vive con los movimientos operativos del cajero.
    - Mantener documento como identificador, foto/cedula como metadata local y papelera.
 
 7. Movimientos de cajero
-   - Extraer gastos, transferencias, regalos, salarios, retiros/aportes y tablas auxiliares.
+   - Estado: implementado en `src/features/cashier/Movements.tsx`.
+   - Contiene gastos, transferencias, regalos, salarios, retiros/aportes, clientes desde cajero y tablas auxiliares.
    - Mantener impacto contable y auditoria en helpers compartidos.
 
 8. Administracion general
