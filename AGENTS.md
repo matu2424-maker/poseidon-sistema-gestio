@@ -8,6 +8,10 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 
 - Trabajar por modulos cerrados y probables.
 - Antes de modificar codigo, explicar el plan.
+- Antes de cualquier modificacion de codigo, documentacion, configuracion o datos, pedir aprobacion explicita del usuario, salvo que el usuario haya ordenado literalmente ejecutar el cambio.
+- Cuando el usuario diga "vamos a trabajar en..." o pida estudiar/revisar una funcion, tomarlo como pedido de analisis y sugerencia, no como permiso para modificar.
+- Siempre dar primero una sugerencia concreta: que se cambiaria, por que, que archivos se tocarian y como se probaria.
+- Solo despues de la aprobacion explicita del usuario se puede modificar archivos.
 - Despues de modificar codigo, explicar como ejecutar y probar.
 - No agregar funcionalidades no solicitadas.
 - Priorizar claridad, mantenibilidad y seguridad.
@@ -17,7 +21,12 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Mantener actualizado el documento correspondiente en `docs/modulos/` cuando cambie una regla o flujo de un modulo.
 - Cada modificacion de codigo debe dejar documentado el cambio donde corresponda antes de cerrar el trabajo: reglas generales, documento funcional vivo, mapa tecnico y/o modulo afectado.
 - Al retomar trabajo en otra sesion, leer primero `docs/CONTEXTO_RAPIDO_CODEX.md`, `docs/REGLAS_GENERALES.md`, `docs/RETOMAR_MANANA.md`, `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/MAPA_TECNICO.md`.
+- Para cambios contables, leer tambien `docs/REGLAS_CONTABLES.md`.
+- Para cambios visuales, leer tambien `docs/REGLAS_VISUALES.md`.
+- Para modularizar o mover codigo entre archivos, leer `docs/MODULARIZACION_REFERENCIAS.md` y el contexto corto del modulo en `docs/contextos/`.
+- Al dividir `AGENTS.md` por carpetas en el futuro, cada AGENTS anidado debe referenciar documentos compartidos en vez de duplicar reglas completas, porque muchos modulos estan asociados.
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
+- No hacer commit local sin pedido explicito del usuario. Si un bloque queda estable, sugerir el commit y esperar confirmacion.
 
 ## Criterios visuales
 
@@ -26,6 +35,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Mantener tamanos consistentes de botones dentro de la misma zona de trabajo.
 - Evitar repetir el mismo titulo o dato arriba y abajo; si la barra superior ya muestra pantalla/local/usuario/funcion, el contenido no debe duplicarlo.
 - Tablas y paneles administrativos deben ser densos, claros y profesionales, con columnas ajustadas para ver la mayor cantidad posible sin perder legibilidad.
+- Toda tabla del sistema debe permitir ordenar por cada columna/concepto visible, salvo columnas de acciones/comandos o una excepcion funcional explicada y aprobada por el usuario antes de implementar.
 - Mantener el diseno simple: tarjetas de radio bajo, colores sobrios, foco en datos y acciones.
 
 ## Estado de trabajo

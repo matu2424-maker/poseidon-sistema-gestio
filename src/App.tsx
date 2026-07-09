@@ -52,6 +52,72 @@ import type {
   User,
   WeekDay,
 } from "./types";
+import {
+  accountKindLabel,
+  accountTotals,
+  createLocalBankCurrentAccount,
+  createLocalCashCurrentAccount,
+  createStaffCurrentAccount,
+  createTransferCurrentAccount,
+  ensureLocalCurrentAccounts,
+  localAccountBalances,
+  localAccountIdForMedium,
+  localBankAccountId,
+  localCashAccountId,
+  staffAccountId,
+  TRANSFER_ACCOUNT_ID,
+} from "./lib/currentAccounts";
+import {
+  accountTotalsFromMovements,
+  capitalAccountMovement,
+  differenceAccountMovement,
+  localExpenseAccountMovement,
+  localGiftAccountMovement,
+  localSalaryAccountMovement,
+  localTransferAccountMovement,
+  machineResultAccountMovement,
+  salaryAccountMovement,
+  syncDifferenceAccountMovements,
+  syncMachineResultAccountMovement,
+  transferAccountMovement,
+  upsertAccountMovement,
+} from "./lib/accountMovements";
+import { calcReading, totalsForBalance } from "./lib/cashTotals";
+import { formatDateTime, formatTime, monthRange, nowIso, today } from "./lib/dates";
+import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceActionImpact, differenceIsPending, pendingDifferenceCount } from "./lib/differences";
+import {
+  clearZeroMoneyInput,
+  counter,
+  formatCounterInput,
+  formatMoneyInput,
+  handleMoneyBlur,
+  handleMoneyFocus,
+  handleMoneyInput,
+  money,
+  moneyInputValue,
+  normalizeMoneyInput,
+  parseCounter,
+  parseMoneyInput,
+} from "./lib/money";
+import {
+  cashierSalaryConceptOptions,
+  isSalaryPaymentConcept,
+  isValidSalaryPeriod,
+  movementConceptLabel,
+  normalizeSalaryConcept,
+  salaryBaseForPeriod,
+  salaryConceptBreakdown,
+  salaryConceptLabel,
+  salaryConceptOptions,
+  salaryPeriodEndDate,
+  salarySettlementAmount,
+  salarySettlementDisplayAmount,
+  salarySettlementTotalDelta,
+  shiftSalaryPeriod,
+  suggestedSalaryPeriodModeFromDate,
+  suggestedWorkedPeriodFromOperatingDate,
+  validateSalarySettlementLimit,
+} from "./lib/salaryRules";
 
 const STORAGE_KEY = "poseidon-sistema-gestion-v2";
 const OPERATIONAL_RESET_MARKER_KEY = "poseidon-operational-reset-marker";
@@ -60,7 +126,6 @@ const LEGACY_POSEIDON_LOCAL_ID = "local-poseidon";
 const POSEIDON_LOCAL_ID = "1";
 const WORKSHOP_LOCAL_ID = "taller";
 const WORKSHOP_LABEL = "Taller";
-const TRANSFER_ACCOUNT_ID = "account-transferencias";
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 const defaultExpenseCategories: ExpenseCategory[] = [
   { id: "expense-cat-limpieza", name: "Limpieza", subcategories: ["Productos", "Servicio externo", "Mantenimiento diario"], status: "ACTIVA" },
@@ -123,38 +188,8 @@ const roleLabels: Record<Role, string> = {
   ADMINISTRADOR: "Administrador",
 };
 
-const currency = new Intl.NumberFormat("es-UY", {
-  style: "currency",
-  currency: "UYU",
-  maximumFractionDigits: 0,
-});
-
-const nowIso = () => new Date().toISOString();
-const today = () => new Date().toISOString().slice(0, 10);
 const uid = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
-const money = (value: number | undefined | null) => currency.format(Number.isFinite(value ?? NaN) ? Number(value) : 0);
 const asNumber = (value: FormDataEntryValue | null) => Number(value || 0);
-const counterFormat = new Intl.NumberFormat("es-UY", { maximumFractionDigits: 0 });
-const counter = (value: number | undefined | null) => counterFormat.format(Number.isFinite(value ?? NaN) ? Number(value) : 0);
-const parseCounter = (value: string) => Number(value.replace(/\D/g, "") || 0);
-const formatCounterInput = (value: string) => counter(parseCounter(value));
-const parseMoneyInput = (value: FormDataEntryValue | null) => Number(String(value ?? "").replace(/\D/g, "") || 0);
-const formatMoneyInput = (value: string) => {
-  const digits = value.replace(/\D/g, "");
-  return digits ? counterFormat.format(Number(digits)) : "";
-};
-const moneyInputValue = (value: number | undefined | null) => (Number(value ?? 0) > 0 ? counterFormat.format(Number(value)) : "0");
-const normalizeMoneyInput = (value: string) => formatMoneyInput(value) || "0";
-const clearZeroMoneyInput = (value: string) => (parseMoneyInput(value) === 0 ? "" : value);
-const handleMoneyInput = (event: ChangeEvent<HTMLInputElement>) => {
-  event.currentTarget.value = formatMoneyInput(event.currentTarget.value);
-};
-const handleMoneyFocus = (event: FocusEvent<HTMLInputElement>) => {
-  if (parseMoneyInput(event.currentTarget.value) === 0) event.currentTarget.value = "";
-};
-const handleMoneyBlur = (event: FocusEvent<HTMLInputElement>) => {
-  event.currentTarget.value = normalizeMoneyInput(event.currentTarget.value);
-};
 const shortNumberId = (value: string) => {
   const digits = value.trim();
   if (!/^\d{1,4}$/.test(digits)) return "";
@@ -183,8 +218,6 @@ const hasClientDocumentDuplicate = (clients: Client[], documentType: ClientDocum
   );
 };
 const nextShortId = (ids: string[]) => String(Math.max(0, ...ids.map((id) => Number(shortNumberId(id)) || 0)) + 1);
-const formatDateTime = (value: string) => new Date(value).toLocaleString("es-UY", { dateStyle: "short", timeStyle: "short" });
-const formatTime = (value: string | undefined) => (value ? new Date(value).toLocaleTimeString("es-UY", { hour: "2-digit", minute: "2-digit" }) : "-");
 const localStatusClass = (status: Local["status"]) => (status === "ACTIVO" ? "status-active" : status === "CERRADO" ? "status-closed" : "status-inactive");
 const machineStatusClass = (status: MachineStatus) =>
   status === "ACTIVA" ? "status-active" : status === "MANTENIMIENTO" ? "status-maintenance" : status === "DESUSO" ? "status-disused" : "status-inactive";
@@ -218,82 +251,7 @@ const userDisplayNameWithRole = (data: AppData, userId: string | undefined, role
   return role ? `${name} como ${roleLabels[role]}` : name;
 };
 const localOptionName = (local: Local) => `${local.id} - ${local.name}`;
-const staffAccountId = (staffId: string) => `account-staff-${staffId}`;
-const localCashAccountId = (localId: string) => `account-local-${localId}-efectivo`;
-const localBankAccountId = (localId: string) => `account-local-${localId}-banco`;
-const localAccountIdForMedium = (localId: string, medium: CapitalMovementMedium) =>
-  medium === "EFECTIVO" ? localCashAccountId(localId) : localBankAccountId(localId);
-const salaryConceptLabels: Record<SalaryConcept, string> = {
-  SALARIO: "Salario",
-  SUELDO: "Salario",
-  ADELANTO: "Adelanto",
-  EXTRA: "Extra",
-  HORAS_EXTRAS: "Horas extras",
-  AJUSTE: "Extra",
-  DESCUENTO: "Descuento",
-  AGUINALDO: "Aguinaldo",
-  SALARIO_VACACIONAL: "Salario vacacional",
-};
-const salaryConceptOptions: SalaryConcept[] = ["ADELANTO", "SALARIO", "EXTRA", "HORAS_EXTRAS", "AGUINALDO", "SALARIO_VACACIONAL", "DESCUENTO"];
-const salaryConceptLabel = (concept: SalaryConcept) => salaryConceptLabels[concept] ?? concept;
-const movementConceptLabel = (concept: string | undefined) => (concept ? salaryConceptLabels[concept as SalaryConcept] ?? concept : "-");
-const normalizeSalaryConcept = (concept: unknown): SalaryConcept => {
-  if (concept === "SUELDO") return "SALARIO";
-  if (concept === "AJUSTE") return "EXTRA";
-  if (
-    concept === "SALARIO" ||
-    concept === "ADELANTO" ||
-    concept === "EXTRA" ||
-    concept === "HORAS_EXTRAS" ||
-    concept === "DESCUENTO" ||
-    concept === "AGUINALDO" ||
-    concept === "SALARIO_VACACIONAL"
-  ) {
-    return concept;
-  }
-  return "SALARIO";
-};
-const isSalaryPaymentConcept = (concept: SalaryConcept) => concept === "SALARIO" || concept === "SUELDO";
-const salaryConceptBreakdown = (concept: SalaryConcept, amount: number) => {
-  const normalizedConcept = normalizeSalaryConcept(concept);
-  const extraAmount = normalizedConcept === "HORAS_EXTRAS" || normalizedConcept === "EXTRA" ? amount : 0;
-  return {
-    baseSalary: 0,
-    advances: normalizedConcept === "ADELANTO" ? amount : 0,
-    extraAmount,
-    extraConcept: normalizedConcept === "HORAS_EXTRAS" ? "Horas extras" : normalizedConcept === "EXTRA" ? "Extra" : "",
-    aguinaldo: normalizedConcept === "AGUINALDO" ? amount : 0,
-    vacationSalary: normalizedConcept === "SALARIO_VACACIONAL" ? amount : 0,
-    otherDeductions: normalizedConcept === "DESCUENTO" ? amount : 0,
-    totalToPay: isSalaryPaymentConcept(normalizedConcept) ? amount : 0,
-  };
-};
-const salarySettlementAmount = (settlement: SalarySettlement) => {
-  const concept = normalizeSalaryConcept(settlement.concept);
-  if (concept === "ADELANTO") return Number(settlement.advances ?? 0);
-  if (concept === "DESCUENTO") return 0;
-  const totalCash = Number(settlement.totalToPay ?? 0);
-  if (totalCash !== 0) return totalCash;
-  return (
-    Number(settlement.baseSalary ?? 0) +
-    Number(settlement.extraAmount ?? 0) +
-    Number(settlement.aguinaldo ?? 0) +
-    Number(settlement.vacationSalary ?? 0)
-  );
-};
-const salarySettlementDisplayAmount = (settlement: SalarySettlement) =>
-  normalizeSalaryConcept(settlement.concept) === "DESCUENTO" ? Number(settlement.otherDeductions ?? 0) : salarySettlementAmount(settlement);
-const salarySettlementTotalDelta = (settlement: SalarySettlement) =>
-  Number(settlement.extraAmount ?? 0) +
-  Number(settlement.aguinaldo ?? 0) +
-  Number(settlement.vacationSalary ?? 0) -
-  Number(settlement.otherDeductions ?? 0);
-const accountKindLabel = (kind: CurrentAccountKind) => {
-  if (kind === "PERSONAL") return "Personal";
-  if (kind === "LOCAL_EFECTIVO") return "Local / Efectivo";
-  if (kind === "LOCAL_BANCO") return "Local / Banco";
-  return "Transferencias";
-};
+const capitalize = (value: string) => (value ? `${value.charAt(0).toLocaleUpperCase("es-UY")}${value.slice(1)}` : value);
 const mapsHref = (local: Local) =>
   local.googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.address || local.name)}`;
 const parseAuditValue = (value: string): Record<string, unknown> => {
@@ -314,67 +272,6 @@ function compareValues(a: string | number, b: string | number) {
 function nextSort<Key extends string>(current: SortState<Key>, key: Key): SortState<Key> {
   if (current.key !== key) return { key, direction: "asc" };
   return { key, direction: current.direction === "asc" ? "desc" : "asc" };
-}
-
-function createStaffCurrentAccount(staff: StaffMember, existing?: CurrentAccount): CurrentAccount {
-  const name = staffFullName(staff) || `Personal ${staff.visibleId}`;
-  return {
-    id: staffAccountId(staff.id),
-    kind: "PERSONAL",
-    entityId: staff.id,
-    name,
-    status: staff.status === "PAPELERA" ? "INACTIVA" : "ACTIVA",
-    createdAt: existing?.createdAt ?? staff.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
-  };
-}
-
-function createTransferCurrentAccount(existing?: CurrentAccount): CurrentAccount {
-  return {
-    id: TRANSFER_ACCOUNT_ID,
-    kind: "TRANSFERENCIAS",
-    name: "Transferencias",
-    status: "ACTIVA",
-    createdAt: existing?.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
-  };
-}
-
-function createLocalCashCurrentAccount(local: Local, existing?: CurrentAccount): CurrentAccount {
-  return {
-    id: localCashAccountId(local.id),
-    kind: "LOCAL_EFECTIVO",
-    entityId: local.id,
-    name: `${local.name} - Efectivo`,
-    status: local.status === "CERRADO" ? "INACTIVA" : "ACTIVA",
-    createdAt: existing?.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
-  };
-}
-
-function createLocalBankCurrentAccount(local: Local, existing?: CurrentAccount): CurrentAccount {
-  return {
-    id: localBankAccountId(local.id),
-    kind: "LOCAL_BANCO",
-    entityId: local.id,
-    name: `${local.name} - Banco`,
-    status: local.status === "CERRADO" ? "INACTIVA" : "ACTIVA",
-    createdAt: existing?.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
-  };
-}
-
-function ensureLocalCurrentAccounts(data: AppData, localId: string): CurrentAccount[] {
-  const local = data.locals.find((item) => item.id === localId);
-  if (!local) return data.currentAccounts;
-  const accounts = [...data.currentAccounts];
-  if (!accounts.some((account) => account.id === localCashAccountId(local.id))) {
-    accounts.unshift(createLocalCashCurrentAccount(local));
-  }
-  if (!accounts.some((account) => account.id === localBankAccountId(local.id))) {
-    accounts.unshift(createLocalBankCurrentAccount(local));
-  }
-  return accounts;
 }
 
 function salaryHistoryEvent(
@@ -405,235 +302,6 @@ function salaryHistoryEvent(
   };
 }
 
-const salaryPeriodEndDate = (period: string) => {
-  const [year, month] = period.split("-").map(Number);
-  if (!year || !month) return `${period}-31`;
-  return new Date(year, month, 0).toISOString().slice(0, 10);
-};
-
-function salaryBaseForPeriod(data: Pick<AppData, "salaryHistories">, staff: StaffMember | undefined, period: string) {
-  if (!staff || staff.status !== "ACTIVO") {
-    return { amount: 0, salaryType: staff?.salaryType ?? "MENSUAL" };
-  }
-  const endDate = salaryPeriodEndDate(period);
-  const latestHistory = data.salaryHistories
-    .filter((history) => history.staffId === staff.id && history.effectiveDate <= endDate)
-    .sort((a, b) => b.effectiveDate.localeCompare(a.effectiveDate) || b.createdAt.localeCompare(a.createdAt))[0];
-  return {
-    amount: Number(latestHistory?.newNominalSalary ?? staff.nominalSalary ?? 0),
-    salaryType: latestHistory?.newSalaryType ?? staff.salaryType,
-  };
-}
-
-function validateSalarySettlementLimit(
-  data: Pick<AppData, "salaryHistories" | "salarySettlements">,
-  staff: StaffMember,
-  period: string,
-  concept: SalaryConcept,
-  amount: number,
-  excludeSettlementId?: string,
-) {
-  const salaryBase = salaryBaseForPeriod(data, staff, period).amount;
-  const samePeriodSettlements = data.salarySettlements.filter(
-    (settlement) =>
-      settlement.staffId === staff.id &&
-      settlement.period === period &&
-      settlement.status !== "ANULADA" &&
-      settlement.id !== excludeSettlementId,
-  );
-  const currentSalaryPaid = samePeriodSettlements
-    .filter((settlement) => isSalaryPaymentConcept(normalizeSalaryConcept(settlement.concept)))
-    .reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
-  const currentAdvances = samePeriodSettlements.reduce((total, settlement) => total + Number(settlement.advances ?? 0), 0);
-  const nextSalaryPaid = currentSalaryPaid + (isSalaryPaymentConcept(concept) ? amount : 0);
-  const nextAdvances = currentAdvances + (concept === "ADELANTO" ? amount : 0);
-
-  if (isSalaryPaymentConcept(concept) && amount > salaryBase) {
-    return `El salario no puede superar el salario base (${money(salaryBase)}).`;
-  }
-  if (nextSalaryPaid > salaryBase) {
-    return `El salario pagado acumulado no puede superar el salario base (${money(salaryBase)}).`;
-  }
-  if (nextSalaryPaid + nextAdvances > salaryBase) {
-    return `La suma de salario pagado y adelantos no puede superar el salario base (${money(salaryBase)}).`;
-  }
-  return "";
-}
-
-function salaryAccountMovement(settlement: SalarySettlement, userId: string): AccountMovement {
-  const concept = normalizeSalaryConcept(settlement.concept);
-  return {
-    id: `account-movement-salary-${settlement.id}`,
-    accountId: staffAccountId(settlement.staffId),
-    balanceId: settlement.balanceId,
-    sourceType: "SUELDO",
-    sourceId: settlement.id,
-    direction: "SALIDA",
-    concept,
-    amount: salarySettlementDisplayAmount(settlement),
-    detail: settlement.notes || salaryConceptLabel(concept),
-    status: settlement.status === "CONFIRMADA" ? "ACTIVO" : "ANULADO",
-    userId,
-    createdAt: settlement.createdAt,
-  };
-}
-
-function localSalaryAccountMovement(settlement: SalarySettlement, userId: string): AccountMovement {
-  const concept = normalizeSalaryConcept(settlement.concept);
-  const detail = settlement.notes || salaryConceptLabel(concept);
-  return {
-    id: `account-movement-local-salary-${settlement.id}`,
-    accountId: localCashAccountId(settlement.localId),
-    balanceId: settlement.balanceId,
-    sourceType: "SUELDO",
-    sourceId: settlement.id,
-    direction: "SALIDA",
-    concept,
-    amount: salarySettlementAmount(settlement),
-    detail: `${settlement.staffName}${detail ? ` - ${detail}` : ""}`,
-    status: settlement.status === "CONFIRMADA" ? "ACTIVO" : "ANULADO",
-    userId,
-    createdAt: settlement.createdAt,
-  };
-}
-
-function transferAccountMovement(transfer: Transfer): AccountMovement {
-  return {
-    id: `account-movement-transfer-${transfer.id}`,
-    accountId: TRANSFER_ACCOUNT_ID,
-    balanceId: transfer.balanceId,
-    sourceType: "TRANSFERENCIA",
-    sourceId: transfer.id,
-    direction: "ENTRADA",
-    concept: "TRANSFERENCIA",
-    amount: transfer.amount,
-    detail: `${transfer.name} - ${transfer.receipt}`,
-    status: transfer.status,
-    userId: transfer.userId,
-    createdAt: transfer.createdAt,
-  };
-}
-
-function localTransferAccountMovement(transfer: Transfer, localId: string): AccountMovement {
-  return {
-    id: `account-movement-local-transfer-${transfer.id}`,
-    accountId: localBankAccountId(localId),
-    balanceId: transfer.balanceId,
-    sourceType: "TRANSFERENCIA",
-    sourceId: transfer.id,
-    direction: "ENTRADA",
-    concept: "TRANSFERENCIA",
-    amount: transfer.amount,
-    detail: `${transfer.name} - ${transfer.receipt}`,
-    status: transfer.status,
-    userId: transfer.userId,
-    createdAt: transfer.createdAt,
-  };
-}
-
-function localExpenseAccountMovement(expense: Expense, localId: string): AccountMovement {
-  return {
-    id: `account-movement-local-expense-${expense.id}`,
-    accountId: localCashAccountId(localId),
-    balanceId: expense.balanceId,
-    sourceType: "GASTO",
-    sourceId: expense.id,
-    direction: "SALIDA",
-    concept: "GASTO",
-    amount: expense.amount,
-    detail: `${expense.category} / ${expense.subcategory || "-"}${expense.description ? ` - ${expense.description}` : ""}`,
-    status: expense.status,
-    userId: expense.userId,
-    createdAt: expense.createdAt,
-  };
-}
-
-function localGiftAccountMovement(gift: Gift, localId: string): AccountMovement {
-  return {
-    id: `account-movement-local-gift-${gift.id}`,
-    accountId: localCashAccountId(localId),
-    balanceId: gift.balanceId,
-    sourceType: "REGALO",
-    sourceId: gift.id,
-    direction: "SALIDA",
-    concept: "REGALO",
-    amount: gift.cashAmount + gift.creditAmount,
-    detail: `${gift.reference || "Sin referencia"}${gift.description ? ` - ${gift.description}` : ""}`,
-    status: gift.status,
-    userId: gift.userId,
-    createdAt: gift.createdAt,
-  };
-}
-
-function capitalAccountMovement(movement: CapitalMovement): AccountMovement {
-  return {
-    id: `account-movement-capital-${movement.id}`,
-    accountId: localAccountIdForMedium(movement.localId, movement.medium),
-    balanceId: movement.balanceId,
-    sourceType: movement.type,
-    sourceId: movement.id,
-    direction: movement.type === "APORTE" ? "ENTRADA" : "SALIDA",
-    concept: movement.type,
-    amount: movement.amount,
-    detail: `${movement.person} - ${movement.medium} - ${movement.timing}${movement.note ? ` - ${movement.note}` : ""}`,
-    status: movement.status,
-    userId: movement.userId,
-    createdAt: movement.createdAt,
-  };
-}
-
-function machineResultAccountMovement(balance: Balance, result: number, userId: string): AccountMovement | null {
-  if (result === 0) return null;
-  return {
-    id: `account-movement-local-machine-${balance.id}`,
-    accountId: localCashAccountId(balance.localId),
-    balanceId: balance.id,
-    sourceType: "RESULTADO_MAQUINAS",
-    sourceId: balance.id,
-    direction: result >= 0 ? "ENTRADA" : "SALIDA",
-    concept: "RESULTADO_MAQUINAS",
-    amount: Math.abs(result),
-    detail: `Caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
-    status: "ACTIVO",
-    userId,
-    createdAt: nowIso(),
-  };
-}
-
-function syncMachineResultAccountMovement(data: AppData, balanceId: string, userId: string): AppData {
-  const balance = data.balances.find((item) => item.id === balanceId);
-  if (!balance) return data;
-  const result = data.readings
-    .filter((reading) => reading.balanceId === balanceId && reading.status === "CARGADA")
-    .reduce((total, reading) => total + reading.result, 0);
-  const movementId = `account-movement-local-machine-${balance.id}`;
-  const accountMovements = data.accountMovements.filter((movement) => movement.id !== movementId);
-  const movement = machineResultAccountMovement(balance, result, userId);
-  return {
-    ...data,
-    currentAccounts: ensureLocalCurrentAccounts(data, balance.localId),
-    accountMovements: movement ? [movement, ...accountMovements] : accountMovements,
-  };
-}
-
-function upsertAccountMovement(movements: AccountMovement[], movement: AccountMovement) {
-  return movements.some((item) => item.id === movement.id)
-    ? movements.map((item) => (item.id === movement.id ? movement : item))
-    : [movement, ...movements];
-}
-
-function accountTotals(data: AppData, accountId: string) {
-  const movements = data.accountMovements.filter((movement) => movement.accountId === accountId && movement.status === "ACTIVO");
-  const income = movements.filter((movement) => movement.direction === "ENTRADA").reduce((total, movement) => total + movement.amount, 0);
-  const outcome = movements.filter((movement) => movement.direction === "SALIDA").reduce((total, movement) => total + movement.amount, 0);
-  return { income, outcome, balance: income - outcome, count: movements.length };
-}
-function localAccountBalances(data: AppData, localId: string) {
-  return {
-    cash: accountTotals(data, localCashAccountId(localId)).balance,
-    bank: accountTotals(data, localBankAccountId(localId)).balance,
-  };
-}
 function sortIndicator<Key extends string>(sort: SortState<Key>, key: Key) {
   if (sort.key !== key) return "";
   return sort.direction === "asc" ? " asc" : " desc";
@@ -1314,6 +982,12 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
         return machineResultAccountMovement(balance, result, balance.closedBy ?? balance.openedBy);
       })
       .filter(Boolean),
+    ...balances.flatMap((balance) =>
+      [
+        differenceAccountMovement(balance, "EFECTIVO", balance.cashDifference ?? 0, balance.closedBy ?? balance.openedBy),
+        differenceAccountMovement(balance, "BANCO", balance.bankDifference ?? 0, balance.closedBy ?? balance.openedBy),
+      ].filter((movement): movement is AccountMovement => Boolean(movement)),
+    ),
   ] as AccountMovement[];
   const audit: AuditEvent[] = [
     {
@@ -1606,9 +1280,10 @@ function normalizeData(data: AppData): AppData {
     const createdBy = item.createdBy ?? item.approvedBy ?? "system";
     const approvedBy = item.status === "CONFIRMADA" ? item.approvedBy ?? createdBy : item.approvedBy;
     const annulledBy = item.status === "ANULADA" ? item.annulledBy ?? item.approvedBy ?? item.createdBy ?? "system" : item.annulledBy;
+    const balancePeriod = item.balanceId ? source.balances.find((balance) => balance.id === item.balanceId)?.operatingDate?.slice(0, 7) : undefined;
     return {
       ...item,
-      period: item.period ?? today().slice(0, 7),
+      period: isValidSalaryPeriod(item.period ?? "") ? item.period : balancePeriod ?? today().slice(0, 7),
       balanceId: item.balanceId,
       staffName: item.staffName ?? staffFullName(staff.find((staffItem) => staffItem.id === item.staffId) ?? { firstName: "", lastName: "" }),
       localId: mapLocalId(item.localId ?? POSEIDON_LOCAL_ID),
@@ -1765,6 +1440,7 @@ function normalizeData(data: AppData): AppData {
     totalSalaries: Number(closure.totalSalaries ?? 0),
     totalSalaryPaid: Number(closure.totalSalaryPaid ?? 0),
     totalAdvances: Number(closure.totalAdvances ?? 0),
+    totalBaseCovered: Number(closure.totalBaseCovered ?? Number(closure.totalSalaryPaid ?? 0) + Number(closure.totalAdvances ?? 0) + Number(closure.totalDeductions ?? 0)),
     totalLiquidated: Number(closure.totalLiquidated ?? 0),
     totalPending: Number(closure.totalPending ?? 0),
     status: closure.status ?? "CERRADO",
@@ -1854,6 +1530,14 @@ function normalizeData(data: AppData): AppData {
     if (movement && accountIds.has(movement.accountId)) {
       movementById.set(movement.id, movement);
     }
+    const movementUserId = balance.closedBy ?? balance.openedBy ?? "system";
+    const cashDifferenceMovement = differenceAccountMovement(balance, "EFECTIVO", Number(balance.cashDifference ?? 0), movementUserId);
+    const bankDifferenceMovement = differenceAccountMovement(balance, "BANCO", Number(balance.bankDifference ?? 0), movementUserId);
+    [cashDifferenceMovement, bankDifferenceMovement].forEach((differenceMovement) => {
+      if (differenceMovement && accountIds.has(differenceMovement.accountId)) {
+        movementById.set(differenceMovement.id, differenceMovement);
+      }
+    });
   });
   const accountMovements = [...movementById.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const auditEvents = source.audit.map((event) => ({
@@ -1888,105 +1572,6 @@ function normalizeData(data: AppData): AppData {
     audit: auditEvents,
     machineLocalHistory,
   };
-}
-
-function calcReading(reading: Pick<Reading, "inPrevious" | "inActual" | "outPrevious" | "outActual">) {
-  if (reading.inActual === null || reading.outActual === null) return 0;
-  return reading.inActual - reading.inPrevious - (reading.outActual - reading.outPrevious);
-}
-
-function totalsForBalance(data: AppData, balanceId: string) {
-  const readings = data.readings.filter((reading) => reading.balanceId === balanceId && reading.status === "CARGADA");
-  const expenses = data.expenses.filter((expense) => expense.balanceId === balanceId && expense.status === "ACTIVO");
-  const transfers = data.transfers.filter((transfer) => transfer.balanceId === balanceId && transfer.status === "ACTIVO");
-  const gifts = data.gifts.filter((gift) => gift.balanceId === balanceId && gift.status === "ACTIVO");
-  const capitalMovements = data.capitalMovements.filter((movement) => movement.balanceId === balanceId && movement.status === "ACTIVO");
-  const operatingCapitalMovements = capitalMovements.filter((movement) => movement.timing !== "APERTURA");
-  const openingCapitalMovements = capitalMovements.filter((movement) => movement.timing === "APERTURA");
-  const balance = data.balances.find((item) => item.id === balanceId);
-  const salaryPayments = data.salarySettlements.filter((settlement) => settlement.balanceId === balanceId && settlement.status !== "ANULADA");
-  const resultMachines = readings.reduce((total, reading) => total + reading.result, 0);
-  const totalIn = readings.reduce((total, reading) => total + ((reading.inActual ?? reading.inPrevious) - reading.inPrevious), 0);
-  const totalOut = readings.reduce((total, reading) => total + ((reading.outActual ?? reading.outPrevious) - reading.outPrevious), 0);
-  const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
-  const totalTransfers = transfers.reduce((total, transfer) => total + transfer.amount, 0);
-  const giftCash = gifts.reduce((total, gift) => total + gift.cashAmount, 0);
-  const giftCredit = gifts.reduce((total, gift) => total + gift.creditAmount, 0);
-  const totalSalaries = salaryPayments.reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
-  const withdrawalsCash = operatingCapitalMovements
-    .filter((movement) => movement.type === "RETIRO" && movement.medium === "EFECTIVO")
-    .reduce((total, movement) => total + movement.amount, 0);
-  const withdrawalsBank = operatingCapitalMovements
-    .filter((movement) => movement.type === "RETIRO" && movement.medium === "TRANSFERENCIA")
-    .reduce((total, movement) => total + movement.amount, 0);
-  const capitalContributionsCash = operatingCapitalMovements
-    .filter((movement) => movement.type === "APORTE" && movement.medium === "EFECTIVO")
-    .reduce((total, movement) => total + movement.amount, 0);
-  const capitalContributionsBank = operatingCapitalMovements
-    .filter((movement) => movement.type === "APORTE" && movement.medium === "TRANSFERENCIA")
-    .reduce((total, movement) => total + movement.amount, 0);
-  const openingCapitalCash = openingCapitalMovements
-    .filter((movement) => movement.type === "APORTE" && movement.medium === "EFECTIVO")
-    .reduce((total, movement) => total + movement.amount, 0);
-  const openingCapitalBank = openingCapitalMovements
-    .filter((movement) => movement.type === "APORTE" && movement.medium === "TRANSFERENCIA")
-    .reduce((total, movement) => total + movement.amount, 0);
-  const expectedCash =
-    (balance?.initialFund ?? 0) + resultMachines + capitalContributionsCash - totalExpenses - totalSalaries - giftCash - totalTransfers - withdrawalsCash;
-  const commercialResult = resultMachines - totalExpenses - totalSalaries - giftCash - giftCredit;
-  const withdrawal = (balance?.declaredCash ?? 0) - (balance?.nextBase ?? 0);
-  const difference = (balance?.declaredCash ?? 0) - expectedCash;
-
-  return {
-    totalIn,
-    totalOut,
-    resultMachines,
-    totalExpenses,
-    totalSalaries,
-    totalTransfers,
-    giftCash,
-    giftCredit,
-    withdrawalsCash,
-    withdrawalsBank,
-    capitalContributionsCash,
-    capitalContributionsBank,
-    openingCapitalCash,
-    openingCapitalBank,
-    totalWithdrawals: withdrawalsCash + withdrawalsBank,
-    totalCapitalContributions: capitalContributionsCash + capitalContributionsBank,
-    expectedCash,
-    commercialResult,
-    withdrawal,
-    difference,
-  };
-}
-
-function cashDifferenceForBalance(data: AppData, balance: Balance) {
-  return balance.cashDifference ?? totalsForBalance(data, balance.id).difference;
-}
-
-function bankDifferenceForBalance(balance: Balance) {
-  return balance.bankDifference ?? 0;
-}
-
-function balanceHasDifference(data: AppData, balance: Balance) {
-  return cashDifferenceForBalance(data, balance) !== 0 || bankDifferenceForBalance(balance) !== 0;
-}
-
-function differenceIsPending(balance: Balance) {
-  return (balance.differenceStatus ?? "PENDIENTE") === "PENDIENTE";
-}
-
-function pendingDifferenceCount(data: AppData) {
-  return data.balances.filter((balance) => balance.status === "CERRADO" && balanceHasDifference(data, balance) && differenceIsPending(balance)).length;
-}
-
-function differenceActionImpact(status: DifferenceStatus | "") {
-  if (status === "REVISADA") return "Marca la recaudacion como revisada. No mueve caja, banco ni resultado economico.";
-  if (status === "RESUELTA") return "Cierra el control como resuelto. No genera ajuste automatico.";
-  if (status === "AJUSTADA") return "Indica que hubo ajuste definido. El movimiento contable debe registrarse aparte y auditado.";
-  if (status === "ANULADA") return "Anula el reclamo operativo de diferencia. No borra la auditoria del cierre.";
-  return "Elegir una accion no modifica saldos automaticamente; solo cambia el estado de control.";
 }
 
 function downloadFile(filename: string, content: string, type: string) {
@@ -4814,7 +4399,7 @@ function CashierSalaryPayments({
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
-  const period = balance.operatingDate.slice(0, 7);
+  const suggestedPeriod = suggestedWorkedPeriodFromOperatingDate(balance.operatingDate);
   const activeStaff = data.staff.filter((staff) => staff.status === "ACTIVO");
   const items = data.salarySettlements.filter((settlement) => settlement.balanceId === balance.id && settlement.status !== "ANULADA");
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -4825,9 +4410,23 @@ function CashierSalaryPayments({
       setMessage("Selecciona una persona activa.");
       return;
     }
-    const concept = normalizeSalaryConcept(form.get("concept") ?? "SALARIO");
+    const conceptRaw = String(form.get("concept") ?? "");
+    if (!conceptRaw) {
+      setMessage("Selecciona Salario o Adelanto.");
+      return;
+    }
+    const concept = normalizeSalaryConcept(conceptRaw);
+    if (!cashierSalaryConceptOptions.includes(concept)) {
+      setMessage("Selecciona Salario o Adelanto.");
+      return;
+    }
+    const period = String(form.get("period") ?? "").trim();
+    if (!isValidSalaryPeriod(period)) {
+      setMessage("Selecciona un periodo trabajado valido.");
+      return;
+    }
     const amount = parseMoneyInput(form.get("amount"));
-    if (!amount) {
+    if (amount <= 0) {
       setMessage("Ingresa un monto.");
       return;
     }
@@ -4853,7 +4452,7 @@ function CashierSalaryPayments({
       otherDeductions,
       totalToPay,
       concept,
-      notes: `Cargado desde panel cajero por ${user.name}`,
+      notes: `Pago desde caja ${balance.visibleId ?? balance.id}. Periodo trabajado ${period}.`,
       status: "CONFIRMADA",
       origin: "CAJA",
       createdBy: user.id,
@@ -4907,40 +4506,61 @@ function CashierSalaryPayments({
     patchData((current) => {
       const previous = current.salarySettlements.find((item) => item.id === id);
       if (!previous) return current;
-      const staffUpdated = current.staff.map((staffItem) => {
-        if (staffItem.id !== previous.staffId || previous.concept !== "ADELANTO") return staffItem;
-        return {
-          ...staffItem,
-          salaryAdvanceBalance: Math.max(0, staffItem.salaryAdvanceBalance - previous.advances),
-          updatedAt: nowIso(),
-        };
-      });
+      const updatedAt = nowIso();
+      const salarySettlements = current.salarySettlements.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status: "ANULADA" as const,
+              annulledBy: user.id,
+              annulledByName: user.name,
+              annulledAt: updatedAt,
+              updatedAt,
+            }
+          : item,
+      );
+      const next = salarySettlements.find((item) => item.id === id);
+      const activeAdvanceBalance = salarySettlements
+        .filter((item) => item.staffId === previous.staffId && item.status !== "ANULADA" && normalizeSalaryConcept(item.concept) === "ADELANTO")
+        .reduce((total, item) => total + Number(item.advances ?? 0), 0);
+      const staffUpdated = current.staff.map((staffItem) =>
+        staffItem.id === previous.staffId ? { ...staffItem, salaryAdvanceBalance: activeAdvanceBalance, updatedAt } : staffItem,
+      );
+      const accountMovements = next
+        ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
+        : current.accountMovements;
       return audit(
         {
           ...current,
           staff: staffUpdated,
-          accountMovements: current.accountMovements.filter((movement) => movement.sourceType !== "SUELDO" || movement.sourceId !== id),
-          salarySettlements: current.salarySettlements.filter((item) => item.id !== id),
+          accountMovements,
+          salarySettlements,
         },
-        "Eliminar pago salario antes de cierre",
+        "Anular pago salario antes de cierre",
         "LiquidacionSalario",
         id,
         previous,
-        "",
+        next,
         "Caja abierta",
       );
     });
-    setMessage("Pago de salario eliminado.");
+    setMessage("Pago de salario anulado.");
   };
 
   return (
-    <CashierMovementPanel title="Pago de salarios" detail="Carga rapida al personal." totalLabel="pagos de la caja" total={items.length} onBack={onBack}>
+    <CashierMovementPanel
+      title="Pago de salarios"
+      detail="El pago sale de la caja actual, pero se imputa al periodo trabajado seleccionado."
+      totalLabel="pagos de la caja"
+      total={items.length}
+      onBack={onBack}
+    >
       {!activeStaff.length && <p className="notice">No hay personal activo cargado.</p>}
       <MovementTable
-        columns={["Personal", "Concepto", "Monto", "Estado", "Accion"]}
+        columns={["Personal", "Concepto", "Periodo trabajado", "Monto", "Estado", "Accion"]}
         rows={items.map((item) => ({
           id: item.id,
-          cells: [item.staffName, salaryConceptLabel(normalizeSalaryConcept(item.concept)), money(salarySettlementDisplayAmount(item)), item.status],
+          cells: [item.staffName, salaryConceptLabel(normalizeSalaryConcept(item.concept)), item.period, money(salarySettlementDisplayAmount(item)), item.status],
           status: item.status === "ANULADA" ? "ANULADO" : "ACTIVO",
         }))}
         actionLabel="Eliminar"
@@ -4960,13 +4580,19 @@ function CashierSalaryPayments({
               </select>
             </td>
             <td>
-              <select form="salary-payment-create-form" name="concept" defaultValue="ADELANTO">
-                {salaryConceptOptions.map((concept) => (
+              <select form="salary-payment-create-form" name="concept" defaultValue="" required>
+                <option value="" disabled>
+                  Concepto
+                </option>
+                {cashierSalaryConceptOptions.map((concept) => (
                   <option key={concept} value={concept}>
                     {salaryConceptLabel(concept)}
                   </option>
                 ))}
               </select>
+            </td>
+            <td>
+              <input form="salary-payment-create-form" name="period" type="month" defaultValue={suggestedPeriod} required />
             </td>
             <td>
               <input className="compact-money-input" form="salary-payment-create-form" name="amount" inputMode="numeric" defaultValue="0" onFocus={handleMoneyFocus} onChange={handleMoneyInput} onBlur={handleMoneyBlur} required />
@@ -5630,7 +5256,7 @@ function CloseCash({
         ...current.machineLocalHistory,
       ];
       const next = balances.find((item) => item.id === balance.id);
-      const synced = syncMachineResultAccountMovement(
+      let synced = syncMachineResultAccountMovement(
         {
           ...current,
           currentAccounts: ensureLocalCurrentAccounts(current, balance.localId),
@@ -5643,6 +5269,12 @@ function CloseCash({
         balance.id,
         user.id,
       );
+      if (next) {
+        synced = {
+          ...synced,
+          accountMovements: syncDifferenceAccountMovements(synced.accountMovements, next, user.id),
+        };
+      }
       return audit(synced, "Cerrar caja", "BalanceDiario", balance.id, previous, next, differenceNote);
     });
     setMessage("Caja cerrada correctamente.");
@@ -5991,6 +5623,7 @@ function AdminSalarySettlements({
     bonuses: number;
     otherDeductions: number;
     totalAmount: number;
+    baseCoveredAmount: number;
     liquidatedAmount: number;
     pendingAmount: number;
     activeSettlementCount: number;
@@ -6005,7 +5638,7 @@ function AdminSalarySettlements({
   const [selectedStaffMovementId, setSelectedStaffMovementId] = useState<string | null>(null);
   const [closureMessage, setClosureMessage] = useState("");
   const [settlementSort, setSettlementSort] = useState<
-    SortState<"period" | "concept" | "salaryPaid" | "advances" | "extraAmount" | "bonuses" | "otherDeductions" | "status">
+    SortState<"period" | "concept" | "salaryPaid" | "advances" | "extraPrize" | "hoursExtra" | "bonuses" | "otherDeductions" | "status">
   >({
     key: "period",
     direction: "desc",
@@ -6014,37 +5647,43 @@ function AdminSalarySettlements({
     key: "createdAt",
     direction: "desc",
   });
+  const suggestedPeriodMode = suggestedSalaryPeriodModeFromDate(today());
   const currentRange = monthRange(0);
   const previousRange = monthRange(-1);
-  const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">("current");
-  const [customStart, setCustomStart] = useState(currentRange.start);
-  const [customEnd, setCustomEnd] = useState(currentRange.end);
+  const currentPeriod = currentRange.start.slice(0, 7);
+  const previousPeriod = previousRange.start.slice(0, 7);
+  const suggestedPeriodMonth = suggestedPeriodMode === "previous" ? previousPeriod : currentPeriod;
+  const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">(() => suggestedPeriodMode);
+  const [customMonth, setCustomMonth] = useState(suggestedPeriodMonth.slice(5, 7));
+  const [customYear, setCustomYear] = useState(suggestedPeriodMonth.slice(0, 4));
   const [sort, setSort] = useState<SortState<"name" | "baseSalary" | "extraAmount" | "bonuses" | "otherDeductions" | "totalAmount" | "advances" | "salaryPaid" | "pendingAmount">>({
     key: "name",
     direction: "asc",
   });
-  const selectedRange = periodMode === "current" ? currentRange : periodMode === "previous" ? previousRange : { start: customStart, end: customEnd };
-  const activeRange = selectedRange.start <= selectedRange.end ? selectedRange : { start: selectedRange.end, end: selectedRange.start };
-  const startMonth = activeRange.start.slice(0, 7);
-  const endMonth = activeRange.end.slice(0, 7);
+  const customPeriod = `${customYear}-${customMonth}`;
+  const selectedPeriod = periodMode === "current" ? currentPeriod : periodMode === "previous" ? previousPeriod : customPeriod;
+  const activeRange = { start: `${selectedPeriod}-01`, end: salaryPeriodEndDate(selectedPeriod) };
+  const startMonth = selectedPeriod;
+  const endMonth = selectedPeriod;
   const defaultPeriod = startMonth;
-  const monthsInPeriod = (() => {
-    const [startYear, startMonthNumber] = startMonth.split("-").map(Number);
-    const [endYear, endMonthNumber] = endMonth.split("-").map(Number);
-    const months: string[] = [];
-    if (!startYear || !startMonthNumber || !endYear || !endMonthNumber) return [startMonth];
-    const cursor = new Date(startYear, startMonthNumber - 1, 1);
-    const end = new Date(endYear, endMonthNumber - 1, 1);
-    while (cursor <= end) {
-      months.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
-      cursor.setMonth(cursor.getMonth() + 1);
-    }
-    return months.length ? months : [startMonth];
-  })();
+  const monthsInPeriod = [selectedPeriod];
   const projectedSalaryBase = (staff: StaffMember | undefined) =>
     staff?.status === "ACTIVO" ? monthsInPeriod.reduce((total, period) => total + salaryBaseForPeriod(data, staff, period).amount, 0) : 0;
   const monthLabel = (period: string) => new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long", year: "numeric" });
-  const periodLabel = periodMode === "custom" && startMonth !== endMonth ? `${monthLabel(startMonth)} a ${monthLabel(endMonth)}` : monthLabel(startMonth);
+  const shortMonthLabel = (period: string) => new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long" });
+  const suggestedPeriodLabel = monthLabel(suggestedPeriodMonth);
+  const periodLabel = monthLabel(startMonth);
+  const historicalYearOptions = Array.from(
+    new Set([
+      String(new Date(`${today()}T00:00:00`).getFullYear()),
+      String(new Date(`${today()}T00:00:00`).getFullYear() - 1),
+      String(new Date(`${today()}T00:00:00`).getFullYear() + 1),
+      ...data.salarySettlements.map((settlement) => settlement.period.slice(0, 4)),
+      ...data.salaryHistories.map((history) => history.effectiveDate.slice(0, 4)),
+    ]),
+  )
+    .filter((year) => /^\d{4}$/.test(year))
+    .sort((a, b) => Number(b) - Number(a));
   const rangeSettlements = data.salarySettlements.filter((settlement) => settlement.period >= startMonth && settlement.period <= endMonth);
   const payableRows = rangeSettlements.filter((settlement) => settlement.status !== "ANULADA");
   const activeStaff = data.staff.filter((staff) => staff.status === "ACTIVO");
@@ -6068,6 +5707,7 @@ function AdminSalarySettlements({
       bonuses: 0,
       otherDeductions: 0,
       totalAmount: projectedSalaryBase(staff),
+      baseCoveredAmount: 0,
       liquidatedAmount: 0,
       pendingAmount: projectedSalaryBase(staff),
       activeSettlementCount: 0,
@@ -6099,8 +5739,9 @@ function AdminSalarySettlements({
     const bonuses = activeSettlements.reduce((total, settlement) => total + Number(settlement.aguinaldo ?? 0) + Number(settlement.vacationSalary ?? 0), 0);
     const otherDeductions = activeSettlements.reduce((total, settlement) => total + Number(settlement.otherDeductions ?? 0), 0);
     const totalAmount = Math.max(0, baseSalary + extraAmount + bonuses - otherDeductions);
-    const liquidatedAmount = salaryPaid + advances + extraAmount + bonuses - otherDeductions;
-    const pendingAmount = baseSalary - advances - salaryPaid - otherDeductions;
+    const baseCoveredAmount = salaryPaid + advances + otherDeductions;
+    const liquidatedAmount = salaryPaid + advances + extraAmount + bonuses;
+    const pendingAmount = baseSalary - baseCoveredAmount;
     const status: SalaryEmployeeRow["status"] =
       row.settlements.length === 0 || (row.staff?.status === "ACTIVO" && activeSettlements.length === 0)
         ? "Pendiente"
@@ -6113,7 +5754,7 @@ function AdminSalarySettlements({
               : statuses[0] === "ANULADA"
               ? "Anulada"
               : "Pendiente";
-    return { ...row, baseSalary, salaryPaid, advances, extraAmount, bonuses, otherDeductions, totalAmount, liquidatedAmount, pendingAmount, activeSettlementCount: activeSettlements.length, status };
+    return { ...row, baseSalary, salaryPaid, advances, extraAmount, bonuses, otherDeductions, totalAmount, baseCoveredAmount, liquidatedAmount, pendingAmount, activeSettlementCount: activeSettlements.length, status };
   });
   const summaryRows = employeeRowsAll.filter((row) => row.staff?.status === "ACTIVO" || row.settlements.length > 0);
   const periodTotal = summaryRows.reduce((total, row) => total + row.totalAmount, 0);
@@ -6124,6 +5765,7 @@ function AdminSalarySettlements({
   const periodExtras = summaryRows.reduce((total, row) => total + row.extraAmount, 0);
   const periodBonuses = summaryRows.reduce((total, row) => total + row.bonuses, 0);
   const periodDeductions = summaryRows.reduce((total, row) => total + row.otherDeductions, 0);
+  const periodBaseCovered = summaryRows.reduce((total, row) => total + row.baseCoveredAmount, 0);
   const periodLiquidated = summaryRows.reduce((total, row) => total + row.liquidatedAmount, 0);
   const employeeValue = (row: SalaryEmployeeRow, key: typeof sort.key): string | number => {
     if (key === "name") return row.name;
@@ -6134,9 +5776,13 @@ function AdminSalarySettlements({
     if (key === "period") return settlement.period;
     if (key === "concept") return salaryConceptLabel(concept);
     if (key === "salaryPaid") return isSalaryPaymentConcept(concept) ? salarySettlementAmount(settlement) : 0;
+    if (key === "extraPrize") return concept === "EXTRA" ? Number(settlement.extraAmount ?? 0) : 0;
+    if (key === "hoursExtra") return concept === "HORAS_EXTRAS" ? Number(settlement.extraAmount ?? 0) : 0;
     if (key === "bonuses") return Number(settlement.aguinaldo ?? 0) + Number(settlement.vacationSalary ?? 0);
     if (key === "status") return settlement.status;
-    return Number(settlement[key] ?? 0);
+    if (key === "advances") return Number(settlement.advances ?? 0);
+    if (key === "otherDeductions") return Number(settlement.otherDeductions ?? 0);
+    return 0;
   };
   const sortedSettlements = (settlements: SalarySettlement[]) =>
     [...settlements].sort((a, b) => {
@@ -6265,6 +5911,7 @@ function AdminSalarySettlements({
         totalSalaries: periodTotal,
         totalSalaryPaid: periodSalaryPaid,
         totalAdvances: periodAdvances,
+        totalBaseCovered: periodBaseCovered,
         totalLiquidated: periodLiquidated,
         totalPending: periodPending,
         status: "CERRADO",
@@ -6343,12 +5990,13 @@ function AdminSalarySettlements({
       ["Total salarios base", money(periodBase)],
       ["Salario pagado", money(periodSalaryPaid)],
       ["Adelantos", money(periodAdvances)],
-      ["Extras", money(periodExtras)],
+      ["Premios y horas", money(periodExtras)],
       ["Bonos", money(periodBonuses)],
       ["Descuentos", money(periodDeductions)],
-      ["Liquidado", money(periodLiquidated)],
+      ["Cubierto base", money(periodBaseCovered)],
+      ["Pagado / Entregado", money(periodLiquidated)],
       [],
-      ["Nombre", "Liquidaciones", "Salario Base", "Extras", "Bonos", "Descuentos", "Total", "Adelantos", "Salario pagado", "Pendiente"],
+      ["Nombre", "Liquidaciones", "Salario Base", "Premios y horas", "Bonos", "Descuentos", "Total", "Adelantos", "Salario pagado", "Cubierto base", "Pagado / Entregado", "Pendiente"],
       ...rows.map((row) => [
         row.name,
         row.activeSettlementCount ? `${row.activeSettlementCount} - ${row.status}` : "Sin liquidacion cargada",
@@ -6359,6 +6007,8 @@ function AdminSalarySettlements({
         money(row.totalAmount),
         money(row.advances),
         money(row.salaryPaid),
+        money(row.baseCoveredAmount),
+        money(row.liquidatedAmount),
         money(row.pendingAmount),
       ]),
     ]);
@@ -6380,22 +6030,38 @@ function AdminSalarySettlements({
       {closureMessage && <p className="notice">{closureMessage}</p>}
       <div className="accounts-period-bar salary-period-bar">
         <div className="button-row">
-          <button className={periodMode === "current" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("current")}>
-            Mes actual
+          <button className={periodMode === "previous" ? "button primary compact salary-month-button" : "button muted compact salary-month-button"} type="button" onClick={() => setPeriodMode("previous")}>
+            {capitalize(shortMonthLabel(previousPeriod))}
           </button>
-          <button className={periodMode === "previous" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("previous")}>
-            Mes anterior
+          <button className={periodMode === "current" ? "button primary compact salary-month-button" : "button muted compact salary-month-button"} type="button" onClick={() => setPeriodMode("current")}>
+            {capitalize(shortMonthLabel(currentPeriod))}
           </button>
           <button className={periodMode === "custom" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("custom")}>
-            Consulta historica
+            Consultar mes
           </button>
         </div>
         <div className="accounts-date-range">
           <span>{periodLabel}</span>
           {periodMode === "custom" && (
             <>
-              <input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} />
-              <input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} />
+              <select value={customMonth} onChange={(event) => setCustomMonth(event.target.value)}>
+                {Array.from({ length: 12 }, (_, index) => {
+                  const value = String(index + 1).padStart(2, "0");
+                  const label = new Date(2026, index, 1).toLocaleDateString("es-UY", { month: "long" });
+                  return (
+                    <option key={value} value={value}>
+                      {capitalize(label)}
+                    </option>
+                  );
+                })}
+              </select>
+              <select value={customYear} onChange={(event) => setCustomYear(event.target.value)}>
+                {historicalYearOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
             </>
           )}
           <button className="button primary compact" type="button" onClick={exportSalaryExcel}>
@@ -6403,11 +6069,12 @@ function AdminSalarySettlements({
           </button>
         </div>
       </div>
+      <p className="helper">Periodo sugerido por fecha de pago: {suggestedPeriodLabel}. Podes cambiarlo manualmente.</p>
       <div className="card-grid four salary-summary-grid">
         <InfoCard tone={periodPending > 0 ? "orange" : "green"} title="Pendientes" lines={[money(periodPending), "Base - salario - adelantos - descuentos"]} />
-        <InfoCard tone="blue" title="Total salarios" lines={[money(periodTotal), "Base + extras + horas extras + bonos - descuentos"]} />
+        <InfoCard tone="blue" title="Total salarios" lines={[money(periodTotal), "Base + premios + horas extras + bonos - descuentos"]} />
         <InfoCard tone="blue" title="Total salarios base" lines={[money(periodBase), "Segun ficha vigente"]} />
-        <InfoCard tone="orange" title="Extras" lines={[money(periodExtras), "Extras y horas extras"]} />
+        <InfoCard tone="orange" title="Premios y horas" lines={[money(periodExtras), "Gratificaciones y horas extras"]} />
       </div>
       {!activeStaff.length && <p className="notice">Primero agrega personal activo para poder liquidar salarios.</p>}
       <section className="embedded-panel salary-main-panel">
@@ -6425,7 +6092,7 @@ function AdminSalarySettlements({
                 {[
                   ["name", "Nombre"],
                   ["baseSalary", "Salario Base"],
-                  ["extraAmount", "Extras"],
+                  ["extraAmount", "Premios y horas"],
                   ["bonuses", "Bonos"],
                   ["otherDeductions", "Descuentos"],
                   ["totalAmount", "Total"],
@@ -6496,7 +6163,8 @@ function AdminSalarySettlements({
                 <th>Periodo</th>
                 <th>Empleados</th>
                 <th>Total salarios</th>
-                <th>Liquidado</th>
+                <th>Cubierto base</th>
+                <th>Pagado / Entregado</th>
                 <th>Pendiente</th>
                 <th>Usuario</th>
                 <th>Fecha cierre</th>
@@ -6511,6 +6179,7 @@ function AdminSalarySettlements({
                   <td>{closure.periodLabel}</td>
                   <td>{closure.employeeCount}</td>
                   <td>{money(closure.totalSalaries)}</td>
+                  <td>{money(closure.totalBaseCovered)}</td>
                   <td>{money(closure.totalLiquidated)}</td>
                   <td className={closure.totalPending > 0 ? "money-negative" : "money-positive"}>{money(closure.totalPending)}</td>
                   <td>{closure.createdByName}</td>
@@ -6529,7 +6198,7 @@ function AdminSalarySettlements({
               ))}
               {!salaryClosures.length && (
                 <tr>
-                  <td colSpan={10}>Todavia no hay cierres de liquidacion guardados.</td>
+                  <td colSpan={11}>Todavia no hay cierres de liquidacion guardados.</td>
                 </tr>
               )}
             </tbody>
@@ -6569,10 +6238,11 @@ function AdminSalarySettlements({
                 {[
                   ["Salario base", money(selectedEmployee.baseSalary), ""],
                   ["Adelantos", money(selectedEmployee.advances), ""],
-                  ["Extras", money(selectedEmployee.extraAmount), ""],
+                  ["Premios y horas", money(selectedEmployee.extraAmount), ""],
                   ["Bonos", money(selectedEmployee.bonuses), ""],
                   ["Total", money(selectedEmployee.totalAmount), selectedEmployee.totalAmount < 0 ? "money-negative" : "money-positive"],
-                  ["Liquidado", money(selectedEmployee.liquidatedAmount), "money-positive"],
+                  ["Cubierto base", money(selectedEmployee.baseCoveredAmount), "money-positive"],
+                  ["Pagado / Entregado", money(selectedEmployee.liquidatedAmount), "money-positive"],
                   ["Pendiente", money(selectedEmployee.pendingAmount), selectedEmployee.pendingAmount > 0 ? "money-negative" : "money-positive"],
                 ].map(([label, value, className]) => (
                   <div key={label}>
@@ -6608,7 +6278,8 @@ function AdminSalarySettlements({
                         ["concept", "Concepto"],
                         ["salaryPaid", "Salario pagado"],
                         ["advances", "Adelanto"],
-                        ["extraAmount", "Extra"],
+                        ["extraPrize", "Premio / Gratificacion"],
+                        ["hoursExtra", "Horas extras"],
                         ["bonuses", "Bonos"],
                         ["otherDeductions", "Descuento"],
                         ["status", "Estado"],
@@ -6624,42 +6295,48 @@ function AdminSalarySettlements({
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedSettlements(selectedEmployee.settlements).map((settlement) => (
-                      <tr key={settlement.id} className={settlement.status === "ANULADA" ? "status-inactive" : settlement.status === "CONFIRMADA" ? "status-active" : ""}>
-                        <td>{settlement.period}</td>
-                        <td>{salaryConceptLabel(normalizeSalaryConcept(settlement.concept))}</td>
-                        <td>{isSalaryPaymentConcept(normalizeSalaryConcept(settlement.concept)) ? money(salarySettlementAmount(settlement)) : "-"}</td>
-                        <td>{settlement.advances ? money(settlement.advances) : "-"}</td>
-                        <td>{settlement.extraAmount ? money(settlement.extraAmount) : "-"}</td>
-                        <td>{settlement.aguinaldo + settlement.vacationSalary ? money(settlement.aguinaldo + settlement.vacationSalary) : "-"}</td>
-                        <td>{settlement.otherDeductions ? money(settlement.otherDeductions) : "-"}</td>
-                        <td>{settlement.status}</td>
-                        <td>
-                          <div className="table-actions">
-                            {settlement.status !== "ANULADA" && (
-                              <button
-                                className="button primary compact"
-                                type="button"
-                                onClick={() => {
-                                  setEditorStaffId(selectedEmployee.staffId);
-                                  setEditorId(settlement.id);
-                                }}
-                              >
-                                Editar
-                              </button>
-                            )}
-                            {settlement.status !== "ANULADA" && (
-                              <button className="button muted compact" type="button" onClick={() => changeStatus(settlement, "ANULADA")}>
-                                Eliminar
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {sortedSettlements(selectedEmployee.settlements).map((settlement) => {
+                      const concept = normalizeSalaryConcept(settlement.concept);
+                      const extraPrize = concept === "EXTRA" ? Number(settlement.extraAmount ?? 0) : 0;
+                      const hoursExtra = concept === "HORAS_EXTRAS" ? Number(settlement.extraAmount ?? 0) : 0;
+                      return (
+                        <tr key={settlement.id} className={settlement.status === "ANULADA" ? "status-inactive" : settlement.status === "CONFIRMADA" ? "status-active" : ""}>
+                          <td>{settlement.period}</td>
+                          <td>{salaryConceptLabel(concept)}</td>
+                          <td>{isSalaryPaymentConcept(concept) ? money(salarySettlementAmount(settlement)) : "-"}</td>
+                          <td>{settlement.advances ? money(settlement.advances) : "-"}</td>
+                          <td>{extraPrize ? money(extraPrize) : "-"}</td>
+                          <td>{hoursExtra ? money(hoursExtra) : "-"}</td>
+                          <td>{settlement.aguinaldo + settlement.vacationSalary ? money(settlement.aguinaldo + settlement.vacationSalary) : "-"}</td>
+                          <td>{settlement.otherDeductions ? money(settlement.otherDeductions) : "-"}</td>
+                          <td>{settlement.status}</td>
+                          <td>
+                            <div className="table-actions">
+                              {settlement.status !== "ANULADA" && (
+                                <button
+                                  className="button primary compact"
+                                  type="button"
+                                  onClick={() => {
+                                    setEditorStaffId(selectedEmployee.staffId);
+                                    setEditorId(settlement.id);
+                                  }}
+                                >
+                                  Editar
+                                </button>
+                              )}
+                              {settlement.status !== "ANULADA" && (
+                                <button className="button muted compact" type="button" onClick={() => changeStatus(settlement, "ANULADA")}>
+                                  Eliminar
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                     {!selectedEmployee.settlements.length && (
                       <tr>
-                        <td colSpan={9}>Este empleado no tiene liquidaciones en el periodo.</td>
+                        <td colSpan={10}>Este empleado no tiene liquidaciones en el periodo.</td>
                       </tr>
                     )}
                   </tbody>
@@ -6820,26 +6497,6 @@ function AdminSalarySettlements({
       )}
     </section>
   );
-}
-
-function monthRange(monthOffset: number) {
-  const base = new Date(`${today()}T00:00:00`);
-  const start = new Date(base.getFullYear(), base.getMonth() + monthOffset, 1);
-  const end = new Date(base.getFullYear(), base.getMonth() + monthOffset + 1, 0);
-  const toInputDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-  return { start: toInputDate(start), end: toInputDate(end) };
-}
-
-function accountTotalsFromMovements(movements: AccountMovement[]) {
-  const activeMovements = movements.filter((movement) => movement.status === "ACTIVO");
-  const income = activeMovements.filter((movement) => movement.direction === "ENTRADA").reduce((total, movement) => total + movement.amount, 0);
-  const outcome = activeMovements.filter((movement) => movement.direction === "SALIDA").reduce((total, movement) => total + movement.amount, 0);
-  return { income, outcome, balance: income - outcome, count: activeMovements.length };
 }
 
 function AdminCurrentAccounts({ data, user, effectiveRole, local }: { data: AppData; user: User; effectiveRole: Role; local: Local }) {
@@ -7288,7 +6945,7 @@ function SalarySettlementEditor({
         <InfoCard
           tone="blue"
           title="Liquidacion"
-          lines={["Salario, adelanto y descuento bajan pendiente.", "Extras y bonos aumentan el total del periodo."]}
+          lines={["Salario, adelanto y descuento bajan pendiente.", "Premio / Gratificacion es interno del empleado; Horas extras es trabajo fuera de horario."]}
         />
         <InfoCard
           tone="green"
@@ -7475,6 +7132,8 @@ function StaffEditor({
   const existing = staffId ? data.staff.find((staff) => staff.id === staffId) : undefined;
   const isNew = !existing;
   const [schedule, setSchedule] = useState<StaffSchedule[]>(existing?.schedule ?? defaultSchedule);
+  const [formError, setFormError] = useState("");
+  const defaultSalaryEffectiveDate = isNew ? today() : `${shiftSalaryPeriod(today().slice(0, 7), 1)}-01`;
   const salaryHistory = existing
     ? data.salaryHistories
         .filter((history) => history.staffId === existing.id)
@@ -7491,7 +7150,10 @@ function StaffEditor({
     const localId = String(form.get("localId") ?? "");
     const salaryType = String(form.get("salaryType") ?? "") as SalaryType;
     const status = String(form.get("status") ?? "") as StaffStatus;
-    if (!firstName || !lastName || !position || !localId || !salaryType || !status || !nominalSalary) return;
+    if (!firstName || !lastName || !position || !localId || !salaryType || !status || !nominalSalary) {
+      setFormError("Completa los campos obligatorios para guardar personal.");
+      return;
+    }
     const next: StaffMember = {
       id: existing?.id ?? uid("staff"),
       visibleId: existing?.visibleId ?? nextShortId(data.staff.map((staff) => staff.visibleId)),
@@ -7523,8 +7185,28 @@ function StaffEditor({
       deletedAt: existing?.deletedAt,
     };
     const salaryChanged = !existing || existing.salaryType !== next.salaryType || Number(existing.nominalSalary ?? 0) !== next.nominalSalary;
-    const effectiveDate = String(form.get("salaryEffectiveDate") || today());
+    const effectiveDate = String(form.get("salaryEffectiveDate") || defaultSalaryEffectiveDate);
     const salaryReason = String(form.get("salaryReason") ?? "").trim() || (isNew ? "Alta inicial de salario" : "Cambio salarial");
+    if (salaryChanged && existing) {
+      const closedImpact = data.salaryClosures.find((closure) => closure.status === "CERRADO" && effectiveDate <= closure.endDate);
+      if (closedImpact) {
+        setFormError(`No se puede cambiar el salario desde ${effectiveDate} porque afectaria el cierre ${closedImpact.visibleId} (${closedImpact.periodLabel}). Usa una fecha efectiva posterior al cierre.`);
+        return;
+      }
+      const firstAffectedPeriod = effectiveDate.slice(0, 7);
+      const activeImpactedSettlements = data.salarySettlements.filter(
+        (settlement) => settlement.staffId === existing.id && settlement.status !== "ANULADA" && settlement.period >= firstAffectedPeriod,
+      );
+      if (
+        activeImpactedSettlements.length &&
+        !confirmAction(
+          `Este cambio salarial afecta ${activeImpactedSettlements.length} liquidacion(es) abierta(s) desde ${firstAffectedPeriod}. Confirmar el cambio con fecha efectiva ${effectiveDate}?`,
+        )
+      ) {
+        return;
+      }
+    }
+    setFormError("");
     const salaryHistoryEntry = salaryChanged
       ? salaryHistoryEvent(
           next,
@@ -7553,6 +7235,7 @@ function StaffEditor({
   return (
     <Modal title={isNew ? "Agregar personal" : `Editar ${staffFullName(existing)}`} onClose={onClose} wide>
       <form className="form-grid" onSubmit={submit}>
+        {formError && <p className="notice warning span-2">{formError}</p>}
         <p className="required-note span-2">Campos obligatorios marcados con *</p>
         <label>
           Nombre *
@@ -7630,7 +7313,7 @@ function StaffEditor({
         </label>
         <label>
           Fecha efectiva salario
-          <input name="salaryEffectiveDate" type="date" defaultValue={today()} />
+          <input name="salaryEffectiveDate" type="date" defaultValue={defaultSalaryEffectiveDate} />
         </label>
         <label className="span-2">
           Motivo cambio salarial
@@ -10524,28 +10207,102 @@ function Differences({
   audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
 }) {
-  type DifferenceDraft = { status: DifferenceStatus | ""; note: string };
+  type DifferenceDraft = { status: DifferenceStatus | ""; note: string; correctedCash?: string; correctedBank?: string };
+  type DifferenceStatusFilter = DifferenceStatus | "TODAS" | "GESTIONADAS";
+  type DifferenceSortKey = "id" | "operatingDate" | "local" | "cashDifference" | "bankDifference" | "status" | "closureNote" | "lastReview";
   const [drafts, setDrafts] = useState<Record<string, DifferenceDraft>>({});
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<DifferenceStatusFilter>("TODAS");
+  const [sort, setSort] = useState<SortState<DifferenceSortKey>>({ key: "operatingDate", direction: "desc" });
+  const currentRange = monthRange(0);
+  const previousRange = monthRange(-1);
+  const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">("current");
+  const [customStart, setCustomStart] = useState(currentRange.start);
+  const [customEnd, setCustomEnd] = useState(currentRange.end);
+  const [selectedBalanceId, setSelectedBalanceId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const canManage = user.role === "ADMINISTRADOR" || user.role === "ENCARGADO";
   const visibleLocalIds = user.role === "ADMINISTRADOR" ? null : new Set(user.localIds);
-  const balances = data.balances
-    .filter((balance) => balance.status === "CERRADO" && balanceHasDifference(data, balance) && (!visibleLocalIds || visibleLocalIds.has(balance.localId)))
+  const activeRange = periodMode === "current" ? currentRange : periodMode === "previous" ? previousRange : { start: customStart, end: customEnd };
+  const balanceDate = (balance: Balance) => String(balance.closedAt ?? balance.operatingDate).slice(0, 10);
+  const balanceInRange = (balance: Balance) => (!activeRange.start || balanceDate(balance) >= activeRange.start) && (!activeRange.end || balanceDate(balance) <= activeRange.end);
+  const balanceHasDifferenceHistory = (balance: Balance) =>
+    balanceHasDifference(data, balance) || Boolean(balance.differenceStatus || balance.differenceNote || balance.differenceReviewNote || balance.differenceReviewedAt);
+  const allBalances = data.balances
+    .filter(
+      (balance) =>
+        balance.status === "CERRADO" &&
+        balanceInRange(balance) &&
+        balanceHasDifferenceHistory(balance) &&
+        (!visibleLocalIds || visibleLocalIds.has(balance.localId)),
+    )
     .sort((a, b) => String(b.closedAt ?? b.operatingDate).localeCompare(String(a.closedAt ?? a.operatingDate)));
-  const pending = balances.filter(differenceIsPending).length;
-  const managed = balances.length - pending;
-  const totalCashDifference = balances.reduce((total, balance) => total + cashDifferenceForBalance(data, balance), 0);
-  const totalBankDifference = balances.reduce((total, balance) => total + bankDifferenceForBalance(balance), 0);
+  const normalizedQuery = query.trim().toLocaleLowerCase("es-UY");
+  const differenceSortValue = (balance: Balance, key: DifferenceSortKey): string | number => {
+    if (key === "id") return balanceVisibleId(data, balance);
+    if (key === "operatingDate") return balance.closedAt ?? balance.operatingDate;
+    if (key === "local") return localName(data, balance.localId);
+    if (key === "cashDifference") return cashDifferenceForBalance(data, balance);
+    if (key === "bankDifference") return bankDifferenceForBalance(balance);
+    if (key === "status") return balance.differenceStatus ?? "PENDIENTE";
+    if (key === "closureNote") return balance.differenceNote ?? "";
+    return `${balance.differenceReviewedAt ?? ""} ${balance.differenceReviewNote ?? ""}`;
+  };
+  const balances = allBalances.filter((balance) => {
+    const status = balance.differenceStatus ?? "PENDIENTE";
+    const matchesStatus =
+      statusFilter === "TODAS" ||
+      (statusFilter === "GESTIONADAS" ? status !== "PENDIENTE" : status === statusFilter);
+    const searchable = [
+      balanceVisibleId(data, balance),
+      balance.operatingDate,
+      localName(data, balance.localId),
+      status,
+      balance.differenceNote ?? "",
+      balance.differenceReviewNote ?? "",
+    ]
+      .join(" ")
+      .toLocaleLowerCase("es-UY");
+    return matchesStatus && (!normalizedQuery || searchable.includes(normalizedQuery));
+  }).sort((a, b) => {
+    const result = compareValues(differenceSortValue(a, sort.key), differenceSortValue(b, sort.key));
+    return sort.direction === "asc" ? result : -result;
+  });
+  const selectedBalance = selectedBalanceId ? allBalances.find((balance) => balance.id === selectedBalanceId) : undefined;
+  const emptyDraft: DifferenceDraft = { status: "", note: "" };
+  const selectedDraft: DifferenceDraft = selectedBalance ? drafts[selectedBalance.id] ?? emptyDraft : emptyDraft;
+  const pending = allBalances.filter(differenceIsPending).length;
+  const managed = allBalances.length - pending;
+  const totalCashDifference = allBalances.reduce((total, balance) => total + cashDifferenceForBalance(data, balance), 0);
+  const totalBankDifference = allBalances.reduce((total, balance) => total + bankDifferenceForBalance(balance), 0);
+  const selectedHistory = selectedBalance
+    ? data.audit
+        .filter((event) => event.entityId === selectedBalance.id && (event.entity === "DiferenciaCaja" || event.entity === "BalanceDiario"))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    : [];
   const updateDraft = (id: string, patch: Partial<DifferenceDraft>) => {
     setDrafts((current) => ({
       ...current,
       [id]: {
         status: current[id]?.status ?? "",
         note: current[id]?.note ?? "",
+        correctedCash: current[id]?.correctedCash,
+        correctedBank: current[id]?.correctedBank,
         ...patch,
       },
     }));
     setError("");
+  };
+  const changeDraftStatus = (balance: Balance, status: DifferenceStatus | "") => {
+    updateDraft(balance.id, {
+      status,
+      ...(status === "CORREGIDA"
+        ? {
+            correctedCash: moneyInputValue(balance.declaredCash ?? 0),
+            correctedBank: moneyInputValue(balance.declaredBank ?? balance.nextBankBase ?? 0),
+          }
+        : {}),
+    });
   };
   const update = (id: string) => {
     if (!canManage) {
@@ -10567,32 +10324,74 @@ function Differences({
     patchData((current) => {
       const previous = current.balances.find((balance) => balance.id === id);
       if (!previous) return current;
+      const previousCashDifference = cashDifferenceForBalance(current, previous);
+      const previousBankDifference = bankDifferenceForBalance(previous);
+      const previousDeclaredCash = previous.declaredCash ?? 0;
+      const previousDeclaredBank = previous.declaredBank ?? previous.nextBankBase ?? 0;
+      const expectedCash = previousDeclaredCash - previousCashDifference;
+      const expectedBank = previousDeclaredBank - previousBankDifference;
+      const correctedCash = status === "CORREGIDA" ? parseMoneyInput(draft.correctedCash ?? "") : previousDeclaredCash;
+      const correctedBank = status === "CORREGIDA" ? parseMoneyInput(draft.correctedBank ?? "") : previousDeclaredBank;
+      if (status === "CORREGIDA" && (correctedCash < 0 || correctedBank < 0)) return current;
+      const nextCashDifference = status === "CORREGIDA" ? correctedCash - expectedCash : previousCashDifference;
+      const nextBankDifference = status === "CORREGIDA" ? correctedBank - expectedBank : previousBankDifference;
       const next = {
         ...previous,
+        declaredCash: status === "CORREGIDA" ? correctedCash : previous.declaredCash,
+        declaredBank: status === "CORREGIDA" ? correctedBank : previous.declaredBank,
+        nextBase: status === "CORREGIDA" ? correctedCash : previous.nextBase,
+        nextBankBase: status === "CORREGIDA" ? correctedBank : previous.nextBankBase,
+        cashDifference: status === "CORREGIDA" ? nextCashDifference : previous.cashDifference,
+        bankDifference: status === "CORREGIDA" ? nextBankDifference : previous.bankDifference,
         differenceStatus: status,
         differenceReviewedBy: user.id,
         differenceReviewedAt: reviewedAt,
         differenceReviewNote: reviewNote,
       };
       const balancesNext = current.balances.map((balance) => (balance.id === id ? next : balance));
+      const accountMovementsNext = syncDifferenceAccountMovements(current.accountMovements, next, user.id);
       return audit(
-        { ...current, balances: balancesNext },
+        {
+          ...current,
+          currentAccounts: ensureLocalCurrentAccounts(current, next.localId),
+          accountMovements: accountMovementsNext,
+          balances: balancesNext,
+        },
         "Gestionar diferencia de caja",
         "DiferenciaCaja",
         id,
         previous,
-        { status, reviewNote, reviewedBy: user.name, reviewedAt },
+        {
+          status,
+          reviewNote,
+          reviewedBy: user.name,
+          reviewedAt,
+          ...(status === "CORREGIDA"
+            ? {
+                declaredCashBefore: previousDeclaredCash,
+                declaredCashAfter: correctedCash,
+                declaredBankBefore: previousDeclaredBank,
+                declaredBankAfter: correctedBank,
+                cashDifferenceBefore: previousCashDifference,
+                cashDifferenceAfter: nextCashDifference,
+                bankDifferenceBefore: previousBankDifference,
+                bankDifferenceAfter: nextBankDifference,
+              }
+            : {}),
+        },
         reviewNote,
       );
     });
     setDrafts((current) => ({ ...current, [id]: { status: "", note: "" } }));
     setMessage("Diferencia gestionada y auditada.");
+    setSelectedBalanceId(null);
     setError("");
   };
   const rowClass = (balance: Balance) => {
     const status = balance.differenceStatus ?? "PENDIENTE";
     if (status === "PENDIENTE") return "status-error";
-    if (status === "REVISADA") return "status-maintenance";
+    if (status === "CORREGIDA" || status === "REVISADA" || status === "AJUSTADA") return "status-maintenance";
+    if (status === "ANULADA") return "status-inactive";
     return "status-active";
   };
 
@@ -10609,54 +10408,125 @@ function Differences({
         <InfoCard
           tone="orange"
           title="Impacto contable"
-          lines={["No mueve saldos automaticamente", "No cambia el resultado economico", "Cualquier ajuste va aparte"]}
+          lines={["Mueve efectivo/banco del local", "No cambia el resultado economico", "Anular revierte el saldo"]}
         />
       </div>
       <div className="card-grid three difference-totals-grid">
         <InfoCard tone={totalCashDifference === 0 ? "green" : "red"} title="Diferencia efectivo" lines={[money(totalCashDifference), "Suma de controles fisicos"]} />
         <InfoCard tone={totalBankDifference === 0 ? "green" : "red"} title="Diferencia banco" lines={[money(totalBankDifference), "Suma de banco/transferencias"]} />
-        <InfoCard tone="blue" title="Alcance" lines={[user.role === "ADMINISTRADOR" ? "Todos los locales" : "Locales asignados", "Solo cajas cerradas con diferencia"]} />
+        <InfoCard tone="blue" title="Alcance" lines={[user.role === "ADMINISTRADOR" ? "Todos los locales" : "Locales asignados", "Historial del periodo"]} />
       </div>
-      {error ? <p className="validation error">{error}</p> : null}
+      <div className="accounts-period-bar differences-period-bar">
+        <div>
+          <button className={periodMode === "current" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("current")}>
+            Mes actual
+          </button>
+          <button className={periodMode === "previous" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("previous")}>
+            Mes anterior
+          </button>
+          <button className={periodMode === "custom" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("custom")}>
+            Consulta historica
+          </button>
+        </div>
+        {periodMode === "custom" ? (
+          <div className="accounts-date-range">
+            <label>
+              Desde
+              <input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} />
+            </label>
+            <label>
+              Hasta
+              <input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} />
+            </label>
+          </div>
+        ) : null}
+        <span>
+          Periodo: {activeRange.start} al {activeRange.end}
+        </span>
+      </div>
+      <div className="difference-toolbar">
+        <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por ID, local, fecha u observacion..." />
+        <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as DifferenceStatusFilter)}>
+          <option value="PENDIENTE">Pendientes</option>
+          <option value="GESTIONADAS">Gestionadas</option>
+          <option value="TODAS">Todas</option>
+          <option value="VERIFICADA">Verificadas</option>
+          <option value="CORREGIDA">Corregidas</option>
+          <option value="RESUELTA">Resueltas</option>
+          <option value="ANULADA">Anuladas</option>
+        </select>
+        <span>{balances.length} resultado(s)</span>
+      </div>
+      {error && !selectedBalance ? <p className="validation error">{error}</p> : null}
       <div className="table-wrap">
         <table className="data-table difference-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Fecha</th>
-              <th>Local</th>
-              <th>Efectivo</th>
-              <th>Banco</th>
-              <th>Estado</th>
-              <th>Impacto en recaudacion</th>
-              <th>Obs. cierre</th>
-              <th>Ultima gestion</th>
-              <th>Gestion obligatoria</th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "id"))}>
+                  ID{sortIndicator(sort, "id")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "operatingDate"))}>
+                  Fecha{sortIndicator(sort, "operatingDate")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "local"))}>
+                  Local{sortIndicator(sort, "local")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "cashDifference"))}>
+                  Efectivo{sortIndicator(sort, "cashDifference")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "bankDifference"))}>
+                  Banco{sortIndicator(sort, "bankDifference")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "status"))}>
+                  Estado{sortIndicator(sort, "status")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "closureNote"))}>
+                  Obs. cierre{sortIndicator(sort, "closureNote")}
+                </button>
+              </th>
+              <th>
+                <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "lastReview"))}>
+                  Ultima gestion{sortIndicator(sort, "lastReview")}
+                </button>
+              </th>
+              <th>Accion</th>
             </tr>
           </thead>
           <tbody>
             {balances.map((balance) => {
-              const draft = drafts[balance.id] ?? { status: "", note: "" };
               const cashDifference = cashDifferenceForBalance(data, balance);
               const bankDifference = bankDifferenceForBalance(balance);
-              const totals = totalsForBalance(data, balance.id);
+              const declaredCash = balance.declaredCash ?? 0;
+              const expectedCash = declaredCash - cashDifference;
               const declaredBank = balance.declaredBank ?? balance.nextBankBase ?? 0;
               const expectedBank = declaredBank - bankDifference;
               return (
-              <tr key={balance.id} className={rowClass(balance)}>
+              <tr key={balance.id} className={`${rowClass(balance)} clickable-row`} onClick={() => setSelectedBalanceId(balance.id)}>
                 <td>{balanceVisibleId(data, balance)}</td>
                 <td>{balance.operatingDate}</td>
                 <td>{localName(data, balance.localId)}</td>
                 <td className="difference-money-cell">
                   <strong className={cashDifference === 0 ? "money-positive" : "money-negative"}>{money(cashDifference)}</strong>
-                  <span>Esp. {money(totals.expectedCash)} / Dec. {money(balance.declaredCash)}</span>
+                  <span>Esp. {money(expectedCash)} / Dec. {money(declaredCash)}</span>
                 </td>
                 <td className="difference-money-cell">
                   <strong className={bankDifference === 0 ? "money-positive" : "money-negative"}>{money(bankDifference)}</strong>
                   <span>Esp. {money(expectedBank)} / Dec. {money(declaredBank)}</span>
                 </td>
                 <td>{balance.differenceStatus ?? "PENDIENTE"}</td>
-                <td className="long-cell">{differenceActionImpact(balance.differenceStatus ?? "PENDIENTE")}</td>
                 <td className="long-cell">{balance.differenceNote || "-"}</td>
                 <td className="long-cell">
                   {balance.differenceReviewNote ? (
@@ -10670,37 +10540,192 @@ function Differences({
                   )}
                 </td>
                 <td>
-                  <div className="difference-review-form">
-                    <select value={draft.status} onChange={(event) => updateDraft(balance.id, { status: event.target.value as DifferenceStatus | "" })} disabled={!canManage}>
-                      <option value="">Elegir accion</option>
-                      <option value="REVISADA">Revisada</option>
-                      <option value="RESUELTA">Resuelta</option>
-                      <option value="AJUSTADA">Ajustada</option>
-                      <option value="ANULADA">Anulada</option>
-                    </select>
-                    <p className="difference-impact-note">{differenceActionImpact(draft.status)}</p>
-                    <textarea
-                      value={draft.note}
-                      onChange={(event) => updateDraft(balance.id, { note: event.target.value })}
-                      placeholder="Observacion obligatoria"
-                      disabled={!canManage}
-                    />
-                    <button className="button primary compact" type="button" onClick={() => update(balance.id)} disabled={!canManage}>
-                      Guardar revision
-                    </button>
-                  </div>
+                  <button className="button primary compact" type="button" onClick={(event) => { event.stopPropagation(); setSelectedBalanceId(balance.id); }}>
+                    Gestionar
+                  </button>
                 </td>
               </tr>
               );
             })}
             {!balances.length && (
               <tr>
-                <td colSpan={10}>No hay diferencias de caja para gestionar.</td>
+                <td colSpan={9}>No hay historial de diferencias o controles para el periodo seleccionado.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+      {selectedBalance && (
+        <Modal title={`Diferencia ${balanceVisibleId(data, selectedBalance)}`} onClose={() => setSelectedBalanceId(null)} wide>
+          {(() => {
+            const cashDifference = cashDifferenceForBalance(data, selectedBalance);
+            const bankDifference = bankDifferenceForBalance(selectedBalance);
+            const declaredCash = selectedBalance.declaredCash ?? 0;
+            const expectedCash = declaredCash - cashDifference;
+            const declaredBank = selectedBalance.declaredBank ?? selectedBalance.nextBankBase ?? 0;
+            const expectedBank = declaredBank - bankDifference;
+            const correctedCashDraft = selectedDraft.correctedCash ?? moneyInputValue(declaredCash);
+            const correctedBankDraft = selectedDraft.correctedBank ?? moneyInputValue(declaredBank);
+            const correctedCash = parseMoneyInput(correctedCashDraft);
+            const correctedBank = parseMoneyInput(correctedBankDraft);
+            const correctedCashDifference = correctedCash - expectedCash;
+            const correctedBankDifference = correctedBank - expectedBank;
+            return (
+              <div className="difference-detail-modal">
+                <div className="account-summary-grid">
+                  <div>
+                    <span>Efectivo</span>
+                    <strong className={cashDifference === 0 ? "money-positive" : "money-negative"}>{money(cashDifference)}</strong>
+                  </div>
+                  <div>
+                    <span>Banco</span>
+                    <strong className={bankDifference === 0 ? "money-positive" : "money-negative"}>{money(bankDifference)}</strong>
+                  </div>
+                  <div>
+                    <span>Estado</span>
+                    <strong>{selectedBalance.differenceStatus ?? "PENDIENTE"}</strong>
+                  </div>
+                </div>
+                <dl className="summary-detail-list">
+                  <div>
+                    <dt>Local</dt>
+                    <dd>{localName(data, selectedBalance.localId)}</dd>
+                  </div>
+                  <div>
+                    <dt>Fecha operativa</dt>
+                    <dd>{selectedBalance.operatingDate}</dd>
+                  </div>
+                  <div>
+                    <dt>Efectivo esperado</dt>
+                    <dd>{money(expectedCash)}</dd>
+                  </div>
+                  <div>
+                    <dt>Efectivo declarado</dt>
+                    <dd>{money(selectedBalance.declaredCash)}</dd>
+                  </div>
+                  <div>
+                    <dt>Banco esperado</dt>
+                    <dd>{money(expectedBank)}</dd>
+                  </div>
+                  <div>
+                    <dt>Banco declarado</dt>
+                    <dd>{money(declaredBank)}</dd>
+                  </div>
+                  <div>
+                    <dt>Observacion cierre</dt>
+                    <dd>{selectedBalance.differenceNote || "-"}</dd>
+                  </div>
+                  <div>
+                    <dt>Ultima gestion</dt>
+                    <dd>
+                      {selectedBalance.differenceReviewNote
+                        ? `${userDisplayName(data, selectedBalance.differenceReviewedBy)} - ${selectedBalance.differenceReviewedAt ? formatDateTime(selectedBalance.differenceReviewedAt) : ""} - ${selectedBalance.differenceReviewNote}`
+                        : "Sin gestion"}
+                    </dd>
+                  </div>
+                </dl>
+                <section className="embedded-panel difference-modal-panel">
+                  <div className="section-toolbar">
+                    <div>
+                      <h3>Gestion de diferencia</h3>
+                      <p>La accion queda auditada. Verificar o corregir mantiene el saldo real declarado; anular revierte los movimientos de diferencia.</p>
+                    </div>
+                  </div>
+                  {error ? <p className="validation error">{error}</p> : null}
+                  <div className="difference-review-form modal-form">
+                    <select value={selectedDraft.status} onChange={(event) => changeDraftStatus(selectedBalance, event.target.value as DifferenceStatus | "")} disabled={!canManage}>
+                      <option value="">Elegir accion</option>
+                      <option value="VERIFICADA">Verificar diferencia</option>
+                      <option value="CORREGIDA">Marcar como corregida</option>
+                      <option value="ANULADA">Anulada</option>
+                    </select>
+                    <p className="difference-impact-note">{differenceActionImpact(selectedDraft.status)}</p>
+                    {selectedDraft.status === "CORREGIDA" ? (
+                      <div className="difference-correction-grid">
+                        <label>
+                          Efectivo declarado corregido
+                          <input
+                            inputMode="numeric"
+                            value={correctedCashDraft}
+                            onFocus={(event) => {
+                              if (parseMoneyInput(event.currentTarget.value) === 0) updateDraft(selectedBalance.id, { correctedCash: "" });
+                            }}
+                            onChange={(event) => updateDraft(selectedBalance.id, { correctedCash: formatMoneyInput(event.target.value) })}
+                            onBlur={(event) => updateDraft(selectedBalance.id, { correctedCash: normalizeMoneyInput(event.currentTarget.value) })}
+                            disabled={!canManage}
+                          />
+                          <span>Nueva diferencia: {money(correctedCashDifference)}</span>
+                        </label>
+                        <label>
+                          Dinero en banco declarado corregido
+                          <input
+                            inputMode="numeric"
+                            value={correctedBankDraft}
+                            onFocus={(event) => {
+                              if (parseMoneyInput(event.currentTarget.value) === 0) updateDraft(selectedBalance.id, { correctedBank: "" });
+                            }}
+                            onChange={(event) => updateDraft(selectedBalance.id, { correctedBank: formatMoneyInput(event.target.value) })}
+                            onBlur={(event) => updateDraft(selectedBalance.id, { correctedBank: normalizeMoneyInput(event.currentTarget.value) })}
+                            disabled={!canManage}
+                          />
+                          <span>Nueva diferencia: {money(correctedBankDifference)}</span>
+                        </label>
+                      </div>
+                    ) : null}
+                    <textarea
+                      value={selectedDraft.note}
+                      onChange={(event) => updateDraft(selectedBalance.id, { note: event.target.value })}
+                      placeholder="Observacion obligatoria"
+                      disabled={!canManage}
+                    />
+                    <div className="button-row end">
+                      <button className="button muted compact" type="button" onClick={() => setSelectedBalanceId(null)}>
+                        Cerrar
+                      </button>
+                      <button className="button primary compact" type="button" onClick={() => update(selectedBalance.id)} disabled={!canManage}>
+                        Guardar gestion
+                      </button>
+                    </div>
+                  </div>
+                </section>
+                <section className="embedded-panel difference-history-panel">
+                  <div className="section-toolbar">
+                    <div>
+                      <h3>Historial completo</h3>
+                      <p>Eventos auditados de cierre, revision, correccion o anulacion de esta recaudacion.</p>
+                    </div>
+                  </div>
+                  <div className="difference-history-list">
+                    {selectedHistory.map((event) => {
+                      const parsedValue = parseAuditValue(event.newValue);
+                      const statusValue = typeof parsedValue.status === "string" ? parsedValue.status : "";
+                      const cashBefore = typeof parsedValue.cashDifferenceBefore === "number" ? parsedValue.cashDifferenceBefore : undefined;
+                      const cashAfter = typeof parsedValue.cashDifferenceAfter === "number" ? parsedValue.cashDifferenceAfter : undefined;
+                      const bankBefore = typeof parsedValue.bankDifferenceBefore === "number" ? parsedValue.bankDifferenceBefore : undefined;
+                      const bankAfter = typeof parsedValue.bankDifferenceAfter === "number" ? parsedValue.bankDifferenceAfter : undefined;
+                      return (
+                        <article className="difference-history-item" key={event.id}>
+                          <div>
+                            <strong>{event.action}</strong>
+                            <span>{formatDateTime(event.createdAt)} - {event.userName ?? userDisplayName(data, event.userId)}</span>
+                          </div>
+                          <p>{event.reason || statusValue || "Sin observacion"}</p>
+                          {cashBefore !== undefined || bankBefore !== undefined ? (
+                            <p>
+                              Efectivo: {money(cashBefore ?? 0)} a {money(cashAfter ?? 0)} · Banco: {money(bankBefore ?? 0)} a {money(bankAfter ?? 0)}
+                            </p>
+                          ) : null}
+                        </article>
+                      );
+                    })}
+                    {!selectedHistory.length ? <p className="helper">Sin eventos auditados para esta recaudacion.</p> : null}
+                  </div>
+                </section>
+              </div>
+            );
+          })()}
+        </Modal>
+      )}
     </section>
   );
 }

@@ -1,0 +1,177 @@
+# Poseidon - Modularizacion con referencias cruzadas
+
+Ultima actualizacion: 2026-07-08
+
+Este documento define como modularizar Poseidon sin romper asociaciones entre caja, diferencias, cuentas corrientes, salarios, auditoria, clientes, locales y maquinas.
+
+## Regla principal
+
+No mover un modulo sin dejar referencias a sus dependencias funcionales, contables, visuales y de auditoria.
+
+Antes de extraer codigo, identificar:
+
+- entradas de datos;
+- salidas de datos;
+- eventos de auditoria;
+- movimientos de cuenta;
+- pantallas que navegan hacia el modulo;
+- documentos que deben quedar vinculados.
+
+## Orden recomendado
+
+1. Extraer utilidades puras sin cambiar comportamiento.
+2. Extraer reglas contables y helpers de cuentas.
+3. Extraer helpers de diferencias.
+4. Extraer componentes de Diferencias.
+5. Extraer componentes de Caja.
+6. Extraer componentes de Cuentas corrientes.
+7. Extraer Salarios.
+8. Extraer administracion general.
+
+## Estructura objetivo
+
+```text
+src/lib/
+  money.ts
+  dates.ts
+  audit.ts
+  storage.ts
+  currentAccounts.ts
+  cashTotals.ts
+  differences.ts
+  salaryRules.ts
+  validators.ts
+
+src/features/cashier/
+  CashierWorkspace.tsx
+  OpenCash.tsx
+  CloseCash.tsx
+  Counters.tsx
+  Expenses.tsx
+  Transfers.tsx
+  Gifts.tsx
+  SalaryPayments.tsx
+  CapitalMovements.tsx
+
+src/features/manager/
+  ManagerPanel.tsx
+  Differences.tsx
+  ManagerExpenses.tsx
+  PeriodicClosures.tsx
+
+src/features/accounts/
+  CurrentAccounts.tsx
+  accountMovements.ts
+  accountTotals.ts
+
+src/features/salaries/
+  SalarySettlements.tsx
+  SalarySettlementEditor.tsx
+  salaryRules.ts
+  salaryTotals.ts
+
+src/features/admin/
+  Locals.tsx
+  Machines.tsx
+  Workshop.tsx
+  Clients.tsx
+  Staff.tsx
+  Users.tsx
+  ExpenseCategories.tsx
+
+src/features/audit/
+  Audit.tsx
+```
+
+## Dependencias criticas
+
+| Modulo | Depende de | Impacta en | Documentos |
+| --- | --- | --- | --- |
+| Caja diaria | maquinas, saldos local, usuarios | balances, readings, capital, auditoria | `CODEX_CAJA`, modulos 01/02/05 |
+| Cierre de caja | contadores, movimientos, salarios, regalos, transferencias, cuentas | diferencias, saldos proximos, auditoria | `CODEX_CAJA`, `CODEX_DIFERENCIAS` |
+| Diferencias | balances cerrados, cuentas, auditoria | saldos efectivo/banco, historial, resumen cajas | `CODEX_DIFERENCIAS`, modulos 06/11/12 |
+| Cuentas corrientes | accountMovements, balances, usuarios | apertura de caja, detalle de movimientos | `CODEX_CUENTAS_CORRIENTES`, modulos 11 |
+| Salarios | personal, caja, cuentas, periodo trabajado | caja, cuenta personal, liquidacion mensual | `CODEX_SALARIOS`, modulos 10/11 |
+| Gastos | categorias, caja, cuentas, auditoria | resultado economico, efectivo local | modulos 04/07/11/12 |
+| Regalos | clientes, caja, cuentas | resultado economico, efectivo local | modulos 04/10/11 |
+| Transferencias | clientes, caja, banco local | cuenta banco, cuenta transferencias | modulos 04/11 |
+| Locales/maquinas | taller, contadores, caja | readings, historial, cierre local | modulos 09/03 |
+| Auditoria | todos los modulos | trazabilidad transversal | modulos 12 |
+
+## Regla para AGENTS anidados
+
+Cuando se creen carpetas `src/features/*`, cada grupo puede tener un `AGENTS.md` corto, pero debe referenciar los documentos compartidos. No duplicar reglas contables completas dentro de cada AGENTS.
+
+Formato recomendado:
+
+```text
+Leer antes:
+- docs/REGLAS_CONTABLES.md
+- docs/REGLAS_VISUALES.md
+- docs/contextos/CODEX_MODULO.md
+- docs/modulos/XX_modulo.md
+
+No tocar sin aprobacion:
+- otros modulos asociados
+- reglas contables globales
+- auditoria
+```
+
+## Primeros cortes seguros
+
+### Corte 1: utilidades puras
+
+- `money.ts`: `money`, `counter`, `parseMoneyInput`, `formatMoneyInput`, helpers de input.
+- `dates.ts`: `today`, `nowIso`, `formatDateTime`, `monthRange`.
+
+Estado: implementado en `src/lib/money.ts` y `src/lib/dates.ts`.
+
+Riesgo bajo porque no cambia reglas. Antes de modificar importes o fechas, revisar tambien `CODEX_CAJA`, `CODEX_CUENTAS_CORRIENTES` y `CODEX_SALARIOS`, porque esos modulos comparten formato de dinero, periodo trabajado y fechas de auditoria.
+
+### Corte 2: cuentas corrientes
+
+- `currentAccounts.ts`: ids de cuentas, creacion de cuentas, movimientos, totales.
+
+Estado: implementado en dos archivos:
+
+- `src/lib/currentAccounts.ts`: ids, creacion/asegurado de cuentas y saldos por cuenta.
+- `src/lib/accountMovements.ts`: movimientos por origen, sincronizacion de movimientos y saldo corrido desde movimientos.
+
+Riesgo medio porque caja, diferencias, salarios, gastos y transferencias dependen de esto. Cualquier nuevo helper debe conservar referencias a `CODEX_CAJA`, `CODEX_DIFERENCIAS`, `CODEX_CUENTAS_CORRIENTES` y `CODEX_SALARIOS`.
+
+### Corte 3: diferencias
+
+- `differences.ts`: diferencia efectivo/banco, estados, sync de movimientos.
+- `Differences.tsx`: pantalla e historial.
+
+Estado: helpers implementados en `src/lib/differences.ts`; sincronizacion contable implementada en `src/lib/accountMovements.ts`; componente `Differences` sigue en `src/App.tsx`.
+
+Riesgo medio/alto porque impacta cuentas y cierre.
+
+### Corte 4: totales de caja y salarios
+
+- `cashTotals.ts`: `calcReading` y `totalsForBalance`.
+- `salaryRules.ts`: conceptos, periodos, salario base, importes, validaciones.
+
+Estado: implementado.
+
+Riesgo medio porque caja, resumen, encargado, salarios y cierre periodico consumen estos calculos.
+
+### Corte 5: storage y auditoria
+
+- `storage.ts`: lectura, normalizacion, compactacion y persistencia local.
+- `audit.ts`: construccion de eventos y helpers de usuario/funcion.
+
+Estado: pendiente.
+
+Riesgo medio porque afecta arranque, demo, reset y trazabilidad.
+
+## Validacion por corte
+
+Cada corte debe cerrar con:
+
+- `pnpm run build`;
+- `http://127.0.0.1:5173/` respondiendo;
+- prueba manual del modulo movido;
+- documentacion actualizada;
+- sugerencia de commit local si el bloque queda estable.

@@ -1881,6 +1881,10 @@ select:disabled {
   margin-bottom: 6px;
 }
 
+.salary-period-bar .salary-month-button {
+  min-width: 104px;
+}
+
 .salary-summary-grid {
   gap: 14px;
   margin-bottom: 8px;
@@ -2285,7 +2289,7 @@ select:disabled {
 }
 
 .difference-table {
-  min-width: 1180px;
+  min-width: 1040px;
 }
 
 .compact-table {
@@ -2468,10 +2472,124 @@ select:disabled {
   gap: 8px;
 }
 
+.difference-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d5e0ec;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.difference-toolbar .search-input {
+  min-width: min(420px, 100%);
+  flex: 1 1 320px;
+}
+
+.difference-toolbar select {
+  width: 180px;
+  min-height: 40px;
+}
+
+.difference-toolbar span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.difference-detail-modal {
+  display: grid;
+  gap: 16px;
+}
+
+.difference-modal-panel {
+  margin-top: 2px;
+}
+
+.difference-history-panel {
+  margin-top: 0;
+}
+
+.difference-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.difference-history-item {
+  border: 1px solid #d5e0ec;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+
+.difference-history-item div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.difference-history-item strong {
+  color: var(--text);
+}
+
+.difference-history-item span,
+.difference-history-item p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.difference-history-item p {
+  margin: 5px 0 0;
+}
+
+.difference-review-form.modal-form {
+  min-width: 0;
+}
+
 .difference-review-form textarea {
   min-height: 64px;
   border-radius: 8px;
   padding: 8px 10px;
+}
+
+.difference-correction-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.difference-correction-grid label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.difference-correction-grid input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.difference-correction-grid span {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+@media (max-width: 760px) {
+  .difference-correction-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .difference-money-cell {

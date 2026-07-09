@@ -12,6 +12,8 @@ Llevar libro interno de saldos y movimientos sin cargar saldos manuales.
 
 Nota: las cuentas `Personal` existen internamente para registrar salarios y adelantos, pero se consultan desde `Liquidacion de salarios`, no desde esta pantalla.
 En el detalle de cada empleado, la cuenta corriente personal muestra fecha, concepto, monto, total, pendiente y usuario, con todas sus columnas ordenables.
+La cuenta personal se filtra por periodo trabajado de la liquidacion. Un pago cargado desde caja en febrero para el periodo trabajado enero se ve en enero y mantiene referencia a la recaudacion/caja de febrero.
+En cuenta personal, `Total` sigue la obligacion del periodo: salario base + premio/gratificacion + horas extras + bonos - descuentos. `Pendiente` sigue el saldo de salario base pendiente despues de salario pagado, adelantos y descuentos.
 
 ## Reglas
 
@@ -38,13 +40,16 @@ En el detalle de cada empleado, la cuenta corriente personal muestra fecha, conc
 - Resultado maquinas negativo -> salida Local / Efectivo.
 - Gastos -> salida Local / Efectivo.
 - Regalos -> salida Local / Efectivo.
-- Salarios -> salida Local / Efectivo y movimiento en cuenta personal.
+- Salarios -> salida Local / Efectivo por caja/balanceId y movimiento en cuenta personal por periodo trabajado.
+- Descuentos de salarios -> movimiento de cuenta personal que reduce pendiente/base cubierta, pero no genera salida Local / Efectivo ni cuenta como dinero entregado.
 - Transferencias -> entrada Local / Banco y cuenta Transferencias.
 - Retiros -> salida Local / Efectivo o Local / Banco.
 - Aportes -> entrada Local / Efectivo o Local / Banco.
+- Diferencias de caja -> entrada o salida Local / Efectivo y/o Local / Banco, segun diferencia positiva o negativa, para reflejar el saldo real declarado.
+- Anular una diferencia desde `Diferencias` anula tambien sus movimientos de cuenta.
 - La pantalla no muestra tarjetas superiores de entrada/salida/saldo local; el foco queda en periodo, cuentas y movimientos.
 
 ## Auditoria
 
 - Cada movimiento debe registrar origen, usuario, fecha, concepto, monto, direccion y estado.
-- Si se anula un origen, se anula su movimiento asociado.
+- Si se anula un origen, se anula su movimiento asociado. En salarios desde cajero, la liquidacion queda `ANULADA` y sus movimientos asociados dejan de impactar saldos. En diferencias, la recaudacion queda con diferencia `ANULADA` y sus movimientos dejan de impactar saldos.

@@ -54,6 +54,8 @@ salida total = gastos + salarios + regalos
 - Si retiro final efectivo es 0, selector queda deshabilitado y dice Sin retiros finales.
 - Si retiro final banco es 0, selector queda deshabilitado y dice Sin retiros finales.
 - Si hay diferencia efectivo o banco, observacion es obligatoria.
+- Al cerrar, las diferencias crean movimientos en `Local / Efectivo` y/o `Local / Banco` para que la siguiente caja abra con el saldo real declarado.
+- Las diferencias no cambian el resultado economico.
 - Si hay maquinas pendientes sin observacion, no se puede cerrar.
 - Los errores aparecen en la misma pantalla.
 - Al cerrar caja, va a Resumen de cajas.

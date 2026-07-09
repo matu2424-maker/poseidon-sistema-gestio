@@ -74,6 +74,18 @@ Y verificar que responda:
 http://127.0.0.1:5173/
 ```
 
+## Documentacion de trabajo
+
+- `docs/CONTEXTO_RAPIDO_CODEX.md`: entrada rapida para retomar.
+- `docs/REGLAS_GENERALES.md`: reglas generales de trabajo, auditoria y documentacion.
+- `docs/REGLAS_CONTABLES.md`: matriz de impactos economicos, financieros y cuentas corrientes.
+- `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.
+- `docs/MODULARIZACION_REFERENCIAS.md`: plan de refactor modular con referencias cruzadas.
+- `docs/contextos/`: contextos cortos para trabajar por modulo sin releer todo el sistema.
+- `docs/modulos/`: especificacion funcional por pantalla/modulo.
+
+Cuando un modulo este estable, Codex debe sugerir un commit local. El commit no se hace sin confirmacion explicita del usuario.
+
 ## Usuarios de prueba
 
 | Usuario | Rol |
@@ -122,10 +134,16 @@ La auditoria registra usuario real y funcion usada.
 
 - Resultado economico = `resultado de maquinas - gastos - salarios - regalos`.
 - Transferencias, aportes, retiros, efectivo inicial y banco inicial son movimientos financieros o de caja; no cambian el resultado economico.
-- Las diferencias de efectivo o banco no modifican automaticamente la caja ni el resultado economico.
-- Las diferencias quedan pendientes, visibles y auditadas hasta que un encargado o administrador las gestione con observacion.
-- Cualquier impacto contable posterior debe hacerse con ajuste explicito y auditado.
-- En salarios, el salario pagado no puede superar el salario base y salario pagado + adelantos tampoco puede superar el salario base.
+- Las diferencias de efectivo o banco no modifican el resultado economico.
+- Las diferencias si mueven la cuenta corriente del local al cerrar caja, para que la siguiente apertura use el saldo real declarado.
+- Las diferencias quedan pendientes, visibles y auditadas hasta que un encargado o administrador las verifique, corrija o anule con observacion.
+- Corregir una diferencia permite editar efectivo/banco declarado y recalcula los movimientos de cuenta de esa recaudacion.
+- La pantalla de Diferencias funciona como historial por periodo: mes actual, mes anterior o intervalo manual, incluyendo diferencias ya resueltas/corregidas.
+- Si se anula una diferencia, se anulan sus movimientos de cuenta; cualquier correccion adicional posterior debe hacerse con ajuste explicito y auditado.
+- En salarios, el salario pagado no puede superar el salario base, salario pagado + adelantos tampoco puede superar el salario base y salario pagado + adelantos + descuentos tampoco puede superar el salario base.
+- En salarios, `Pagado / Entregado` no resta descuentos porque descuento no es dinero entregado; `Cubierto base` es salario pagado + adelantos + descuentos.
+- `EXTRA` queda como codigo tecnico interno y en la interfaz se muestra como `Premio / Gratificacion`, separado del modulo Regalos de clientes.
+- Los cambios de salario base son prospectivos: no afectan cierres de liquidacion ya cerrados y requieren reconfirmacion si impactan liquidaciones abiertas.
 - El salario se controla por periodo trabajado; un pago realizado del 1 al 10 del mes siguiente puede quedar asociado al mes trabajado anterior.
 
 ## Panel del cajero
@@ -196,8 +214,9 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ## Estructura del proyecto
 
 ```text
-src/App.tsx                    Estado, pantallas y logica principal
+src/App.tsx                    Estado, pantallas y acciones de UI principales
 src/types.ts                   Tipos principales del sistema
+src/lib/                       Reglas compartidas: dinero, fechas, cuentas, movimientos, caja, diferencias y salarios
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
@@ -213,16 +232,26 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Refactor pendiente
 
-`src/App.tsx` todavia concentra demasiada logica. Ya se extrajo `src/types.ts`.
+`src/App.tsx` todavia concentra demasiadas pantallas y acciones de UI. Ya se extrajeron `src/types.ts` y reglas compartidas hacia `src/lib/`:
+
+- `money.ts`
+- `dates.ts`
+- `currentAccounts.ts`
+- `accountMovements.ts`
+- `cashTotals.ts`
+- `differences.ts`
+- `salaryRules.ts`
 
 Pendientes naturales:
 
-- `components/cashier/OpenCash.tsx`
-- `components/cashier/ClosedBalanceSummary.tsx`
-- `components/cashier/Counters.tsx`
-- `components/admin/Clients.tsx`
-- `lib/totals.ts`
-- `lib/storage.ts`
+- `src/features/cashier/OpenCash.tsx`
+- `src/features/cashier/ClosedBalanceSummary.tsx`
+- `src/features/cashier/Counters.tsx`
+- `src/features/manager/Differences.tsx`
+- `src/features/salaries/SalarySettlements.tsx`
+- `src/features/admin/Clients.tsx`
+- `src/lib/storage.ts`
+- `src/lib/audit.ts`
 
 ## Documentacion viva
 

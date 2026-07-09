@@ -1,6 +1,6 @@
 # Poseidon Sistema de Gestion - Funcionamiento y reglas
 
-Ultima actualizacion: 2026-07-05
+Ultima actualizacion: 2026-07-08
 
 Este documento es la memoria funcional viva del sistema. Cada cambio funcional relevante debe actualizar este archivo en el mismo trabajo.
 Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar el documento correspondiente en `docs/modulos/`.
@@ -11,7 +11,12 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Mapa tecnico complementario: `docs/MAPA_TECNICO.md`.
 - Contexto rapido para retomar: `docs/CONTEXTO_RAPIDO_CODEX.md`.
 - Reglas generales globales: `docs/REGLAS_GENERALES.md`.
+- Reglas contables globales: `docs/REGLAS_CONTABLES.md`.
+- Reglas visuales globales: `docs/REGLAS_VISUALES.md`.
+- Modularizacion y referencias cruzadas: `docs/MODULARIZACION_REFERENCIAS.md`.
+- Contextos cortos por modulo para Codex: `docs/contextos/`.
 - Documentacion modular por panel/funcion: `docs/modulos/`.
+- Reglas compartidas extraidas en `src/lib/`: dinero, fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y salarios.
 - Persistencia actual: `localStorage`, clave `poseidon-sistema-gestion-v2`.
 - Supabase/Auth real queda pendiente para una etapa posterior.
 - En `localStorage` no se persisten archivos pesados/base64; comprobantes e imagenes guardan metadatos para evitar superar la cuota del navegador.
@@ -25,7 +30,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Dataset demo inicial:
   - 3 maquinas activas asignadas al local `Poseidon`;
   - 3 cajas cerradas en julio 2026;
-  - una caja con diferencia pendiente de efectivo y banco para probar gestion del encargado;
+  - una caja con diferencia pendiente de efectivo y banco para probar gestion del encargado y el impacto en cuentas corrientes;
   - gastos con estados de revision `PENDIENTE`, `REVISADO` y `OBSERVADO`;
   - transferencias, regalos, pagos de salario, aportes, retiros, movimientos de cuentas corrientes y auditoria demo.
 - El boton `Reiniciar demo` vuelve a cargar este dataset inicial.
@@ -81,7 +86,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 ## Refactor tecnico
 
 - `src/types.ts` contiene los tipos principales del sistema.
-- `src/App.tsx` sigue concentrando la mayor parte de la logica y pantallas, pero ya importa tipos desde `src/types.ts`.
+- `src/App.tsx` sigue concentrando la mayor parte de pantallas y acciones de UI, pero reglas compartidas ya viven en `src/types.ts` y `src/lib/`.
 - Los siguientes destinos de refactor siguen pendientes: `components/cashier/OpenCash.tsx`, `components/cashier/ClosedBalanceSummary.tsx`, `components/cashier/Counters.tsx`, `components/admin/Clients.tsx`, `lib/totals.ts` y `lib/storage.ts`.
 - `docs/MAPA_TECNICO.md` documenta el mapa de pantallas, clases CSS principales, calculos y deuda tecnica actual.
 - `src/components/WelcomeScreen.tsx` existe como componente heredado/no conectado al flujo principal actual.
@@ -175,6 +180,8 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
   - el efectivo final declarado queda como saldo de apertura de la siguiente caja;
   - el dinero banco final declarado queda como banco inicial de la siguiente caja;
   - efectivo esperado final, banco esperado final y diferencias se calculan antes de confirmar;
+  - al cerrar, una diferencia de efectivo o banco crea movimientos en las cuentas `Local / Efectivo` y `Local / Banco` para que el saldo siguiente refleje lo declarado por el cajero;
+  - esos movimientos de diferencia no modifican el resultado economico;
   - si hay diferencia de efectivo o banco, la observacion es obligatoria;
   - si hay maquinas pendientes sin observacion, no se puede cerrar;
   - los errores de cierre se muestran como avisos dentro de la pantalla de cierre.
@@ -184,17 +191,32 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Las diferencias de efectivo o banco no modifican automaticamente el resultado economico.
 - El resultado economico se mantiene como `resultado de maquinas - gastos - salarios - regalos`.
 - Una diferencia de caja es un evento de control y auditoria, no una ganancia ni una perdida automatica.
+- Al cerrar caja, una diferencia mueve la cuenta corriente del local:
+  - diferencia efectivo positiva entra en `Local / Efectivo`;
+  - diferencia efectivo negativa sale de `Local / Efectivo`;
+  - diferencia banco positiva entra en `Local / Banco`;
+  - diferencia banco negativa sale de `Local / Banco`.
+- Este movimiento permite que la proxima apertura tome el saldo real declarado, incluso si hubo faltante, sobrante o error a revisar.
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un `ENCARGADO` o `ADMINISTRADOR` las gestione.
-- La gestion de una diferencia exige seleccionar una accion (`REVISADA`, `RESUELTA`, `AJUSTADA` o `ANULADA`) y escribir una observacion obligatoria.
+- La gestion de una diferencia exige seleccionar una accion (`VERIFICADA`, `CORREGIDA` o `ANULADA`) y escribir una observacion obligatoria.
 - La observacion original del cajero no se pisa; la gestion posterior guarda usuario, fecha/hora y nota propia.
 - Una diferencia puede deberse a error de carga, transferencia mal registrada, retiro/aporte omitido o faltante/sobrante real.
-- Cualquier impacto contable posterior debe hacerse mediante un ajuste explicito y auditado, no de forma silenciosa al cerrar caja.
+- Si se verifica, los movimientos de diferencia quedan activos y mantienen el saldo real declarado.
+- Si se corrige, encargado/admin ingresa efectivo declarado corregido y dinero banco declarado corregido; el sistema recalcula las diferencias, actualiza el saldo proximo de la recaudacion y sincroniza movimientos de cuenta.
+- Si se anula, los movimientos de diferencia quedan anulados y dejan de impactar las cuentas del local.
+- Cualquier correccion adicional posterior debe hacerse mediante un ajuste explicito y auditado.
 - En la pantalla `Diferencias`, el encargado ve solo las recaudaciones de sus locales asignados; administrador ve todos los locales.
+- La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o intervalo manual.
+- La tabla muestra todas las recaudaciones con historial de diferencia/control en el periodo, incluidas verificadas, corregidas, anuladas y resueltas aunque la diferencia actual haya quedado en cero.
+- Tiene buscador por ID/local/fecha/observacion y filtro por estado.
+- La tabla de diferencias es compacta; la gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
+- Para guardar una gestion se debe elegir accion y escribir observacion obligatoria.
+- El error de observacion obligatoria aparece dentro de la ventana flotante de gestion.
+- El modal de cada recaudacion muestra historial completo auditado de cierre, revision, correccion o anulacion.
 - Impacto por accion del encargado:
-  - `REVISADA`: marca la recaudacion como revisada; no mueve efectivo, banco ni resultado economico.
-  - `RESUELTA`: cierra el control como resuelto; no genera ajuste automatico.
-  - `AJUSTADA`: indica que hubo un ajuste definido; el movimiento contable debe registrarse aparte y auditado.
-  - `ANULADA`: anula el reclamo operativo de diferencia; no borra la auditoria del cierre.
+  - `VERIFICADA`: confirma que la diferencia existe; mantiene activos los movimientos de diferencia y no cambia resultado economico.
+  - `CORREGIDA`: permite corregir efectivo/banco declarado, recalcula diferencias, sincroniza cuentas y no cambia resultado economico.
+  - `ANULADA`: anula la diferencia y sus movimientos de cuenta; no borra la auditoria del cierre.
 
 ## Panel del encargado
 
@@ -318,22 +340,33 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
   - `SALARIO_VACACIONAL`
   - `HORAS_EXTRAS`
   - `DESCUENTO`
-- `SUELDO` y `AJUSTE` quedan como conceptos heredados para compatibilidad con datos previos; en pantalla `SUELDO` se muestra como `Salario` y `AJUSTE` se normaliza como `Extra`.
-- El panel del cajero y el panel de encargado/admin usan la misma lista unica de conceptos para evitar diferencias de criterio.
-- En cajero se cargan solo `Personal`, `Concepto` y `Monto`.
+- `SUELDO` y `AJUSTE` quedan como conceptos heredados para compatibilidad con datos previos; en pantalla `SUELDO` se muestra como `Salario` y `AJUSTE` se normaliza como `Premio / Gratificacion`.
+- El panel del cajero y el panel de encargado/admin usan `SalarySettlement` como fuente canonica; el cajero tiene lista reducida de carga y encargado/admin mantienen la lista completa.
+- En cajero, los nuevos pagos de salario solo permiten conceptos `SALARIO` y `ADELANTO`.
+- En cajero se cargan `Personal`, `Concepto`, `Periodo trabajado` y `Monto`.
 - En cajero, `Personal` inicia vacio y es obligatorio seleccionar una persona activa.
-- Los pagos de salario cargados por cajero quedan asociados a la caja abierta.
-- Los pagos de salario cargados por cajero se pueden eliminar mientras la caja esta abierta, igual que gastos.
-- Si se elimina un adelanto de salario antes del cierre, se descuenta del saldo de adelantos del personal.
+- En cajero, `Concepto` es obligatorio y debe seleccionarse manualmente.
+- En cajero, `Periodo trabajado` es obligatorio y se guarda en `SalarySettlement.period`.
+- La sugerencia automatica del periodo trabajado usa la fecha operativa de la caja: dias 1 al 10 inclusive sugieren el mes anterior; desde el dia 11 sugiere el mes actual.
+- Los pagos de salario cargados por cajero quedan asociados a la caja abierta por `balanceId`, pero se imputan a la liquidacion del periodo trabajado elegido.
+- `SalarySettlement` sigue siendo la fuente canonica de pagos/liquidaciones de salario; no existe una tabla paralela para pagos del cajero.
+- Los pagos de salario cargados por cajero se pueden anular mientras la caja esta abierta, igual que gastos.
+- Si se anula un adelanto de salario antes del cierre, se recalcula el saldo de adelantos del personal.
+- Anular un pago de salario desde cajero es baja logica: cambia a `ANULADA`, deja de impactar caja, liquidacion y cuenta personal, y conserva auditoria.
 - Cada empleado inicia cada periodo mensual con un salario base tomado de su ficha salarial vigente.
 - La liquidacion se ordena por periodo trabajado, no por fecha de pago. El salario trabajado en enero puede pagarse del 1 al 10 de febrero, pero sigue asociado al periodo enero.
 - El salario base no se carga como liquidacion: nace desde `Personal` y su historial salarial.
 - Encargado/admin pueden modificar tipo de salario y salario base desde `Personal`; cada cambio genera historial con fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
+- El cambio de salario base es prospectivo: no modifica liquidaciones cerradas. Si la fecha efectiva afectaria un cierre de liquidacion ya cerrado, el sistema bloquea el cambio.
+- Si el cambio de salario base afecta periodos abiertos con liquidaciones activas, el sistema pide reconfirmacion antes de guardar.
 - Tipos de salario disponibles: mensual, jornal y hora.
 - En el caso mensual, el salario base representa 30 dias de trabajo.
 - En admin/encargado, la liquidacion se carga desde el detalle de cada empleado.
-- La pantalla de liquidacion usa selector de periodo como `Cuentas corrientes`: mes actual, mes anterior y consulta historica por rango.
-- La vista principal se centra en liquidacion por empleado: nombre, salario base, extras, bonos, descuentos, total, adelantos, salario pagado, pendiente y accion.
+- La pantalla de liquidacion usa selector mensual: primero muestra el nombre del mes anterior, luego el mes actual y luego `Consultar mes`.
+- `Consultar mes` permite elegir mes y ano, no un rango entre dos fechas.
+- Al entrar a `Liquidacion de salarios`, el periodo inicial se sugiere por fecha de pago: dias 1 al 10 abren en mes anterior; desde el dia 11 abren en mes actual.
+- La sugerencia del periodo en `Liquidacion de salarios` no bloquea: encargado/admin pueden cambiar a cualquiera de los meses disponibles o elegir otro mes/ano manualmente.
+- La vista principal se centra en liquidacion por empleado: nombre, salario base, premios y horas, bonos, descuentos, total, adelantos, salario pagado, pendiente y accion.
 - La vista principal no tiene buscador.
 - La vista principal no muestra la cuenta corriente general del personal y no tiene boton global de agregar liquidacion.
 - Cada fila de empleado tiene boton `Detalle`; desde ahi se agregan y revisan sus liquidaciones.
@@ -342,26 +375,29 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Si se modifica el salario base, el periodo usa el valor vigente segun historial salarial.
 - Una liquidacion con concepto `Salario` no reemplaza la base: registra un pago realizado contra el pendiente.
 - Si un empleado activo no tiene pagos cargados en el periodo, aparece en la tabla y su salario base igualmente integra los totales.
-- Total por empleado = salario base + extras + horas extras + bonos - descuentos.
-- Liquidado por empleado = salario pagado + adelantos + extras + bonos - descuentos.
+- Total por empleado = salario base + premio/gratificacion + horas extras + bonos - descuentos.
+- Pagado / Entregado por empleado = salario pagado + adelantos + premio/gratificacion + horas extras + bonos.
+- Cubierto base por empleado = salario pagado + adelantos + descuentos.
 - Pendiente por empleado = salario base - salario pagado - adelantos - descuentos. Es el dinero de salario base que falta entregarle al empleado.
 - Regla de limite: el salario pagado no puede superar el salario base del periodo.
 - Regla de limite combinada: salario pagado + adelantos no puede superar el salario base del periodo. Si sucede, el sistema muestra error y no guarda la liquidacion.
+- Regla de limite con descuentos: salario pagado + adelantos + descuentos no puede superar el salario base del periodo. El descuento cubre base, pero no es dinero entregado ni salida de caja.
 - Los adelantos restan pendiente pero no se suman al total.
-- Resumen global: pendientes, total salarios, total salarios base y extras.
-- En el detalle de empleado se muestra un resumen compacto de salario base, adelantos, extras, bonos, total, liquidado y pendiente, junto con local, periodo, tipo/cargo y descuentos.
+- Resumen global: pendientes, total salarios, total salarios base y premios/horas.
+- En el detalle de empleado se muestra un resumen compacto de salario base, adelantos, premios/horas, bonos, total, cubierto base, pagado/entregado y pendiente, junto con local, periodo, tipo/cargo y descuentos.
 - El detalle de empleado muestra resumen, liquidaciones del periodo y cuenta corriente del empleado.
 - En `Liquidaciones del periodo`, el boton `Agregar liquidacion` abre un formulario con mes, personal fijo, concepto principal, monto y notas.
-- La tabla `Liquidaciones del periodo` permite ordenar por mes, concepto, salario pagado, adelanto, extra, bonos, descuento y estado.
+- La tabla `Liquidaciones del periodo` permite ordenar por mes, concepto, salario pagado, adelanto, premio/gratificacion, horas extras, bonos, descuento y estado.
 - El personal no se puede cambiar desde ese formulario porque se entra desde el detalle del empleado.
 - El estado no se elige manualmente: al guardar, la liquidacion queda `CONFIRMADA`; eliminarla la cambia a `ANULADA`.
-- Impacto por concepto: salario suma a salario pagado; adelanto suma a adelantos; aguinaldo y salario vacacional suman a bonos; extra y horas extras suman a extras; descuento resta directo del salario base y no genera salida de caja.
+- Impacto por concepto: salario suma a salario pagado; adelanto suma a adelantos; aguinaldo y salario vacacional suman a bonos; premio/gratificacion suma como reconocimiento interno al empleado; horas extras suma como pago por horas trabajadas fuera del horario/base; descuento resta directo del salario base y no genera salida de caja.
+- `EXTRA` queda solo como codigo tecnico interno; en interfaz se muestra `Premio / Gratificacion` y no pertenece al modulo Regalos de clientes.
 - Cada liquidacion guarda origen (`CAJA` o `LIQUIDACION`), usuario creador, usuario aprobador, fecha de aprobacion y, si se elimina, usuario/fecha de anulacion.
 - Los movimientos de cuenta de liquidaciones usan el usuario real que ejecuto la accion.
-- La cuenta corriente del empleado dentro del detalle muestra fecha, concepto, monto, total, pendiente y usuario; todas esas columnas son ordenables. `Total` es base + extras + horas extras + bonos - descuentos al momento del movimiento y `Pendiente` es el pendiente al momento de registrar ese movimiento.
+- La cuenta corriente del empleado dentro del detalle muestra fecha, concepto, monto, total, pendiente y usuario; todas esas columnas son ordenables. `Total` es base + premio/gratificacion + horas extras + bonos - descuentos al momento del movimiento y `Pendiente` es el pendiente al momento de registrar ese movimiento.
 - La cuenta corriente del empleado se filtra por periodo trabajado de la liquidacion; si se carga una liquidacion de un mes anterior hoy, aparece dentro del mes anterior correspondiente.
 - Clic en un movimiento de la cuenta corriente del empleado abre un detalle completo con origen, usuario, recaudacion asociada y notas.
-- La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, empleados, liquidaciones incluidas, usuario y fecha.
+- La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, cubierto base, pagado/entregado, empleados, liquidaciones incluidas, usuario y fecha.
 - El cierre de liquidacion no borra movimientos ni liquida automaticamente obligaciones legales; sirve como corte mensual/historico para iniciar y controlar periodos siguientes.
 - La pantalla muestra abajo un historial de cierres de liquidacion; un cierre puede anularse sin borrar auditoria.
 - Exportar Excel descarga un CSV compatible con Excel del periodo consultado.
@@ -418,7 +454,8 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
   - gastos, regalos y salarios salen de `Local / Efectivo`;
   - transferencias entran en `Local / Banco`;
   - retiros salen de `Local / Efectivo` o `Local / Banco` segun medio;
-  - aportes entran en `Local / Efectivo` o `Local / Banco` segun medio.
+  - aportes entran en `Local / Efectivo` o `Local / Banco` segun medio;
+  - diferencias de caja entran o salen de `Local / Efectivo` y/o `Local / Banco` para reflejar el saldo declarado al cierre.
 - Si se elimina un salario antes del cierre, se elimina tambien su movimiento de cuenta.
 - Si se anula una transferencia, se anula tambien su movimiento de cuenta.
 - Administrador puede ver `Cuentas corrientes` como pantalla solo lectura de saldos y movimientos, incluyendo usuario que ejecuto cada movimiento.
@@ -451,7 +488,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Cada evento registra fecha/hora, id de usuario, nombre de usuario al momento de la accion, funcion usada, accion, entidad, id de entidad, valor anterior, valor nuevo y motivo.
 - Auditoria se usa para cambios sensibles, anulaciones, cierres, liquidaciones y papelera.
 
-## Estado actual al 2026-07-05
+## Estado actual al 2026-07-06
 
 - Proyecto en prueba local, sin publicacion nueva.
 - Build local validado con `pnpm run build`.
@@ -462,6 +499,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - El panel del encargado esta en version minimalista con tarjetas estilo resumen de caja.
 - La barra lateral de encargado/admin usa grupos desplegables.
 - Liquidacion de salarios usa periodo trabajado, validacion de salario base, tablas ordenables y resumen compacto en el detalle de empleado.
+- Pago de salarios desde cajero quedo limitado a Salario/Adelanto, con periodo trabajado obligatorio y anulación logica antes del cierre.
 - Queda pendiente reimplementar Supabase/Auth real y storage real de comprobantes/imagenes en una etapa posterior.
 - Para retomar, revisar `docs/RETOMAR_MANANA.md` y `docs/MAPA_TECNICO.md`.
 

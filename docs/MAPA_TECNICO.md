@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico del sistema
 
-Ultima actualizacion: 2026-07-05
+Ultima actualizacion: 2026-07-08
 
 Este documento resume como esta armado el sistema para seguir programando sin perder contexto.
 
@@ -16,13 +16,24 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 
 ## Archivos principales
 
-- `src/App.tsx`: estado general, pantallas, acciones, calculos y render principal.
+- `src/App.tsx`: estado general, pantallas, acciones de UI y render principal.
 - `src/types.ts`: tipos principales del dominio.
+- `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
+- `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
+- `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
+- `src/lib/accountMovements.ts`: movimientos contables por origen y totales corridos desde movimientos.
+- `src/lib/cashTotals.ts`: calculo de contadores y totales por recaudacion.
+- `src/lib/differences.ts`: estado, conteo e impacto funcional de diferencias de caja.
+- `src/lib/salaryRules.ts`: conceptos, periodos, base salarial, importes y validaciones de salarios.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no usado por el flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
 - `docs/RETOMAR_MANANA.md`: resumen rapido para continuar.
+- `docs/REGLAS_CONTABLES.md`: matriz de impacto economico, financiero y cuentas corrientes.
+- `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.
+- `docs/MODULARIZACION_REFERENCIAS.md`: plan de modularizacion con dependencias cruzadas.
+- `docs/contextos/`: contextos cortos por modulo para reducir lectura repetida.
 - `README.md`: guia general del proyecto.
 
 ## Datos demo
@@ -36,11 +47,16 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
   - movimientos de cuenta corriente;
   - auditoria demo.
 - El boton `Reiniciar demo` vuelve a este estado inicial.
-- `monthRange()` y `accountTotalsFromMovements()` apoyan la vista filtrada por periodo de cuentas corrientes.
+- `monthRange()` vive en `src/lib/dates.ts` y apoya vistas mensuales.
+- `accountTotals()` y `localAccountBalances()` viven en `src/lib/currentAccounts.ts`.
+- `accountTotalsFromMovements()` vive en `src/lib/accountMovements.ts` y apoya saldo corrido por periodo.
 
 ## Documentacion modular
 
 - `docs/REGLAS_GENERALES.md`: reglas globales de funcionamiento, contabilidad, auditoria y estetica.
+- `docs/REGLAS_CONTABLES.md`: reglas economicas, financieras y matriz de impactos.
+- `docs/REGLAS_VISUALES.md`: reglas de UI, tablas, botones, modales y formularios.
+- `docs/MODULARIZACION_REFERENCIAS.md`: mapa de refactor con referencias obligatorias entre modulos.
 - `docs/modulos/00_base_sistema.md`: base, usuarios, roles y persistencia.
 - `docs/modulos/01_panel_cajero.md`: panel del cajero.
 - `docs/modulos/02_caja_diaria.md`: apertura y resumen de cajas.
@@ -55,27 +71,49 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `docs/modulos/11_cuentas_corrientes.md`: cuentas corrientes y movimientos.
 - `docs/modulos/12_auditoria.md`: auditoria del sistema.
 
+## Contextos cortos
+
+- `docs/contextos/CODEX_CAJA.md`: cajero, apertura, cierre, contadores y resumen.
+- `docs/contextos/CODEX_DIFERENCIAS.md`: diferencias, correcciones, historial y cuentas asociadas.
+- `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`: cuentas, movimientos, debito/credito y saldos.
+- `docs/contextos/CODEX_SALARIOS.md`: personal, pagos, liquidacion, periodo trabajado y cuenta personal.
+- `docs/contextos/CODEX_ENCARGADO.md`: panel del encargado, diferencias, gastos, cuentas y cierres.
+- `docs/contextos/CODEX_ADMINISTRACION.md`: administrador, menus, usuarios, configuraciones y control global.
+- `docs/contextos/CODEX_LOCALES_MAQUINAS.md`: locales, maquinas, taller, desuso e historial.
+- `docs/contextos/CODEX_CLIENTES_PERSONAL.md`: clientes, personal, documentos, papelera y asociaciones.
+- `docs/contextos/CODEX_AUDITORIA.md`: auditoria transversal, usuario real, funcion usada e historiales.
+
 ## Deuda tecnica actual
 
 - `src/App.tsx` sigue siendo demasiado grande. Conviene refactorizar de a poco despues de estabilizar flujos.
+- Modularizacion iniciada con utilidades puras, reglas de salarios, movimientos contables, totales de caja y diferencias. Falta mover storage, auditoria y componentes UI.
 - `src/components/WelcomeScreen.tsx` no esta conectado al flujo actual y sus clases no son parte del CSS activo.
 - Hay textos sin acentos por decision de mantener ASCII y evitar problemas de codificacion.
 - El servidor local necesita iniciarse fuera del sandbox cuando se quiere usar el navegador integrado.
 
 ## Refactor recomendado
 
-Extraer sin cambiar comportamiento:
+Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.md`:
 
-- `components/cashier/OpenCash.tsx`
-- `components/cashier/ClosedBalanceSummary.tsx`
-- `components/cashier/Counters.tsx`
-- `components/admin/Clients.tsx`
-- `components/admin/Locals.tsx`
-- `components/admin/Machines.tsx`
-- `lib/totals.ts`
-- `lib/storage.ts`
-- `lib/audit.ts`
-- `lib/currentAccounts.ts`
+- `src/lib/money.ts` - implementado.
+- `src/lib/dates.ts` - implementado.
+- `src/lib/currentAccounts.ts` - implementado: ids, cuentas y saldos.
+- `src/lib/accountMovements.ts` - implementado: movimientos por origen y saldo corrido de movimientos.
+- `src/lib/cashTotals.ts` - implementado.
+- `src/lib/differences.ts` - implementado.
+- `src/lib/salaryRules.ts` - implementado.
+- `src/features/manager/Differences.tsx`
+- `src/features/cashier/OpenCash.tsx`
+- `src/features/cashier/CloseCash.tsx`
+- `src/features/cashier/Counters.tsx`
+- `src/features/salaries/SalarySettlements.tsx`
+- `src/features/admin/Clients.tsx`
+- `src/features/admin/Locals.tsx`
+- `src/features/admin/Machines.tsx`
+- `src/lib/storage.ts`
+- `src/lib/audit.ts`
+
+Cada extraccion debe dejar imports/referencias claras hacia los modulos asociados. No duplicar reglas contables ni visuales dentro de componentes.
 
 ## Flujo de roles
 
@@ -174,8 +212,15 @@ Se calcula desde la cuenta banco del local menos retiros finales por transferenc
 - Diferencia efectivo = efectivo declarado - efectivo esperado.
 - Diferencia banco = banco declarado - banco esperado.
 - Si hay diferencia, la observacion de cierre es obligatoria.
-- Las diferencias no modifican automaticamente resultado economico ni saldos.
+- Las diferencias no modifican automaticamente resultado economico.
+- Al cerrar caja, las diferencias se sincronizan como movimientos `DIFERENCIA_CAJA` en las cuentas del local para que efectivo/banco queden en el saldo real declarado.
 - Encargado/admin las gestionan con accion y observacion obligatoria.
+- `VERIFICADA` mantiene activos los movimientos de diferencia.
+- `CORREGIDA` permite editar efectivo/banco declarado, recalcula diferencia, actualiza saldos proximos y resincroniza movimientos `DIFERENCIA_CAJA`.
+- `ANULADA` anula los movimientos de diferencia y revierte su impacto en saldos.
+- `Differences` abre como historial del mes actual, permite mes anterior o intervalo manual, buscar por ID/local/fecha/observacion, filtrar por estado y gestionar cada recaudacion desde ventana flotante.
+- La tabla incluye recaudaciones con historial de diferencia/control aunque la diferencia actual sea cero.
+- La tabla principal es compacta y ordenable por todas sus columnas visibles de datos; el detalle de efectivo/banco, observacion original, ultima gestion, formulario de revision e historial auditado viven en el modal.
 
 ## Cuentas corrientes
 
@@ -195,6 +240,8 @@ Movimientos:
 - Transferencias entran a Local / Banco.
 - Retiros salen de Local / Efectivo o Local / Banco.
 - Aportes entran a Local / Efectivo o Local / Banco.
+- Diferencias de caja entran o salen de Local / Efectivo o Local / Banco.
+- `syncDifferenceAccountMovements()` mantiene esos movimientos sincronizados al cierre y al gestionar diferencias.
 - La pantalla filtra por mes actual, mes anterior o rango historico manual.
 - Encargado ve solo cuentas y movimientos de los locales asignados.
 - La tabla de movimientos usa debito, credito y saldo corrido por cuenta.
@@ -247,20 +294,25 @@ Movimientos:
 
 ## Salarios
 
-- Cajero carga forma simple: personal, concepto y monto.
+- Cajero carga forma simple: personal, concepto, periodo trabajado y monto.
 - Personal inicia vacio y es obligatorio.
-- Conceptos: SALARIO, ADELANTO, EXTRA, AGUINALDO, SALARIO_VACACIONAL, HORAS_EXTRAS y DESCUENTO. `SUELDO` y `AJUSTE` quedan como conceptos heredados; `AJUSTE` se normaliza como Extra.
+- Conceptos administrativos: SALARIO, ADELANTO, EXTRA, HORAS_EXTRAS, AGUINALDO, SALARIO_VACACIONAL y DESCUENTO. `SUELDO` y `AJUSTE` quedan como conceptos heredados; `AJUSTE` se normaliza como Premio / Gratificacion en la interfaz.
+- `cashierSalaryConceptOptions` limita nuevos pagos desde cajero a SALARIO y ADELANTO.
+- `suggestedWorkedPeriodFromOperatingDate()` sugiere el periodo trabajado desde la fecha operativa de caja: dia 1 al 10 mes anterior, dia 11 en adelante mes actual.
+- `suggestedSalaryPeriodModeFromDate()` define el modo inicial de `AdminSalarySettlements`: dia 1 al 10 abre mes anterior, dia 11 en adelante abre mes actual.
+- `AdminSalarySettlements` consulta siempre un mes cerrado (`YYYY-MM`): botones con nombre de mes anterior/actual y selector historico por mes + ano.
 - Admin/encargado tienen liquidacion mensual manual.
 - `AdminSalarySettlements` arma una fila consolidada por empleado: la base sale de `salaryBaseForPeriod()` usando la ficha de `StaffMember` y `salaryHistories`; las liquidaciones activas registran pagos o conceptos del periodo.
 - La pantalla general de `AdminSalarySettlements` no muestra cuenta corriente del personal ni alta global; cada fila abre `Detalle`, y desde ahi se crea la liquidacion con empleado fijo, concepto, monto y notas.
-- `CashierSalaryPayments` y `AdminSalarySettlements` comparten la misma lista operativa de conceptos mediante `salaryConceptOptions`.
+- `CashierSalaryPayments` guarda pagos como `SalarySettlement` con `origin = CAJA`, `balanceId` de la caja actual y `period` del periodo trabajado seleccionado.
+- `AdminSalarySettlements` usa `salaryConceptOptions` completo para conceptos administrativos.
 - `normalizeSalaryConcept()` migra `SUELDO` heredado a `SALARIO` y `AJUSTE` heredado a `EXTRA` para nuevos calculos.
-- `salaryConceptBreakdown()` centraliza el impacto del concepto: salario va a pago realizado, adelanto va a adelantos, aguinaldo/salario vacacional van a bonos, extra/horas extras van a extras y descuento va a descuentos.
+- `salaryConceptBreakdown()` centraliza el impacto del concepto: salario va a pago realizado, adelanto va a adelantos, aguinaldo/salario vacacional van a bonos, `EXTRA` queda como codigo tecnico para Premio / Gratificacion, horas extras va a pago fuera de horario y descuento va a descuentos.
 - `salarySettlementAmount()` conserva el impacto de caja: salario y adelanto cuentan como salida de efectivo cuando se cargan desde caja; descuento no genera salida de caja.
-- `salaryHistoryEvent()` registra cambios de tipo de salario o salario base con fecha efectiva, valores anterior/nuevo, usuario y motivo.
-- `SalaryClosure` guarda cierres de liquidacion como foto auditada del periodo: empleados, liquidaciones incluidas, base, extras, bonos, descuentos, total salarios, salario pagado, adelantos, liquidado y pendiente.
-- `AdminSalarySettlements` calcula `total = base + extras + horas extras + bonos - descuentos`, `liquidado = salario pagado + adelantos + extras + bonos - descuentos` y `pendiente = base - salario pagado - adelantos - descuentos`.
-- `validateSalarySettlementLimit()` bloquea liquidaciones cuando salario pagado supera salario base o cuando salario pagado + adelantos supera salario base.
+- `salaryHistoryEvent()` registra cambios de tipo de salario o salario base con fecha efectiva, valores anterior/nuevo, usuario y motivo. El editor de personal bloquea cambios que afecten cierres cerrados y pide reconfirmacion si hay liquidaciones abiertas impactadas.
+- `SalaryClosure` guarda cierres de liquidacion como foto auditada del periodo: empleados, liquidaciones incluidas, base, premios/horas, bonos, descuentos, total salarios, salario pagado, adelantos, cubierto base, pagado/entregado y pendiente.
+- `AdminSalarySettlements` calcula `total = base + premio/gratificacion + horas extras + bonos - descuentos`, `pagado/entregado = salario pagado + adelantos + premio/gratificacion + horas extras + bonos`, `cubierto base = salario pagado + adelantos + descuentos` y `pendiente = base - cubierto base`.
+- `validateSalarySettlementLimit()` bloquea liquidaciones cuando salario pagado supera salario base, cuando salario pagado + adelantos supera salario base o cuando salario pagado + adelantos + descuentos supera salario base.
 - `SalarySettlement` guarda trazabilidad de origen, creador, aprobador y anulacion; `salaryAccountMovement()` y `localSalaryAccountMovement()` deben recibir el usuario real que ejecuto la accion.
 - `Liquidaciones del periodo` dentro del detalle de empleado usa ordenamiento por mes, concepto, importes y estado.
 - La cuenta corriente del empleado en el detalle muestra monto, total y pendiente al momento del movimiento, con todas sus columnas ordenables. Se reconstruye tambien desde `SalarySettlement` del periodo trabajado para que los pagos cargados hoy para un mes anterior aparezcan en ese periodo. Abre modal de detalle completo al hacer clic en una fila.
@@ -351,6 +403,7 @@ Las acciones sensibles usan confirmacion antes de ejecutarse.
 - `money-positive`, `money-negative`: importes con color.
 - `table-actions`: acciones alineadas.
 - `sort-button`: encabezado sortable.
+- Regla tecnica de tablas: toda columna/concepto visible debe tener ordenamiento cuando la tabla sea nueva o se modifique. Excepcion normal: columnas de acciones/comandos. Cualquier otra excepcion debe explicarse y aprobarse antes de implementar.
 
 ## Validacion
 

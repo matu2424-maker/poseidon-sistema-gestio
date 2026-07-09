@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Fecha de cierre: 2026-07-05
+Fecha de cierre: 2026-07-08
 
 ## Antes de tocar codigo
 
@@ -9,9 +9,13 @@ Fecha de cierre: 2026-07-05
 3. Leer `docs/REGLAS_GENERALES.md`.
 4. Leer `docs/POSEIDON_FUNCIONAMIENTO.md`.
 5. Leer `docs/MAPA_TECNICO.md`.
-6. Leer el documento correspondiente en `docs/modulos/`.
-7. Revisar este archivo.
-8. Correr `git status --short` para ver cambios pendientes.
+6. Si el cambio es contable, leer `docs/REGLAS_CONTABLES.md`.
+7. Si el cambio es visual, leer `docs/REGLAS_VISUALES.md`.
+8. Si se va a modularizar o mover codigo, leer `docs/MODULARIZACION_REFERENCIAS.md`.
+9. Leer el contexto corto correspondiente en `docs/contextos/`.
+10. Leer el documento correspondiente en `docs/modulos/`.
+11. Revisar este archivo.
+12. Correr `git status --short` para ver cambios pendientes.
 
 ## Estado actual
 
@@ -74,12 +78,23 @@ pnpm run build
 
 - `src/App.tsx`: estado, datos, pantallas y reglas principales.
 - `src/types.ts`: tipos principales del sistema extraidos desde `App.tsx`.
+- `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
+- `src/lib/dates.ts`: fechas, horas visibles y rangos mensuales.
+- `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
+- `src/lib/accountMovements.ts`: movimientos contables por origen, sincronizacion y saldo corrido de movimientos.
+- `src/lib/cashTotals.ts`: contadores y totales por recaudacion.
+- `src/lib/differences.ts`: helpers de diferencias de caja.
+- `src/lib/salaryRules.ts`: conceptos, periodos, salario base, importes y validaciones de salarios.
 - `src/styles/global.css`: estilos globales.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no conectado al flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
 - `docs/MAPA_TECNICO.md`: mapa tecnico de pantallas, clases, calculos y deuda tecnica.
 - `docs/CONTEXTO_RAPIDO_CODEX.md`: resumen corto para cargar contexto con poco costo.
 - `docs/REGLAS_GENERALES.md`: reglas globales funcionales, contables y esteticas.
+- `docs/REGLAS_CONTABLES.md`: matriz de impacto economico, financiero y cuentas corrientes.
+- `docs/REGLAS_VISUALES.md`: reglas de UI, tablas, botones, modales y formularios.
+- `docs/MODULARIZACION_REFERENCIAS.md`: referencias cruzadas para refactor modular.
+- `docs/contextos/`: contextos cortos por modulo para Codex.
 - `docs/modulos/`: detalle por panel y funcion.
 - `AGENTS.md`: reglas de trabajo para Codex.
 - `README.md`: instrucciones generales del proyecto.
@@ -117,17 +132,23 @@ pnpm run build
 ## Reglas delicadas
 
 - Criterio visual estable: disenar para 1080p, botones alineados y consistentes, acciones al borde inferior/derecho dentro de tarjetas, tablas compactas y no repetir arriba/abajo datos que ya muestra la barra superior. En pantallas del encargado, los recuadros de resumen siguen estetica tipo `Datos de caja` y los accesos rapidos mantienen mismo ancho/altura.
+- Regla permanente de tablas: toda tabla nueva o existente que se modifique debe poder ordenarse por cada columna/concepto visible. Las columnas de acciones/comandos no necesitan ordenamiento. Cualquier excepcion debe explicarse y aprobarse antes.
 - Pantallas administrativas: evitar repetir dentro del cuerpo el mismo titulo que ya aparece en la barra superior. Personal, Clientes, Usuarios, Locales, Maquinas, Taller, Categorias de gastos, Diferencias, Cierre periodico y Liquidacion de salarios usan el encabezado interno solo para descripcion/contadores/acciones.
 - Personal: alta/edicion muestra nota de campos obligatorios y marca con `*` nombre, apellido, cargo, local, estado, tipo salario y salario base. Cargo es lista cerrada: `Cajera/o`, `Encargado/a`, `Mantenimiento`, `Limpieza`.
 - Personal registra historial salarial cuando cambia tipo de salario o salario base: fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
-- Liquidacion de salarios quedo redisenada: selector de periodo tipo Cuentas corrientes, resumen global de pendientes/total salarios/total salarios base/extras, tabla principal por empleado con boton `Detalle`, cierre de liquidacion e historial de cierres.
-- Regla economica de salarios: cada empleado activo inicia el periodo con salario base desde su ficha/historial. Una liquidacion con concepto `Salario` es pago realizado contra pendiente, no reemplaza la base. Total = base + extras + horas extras + bonos - descuentos. Liquidado = salario pagado + adelantos + extras + bonos - descuentos. Pendiente = base - salario pagado - adelantos - descuentos.
-- Validacion de salarios: salario pagado no puede superar salario base y salario pagado + adelantos tampoco puede superar salario base. Se aplica tanto en cajero como en encargado/admin.
-- En la tabla de liquidacion por empleado el orden final es: nombre, salario base, extras, bonos, descuentos, total, adelantos, salario pagado, pendiente y accion. Debajo del nombre se ve si no hay liquidacion cargada o cuantas liquidaciones activas tiene el empleado.
+- Liquidacion de salarios quedo redisenada: selector mensual con nombre del mes anterior, nombre del mes actual y `Consultar mes` por mes/ano; resumen global de pendientes/total salarios/total salarios base/premios y horas, tabla principal por empleado con boton `Detalle`, cierre de liquidacion e historial de cierres.
+- Regla economica de salarios: cada empleado activo inicia el periodo con salario base desde su ficha/historial. Una liquidacion con concepto `Salario` es pago realizado contra pendiente, no reemplaza la base. Total = base + premio/gratificacion + horas extras + bonos - descuentos. Pagado/Entregado = salario pagado + adelantos + premio/gratificacion + horas extras + bonos. Cubierto base = salario pagado + adelantos + descuentos. Pendiente = base - cubierto base.
+- Validacion de salarios: salario pagado no puede superar salario base, salario pagado + adelantos tampoco puede superar salario base y salario pagado + adelantos + descuentos tampoco puede superar salario base. Se aplica tanto en cajero como en encargado/admin.
+- En la tabla de liquidacion por empleado el orden final es: nombre, salario base, premios y horas, bonos, descuentos, total, adelantos, salario pagado, pendiente y accion. Debajo del nombre se ve si no hay liquidacion cargada o cuantas liquidaciones activas tiene el empleado.
 - La cuenta corriente del personal ya no aparece en la pantalla general de liquidacion; se consulta dentro del detalle de cada empleado.
 - El boton global `Agregar` se quito de la pantalla general. Las liquidaciones se agregan desde `Detalle` de cada empleado con mes, personal fijo, concepto, monto y notas.
 - En `Detalle`, la tabla `Liquidaciones del periodo` es ordenable por mes, concepto, importes y estado.
-- Cajero y encargado/admin usan la misma lista de conceptos de salario: Adelanto, Salario, Extra, Aguinaldo, Salario vacacional, Horas extras y Descuento. `Sueldo` y `Ajuste` quedan solo como datos heredados; `Ajuste` se normaliza como Extra.
+- Cajero carga nuevos pagos de salario solo con `Salario` o `Adelanto`; encargado/admin mantienen la lista completa: Adelanto, Salario, Premio / Gratificacion, Horas extras, Aguinaldo, Salario vacacional y Descuento. `Sueldo` y `Ajuste` quedan solo como datos heredados; `Ajuste` se normaliza como Premio / Gratificacion.
+- En pagos desde cajero, `Periodo trabajado` es obligatorio. Si la fecha operativa de caja cae del dia 1 al 10, se sugiere el mes anterior; desde el dia 11, se sugiere el mes actual.
+- `Liquidacion de salarios` tambien usa esa regla como periodo inicial sugerido: dia 1 al 10 abre mes anterior y desde dia 11 abre mes actual, pero siempre permite cambio manual por mes/ano.
+- El pago de salario desde cajero sale de la caja abierta por `balanceId`, pero se imputa a liquidacion/cuenta personal por el periodo trabajado elegido.
+- Eliminar pago de salario desde cajero ahora es anulacion logica auditada: cambia a `ANULADA`, anula movimientos asociados y deja de impactar caja, liquidacion y cuenta personal.
+- `Premio / Gratificacion` es reconocimiento interno al empleado; `Horas extras` es pago por trabajo fuera del horario/base. No mezclarlo con Regalos de clientes.
 - El pago de salario es a mes vencido: el periodo trabajado define la liquidacion, aunque el pago se realice del 1 al 10 del mes siguiente.
 - El impacto de conceptos esta centralizado: salario, adelanto y descuento descuentan pendiente; adelanto no suma al total; descuento no genera salida de caja; salario y adelanto siguen contando como salida de efectivo si fueron cargados desde caja.
 - En detalle de liquidacion por empleado, `Eliminar` cambia la liquidacion a `ANULADA`; internamente es baja logica auditada para no borrar historial ni impactar totales.
@@ -139,8 +160,9 @@ pnpm run build
 - Los indicadores de orden de tablas usan texto ASCII (`asc` / `desc`) para evitar errores de codificacion en flechas.
 - Resultado final de cierre es economico: resultado de maquinas - gastos - salarios - regalos.
 - Transferencias, aportes, retiros, efectivo inicial y banco inicial son movimientos financieros o de caja, no cambian el resultado economico.
-- Las diferencias de efectivo/banco no impactan automaticamente la caja ni el resultado economico; quedan pendientes y deben ser gestionadas por encargado/admin con observacion obligatoria.
-- Acciones del encargado sobre diferencias: revisada/resuelta/ajustada/anulada cambian el estado de control de la recaudacion y quedan auditadas; no mueven dinero automaticamente.
+- Las diferencias de efectivo/banco no impactan el resultado economico; si mueven cuentas corrientes del local para que la siguiente apertura use el saldo real declarado.
+- Acciones del encargado sobre diferencias: verificada/corregida/anulada cambian el estado de control de la recaudacion y quedan auditadas. Corregida permite editar efectivo/banco declarado y recalcula movimientos; anular revierte los movimientos de cuenta de esa diferencia.
+- Pantalla Diferencias: abre como historial del mes actual, permite mes anterior o intervalo manual, tiene buscador por ID/local/fecha/observacion, filtro por estado y gestiona cada recaudacion desde modal con detalle de efectivo/banco, observacion obligatoria e historial auditado completo.
 - Si el retiro final efectivo o banco es `0`, el selector de quien retira queda gris y dice `Sin retiros finales`.
 - IN/OUT actual no puede ser menor al anterior; si falla, la fila queda en rojo.
 - Las maquinas con recaudaciones no se eliminan directamente.
@@ -150,25 +172,31 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
+- Modularizacion iniciada: utilidades de dinero/fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y reglas salariales ya salieron de `src/App.tsx` hacia `src/lib/`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
 - `pnpm run build`: correcto.
-- Se debe levantar servidor local antes de probar visualmente.
+- `http://127.0.0.1:5173/`: responde `200`.
+- Navegador integrado: renderiza pantalla inicial `POSEIDON` sin errores de consola.
 - URL de prueba preferida: `http://127.0.0.1:5173/`.
 - El mapa tecnico quedo actualizado en `docs/MAPA_TECNICO.md`.
 
 ## Pendientes naturales
 
+- Bloque estable pendiente de commit local sugerido: `refactor: modulariza reglas compartidas y contextos codex`.
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
-- Refactor pendiente despues de estabilizar/publicar la demo:
-  - `components/cashier/OpenCash.tsx`
-  - `components/cashier/ClosedBalanceSummary.tsx`
-  - `components/cashier/Counters.tsx`
-  - `components/admin/Clients.tsx`
-  - `lib/totals.ts`
-  - `lib/storage.ts`
+- Refactor pendiente por cortes chicos:
+  - `src/features/manager/Differences.tsx`
+  - `src/features/cashier/OpenCash.tsx`
+  - `src/features/cashier/CloseCash.tsx`
+  - `src/features/cashier/Counters.tsx`
+  - `src/features/salaries/SalarySettlements.tsx`
+  - `src/features/admin/Clients.tsx`
+  - `src/lib/storage.ts`
+  - `src/lib/audit.ts`
+- Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar reportes/exportacion cuando el flujo de caja quede estable.
 - Reimplementar Supabase/Auth real cuando el modelo local este confirmado.

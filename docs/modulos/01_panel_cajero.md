@@ -43,7 +43,7 @@ Centralizar la operativa diaria del cajero sin barra lateral.
 - Transferencias -> Transferencias.
 - Aportes efectivo / Retiros -> Retiros y aportes.
 - Gastos -> Gastos.
-- Salarios -> Pago de salarios.
+- Salarios -> Pago de salarios con `SALARIO` o `ADELANTO`, monto y periodo trabajado. El pago queda asociado a la caja por `balanceId`, pero se imputa al periodo trabajado seleccionado.
 - Regalos -> Regalos.
 - Clientes -> Clientes.
 - Resumen cajas -> Resumen de cajas.

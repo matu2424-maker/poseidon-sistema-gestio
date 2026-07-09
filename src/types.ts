@@ -3,7 +3,7 @@ export type BalanceStatus = "EN_PROCESO" | "CERRADO" | "AJUSTADO" | "ANULADO";
 export type MachineStatus = "ACTIVA" | "INACTIVA" | "MANTENIMIENTO" | "DESUSO";
 export type ReadingStatus = "PENDIENTE" | "CARGADA" | "SIN_LECTURA" | "FUERA_DE_SERVICIO";
 export type MovementStatus = "ACTIVO" | "ANULADO";
-export type DifferenceStatus = "PENDIENTE" | "REVISADA" | "RESUELTA" | "AJUSTADA" | "ANULADA";
+export type DifferenceStatus = "PENDIENTE" | "VERIFICADA" | "CORREGIDA" | "ANULADA" | "REVISADA" | "RESUELTA" | "AJUSTADA";
 export type ExpenseReviewStatus = "PENDIENTE" | "REVISADO" | "OBSERVADO";
 export type StaffStatus = "ACTIVO" | "BAJA" | "PAPELERA";
 export type ClientStatus = "ACTIVO" | "INACTIVO" | "PAPELERA";
@@ -26,7 +26,16 @@ export type PeriodicClosureStatus = "GENERADO" | "ANULADO";
 export type WeekDay = "LUNES" | "MARTES" | "MIERCOLES" | "JUEVES" | "VIERNES" | "SABADO" | "DOMINGO";
 export type CurrentAccountKind = "PERSONAL" | "TRANSFERENCIAS" | "LOCAL_EFECTIVO" | "LOCAL_BANCO";
 export type CurrentAccountStatus = "ACTIVA" | "INACTIVA";
-export type AccountMovementSource = "SUELDO" | "TRANSFERENCIA" | "GASTO" | "REGALO" | "RETIRO" | "APORTE" | "RESULTADO_MAQUINAS" | "AJUSTE";
+export type AccountMovementSource =
+  | "SUELDO"
+  | "TRANSFERENCIA"
+  | "GASTO"
+  | "REGALO"
+  | "RETIRO"
+  | "APORTE"
+  | "RESULTADO_MAQUINAS"
+  | "DIFERENCIA_CAJA"
+  | "AJUSTE";
 export type AccountMovementDirection = "ENTRADA" | "SALIDA";
 export type CapitalMovementType = "RETIRO" | "APORTE";
 export type CapitalMovementMedium = "EFECTIVO" | "TRANSFERENCIA";
@@ -196,6 +205,7 @@ export type SalaryClosure = {
   totalSalaries: number;
   totalSalaryPaid: number;
   totalAdvances: number;
+  totalBaseCovered: number;
   totalLiquidated: number;
   totalPending: number;
   status: "CERRADO" | "ANULADO";

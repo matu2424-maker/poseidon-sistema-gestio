@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales del sistema
 
-Ultima actualizacion: 2026-07-05
+Ultima actualizacion: 2026-07-08
 
 Estas reglas aplican a todo el sistema, salvo que un modulo indique una excepcion explicita.
 
@@ -18,12 +18,18 @@ Estas reglas aplican a todo el sistema, salvo que un modulo indique una excepcio
 - No conectar Supabase/Auth/Storage real hasta que se reactive esa etapa.
 - No publicar ni desplegar sin autorizacion explicita del usuario.
 - Para levantar localhost se usa solo `iniciar-poseidon.bat`. Si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
+- No hacer commits locales sin confirmacion explicita del usuario.
+- Cuando un bloque funcional quede estable, Codex debe sugerir un commit local con un mensaje claro y esperar aprobacion.
+- Para modularizar, leer `docs/MODULARIZACION_REFERENCIAS.md` y dejar referencias cruzadas porque muchos modulos estan asociados.
 
 ## Regla obligatoria de documentacion
 
 Cada modificacion del sistema debe quedar documentada antes de cerrar el trabajo.
 
 - Si cambia una regla global, actualizar `docs/REGLAS_GENERALES.md`.
+- Si cambia una regla contable, actualizar `docs/REGLAS_CONTABLES.md`.
+- Si cambia una regla visual, actualizar `docs/REGLAS_VISUALES.md`.
+- Si cambia una asociacion tecnica entre modulos o se mueve codigo, actualizar `docs/MODULARIZACION_REFERENCIAS.md` o `docs/MAPA_TECNICO.md`.
 - Si cambia una regla funcional, flujo, calculo o campo, actualizar `docs/POSEIDON_FUNCIONAMIENTO.md`.
 - Si cambia una pantalla, funcion o modulo concreto, actualizar el archivo correspondiente en `docs/modulos/`.
 - Si cambia la estructura tecnica, clases principales, deuda tecnica o ubicacion de codigo, actualizar `docs/MAPA_TECNICO.md`.
@@ -38,8 +44,21 @@ No se considera cerrado un cambio si la documentacion relacionada quedo desactua
 - El resultado economico no incluye transferencias, aportes, retiros, efectivo inicial, banco inicial ni diferencias.
 - Las diferencias de efectivo o banco son eventos de control y auditoria.
 - Una diferencia no se convierte automaticamente en ganancia, perdida, gasto ni ajuste de caja.
+- Al cerrar caja, una diferencia de efectivo o banco mueve la cuenta corriente del local para que la siguiente apertura tome el saldo real declarado.
+- Ese movimiento de diferencia no modifica el resultado economico.
 - Encargado o administrador deben gestionar diferencias con accion y observacion.
-- Cualquier impacto posterior debe hacerse con ajuste explicito y auditado.
+- Si encargado/admin anula una diferencia, se anulan sus movimientos de cuenta y el saldo vuelve al calculo previo.
+- Si encargado/admin verifica una diferencia, el movimiento de cuenta queda activo como diferencia auditada.
+- Si encargado/admin corrige una diferencia, se editan los importes declarados de efectivo/banco, se recalculan diferencias y se sincronizan movimientos de cuenta.
+- Cualquier correccion adicional posterior debe hacerse con ajuste explicito y auditado.
+- Los pagos de salario desde caja afectan la caja por `balanceId`, pero la liquidacion y cuenta personal se imputan por periodo trabajado (`period`).
+- El cajero solo carga nuevos pagos de salario con `SALARIO` o `ADELANTO`; conceptos administrativos quedan para encargado/admin.
+- En salarios, del dia 1 al 10 se sugiere trabajar mes anterior; desde el dia 11 se sugiere mes actual. En liquidacion es solo periodo inicial sugerido y puede cambiarse manualmente.
+- En salarios, descuento reduce pendiente/base cubierta, pero no es dinero entregado ni salida de caja.
+- `Pagado / Entregado` = salario pagado + adelantos + premio/gratificacion + horas extras + bonos. No resta descuentos.
+- `Cubierto base` = salario pagado + adelantos + descuentos. No puede superar el salario base del periodo.
+- `EXTRA` queda como codigo tecnico interno y en interfaz se muestra como `Premio / Gratificacion`.
+- Los cambios de salario base son prospectivos: no pueden afectar cierres de liquidacion ya cerrados; si afectan periodos abiertos con liquidaciones activas, requieren reconfirmacion.
 
 ## Reglas visuales globales
 
@@ -47,6 +66,8 @@ No se considera cerrado un cambio si la documentacion relacionada quedo desactua
 - Evitar scroll horizontal innecesario en paneles principales.
 - Tablas administrativas densas, claras y compactas.
 - Las tablas nuevas deben permitir ordenar por sus columnas visibles por defecto, salvo que haya una razon funcional clara para no hacerlo.
+- Regla permanente de tablas: toda tabla nueva o existente que se modifique debe poder ordenarse por cada columna/concepto visible. Las columnas de acciones/comandos no requieren ordenamiento.
+- Si una columna visible no va a ser ordenable, debe explicarse el motivo y pedir aprobacion antes de implementar.
 - Botones de una misma zona con tamano y alineacion consistentes.
 - En tarjetas, acciones al borde inferior y preferentemente a la derecha.
 - No repetir datos que ya aparecen en la barra superior.
