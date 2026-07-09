@@ -35,6 +35,7 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/ids.ts`
 - `src/lib/machineHistory.ts`
 - `src/lib/audit.ts`
+- `src/lib/storage.ts`
 - `src/lib/currentAccounts.ts`
 - `src/lib/accountMovements.ts`
 - `src/lib/cashTotals.ts`
@@ -54,7 +55,7 @@ Ya salieron de `src/App.tsx`:
    - Queda pendiente extraer la pantalla `Audit` cuando se aborde administracion/auditoria.
 
 2. `src/lib/storage.ts`
-   - Extraer lectura/escritura de `localStorage`, normalizacion y reset demo.
+   - Estado: implementado para lectura/escritura de `localStorage`, compactacion, reset operativo y preferencias de columnas.
    - Mantener clave `poseidon-sistema-gestion-v2`.
    - Preparar futura migracion a Supabase sin activar Supabase todavia.
 

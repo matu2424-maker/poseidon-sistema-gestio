@@ -83,6 +83,7 @@ pnpm run build
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fechas, horas visibles y rangos mensuales.
 - `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
+- `src/lib/storage.ts`: lectura/escritura de `localStorage`, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
 - `src/lib/accountMovements.ts`: movimientos contables por origen, sincronizacion y saldo corrido de movimientos.
 - `src/lib/cashTotals.ts`: contadores y totales por recaudacion.
@@ -184,7 +185,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores y pantalla de Diferencias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores y pantalla de Diferencias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
@@ -202,7 +203,6 @@ pnpm run build
 - Refactor pendiente por cortes chicos:
   - `src/features/salaries/SalarySettlements.tsx`
   - `src/features/admin/Clients.tsx`
-  - `src/lib/storage.ts`
 - Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar reportes/exportacion cuando el flujo de caja quede estable.

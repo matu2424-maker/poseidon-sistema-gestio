@@ -21,6 +21,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
 - `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
+- `src/lib/storage.ts`: lectura/escritura de `localStorage`, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
 - `src/lib/accountMovements.ts`: movimientos contables por origen y totales corridos desde movimientos.
 - `src/lib/cashTotals.ts`: calculo de contadores y totales por recaudacion.
@@ -107,6 +108,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/money.ts` - implementado.
 - `src/lib/dates.ts` - implementado.
 - `src/lib/audit.ts` - implementado: construccion de eventos con usuario real y funcion usada.
+- `src/lib/storage.ts` - implementado: almacenamiento principal, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts` - implementado: ids, cuentas y saldos.
 - `src/lib/accountMovements.ts` - implementado: movimientos por origen y saldo corrido de movimientos.
 - `src/lib/cashTotals.ts` - implementado.
@@ -124,7 +126,6 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
-- `src/lib/storage.ts`
 
 Cada extraccion debe dejar imports/referencias claras hacia los modulos asociados. No duplicar reglas contables ni visuales dentro de componentes.
 

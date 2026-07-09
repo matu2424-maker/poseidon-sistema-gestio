@@ -121,15 +121,20 @@ import {
   suggestedWorkedPeriodFromOperatingDate,
   validateSalarySettlementLimit,
 } from "./lib/salaryRules";
+import {
+  isOperationalResetMarked,
+  markOperationalReset,
+  readColumnPreference,
+  readStoredAppData,
+  writeColumnPreference,
+  writeStoredAppData,
+} from "./lib/storage";
 import { ClosedBalanceSummary } from "./features/cashier/ClosedBalanceSummary";
 import { CloseCash } from "./features/cashier/CloseCash";
 import { Counters } from "./features/cashier/Counters";
 import { OpenCash } from "./features/cashier/OpenCash";
 import { Differences } from "./features/manager/Differences";
 
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
-const OPERATIONAL_RESET_MARKER_KEY = "poseidon-operational-reset-marker";
-const OPERATIONAL_RESET_MARKER = "reset-saldos-2026-06-26-v2";
 const LEGACY_POSEIDON_LOCAL_ID = "local-poseidon";
 const POSEIDON_LOCAL_ID = "1";
 const WORKSHOP_LOCAL_ID = "taller";
@@ -346,34 +351,6 @@ function normalizeStoredFileMeta(file: StoredFileMeta | undefined): StoredFileMe
     type: file.type ?? "",
     size: Number(file.size ?? 0),
     uploadedAt: file.uploadedAt ?? nowIso(),
-  };
-}
-
-const stripLargeInlineFiles = (value: string) =>
-  value.replace(/data:[^"]{500,}/g, "[archivo no persistido en localStorage]");
-
-function dataForLocalStorage(data: AppData, compact = false): AppData {
-  const auditLimit = compact ? 350 : data.audit.length;
-  return {
-    ...data,
-    locals: data.locals.map((local) => ({
-      ...local,
-      images: (local.images ?? []).map((image) => ({
-        ...image,
-        dataUrl: "",
-      })),
-    })),
-    expenses: data.expenses.map((expense) => ({
-      ...expense,
-      receiptDataUrl: undefined,
-    })),
-    audit: data.audit.slice(0, auditLimit).map((event) => ({
-      ...event,
-      previousValue: stripLargeInlineFiles(event.previousValue).slice(0, compact ? 8000 : 30000),
-      newValue: stripLargeInlineFiles(event.newValue).slice(0, compact ? 8000 : 30000),
-    })),
-    machineLocalHistory: compact ? data.machineLocalHistory.slice(0, 1200) : data.machineLocalHistory,
-    accountMovements: compact ? data.accountMovements.slice(0, 2000) : data.accountMovements,
   };
 }
 
@@ -1100,11 +1077,11 @@ function createSeedData(): AppData {
 
 function readData(): AppData {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const data = raw ? normalizeData(JSON.parse(raw) as AppData) : createSeedData();
+    const storedData = readStoredAppData();
+    const data = storedData ? normalizeData(storedData) : createSeedData();
     if (window.location.search.includes("resetSaldos=1")) {
       const cleaned = normalizeData(clearOperationalData(data));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataForLocalStorage(cleaned)));
+      writeStoredAppData(cleaned);
       window.history.replaceState({}, "", window.location.pathname);
       return cleaned;
     }
@@ -1670,15 +1647,15 @@ function App() {
   const [actingRole, setActingRole] = useState<Role | null>(null);
   const [message, setMessage] = useState("");
   const [operationalResetApplied, setOperationalResetApplied] = useState(
-    () => localStorage.getItem(OPERATIONAL_RESET_MARKER_KEY) === OPERATIONAL_RESET_MARKER,
+    () => isOperationalResetMarked(),
   );
 
   useEffect(() => {
     if (operationalResetApplied) return;
     setData((current) => {
       const cleaned = normalizeData(clearOperationalData(current));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataForLocalStorage(cleaned)));
-      localStorage.setItem(OPERATIONAL_RESET_MARKER_KEY, OPERATIONAL_RESET_MARKER);
+      writeStoredAppData(cleaned);
+      markOperationalReset();
       return cleaned;
     });
     setUser(null);
@@ -1690,15 +1667,12 @@ function App() {
 
   useEffect(() => {
     if (!operationalResetApplied) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataForLocalStorage(data)));
-    } catch {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataForLocalStorage(data, true)));
-        setMessage("Guardado local compactado: se quitaron archivos pesados del almacenamiento del navegador.");
-      } catch {
-        setMessage("No se pudo guardar localmente. El dato puede ser demasiado grande.");
-      }
+    const saveResult = writeStoredAppData(data);
+    if (saveResult === "compacted") {
+      setMessage("Guardado local compactado: se quitaron archivos pesados del almacenamiento del navegador.");
+    }
+    if (saveResult === "failed") {
+      setMessage("No se pudo guardar localmente. El dato puede ser demasiado grande.");
     }
   }, [data, operationalResetApplied]);
 
@@ -1728,7 +1702,7 @@ function App() {
   const resetDemo = () => {
     const fresh = createSeedData();
     setData(fresh);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataForLocalStorage(fresh)));
+    writeStoredAppData(fresh);
     setMessage("Datos reiniciados.");
     setScreen("panel");
   };
@@ -6720,7 +6694,7 @@ function AdminUsers({
   const [visibleColumns, setVisibleColumns] = useState<UserColumnKey[]>(() => readColumnPreference(USER_COLUMNS_STORAGE_KEY, userColumns, fixedUserColumns));
   const [sort, setSort] = useState<SortState<UserColumnKey>>({ key: "name", direction: "asc" });
   useEffect(() => {
-    localStorage.setItem(USER_COLUMNS_STORAGE_KEY, JSON.stringify(visibleColumns));
+    writeColumnPreference(USER_COLUMNS_STORAGE_KEY, visibleColumns);
   }, [visibleColumns]);
   const toggleColumn = (key: UserColumnKey) => {
     setVisibleColumns((current) => {
@@ -7101,20 +7075,6 @@ function ColumnChooser<Key extends string>({
   );
 }
 
-function readColumnPreference<Key extends string>(storageKey: string, columns: TableColumn<Key>[], fixed: Key[]): Key[] {
-  const fallback = fixed;
-  try {
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw) as Key[];
-    const allowed = new Set(columns.map((column) => column.key));
-    const next = parsed.filter((key) => allowed.has(key));
-    return [...next, ...fixed.filter((key) => !next.includes(key))];
-  } catch {
-    return fallback;
-  }
-}
-
 function Modal({
   title,
   children,
@@ -7166,7 +7126,7 @@ function AdminMachines({
   );
   const [sort, setSort] = useState<SortState<MachineColumnKey>>({ key: "visibleId", direction: "asc" });
   useEffect(() => {
-    localStorage.setItem(MACHINE_COLUMNS_STORAGE_KEY, JSON.stringify(visibleColumns));
+    writeColumnPreference(MACHINE_COLUMNS_STORAGE_KEY, visibleColumns);
   }, [visibleColumns]);
   const toggleColumn = (key: MachineColumnKey) => {
     setVisibleColumns((current) => {
@@ -7676,7 +7636,7 @@ function AdminLocals({
   );
   const [sort, setSort] = useState<SortState<LocalColumnKey>>({ key: "id", direction: "asc" });
   useEffect(() => {
-    localStorage.setItem(LOCAL_COLUMNS_STORAGE_KEY, JSON.stringify(visibleColumns));
+    writeColumnPreference(LOCAL_COLUMNS_STORAGE_KEY, visibleColumns);
   }, [visibleColumns]);
   const toggleColumn = (key: LocalColumnKey) => {
     setVisibleColumns((current) => {
