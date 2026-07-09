@@ -53,8 +53,10 @@ src/lib/
 src/components/
   ui.tsx
 
+src/features/layout/
+  AppShell.tsx
+
 src/features/cashier/
-  CashierWorkspace.tsx
   OpenCash.tsx
   ClosedBalanceSummary.tsx
   CloseCash.tsx
@@ -291,6 +293,14 @@ Riesgo medio/alto porque consolida cajas cerradas, diferencias, retiros/aportes,
 Estado: implementado en `src/features/admin/LocationsMachines.tsx`.
 
 Riesgo medio/alto porque locales y maquinas alimentan caja, contadores, reset, cierre de local, maquinas en desuso, cuentas corrientes indirectas e historial. Se mantuvo como modulo consolidado para conservar referencias entre Locales, Maquinas y Taller. Antes de modificar revisar `CODEX_LOCALES_MAQUINAS`, modulos 03/05/09 y reglas de tablas ordenables.
+
+### Corte 19: layout base y navegacion
+
+- `AppShell.tsx`: pantalla inicial, login local, layout lateral de encargado/admin, layout del cajero, estado vacio operativo, grupos de menu por rol y titulos de pantalla.
+
+Estado: implementado en `src/features/layout/AppShell.tsx`.
+
+Riesgo medio porque concentra navegacion, rol efectivo, cambio a funcion Cajero y estructura visual base. No cambia reglas contables. Antes de modificar revisar `CODEX_LAYOUT_BASE`, modulos 00/01/07/08 y reglas visuales.
 
 ## Validacion por corte
 

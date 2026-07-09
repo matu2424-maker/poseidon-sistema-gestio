@@ -15,7 +15,7 @@ Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en des
 ## Codigo actual
 
 - `AdminLocals`, `AdminMachines`, `AdminLocalEditor`, `AdminMachineEditor`, `WorkshopMachinePicker`, `LocalMachinesModal`, `MachineHistoryModal` y `LocalHistoryModal` viven en `src/features/admin/LocationsMachines.tsx`.
-- `src/App.tsx` importa `AdminLocals` y `AdminMachines` desde ese modulo y conserva solo el enrutamiento/layout general.
+- `src/App.tsx` importa `AdminLocals` y `AdminMachines` desde ese modulo y conserva la composicion de pantallas.
 - Contadores usan `calcReading` desde `src/lib/cashTotals.ts`.
 - Reset y ajustes de contadores deben quedar auditados.
 

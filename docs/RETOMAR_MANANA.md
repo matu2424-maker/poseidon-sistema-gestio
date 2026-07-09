@@ -78,7 +78,7 @@ pnpm run build
 
 ## Archivos principales
 
-- `src/App.tsx`: estado, datos, pantallas y reglas principales.
+- `src/App.tsx`: estado, datos demo/normalizacion, acciones principales y composicion de pantallas.
 - `src/types.ts`: tipos principales del sistema extraidos desde `App.tsx`.
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fechas, horas visibles y rangos mensuales.
@@ -200,7 +200,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias, locales/maquinas/taller, pantalla de Auditoria, Reportes y Cierre periodico ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, layout/base, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias, locales/maquinas/taller, pantalla de Auditoria, Reportes y Cierre periodico ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
@@ -216,7 +216,9 @@ pnpm run build
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
 - Refactor pendiente por cortes chicos:
-  - Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace` y paneles iniciales por rol.
+  - Paneles iniciales por rol.
+  - Cuentas corrientes.
+  - Helpers restantes de datos demo/normalizacion si conviene separarlos.
 - Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar exportaciones avanzadas cuando el flujo de caja quede estable.

@@ -16,7 +16,7 @@ Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre
 
 ## Codigo actual
 
-- `CashierWorkspace` sigue en `src/App.tsx`.
+- `CashierWorkspace` vive en `src/features/layout/AppShell.tsx`.
 - `Expenses`, `Transfers`, `Gifts`, `CashierSalaryPayments`, `CapitalMovements` y `CashierClients` viven en `src/features/cashier/Movements.tsx`.
 - `OpenCash` vive en `src/features/cashier/OpenCash.tsx`.
 - `ClosedBalanceSummary` vive en `src/features/cashier/ClosedBalanceSummary.tsx`.

@@ -38,7 +38,8 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Codigo actual
 
-- `src/App.tsx`: layout, menu, panel general y pantallas administrativas aun no extraidas.
+- `src/App.tsx`: estado global, composicion de pantallas, panel general y pantallas administrativas aun no extraidas.
+- `src/features/layout/AppShell.tsx`: pantalla inicial, login, layout lateral, menu agrupado y cambio a funcion Cajero.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
 - `src/features/admin/LocationsMachines.tsx`: locales, maquinas, taller, editores y modales de historial/asociaciones.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
@@ -50,4 +51,4 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Refactor pendiente
 
-- Extraer layout/base administrativo restante: `Shell` y paneles iniciales por rol.
+- Extraer paneles iniciales por rol y cuentas corrientes.

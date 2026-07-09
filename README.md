@@ -215,10 +215,11 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ## Estructura del proyecto
 
 ```text
-src/App.tsx                    Estado, pantallas y acciones de UI principales
+src/App.tsx                    Estado global, persistencia, acciones y composicion de pantallas
 src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
 src/components/ui.tsx          Componentes compartidos: tarjetas, modales, botones basicos y selector de columnas
+src/features/layout/           Pantalla inicial, login, layout lateral, layout cajero y navegacion base
 src/features/cashier/          Pantallas extraidas de caja diaria y resumen
 src/features/manager/          Diferencias y control de gastos del encargado/admin
 src/features/salaries/         Liquidacion de salarios y detalle de empleado
@@ -240,7 +241,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Refactor pendiente
 
-`src/App.tsx` todavia concentra demasiadas pantallas y acciones de UI. Ya se extrajeron `src/types.ts` y reglas compartidas hacia `src/lib/`:
+`src/App.tsx` todavia concentra estado global, datos demo/normalizacion, acciones principales y algunas pantallas pendientes. Ya se extrajeron `src/types.ts` y reglas compartidas hacia `src/lib/`:
 
 - `money.ts`
 - `dates.ts`
@@ -260,6 +261,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `machineHistory.ts`
 - `salaryRules.ts`
 - `src/components/ui.tsx`
+- `src/features/layout/AppShell.tsx`
 - `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
 - `src/features/cashier/ClosedBalanceSummary.tsx`
@@ -278,7 +280,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 Pendientes naturales:
 
-- Layout/base de `src/App.tsx`: `Shell`, `CashierWorkspace` y paneles iniciales por rol.
+- Paneles iniciales por rol y cuentas corrientes.
 
 ## Documentacion viva
 

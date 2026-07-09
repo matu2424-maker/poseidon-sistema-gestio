@@ -6,6 +6,8 @@ Vista de revision operativa y control, separada del flujo visual del cajero.
 
 ## Estado actual
 
+El layout lateral, cabecera y cambio de funcion viven en `src/features/layout/AppShell.tsx`.
+
 El encargado entra directo a su panel y ve:
 
 - diferencias del local activo;

@@ -16,7 +16,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 
 ## Archivos principales
 
-- `src/App.tsx`: estado general, pantallas, acciones de UI y render principal.
+- `src/App.tsx`: estado general, persistencia, acciones principales y composicion de pantallas.
 - `src/types.ts`: tipos principales del dominio.
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
@@ -180,12 +180,12 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - No opera caja desde el menu lateral.
 - Para operar caja cambia a funcion Cajero desde la cabecera.
 
-## Pantallas principales en `App.tsx`
+## Pantallas principales
 
-- `Welcome`: pantalla inicial real.
-- `Login`: seleccion local de usuario sin password.
-- `Shell`: layout con barra lateral para encargado/admin.
-- `CashierWorkspace`: layout sin barra lateral para cajero.
+- `Welcome`: pantalla inicial real. Vive en `src/features/layout/AppShell.tsx`.
+- `Login`: seleccion local de usuario sin password. Vive en `src/features/layout/AppShell.tsx`.
+- `Shell`: layout con barra lateral para encargado/admin. Vive en `src/features/layout/AppShell.tsx`.
+- `CashierWorkspace`: layout sin barra lateral para cajero. Vive en `src/features/layout/AppShell.tsx`.
 - `Panel`: panel inicial segun rol efectivo.
 - `OpenCash`: apertura y resumen de ultimas cajas. Vive en `src/features/cashier/OpenCash.tsx`.
 - `ClosedBalanceSummary`: resumen solo lectura de caja cerrada. Vive en `src/features/cashier/ClosedBalanceSummary.tsx`.
