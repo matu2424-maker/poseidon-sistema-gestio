@@ -68,7 +68,7 @@ import {
 } from "./lib/clients";
 import { nowIso, today } from "./lib/dates";
 import { differenceActionImpact } from "./lib/differences";
-import { roleLabels } from "./lib/display";
+import { localCode, localName, roleLabels } from "./lib/display";
 import { normalizeStoredFileMeta } from "./lib/files";
 import { nextShortId, shortNumberId, uid } from "./lib/ids";
 import { machineHistoryEvent } from "./lib/machineHistory";
@@ -131,7 +131,6 @@ import { Reports } from "./features/reports/Reports";
 const LEGACY_POSEIDON_LOCAL_ID = "local-poseidon";
 const POSEIDON_LOCAL_ID = "1";
 const WORKSHOP_LOCAL_ID = "taller";
-const WORKSHOP_LABEL = "Taller";
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 const defaultExpenseCategories: ExpenseCategory[] = [
   { id: "expense-cat-limpieza", name: "Limpieza", subcategories: ["Productos", "Servicio externo", "Mantenimiento diario"], status: "ACTIVA" },
@@ -191,10 +190,6 @@ function createDemoUsers(localId: string): User[] {
 const asNumber = (value: FormDataEntryValue | null) => Number(value || 0);
 const staffStatusClass = (status: StaffStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
 const clientStatusClass = (status: ClientStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
-const localName = (data: AppData, localId: string) =>
-  localId === WORKSHOP_LOCAL_ID ? WORKSHOP_LABEL : data.locals.find((local) => local.id === localId)?.name ?? localId;
-const localCode = (name: string) => (name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 4).toUpperCase() || "CAJA");
-const balanceVisibleId = (data: AppData, balance: Balance) => balance.visibleId ?? `${localCode(localName(data, balance.localId))}-${balance.id.slice(-4)}`;
 function nextBalanceVisibleId(data: AppData, localId: string) {
   const code = localCode(localName(data, localId));
   const max = data.balances
@@ -211,13 +206,6 @@ const clientNameWithDocument = (data: AppData, clientId: string | undefined) => 
   const client = data.clients.find((item) => item.id === clientId);
   return client ? `${client.name} - ${clientDocumentLabel(client)}` : "";
 };
-const userDisplayName = (data: AppData, userId: string | undefined) => (userId ? data.users.find((item) => item.id === userId)?.name ?? userId : "-");
-const userDisplayNameWithRole = (data: AppData, userId: string | undefined, role: Role | undefined) => {
-  const name = userDisplayName(data, userId);
-  return role ? `${name} como ${roleLabels[role]}` : name;
-};
-const localOptionName = (local: Local) => `${local.id} - ${local.name}`;
-const capitalize = (value: string) => (value ? `${value.charAt(0).toLocaleUpperCase("es-UY")}${value.slice(1)}` : value);
 const confirmAction = (message: string) => window.confirm(message);
 
 function clearOperationalData(data: AppData): AppData {
