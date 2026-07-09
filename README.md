@@ -217,10 +217,11 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ```text
 src/App.tsx                    Estado, pantallas y acciones de UI principales
 src/types.ts                   Tipos principales del sistema
-src/lib/                       Reglas compartidas: dinero, fechas, auditoria, storage, presentacion, IDs, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
+src/lib/                       Reglas compartidas: dinero, fechas, auditoria, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
 src/components/ui.tsx          Componentes compartidos: tarjetas, modales y botones basicos
 src/features/cashier/          Pantallas extraidas de caja diaria y resumen
 src/features/manager/          Pantallas extraidas de encargado/control
+src/features/salaries/         Liquidacion de salarios y detalle de empleado
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
@@ -241,6 +242,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `money.ts`
 - `dates.ts`
 - `audit.ts`
+- `export.ts`
 - `storage.ts`
 - `sorting.ts`
 - `currentAccounts.ts`
@@ -249,6 +251,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `differences.ts`
 - `display.ts`
 - `ids.ts`
+- `people.ts`
 - `machineHistory.ts`
 - `salaryRules.ts`
 - `src/components/ui.tsx`
@@ -257,10 +260,10 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `src/features/cashier/ClosedBalanceSummary.tsx`
 - `src/features/cashier/Counters.tsx`
 - `src/features/cashier/CloseCash.tsx`
+- `src/features/salaries/SalarySettlements.tsx`
 
 Pendientes naturales:
 
-- `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
 
 ## Documentacion viva

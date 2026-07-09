@@ -35,6 +35,8 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/ids.ts`
 - `src/lib/machineHistory.ts`
 - `src/lib/audit.ts`
+- `src/lib/export.ts`
+- `src/lib/people.ts`
 - `src/lib/storage.ts`
 - `src/lib/currentAccounts.ts`
 - `src/lib/accountMovements.ts`
@@ -48,6 +50,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/cashier/ClosedBalanceSummary.tsx`
 - `src/features/cashier/Counters.tsx`
 - `src/features/cashier/CloseCash.tsx`
+- `src/features/salaries/SalarySettlements.tsx`
 
 ## Proximos cortes recomendados
 
@@ -71,7 +74,7 @@ Ya salieron de `src/App.tsx`:
    - Evita que cada modulo extraido copie el mismo markup visual.
 
 5. `src/features/salaries/SalarySettlements.tsx`
-   - Extraer liquidacion de salarios y detalle de empleado.
+   - Estado: implementado para liquidacion de salarios y detalle de empleado.
    - Mantener reglas de periodo trabajado, salario base, adelantos, descuentos y cierre mensual.
    - Referencias: `CODEX_SALARIOS`, modulos 10/11/12.
 

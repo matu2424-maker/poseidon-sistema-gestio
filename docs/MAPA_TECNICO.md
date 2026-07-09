@@ -21,6 +21,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
 - `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
+- `src/lib/export.ts`: descarga de archivos y exportacion CSV.
 - `src/lib/storage.ts`: lectura/escritura de `localStorage`, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
 - `src/lib/accountMovements.ts`: movimientos contables por origen y totales corridos desde movimientos.
@@ -29,6 +30,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/display.ts`: nombres visibles, roles e IDs visibles compartidos.
 - `src/lib/ids.ts`: generacion de IDs locales para entidades demo/localStorage.
 - `src/lib/machineHistory.ts`: construccion de eventos de historial de maquinas.
+- `src/lib/people.ts`: helpers de nombres visibles de personal.
 - `src/lib/salaryRules.ts`: conceptos, periodos, base salarial, importes y validaciones de salarios.
 - `src/lib/sorting.ts`: estado y helpers compartidos para ordenar tablas por columnas visibles.
 - `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
@@ -36,6 +38,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final, retiros finales y sincronizacion de diferencias/cuentas.
 - `src/features/manager/Differences.tsx`: pantalla de gestion e historial de diferencias.
+- `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios, detalle de empleado, cuenta personal y cierres de liquidacion.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons` y `Modal`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
@@ -111,6 +114,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/money.ts` - implementado.
 - `src/lib/dates.ts` - implementado.
 - `src/lib/audit.ts` - implementado: construccion de eventos con usuario real y funcion usada.
+- `src/lib/export.ts` - implementado.
 - `src/lib/storage.ts` - implementado: almacenamiento principal, compactacion y preferencias de columnas.
 - `src/lib/currentAccounts.ts` - implementado: ids, cuentas y saldos.
 - `src/lib/accountMovements.ts` - implementado: movimientos por origen y saldo corrido de movimientos.
@@ -119,6 +123,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/display.ts` - implementado.
 - `src/lib/ids.ts` - implementado.
 - `src/lib/machineHistory.ts` - implementado.
+- `src/lib/people.ts` - implementado.
 - `src/lib/salaryRules.ts` - implementado.
 - `src/lib/sorting.ts` - implementado.
 - `src/components/ui.tsx` - implementado.
@@ -127,7 +132,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/cashier/ClosedBalanceSummary.tsx` - implementado.
 - `src/features/cashier/Counters.tsx` - implementado.
 - `src/features/cashier/CloseCash.tsx` - implementado.
-- `src/features/salaries/SalarySettlements.tsx`
+- `src/features/salaries/SalarySettlements.tsx` - implementado.
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
@@ -178,7 +183,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `Reports`: reportes/exportaciones.
 - `AdminCurrentAccounts`: cuentas corrientes.
 - `AdminStaff`: personal.
-- `AdminSalarySettlements`: liquidacion simple.
+- `AdminSalarySettlements`: liquidacion simple. Vive en `src/features/salaries/SalarySettlements.tsx`.
 - `AdminUsers`: usuarios.
 - `AdminExpenseCategories`: categorias/subcategorias de gastos.
 - `AdminMachines`: maquinas y taller.

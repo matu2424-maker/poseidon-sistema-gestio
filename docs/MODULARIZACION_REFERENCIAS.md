@@ -38,6 +38,8 @@ src/lib/
   ids.ts
   machineHistory.ts
   audit.ts
+  export.ts
+  people.ts
   storage.ts
   sorting.ts
   currentAccounts.ts
@@ -74,7 +76,6 @@ src/features/accounts/
 
 src/features/salaries/
   SalarySettlements.tsx
-  SalarySettlementEditor.tsx
   salaryRules.ts
   salaryTotals.ts
 
@@ -203,6 +204,16 @@ Riesgo bajo/medio porque no cambia datos, pero afecta la consistencia visual y f
 Estado: implementado en `src/components/ui.tsx`. Usado por `src/App.tsx`; las proximas pantallas extraidas deben reutilizarlo para no duplicar tarjetas, botones basicos ni modales.
 
 Riesgo bajo porque conserva clases CSS y estructura visual existente.
+
+### Corte 9: liquidacion de salarios
+
+- `SalarySettlements.tsx`: pantalla de liquidacion, detalle de empleado, cuenta corriente personal y editor de liquidaciones.
+- `export.ts`: descarga y CSV compartido para exportaciones.
+- `people.ts`: nombre visible de personal.
+
+Estado: implementado en `src/features/salaries/SalarySettlements.tsx`, `src/lib/export.ts` y `src/lib/people.ts`.
+
+Riesgo medio/alto porque salarios cruza personal, caja, cuentas corrientes, auditoria y cierres de liquidacion. Antes de modificar revisar `CODEX_SALARIOS`, modulos 10/11 y reglas contables.
 
 ## Validacion por corte
 

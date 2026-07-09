@@ -13,8 +13,8 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 
 ## Codigo actual
 
-- Pantalla principal: `AdminSalarySettlements` en `src/App.tsx`.
-- Editor: `SalarySettlementEditor` en `src/App.tsx`.
+- Pantalla principal: `AdminSalarySettlements` en `src/features/salaries/SalarySettlements.tsx`.
+- Editor: `SalarySettlementEditor` en `src/features/salaries/SalarySettlements.tsx`.
 - Cajero: `CashierSalaryPayments` en `src/App.tsx`.
 - Reglas salariales: `salaryBaseForPeriod`, `salaryConceptBreakdown`, `salarySettlementAmount`, `validateSalarySettlementLimit` y periodos viven en `src/lib/salaryRules.ts`.
 - Movimientos contables: `salaryAccountMovement` y `localSalaryAccountMovement` viven en `src/lib/accountMovements.ts`.
