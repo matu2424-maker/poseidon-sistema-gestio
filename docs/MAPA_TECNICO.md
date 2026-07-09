@@ -43,6 +43,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/manager/Differences.tsx`: pantalla de gestion e historial de diferencias.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios, detalle de empleado, cuenta personal y cierres de liquidacion.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido por administrador/cajero.
+- `src/features/admin/Staff.tsx`: personal, editor de personal, historial salarial y papelera.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons` y `Modal`.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
@@ -141,6 +142,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/features/cashier/Movements.tsx` - implementado.
 - `src/features/salaries/SalarySettlements.tsx` - implementado.
 - `src/features/admin/Clients.tsx` - implementado.
+- `src/features/admin/Staff.tsx` - implementado.
 - `src/features/admin/Locals.tsx`
 - `src/features/admin/Machines.tsx`
 
@@ -190,7 +192,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
 - `Reports`: reportes/exportaciones.
 - `AdminCurrentAccounts`: cuentas corrientes.
-- `AdminStaff`: personal.
+- `AdminStaff`: personal. Vive en `src/features/admin/Staff.tsx`.
 - `AdminSalarySettlements`: liquidacion simple. Vive en `src/features/salaries/SalarySettlements.tsx`.
 - `AdminUsers`: usuarios.
 - `AdminExpenseCategories`: categorias/subcategorias de gastos.

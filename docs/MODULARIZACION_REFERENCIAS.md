@@ -232,6 +232,15 @@ Estado: implementado en `src/features/cashier/Movements.tsx`.
 
 Riesgo medio/alto porque impacta caja abierta, cuentas corrientes, salarios, regalos, transferencias, clientes y auditoria. Antes de modificar revisar `CODEX_CAJA`, `CODEX_CUENTAS_CORRIENTES`, `CODEX_CLIENTES_PERSONAL`, `CODEX_SALARIOS` y modulo 04.
 
+### Corte 12: personal y papelera
+
+- `Staff.tsx`: `AdminStaff`, `StaffEditor` y `AdminTrash`.
+- `people.ts`: nombre visible e historial salarial.
+
+Estado: implementado en `src/features/admin/Staff.tsx` y `src/lib/people.ts`.
+
+Riesgo medio/alto porque personal se usa en salarios, pagos desde caja, historial salarial, papelera y auditoria. Antes de modificar revisar `CODEX_CLIENTES_PERSONAL`, `CODEX_SALARIOS` y modulo 10.
+
 ## Validacion por corte
 
 Cada corte debe cerrar con:

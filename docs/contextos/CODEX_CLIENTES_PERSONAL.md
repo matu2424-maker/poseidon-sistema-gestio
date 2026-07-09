@@ -15,7 +15,7 @@ Leer este contexto antes de modificar clientes, personal, papelera, documentos, 
 
 - `AdminClients` y `ClientEditor` viven en `src/features/admin/Clients.tsx`.
 - `CashierClients` vive en `src/features/cashier/Movements.tsx`.
-- `AdminStaff`, `StaffEditor` y `AdminTrash` siguen en `src/App.tsx`.
+- `AdminStaff`, `StaffEditor` y `AdminTrash` viven en `src/features/admin/Staff.tsx`.
 - Reglas de documento de clientes viven en `src/lib/clients.ts`.
 - Metadatos de archivos viven en `src/lib/files.ts`.
 - Reglas de salario y periodos trabajados estan en `src/lib/salaryRules.ts`.

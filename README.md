@@ -222,7 +222,7 @@ src/components/ui.tsx          Componentes compartidos: tarjetas, modales y boto
 src/features/cashier/          Pantallas extraidas de caja diaria y resumen
 src/features/manager/          Pantallas extraidas de encargado/control
 src/features/salaries/         Liquidacion de salarios y detalle de empleado
-src/features/admin/            Clientes administrativos extraidos
+src/features/admin/            Clientes, personal y papelera extraidos
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
@@ -265,10 +265,10 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `src/features/cashier/CloseCash.tsx`
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
+- `src/features/admin/Staff.tsx`
 
 Pendientes naturales:
 
-- Personal/papelera.
 - Usuarios/categorias.
 - Locales/maquinas/taller.
 

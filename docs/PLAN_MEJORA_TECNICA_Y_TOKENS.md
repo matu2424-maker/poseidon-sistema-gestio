@@ -55,6 +55,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/cashier/Movements.tsx`
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
+- `src/features/admin/Staff.tsx`
 
 ## Proximos cortes recomendados
 
