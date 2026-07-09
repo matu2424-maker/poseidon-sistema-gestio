@@ -14,7 +14,7 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 
 ## Codigo actual
 
-- Pantalla: `Differences` en `src/App.tsx`.
+- Pantalla: `Differences` en `src/features/manager/Differences.tsx`.
 - Tipos: `DifferenceStatus`, `Balance`, `AccountMovementSource` en `src/types.ts`.
 - Helpers de estado/impacto: `cashDifferenceForBalance`, `bankDifferenceForBalance`, `balanceHasDifference`, `differenceIsPending`, `differenceActionImpact` viven en `src/lib/differences.ts`.
 - Movimientos de diferencia: `differenceAccountMovement` y `syncDifferenceAccountMovements` viven en `src/lib/accountMovements.ts`.

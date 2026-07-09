@@ -1,5 +1,7 @@
 # Modulo 03 - Contadores de maquinas
 
+Codigo actual: `src/features/cashier/Counters.tsx`.
+
 ## Objetivo
 
 Cargar IN/OUT de maquinas para calcular resultado de recaudacion.
@@ -28,4 +30,3 @@ resultado = entrada - salida
 - Entrada total en azul.
 - Salida total en rojo.
 - Resultado en verde si positivo y rojo si negativo.
-

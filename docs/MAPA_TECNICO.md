@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico del sistema
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Este documento resume como esta armado el sistema para seguir programando sin perder contexto.
 
@@ -24,7 +24,15 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/accountMovements.ts`: movimientos contables por origen y totales corridos desde movimientos.
 - `src/lib/cashTotals.ts`: calculo de contadores y totales por recaudacion.
 - `src/lib/differences.ts`: estado, conteo e impacto funcional de diferencias de caja.
+- `src/lib/display.ts`: nombres visibles, roles e IDs visibles compartidos.
+- `src/lib/ids.ts`: generacion de IDs locales para entidades demo/localStorage.
+- `src/lib/machineHistory.ts`: construccion de eventos de historial de maquinas.
 - `src/lib/salaryRules.ts`: conceptos, periodos, base salarial, importes y validaciones de salarios.
+- `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
+- `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de una caja cerrada.
+- `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
+- `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final, retiros finales y sincronizacion de diferencias/cuentas.
+- `src/features/manager/Differences.tsx`: pantalla de gestion e historial de diferencias.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no usado por el flujo actual.
@@ -86,7 +94,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 ## Deuda tecnica actual
 
 - `src/App.tsx` sigue siendo demasiado grande. Conviene refactorizar de a poco despues de estabilizar flujos.
-- Modularizacion iniciada con utilidades puras, reglas de salarios, movimientos contables, totales de caja y diferencias. Falta mover storage, auditoria y componentes UI.
+- Modularizacion iniciada con utilidades puras, helpers de presentacion, reglas de salarios, movimientos contables, totales de caja, apertura/resumen de caja y diferencias. Falta mover storage, auditoria y mas componentes UI.
 - `src/components/WelcomeScreen.tsx` no esta conectado al flujo actual y sus clases no son parte del CSS activo.
 - Hay textos sin acentos por decision de mantener ASCII y evitar problemas de codificacion.
 - El servidor local necesita iniciarse fuera del sandbox cuando se quiere usar el navegador integrado.
@@ -101,11 +109,15 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/accountMovements.ts` - implementado: movimientos por origen y saldo corrido de movimientos.
 - `src/lib/cashTotals.ts` - implementado.
 - `src/lib/differences.ts` - implementado.
+- `src/lib/display.ts` - implementado.
+- `src/lib/ids.ts` - implementado.
+- `src/lib/machineHistory.ts` - implementado.
 - `src/lib/salaryRules.ts` - implementado.
-- `src/features/manager/Differences.tsx`
-- `src/features/cashier/OpenCash.tsx`
-- `src/features/cashier/CloseCash.tsx`
-- `src/features/cashier/Counters.tsx`
+- `src/features/manager/Differences.tsx` - implementado.
+- `src/features/cashier/OpenCash.tsx` - implementado.
+- `src/features/cashier/ClosedBalanceSummary.tsx` - implementado.
+- `src/features/cashier/Counters.tsx` - implementado.
+- `src/features/cashier/CloseCash.tsx` - implementado.
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
 - `src/features/admin/Locals.tsx`
@@ -145,9 +157,9 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `Shell`: layout con barra lateral para encargado/admin.
 - `CashierWorkspace`: layout sin barra lateral para cajero.
 - `Panel`: panel inicial segun rol efectivo.
-- `OpenCash`: apertura y resumen de ultimas cajas.
-- `ClosedBalanceSummary`: resumen solo lectura de caja cerrada.
-- `Counters`: carga manual de IN/OUT.
+- `OpenCash`: apertura y resumen de ultimas cajas. Vive en `src/features/cashier/OpenCash.tsx`.
+- `ClosedBalanceSummary`: resumen solo lectura de caja cerrada. Vive en `src/features/cashier/ClosedBalanceSummary.tsx`.
+- `Counters`: carga manual de IN/OUT. Vive en `src/features/cashier/Counters.tsx`.
 - `Expenses`: carga de gastos desde tabla.
 - `ManagerExpenses`: control y revision de gastos por encargado/admin.
 - `Transfers`: transferencias.
@@ -155,7 +167,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `CashierSalaryPayments`: carga simple de salarios.
 - `CapitalMovements`: retiros y aportes.
 - `CashierClients` / `AdminClients`: clientes.
-- `CloseCash`: cierre de caja.
+- `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
 - `Reports`: reportes/exportaciones.
 - `AdminCurrentAccounts`: cuentas corrientes.
 - `AdminStaff`: personal.
@@ -166,7 +178,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `AdminMachineEditor`: alta/edicion/reset/envio a taller/eliminacion de maquina.
 - `AdminLocals`: locales.
 - `AdminLocalEditor`: alta/edicion/cierre/quitar local y asociar maquinas.
-- `Differences`: gestion de diferencias de caja.
+- `Differences`: gestion de diferencias de caja. Vive en `src/features/manager/Differences.tsx`.
 - `Audit`: auditoria.
 - `Periodic`: cierres periodicos.
 

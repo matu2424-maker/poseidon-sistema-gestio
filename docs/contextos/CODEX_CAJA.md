@@ -1,6 +1,6 @@
 # Contexto Codex - Caja diaria y cierre
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre o resumen de cajas. Referencias asociadas:
 
@@ -16,11 +16,18 @@ Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre
 
 ## Codigo actual
 
-- `CashierWorkspace`, `OpenCash`, `ClosedBalanceSummary`, `Counters`, `Expenses`, `Transfers`, `Gifts`, `CashierSalaryPayments`, `CapitalMovements`, `CloseCash` estan en `src/App.tsx`.
+- `CashierWorkspace`, `Expenses`, `Transfers`, `Gifts`, `CashierSalaryPayments` y `CapitalMovements` siguen en `src/App.tsx`.
+- `OpenCash` vive en `src/features/cashier/OpenCash.tsx`.
+- `ClosedBalanceSummary` vive en `src/features/cashier/ClosedBalanceSummary.tsx`.
+- `Counters` vive en `src/features/cashier/Counters.tsx`.
+- `CloseCash` vive en `src/features/cashier/CloseCash.tsx`.
 - Totales principales y calculo de lecturas estan en `src/lib/cashTotals.ts`.
 - Movimientos de cuenta relacionados estan en `src/lib/accountMovements.ts`.
 - Formato de dinero/contadores e inputs monetarios esta en `src/lib/money.ts`.
 - Fechas base, hora visible y rangos mensuales estan en `src/lib/dates.ts`.
+- IDs visibles de caja, nombres de usuario/local y etiquetas de rol compartidas estan en `src/lib/display.ts`.
+- IDs locales se generan con `src/lib/ids.ts`.
+- Historial de maquinas usa `src/lib/machineHistory.ts`.
 - Cuentas del local y saldos iniciales usan helpers de `src/lib/currentAccounts.ts`.
 - Estilos principales en `src/styles/global.css`.
 

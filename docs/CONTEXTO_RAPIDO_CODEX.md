@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este archivo primero al retomar. Despues abrir solo el documento del modulo que se va a tocar.
 
@@ -15,7 +15,7 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 - Login local por seleccion de usuario, sin contrasena.
 - Supabase/Auth/Storage real quedan pendientes.
 - No publicar ni desplegar sin confirmacion explicita del usuario.
-- Modularizacion iniciada: `src/lib/money.ts`, `src/lib/dates.ts`, `src/lib/currentAccounts.ts`, `src/lib/accountMovements.ts`, `src/lib/cashTotals.ts`, `src/lib/differences.ts` y `src/lib/salaryRules.ts` ya contienen reglas compartidas. La mayor parte de pantallas y acciones de UI siguen en `src/App.tsx`.
+- Modularizacion iniciada: `src/lib/money.ts`, `src/lib/dates.ts`, `src/lib/display.ts`, `src/lib/ids.ts`, `src/lib/machineHistory.ts`, `src/lib/currentAccounts.ts`, `src/lib/accountMovements.ts`, `src/lib/cashTotals.ts`, `src/lib/differences.ts` y `src/lib/salaryRules.ts` ya contienen reglas compartidas. `src/features/manager/Differences.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx` y `src/features/cashier/CloseCash.tsx` ya salieron de `src/App.tsx`. La mayor parte de pantallas y acciones de UI siguen en `src/App.tsx`.
 
 ## Usuarios de prueba
 
@@ -33,8 +33,9 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 5. `docs/REGLAS_CONTABLES.md` si cambia caja, cuentas, diferencias, salarios o movimientos.
 6. `docs/REGLAS_VISUALES.md` si cambia interfaz.
 7. `docs/MODULARIZACION_REFERENCIAS.md` si se va a mover codigo entre archivos.
-8. El contexto corto de `docs/contextos/` que corresponda.
-9. El archivo del modulo dentro de `docs/modulos/` que corresponda.
+8. `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` si se va a optimizar estructura o consumo de contexto.
+9. El contexto corto de `docs/contextos/` que corresponda.
+10. El archivo del modulo dentro de `docs/modulos/` que corresponda.
 
 ## Reglas intocables
 
@@ -61,6 +62,7 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 - Regla contable: `docs/REGLAS_CONTABLES.md`.
 - Regla visual: `docs/REGLAS_VISUALES.md`.
 - Modularizacion o referencias cruzadas: `docs/MODULARIZACION_REFERENCIAS.md`.
+- Plan tecnico y ahorro de tokens: `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
 - Regla funcional, flujo, calculo o campo: `docs/POSEIDON_FUNCIONAMIENTO.md`.
 - Pantalla o modulo concreto: archivo correspondiente en `docs/modulos/`.
 - Estructura tecnica, clases o deuda tecnica: `docs/MAPA_TECNICO.md`.
@@ -85,6 +87,7 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 - `docs/REGLAS_CONTABLES.md`
 - `docs/REGLAS_VISUALES.md`
 - `docs/MODULARIZACION_REFERENCIAS.md`
+- `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`
 
 ## Contextos cortos para Codex
 

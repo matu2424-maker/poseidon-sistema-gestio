@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Fecha de cierre: 2026-07-08
+Fecha de cierre: 2026-07-09
 
 ## Antes de tocar codigo
 
@@ -12,10 +12,11 @@ Fecha de cierre: 2026-07-08
 6. Si el cambio es contable, leer `docs/REGLAS_CONTABLES.md`.
 7. Si el cambio es visual, leer `docs/REGLAS_VISUALES.md`.
 8. Si se va a modularizar o mover codigo, leer `docs/MODULARIZACION_REFERENCIAS.md`.
-9. Leer el contexto corto correspondiente en `docs/contextos/`.
-10. Leer el documento correspondiente en `docs/modulos/`.
-11. Revisar este archivo.
-12. Correr `git status --short` para ver cambios pendientes.
+9. Si se busca bajar consumo de tokens o mejorar estructura, leer `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
+10. Leer el contexto corto correspondiente en `docs/contextos/`.
+11. Leer el documento correspondiente en `docs/modulos/`.
+12. Revisar este archivo.
+13. Correr `git status --short` para ver cambios pendientes.
 
 ## Estado actual
 
@@ -26,6 +27,7 @@ Fecha de cierre: 2026-07-08
 - No hay storage real de archivos: comprobantes e imagenes guardan metadatos para evitar romper `localStorage`.
 - No publicar en Vercel hasta que el usuario lo pida explicitamente.
 - Localhost se levanta solo con `iniciar-poseidon.bat`; si queda ocupado, usar `detener-poseidon.bat`.
+- Ultimo commit local realizado: `7ef6bc3 refactor: modulariza reglas compartidas y contextos codex`.
 
 ## Usuarios de prueba
 
@@ -84,7 +86,15 @@ pnpm run build
 - `src/lib/accountMovements.ts`: movimientos contables por origen, sincronizacion y saldo corrido de movimientos.
 - `src/lib/cashTotals.ts`: contadores y totales por recaudacion.
 - `src/lib/differences.ts`: helpers de diferencias de caja.
+- `src/lib/display.ts`: nombres visibles de local/usuario, etiquetas de rol e IDs visibles de recaudacion.
+- `src/lib/ids.ts`: generacion de IDs locales.
+- `src/lib/machineHistory.ts`: eventos de historial de maquinas.
 - `src/lib/salaryRules.ts`: conceptos, periodos, salario base, importes y validaciones de salarios.
+- `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
+- `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de caja cerrada.
+- `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
+- `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final y sincronizacion de diferencias/cuentas.
+- `src/features/manager/Differences.tsx`: pantalla de diferencias de caja.
 - `src/styles/global.css`: estilos globales.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no conectado al flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
@@ -94,6 +104,7 @@ pnpm run build
 - `docs/REGLAS_CONTABLES.md`: matriz de impacto economico, financiero y cuentas corrientes.
 - `docs/REGLAS_VISUALES.md`: reglas de UI, tablas, botones, modales y formularios.
 - `docs/MODULARIZACION_REFERENCIAS.md`: referencias cruzadas para refactor modular.
+- `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`: plan tecnico para mejorar estructura y bajar consumo de tokens.
 - `docs/contextos/`: contextos cortos por modulo para Codex.
 - `docs/modulos/`: detalle por panel y funcion.
 - `AGENTS.md`: reglas de trabajo para Codex.
@@ -172,7 +183,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y reglas salariales ya salieron de `src/App.tsx` hacia `src/lib/`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores y pantalla de Diferencias ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
@@ -184,14 +195,10 @@ pnpm run build
 
 ## Pendientes naturales
 
-- Bloque estable pendiente de commit local sugerido: `refactor: modulariza reglas compartidas y contextos codex`.
+- Bloque estable pendiente de commit local sugerido: `refactor: extrae diferencias y caja del App principal`.
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
 - Refactor pendiente por cortes chicos:
-  - `src/features/manager/Differences.tsx`
-  - `src/features/cashier/OpenCash.tsx`
-  - `src/features/cashier/CloseCash.tsx`
-  - `src/features/cashier/Counters.tsx`
   - `src/features/salaries/SalarySettlements.tsx`
   - `src/features/admin/Clients.tsx`
   - `src/lib/storage.ts`

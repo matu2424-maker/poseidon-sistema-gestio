@@ -81,6 +81,7 @@ http://127.0.0.1:5173/
 - `docs/REGLAS_CONTABLES.md`: matriz de impactos economicos, financieros y cuentas corrientes.
 - `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.
 - `docs/MODULARIZACION_REFERENCIAS.md`: plan de refactor modular con referencias cruzadas.
+- `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`: plan para mejorar estructura y reducir consumo de contexto/tokens.
 - `docs/contextos/`: contextos cortos para trabajar por modulo sin releer todo el sistema.
 - `docs/modulos/`: especificacion funcional por pantalla/modulo.
 
@@ -216,7 +217,9 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ```text
 src/App.tsx                    Estado, pantallas y acciones de UI principales
 src/types.ts                   Tipos principales del sistema
-src/lib/                       Reglas compartidas: dinero, fechas, cuentas, movimientos, caja, diferencias y salarios
+src/lib/                       Reglas compartidas: dinero, fechas, presentacion, IDs, historial de maquinas, cuentas, movimientos, caja, diferencias y salarios
+src/features/cashier/          Pantallas extraidas de caja diaria y resumen
+src/features/manager/          Pantallas extraidas de encargado/control
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
@@ -240,14 +243,18 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `accountMovements.ts`
 - `cashTotals.ts`
 - `differences.ts`
+- `display.ts`
+- `ids.ts`
+- `machineHistory.ts`
 - `salaryRules.ts`
-
-Pendientes naturales:
-
+- `src/features/manager/Differences.tsx`
 - `src/features/cashier/OpenCash.tsx`
 - `src/features/cashier/ClosedBalanceSummary.tsx`
 - `src/features/cashier/Counters.tsx`
-- `src/features/manager/Differences.tsx`
+- `src/features/cashier/CloseCash.tsx`
+
+Pendientes naturales:
+
 - `src/features/salaries/SalarySettlements.tsx`
 - `src/features/admin/Clients.tsx`
 - `src/lib/storage.ts`

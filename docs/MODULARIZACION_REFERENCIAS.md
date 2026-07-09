@@ -1,6 +1,6 @@
 # Poseidon - Modularizacion con referencias cruzadas
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Este documento define como modularizar Poseidon sin romper asociaciones entre caja, diferencias, cuentas corrientes, salarios, auditoria, clientes, locales y maquinas.
 
@@ -34,6 +34,9 @@ Antes de extraer codigo, identificar:
 src/lib/
   money.ts
   dates.ts
+  display.ts
+  ids.ts
+  machineHistory.ts
   audit.ts
   storage.ts
   currentAccounts.ts
@@ -45,6 +48,7 @@ src/lib/
 src/features/cashier/
   CashierWorkspace.tsx
   OpenCash.tsx
+  ClosedBalanceSummary.tsx
   CloseCash.tsx
   Counters.tsx
   Expenses.tsx
@@ -144,7 +148,7 @@ Riesgo medio porque caja, diferencias, salarios, gastos y transferencias depende
 - `differences.ts`: diferencia efectivo/banco, estados, sync de movimientos.
 - `Differences.tsx`: pantalla e historial.
 
-Estado: helpers implementados en `src/lib/differences.ts`; sincronizacion contable implementada en `src/lib/accountMovements.ts`; componente `Differences` sigue en `src/App.tsx`.
+Estado: implementado. Helpers en `src/lib/differences.ts`, sincronizacion contable en `src/lib/accountMovements.ts` y pantalla en `src/features/manager/Differences.tsx`.
 
 Riesgo medio/alto porque impacta cuentas y cierre.
 
@@ -157,7 +161,21 @@ Estado: implementado.
 
 Riesgo medio porque caja, resumen, encargado, salarios y cierre periodico consumen estos calculos.
 
-### Corte 5: storage y auditoria
+### Corte 5: apertura y resumen de caja
+
+- `display.ts`: nombres visibles de local/usuario, rol e ID visible de recaudacion.
+- `ids.ts`: generacion de IDs locales.
+- `machineHistory.ts`: eventos de historial de maquinas.
+- `OpenCash.tsx`: apertura de caja, saldos heredados/primer aporte y listado de ultimas cajas cerradas.
+- `ClosedBalanceSummary.tsx`: resumen solo lectura de caja cerrada, salidas, movimientos financieros, diferencias y maquinas.
+- `Counters.tsx`: carga manual de IN/OUT, validacion de contadores y resumen previo al guardado.
+- `CloseCash.tsx`: cierre de caja, declaracion final, retiros finales, diferencias y sincronizacion de cuentas/maquinas.
+
+Estado: implementado en `src/lib/display.ts`, `src/lib/ids.ts`, `src/lib/machineHistory.ts`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx` y `src/features/cashier/CloseCash.tsx`.
+
+Riesgo medio porque apertura y resumen dependen de saldos de cuentas, totales de caja, diferencias, usuarios y maquinas. Antes de modificar este corte revisar `CODEX_CAJA`, `CODEX_DIFERENCIAS` y `CODEX_CUENTAS_CORRIENTES`.
+
+### Corte 6: storage y auditoria
 
 - `storage.ts`: lectura, normalizacion, compactacion y persistencia local.
 - `audit.ts`: construccion de eventos y helpers de usuario/funcion.

@@ -1,5 +1,7 @@
 # Modulo 05 - Cierre de caja
 
+Codigo actual: `src/features/cashier/CloseCash.tsx`.
+
 ## Objetivo
 
 Cerrar una caja diaria con control de efectivo, banco, maquinas y movimientos.
