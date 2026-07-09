@@ -180,7 +180,7 @@ Riesgo medio porque apertura y resumen dependen de saldos de cuentas, totales de
 - `storage.ts`: lectura, normalizacion, compactacion y persistencia local.
 - `audit.ts`: construccion de eventos y helpers de usuario/funcion.
 
-Estado: pendiente.
+Estado: `audit.ts` implementado en `src/lib/audit.ts`; `storage.ts` pendiente.
 
 Riesgo medio porque afecta arranque, demo, reset y trazabilidad.
 

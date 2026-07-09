@@ -82,6 +82,7 @@ import {
   transferAccountMovement,
   upsertAccountMovement,
 } from "./lib/accountMovements";
+import { appendAuditEvent } from "./lib/audit";
 import { calcReading, totalsForBalance } from "./lib/cashTotals";
 import { formatDateTime, formatTime, monthRange, nowIso, today } from "./lib/dates";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceActionImpact, differenceIsPending, pendingDifferenceCount } from "./lib/differences";
@@ -1722,26 +1723,7 @@ function App() {
     previousValue: unknown,
     newValue: unknown,
     reason = "",
-  ): AppData => ({
-    ...current,
-    audit: [
-      {
-        id: uid("audit"),
-        userId: user?.id ?? "system",
-        userName: user?.name ?? "Sistema",
-        actualRole: user?.role,
-        actorRole: effectiveRole ?? user?.role,
-        action,
-        entity,
-        entityId,
-        previousValue: JSON.stringify(previousValue ?? ""),
-        newValue: JSON.stringify(newValue ?? ""),
-        reason,
-        createdAt: nowIso(),
-      },
-      ...current.audit,
-    ],
-  });
+  ): AppData => appendAuditEvent(current, { user, actorRole: effectiveRole }, action, entity, entityId, previousValue, newValue, reason);
 
   const resetDemo = () => {
     const fresh = createSeedData();

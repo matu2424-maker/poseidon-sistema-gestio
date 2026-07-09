@@ -34,6 +34,7 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/display.ts`
 - `src/lib/ids.ts`
 - `src/lib/machineHistory.ts`
+- `src/lib/audit.ts`
 - `src/lib/currentAccounts.ts`
 - `src/lib/accountMovements.ts`
 - `src/lib/cashTotals.ts`
@@ -48,9 +49,9 @@ Ya salieron de `src/App.tsx`:
 ## Proximos cortes recomendados
 
 1. `src/lib/audit.ts`
-   - Extraer construccion de eventos de auditoria.
-   - Mantener usuario real, rol real y funcion usada.
-   - Referencias: `CODEX_AUDITORIA`, modulos 12, reglas generales.
+   - Estado: iniciado/implementado para construccion centralizada de eventos.
+   - Mantiene usuario real, rol real y funcion usada.
+   - Queda pendiente extraer la pantalla `Audit` cuando se aborde administracion/auditoria.
 
 2. `src/lib/storage.ts`
    - Extraer lectura/escritura de `localStorage`, normalizacion y reset demo.

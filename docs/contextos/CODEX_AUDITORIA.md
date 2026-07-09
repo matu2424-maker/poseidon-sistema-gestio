@@ -1,6 +1,6 @@
 # Contexto Codex - Auditoria
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-09
 
 Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, historiales, anulaciones, diferencias, cierres o movimientos contables. Referencias asociadas:
 
@@ -14,7 +14,8 @@ Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, 
 
 ## Codigo actual
 
-- Funcion `audit` principal sigue dentro de `App` en `src/App.tsx`.
+- La construccion central de eventos vive en `src/lib/audit.ts`.
+- `App` conserva un wrapper local `audit(...)` para pasar usuario real y funcion activa a `appendAuditEvent(...)`.
 - Pantalla `Audit` sigue en `src/App.tsx`.
 - Eventos se guardan en `data.audit`.
 - Muchos historiales especificos viven dentro de sus entidades: balances, maquinas, locales, salarios y movimientos.
