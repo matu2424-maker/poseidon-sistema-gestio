@@ -13,6 +13,7 @@
 - Tabla principal con buscador, ordenamiento y selector de columnas.
 - Columnas fijas: ID, Local, Estado, Maquinas, Recaudaciones, Acciones.
 - Clic en nombre abre historial.
+- El modal de historial de local permite ordenar las tablas de Datos, Maquinas, Estados, Recaudaciones y Auditoria por sus columnas visibles.
 - Clic en cantidad de maquinas abre ventana con maquinas asociadas.
 - Agregar/editar abre ventana flotante.
 - Desde agregar/editar se pueden asociar maquinas del Taller.

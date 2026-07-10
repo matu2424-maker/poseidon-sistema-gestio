@@ -1397,6 +1397,20 @@ function MachineHistoryModal({ data, machine, onClose }: { data: AppData; machin
 
 function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Local; onClose: () => void }) {
   const [tab, setTab] = useState<LocalHistoryTab>("resumen");
+  const [dataAuditSort, setDataAuditSort] = useState<SortState<"createdAt" | "action" | "reason">>({ key: "createdAt", direction: "desc" });
+  const [localMachineSort, setLocalMachineSort] = useState<SortState<"visibleId" | "name" | "status" | "location" | "lastIn" | "lastOut" | "revenue">>({
+    key: "visibleId",
+    direction: "asc",
+  });
+  const [statusSort, setStatusSort] = useState<SortState<"createdAt" | "previous" | "next" | "action">>({ key: "createdAt", direction: "desc" });
+  const [revenueSort, setRevenueSort] = useState<SortState<"operatingDate" | "status" | "resultMachines" | "expenses" | "transfers" | "difference" | "accumulated">>({
+    key: "operatingDate",
+    direction: "asc",
+  });
+  const [localAuditSort, setLocalAuditSort] = useState<SortState<"createdAt" | "user" | "action" | "reason" | "newValue">>({
+    key: "createdAt",
+    direction: "desc",
+  });
   const localAudits = data.audit.filter((event) => event.entity === "Local" && event.entityId === local.id);
   const statusAudits = localAudits
     .map((event) => ({
@@ -1423,6 +1437,64 @@ function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Loc
   const totalExpenses = revenueRows.reduce((total, row) => total + row.totals.totalExpenses, 0);
   const totalTransfers = revenueRows.reduce((total, row) => total + row.totals.totalTransfers, 0);
   const totalDifferences = balances.reduce((total, balance) => total + (balance.cashDifference ?? 0), 0);
+  const sortedDataAudits = [...localAudits].sort((a, b) => {
+    const value = (event: AuditEvent): string | number => {
+      if (dataAuditSort.key === "createdAt") return event.createdAt;
+      if (dataAuditSort.key === "action") return event.action;
+      return event.reason || "";
+    };
+    const result = compareValues(value(a), value(b));
+    return dataAuditSort.direction === "asc" ? result : -result;
+  });
+  const machineRevenueFor = (machine: Machine) =>
+    data.readings.filter((reading) => reading.machineId === machine.id && reading.status === "CARGADA").reduce((total, reading) => total + reading.result, 0);
+  const sortedLocalMachines = [...localMachines].sort((a, b) => {
+    const value = (machine: Machine): string | number => {
+      if (localMachineSort.key === "visibleId") return Number(machine.visibleId) || machine.visibleId;
+      if (localMachineSort.key === "name") return machine.name;
+      if (localMachineSort.key === "status") return machine.status;
+      if (localMachineSort.key === "location") return machine.location;
+      if (localMachineSort.key === "lastIn") return machine.lastIn;
+      if (localMachineSort.key === "lastOut") return machine.lastOut;
+      return machineRevenueFor(machine);
+    };
+    const result = compareValues(value(a), value(b));
+    return localMachineSort.direction === "asc" ? result : -result;
+  });
+  const sortedStatusAudits = [...statusAudits].sort((a, b) => {
+    const value = (row: (typeof statusAudits)[number]): string | number => {
+      if (statusSort.key === "createdAt") return row.event.createdAt;
+      if (statusSort.key === "previous") return String(row.previous.status ?? "");
+      if (statusSort.key === "next") return String(row.next.status ?? "");
+      return row.event.action;
+    };
+    const result = compareValues(value(a), value(b));
+    return statusSort.direction === "asc" ? result : -result;
+  });
+  const sortedRevenueRows = [...revenueRows].sort((a, b) => {
+    const value = (row: (typeof revenueRows)[number]): string | number => {
+      if (revenueSort.key === "operatingDate") return row.balance.operatingDate;
+      if (revenueSort.key === "status") return row.balance.status;
+      if (revenueSort.key === "resultMachines") return row.totals.resultMachines;
+      if (revenueSort.key === "expenses") return row.totals.totalExpenses;
+      if (revenueSort.key === "transfers") return row.totals.totalTransfers;
+      if (revenueSort.key === "difference") return row.balance.cashDifference ?? 0;
+      return row.accumulated;
+    };
+    const result = compareValues(value(a), value(b));
+    return revenueSort.direction === "asc" ? result : -result;
+  });
+  const sortedLocalAudits = [...localAudits].sort((a, b) => {
+    const value = (event: AuditEvent): string | number => {
+      if (localAuditSort.key === "createdAt") return event.createdAt;
+      if (localAuditSort.key === "user") return auditUserName(data, event);
+      if (localAuditSort.key === "action") return event.action;
+      if (localAuditSort.key === "reason") return event.reason || "";
+      return event.newValue;
+    };
+    const result = compareValues(value(a), value(b));
+    return localAuditSort.direction === "asc" ? result : -result;
+  });
 
   return (
     <Modal title={`Historial de ${local.name}`} onClose={onClose} wide>
@@ -1542,13 +1614,22 @@ function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Loc
             <table className="data-table compact-data-table">
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Accion</th>
-                  <th>Motivo</th>
+                  {[
+                    ["createdAt", "Fecha"],
+                    ["action", "Accion"],
+                    ["reason", "Motivo"],
+                  ].map(([key, label]) => (
+                    <th key={key}>
+                      <button className="sort-button" type="button" onClick={() => setDataAuditSort((current) => nextSort(current, key as typeof dataAuditSort.key))}>
+                        {label}
+                        {sortIndicator(dataAuditSort, key as typeof dataAuditSort.key)}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {localAudits.map((event) => (
+                {sortedDataAudits.map((event) => (
                   <tr key={event.id}>
                     <td>{formatDateTime(event.createdAt)}</td>
                     <td>{event.action}</td>
@@ -1570,19 +1651,27 @@ function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Loc
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Maquina</th>
-                <th>Estado</th>
-                <th>Ubicacion</th>
-                <th>IN actual</th>
-                <th>OUT actual</th>
-                <th>Recaudaciones</th>
+                {[
+                  ["visibleId", "ID"],
+                  ["name", "Maquina"],
+                  ["status", "Estado"],
+                  ["location", "Ubicacion"],
+                  ["lastIn", "IN actual"],
+                  ["lastOut", "OUT actual"],
+                  ["revenue", "Recaudaciones"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setLocalMachineSort((current) => nextSort(current, key as typeof localMachineSort.key))}>
+                      {label}
+                      {sortIndicator(localMachineSort, key as typeof localMachineSort.key)}
+                    </button>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {localMachines.map((machine) => {
-                const machineReadings = data.readings.filter((reading) => reading.machineId === machine.id && reading.status === "CARGADA");
-                const machineRevenue = machineReadings.reduce((total, reading) => total + reading.result, 0);
+              {sortedLocalMachines.map((machine) => {
+                const machineRevenue = machineRevenueFor(machine);
                 return (
                   <tr key={machine.id} className={machineStatusClass(machine.status)}>
                     <td>{machine.visibleId}</td>
@@ -1609,14 +1698,23 @@ function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Loc
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Anterior</th>
-                <th>Nuevo</th>
-                <th>Accion</th>
+                {[
+                  ["createdAt", "Fecha"],
+                  ["previous", "Anterior"],
+                  ["next", "Nuevo"],
+                  ["action", "Accion"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setStatusSort((current) => nextSort(current, key as typeof statusSort.key))}>
+                      {label}
+                      {sortIndicator(statusSort, key as typeof statusSort.key)}
+                    </button>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {statusAudits.map(({ event, previous, next }) => (
+              {sortedStatusAudits.map(({ event, previous, next }) => (
                 <tr key={event.id}>
                   <td>{formatDateTime(event.createdAt)}</td>
                   <td>{String(previous.status ?? "-")}</td>
@@ -1640,17 +1738,26 @@ function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Loc
             <table className="data-table compact-data-table">
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                  <th>Recaudacion</th>
-                  <th>Gastos</th>
-                  <th>Transferencias</th>
-                  <th>Diferencia</th>
-                  <th>Acumulado</th>
+                  {[
+                    ["operatingDate", "Fecha"],
+                    ["status", "Estado"],
+                    ["resultMachines", "Recaudacion"],
+                    ["expenses", "Gastos"],
+                    ["transfers", "Transferencias"],
+                    ["difference", "Diferencia"],
+                    ["accumulated", "Acumulado"],
+                  ].map(([key, label]) => (
+                    <th key={key}>
+                      <button className="sort-button" type="button" onClick={() => setRevenueSort((current) => nextSort(current, key as typeof revenueSort.key))}>
+                        {label}
+                        {sortIndicator(revenueSort, key as typeof revenueSort.key)}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {revenueRows.map(({ balance, totals, accumulated: rowAccumulated }) => (
+                {sortedRevenueRows.map(({ balance, totals, accumulated: rowAccumulated }) => (
                   <tr key={balance.id}>
                     <td>{balance.operatingDate}</td>
                     <td>{balance.status}</td>
@@ -1676,15 +1783,24 @@ function LocalHistoryModal({ data, local, onClose }: { data: AppData; local: Loc
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Usuario</th>
-                <th>Accion</th>
-                <th>Motivo</th>
-                <th>Nuevo valor</th>
+                {[
+                  ["createdAt", "Fecha"],
+                  ["user", "Usuario"],
+                  ["action", "Accion"],
+                  ["reason", "Motivo"],
+                  ["newValue", "Nuevo valor"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setLocalAuditSort((current) => nextSort(current, key as typeof localAuditSort.key))}>
+                      {label}
+                      {sortIndicator(localAuditSort, key as typeof localAuditSort.key)}
+                    </button>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {localAudits.map((event) => (
+              {sortedLocalAudits.map((event) => (
                 <tr key={event.id}>
                   <td>{formatDateTime(event.createdAt)}</td>
                   <td>{auditUserName(data, event)}</td>
