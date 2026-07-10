@@ -25,6 +25,8 @@ Este documento concentra criterios visuales permanentes. Antes de modificar pant
 
 - Toda tabla nueva o tabla existente modificada debe permitir ordenar por cada columna/concepto visible.
 - Excepcion normal: columnas de acciones/comandos.
+- Excepcion documentada: mini-tablas resumen que funcionan como ficha visual fija, no como grilla operativa. Deben tener pocas filas, orden semantico fijo y no permitir acciones por fila. Ejemplo: salidas operativas o movimientos financieros dentro de un resumen de caja cerrada.
+- Las tablas de datos reales, listados, historiales, auditoria, cuentas, maquinas, clientes, personal, recaudaciones o seleccion multiple deben ordenar por todas sus columnas visibles de datos.
 - Cualquier otra excepcion debe explicarse y aprobarse antes.
 - Tablas administrativas deben ser densas, legibles y compactas.
 - Ajustar columnas para ver la mayor cantidad posible sin perder lectura.
@@ -62,4 +64,3 @@ Este documento concentra criterios visuales permanentes. Antes de modificar pant
 - Salarios: `docs/contextos/CODEX_SALARIOS.md`, `docs/modulos/10_clientes_personal_sueldos.md`.
 - Cuentas corrientes: `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`, `docs/modulos/11_cuentas_corrientes.md`.
 - Administracion: `docs/modulos/08_panel_administrador.md`, `docs/modulos/09_locales_maquinas_taller.md`.
-

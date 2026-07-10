@@ -160,6 +160,12 @@ Ya salieron de `src/App.tsx`:
 - `git status --short` revisado
 - Commit local cuando el bloque quede estable
 
+## Regla de tablas para ahorrar revisiones
+
+- Toda tabla de datos reales debe ordenar por sus columnas visibles de datos.
+- Columnas de accion/comando y checkboxes de seleccion no se ordenan.
+- Mini-tablas resumen tipo ficha visual pueden mantener orden semantico fijo si tienen pocas filas, no tienen acciones por fila y no representan un listado operativo. Este criterio evita convertir resúmenes contables compactos en grillas innecesarias.
+
 ## Criterio de prioridad
 
 Primero se extrajeron piezas que reducen mucho contexto y tienen reglas compartidas claras:
