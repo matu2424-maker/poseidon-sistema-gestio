@@ -30,7 +30,7 @@ Esos aportes crean movimientos de cuenta corriente del local.
 ## Resumen de cajas
 
 - Muestra ultimas 10 cajas cerradas.
+- La tabla de ultimas cajas cerradas permite ordenar por ID, fecha, horario, resultado final, declarado, diferencia efectivo, diferencia banco, estado de diferencia y maquinas.
 - Se ve una caja por vez.
 - Permite ver resumen en pantalla, sin exportar desde esa vista.
 - Despues de cerrar una caja, el sistema envia a Resumen de cajas.
-

@@ -1,6 +1,6 @@
 # Contexto Codex - Caja diaria y cierre
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-10
 
 Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre o resumen de cajas. Referencias asociadas:
 
@@ -42,6 +42,7 @@ Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre
 - Cierre calcula resultado economico separado del flujo financiero.
 - Cierre crea diferencias si lo declarado no coincide con esperado.
 - Despues de cerrar, ir a Resumen de cajas.
+- Resumen de cajas muestra ultimas 10 cajas cerradas en tabla ordenable por todas sus columnas de datos; `Ver` es accion y no se ordena.
 - Importes monetarios usan formato con punto de miles.
 - IN/OUT actual no puede ser menor al anterior.
 

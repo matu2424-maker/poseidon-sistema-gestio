@@ -6,9 +6,12 @@ import { today, formatTime } from "../../lib/dates";
 import { balanceVisibleId } from "../../lib/display";
 import { bankDifferenceForBalance, cashDifferenceForBalance, differenceIsPending } from "../../lib/differences";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, moneyInputValue, parseMoneyInput } from "../../lib/money";
+import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ClosedBalanceSummary } from "./ClosedBalanceSummary";
 
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
+
+type RecentCashColumn = "id" | "operatingDate" | "schedule" | "commercialResult" | "declaredCash" | "cashDifference" | "bankDifference" | "differenceStatus" | "machines";
 
 function EmptyState({ title, text }: { title: string; text: string }) {
   return (
@@ -45,10 +48,34 @@ export function OpenCash({
   const localBalances = localAccountBalances(data, local.id);
   const showSummaryOnly = summaryOnly || Boolean(openBalance);
   const firstOpening = !data.balances.some((balance) => balance.localId === local.id);
-  const recentClosedBalances = data.balances
+  const [recentSort, setRecentSort] = useState<SortState<RecentCashColumn>>({ key: "operatingDate", direction: "desc" });
+  const recentClosedSource = data.balances
     .filter((balance) => balance.localId === local.id && balance.status === "CERRADO")
     .sort((a, b) => String(b.closedAt ?? b.operatingDate).localeCompare(String(a.closedAt ?? a.operatingDate)))
     .slice(0, 10);
+  const recentSortValue = (balance: Balance, key: RecentCashColumn): string | number => {
+    if (key === "id") return balanceVisibleId(data, balance);
+    if (key === "operatingDate") return balance.closedAt ?? balance.operatingDate;
+    if (key === "schedule") return `${balance.openedAt ?? ""} ${balance.closedAt ?? ""}`;
+    if (key === "commercialResult") return totalsForBalance(data, balance.id).commercialResult;
+    if (key === "declaredCash") return balance.declaredCash ?? 0;
+    if (key === "cashDifference") return cashDifferenceForBalance(data, balance);
+    if (key === "bankDifference") return bankDifferenceForBalance(balance);
+    if (key === "differenceStatus") {
+      const hasDifference =
+        cashDifferenceForBalance(data, balance) !== 0 ||
+        bankDifferenceForBalance(balance) !== 0 ||
+        Boolean(balance.differenceStatus || balance.differenceNote || balance.differenceReviewNote || balance.differenceReviewedAt);
+      return hasDifference ? balance.differenceStatus ?? "PENDIENTE" : "SIN DIF.";
+    }
+    const loaded = data.readings.filter((reading) => reading.balanceId === balance.id && reading.status === "CARGADA").length;
+    const totalReadings = data.readings.filter((reading) => reading.balanceId === balance.id).length;
+    return totalReadings ? loaded / totalReadings : 0;
+  };
+  const recentClosedBalances = [...recentClosedSource].sort((a, b) => {
+    const result = compareValues(recentSortValue(a, recentSort.key), recentSortValue(b, recentSort.key));
+    return recentSort.direction === "asc" ? result : -result;
+  });
   const recentClosedIds = recentClosedBalances.map((balance) => balance.id).join("|");
   const [selectedBalanceId, setSelectedBalanceId] = useState<string | null>(recentClosedBalances[0]?.id ?? null);
   const selectedBalance = recentClosedBalances.find((balance) => balance.id === selectedBalanceId) ?? recentClosedBalances[0];
@@ -87,15 +114,15 @@ export function OpenCash({
           <table className="data-table recent-cash-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Horario</th>
-                <th>Resultado final</th>
-                <th>Declarado</th>
-                <th>Dif. efectivo</th>
-                <th>Dif. banco</th>
-                <th>Estado dif.</th>
-                <th>Maquinas</th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "id"))}>ID{sortIndicator(recentSort, "id")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "operatingDate"))}>Fecha{sortIndicator(recentSort, "operatingDate")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "schedule"))}>Horario{sortIndicator(recentSort, "schedule")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "commercialResult"))}>Resultado final{sortIndicator(recentSort, "commercialResult")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "declaredCash"))}>Declarado{sortIndicator(recentSort, "declaredCash")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "cashDifference"))}>Dif. efectivo{sortIndicator(recentSort, "cashDifference")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "bankDifference"))}>Dif. banco{sortIndicator(recentSort, "bankDifference")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "differenceStatus"))}>Estado dif.{sortIndicator(recentSort, "differenceStatus")}</button></th>
+                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "machines"))}>Maquinas{sortIndicator(recentSort, "machines")}</button></th>
                 <th>Ver</th>
               </tr>
             </thead>

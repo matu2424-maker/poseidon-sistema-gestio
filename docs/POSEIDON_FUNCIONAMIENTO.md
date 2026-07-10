@@ -146,6 +146,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - En `Resumen de cajas` hay boton `Volver al panel`.
 - En `Resumen de cajas`, `Ultimas cajas cerradas` se muestra arriba en formato tabla seleccionable con una caja activa a la vez.
 - La tabla de ultimas cajas muestra resultado final, efectivo declarado, diferencia de efectivo, diferencia de banco y estado de gestion de diferencias.
+- La tabla de ultimas cajas cerradas permite ordenar por ID, fecha, horario, resultado final, declarado, diferencia efectivo, diferencia banco, estado de diferencia y maquinas.
 - Al hacer clic en `Ver` se muestra el resumen individual de esa caja cerrada.
 - Despues de cerrar una caja desde el panel del cajero, el sistema envia directo a `Resumen de cajas`.
 - `Resumen de cajas` muestra datos relevantes de cada caja cerrada:
