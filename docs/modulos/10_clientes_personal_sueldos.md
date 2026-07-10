@@ -92,3 +92,4 @@
 - Aplica a personal y clientes.
 - Permite restaurar.
 - Permite eliminar definitivamente con confirmacion y auditoria.
+- Las tablas de papelera permiten ordenar por sus columnas visibles de datos; `Accion` no se ordena.

@@ -493,6 +493,32 @@ export function AdminTrash({
 }) {
   const trashedStaff = data.staff.filter((staff) => staff.status === "PAPELERA");
   const trashedClients = data.clients.filter((client) => client.status === "PAPELERA");
+  const [trashStaffSort, setTrashStaffSort] = useState<SortState<"visibleId" | "name" | "position" | "deletedAt">>({ key: "deletedAt", direction: "desc" });
+  const [trashClientSort, setTrashClientSort] = useState<SortState<"visibleId" | "name" | "document" | "category" | "deletedAt">>({
+    key: "deletedAt",
+    direction: "desc",
+  });
+  const sortedTrashedStaff = [...trashedStaff].sort((left, right) => {
+    const value = (staff: StaffMember) => {
+      if (trashStaffSort.key === "visibleId") return Number(staff.visibleId);
+      if (trashStaffSort.key === "name") return staffFullName(staff);
+      if (trashStaffSort.key === "position") return staff.position;
+      return staff.deletedAt ?? "";
+    };
+    const result = compareValues(value(left), value(right));
+    return trashStaffSort.direction === "asc" ? result : -result;
+  });
+  const sortedTrashedClients = [...trashedClients].sort((left, right) => {
+    const value = (client: Client) => {
+      if (trashClientSort.key === "visibleId") return Number(client.visibleId);
+      if (trashClientSort.key === "name") return client.name;
+      if (trashClientSort.key === "document") return clientDocumentLabel(client);
+      if (trashClientSort.key === "category") return client.category;
+      return client.deletedAt ?? "";
+    };
+    const result = compareValues(value(left), value(right));
+    return trashClientSort.direction === "asc" ? result : -result;
+  });
   const restoreStaff = (staff: StaffMember) => {
     patchData((current) => {
       const previous = current.staff.find((item) => item.id === staff.id);
@@ -543,15 +569,24 @@ export function AdminTrash({
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Cargo</th>
-                <th>Eliminado</th>
+                {[
+                  ["visibleId", "ID"],
+                  ["name", "Nombre"],
+                  ["position", "Cargo"],
+                  ["deletedAt", "Eliminado"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setTrashStaffSort((current) => nextSort(current, key as typeof trashStaffSort.key))}>
+                      {label}
+                      {sortIndicator(trashStaffSort, key as typeof trashStaffSort.key)}
+                    </button>
+                  </th>
+                ))}
                 <th>Accion</th>
               </tr>
             </thead>
             <tbody>
-              {trashedStaff.map((staff) => (
+              {sortedTrashedStaff.map((staff) => (
                 <tr key={staff.id} className="status-disused">
                   <td>{staff.visibleId}</td>
                   <td>{staffFullName(staff)}</td>
@@ -584,16 +619,25 @@ export function AdminTrash({
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Cliente</th>
-                <th>Documento</th>
-                <th>Categoria</th>
-                <th>Eliminado</th>
+                {[
+                  ["visibleId", "ID"],
+                  ["name", "Cliente"],
+                  ["document", "Documento"],
+                  ["category", "Categoria"],
+                  ["deletedAt", "Eliminado"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setTrashClientSort((current) => nextSort(current, key as typeof trashClientSort.key))}>
+                      {label}
+                      {sortIndicator(trashClientSort, key as typeof trashClientSort.key)}
+                    </button>
+                  </th>
+                ))}
                 <th>Accion</th>
               </tr>
             </thead>
             <tbody>
-              {trashedClients.map((client) => (
+              {sortedTrashedClients.map((client) => (
                 <tr key={client.id} className="status-disused">
                   <td>{client.visibleId}</td>
                   <td>{client.name}</td>
