@@ -1,6 +1,6 @@
 # Contexto Codex - Diferencias
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-10
 
 Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 
@@ -16,7 +16,8 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 
 - Pantalla: `Differences` en `src/features/manager/Differences.tsx`.
 - Tipos: `DifferenceStatus`, `Balance`, `AccountMovementSource` en `src/types.ts`.
-- Helpers de estado/impacto: `cashDifferenceForBalance`, `bankDifferenceForBalance`, `balanceHasDifference`, `differenceIsPending`, `differenceActionImpact` viven en `src/lib/differences.ts`.
+- Helpers de estado/impacto: `cashDifferenceForBalance`, `bankDifferenceForBalance`, `balanceHasDifference`, `differenceIsPending`, `differenceActionImpact` y `normalizeDifferenceStatus` viven en `src/lib/differences.ts`.
+- Periodo mensual compartido: `src/lib/periods.ts` y `src/components/MonthlyPeriodSelector.tsx`.
 - Movimientos de diferencia: `differenceAccountMovement` y `syncDifferenceAccountMovements` viven en `src/lib/accountMovements.ts`.
 - Estilos: `.differences-page`, `.difference-summary-grid`, `.differences-period-bar`, `.difference-table`, `.difference-toolbar`, `.difference-detail-compact`, `.difference-detail-modal`, `.difference-correction-grid`, `.difference-history-*` en `src/styles/global.css`.
 
@@ -26,6 +27,8 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 - Diferencias si mueven `Local / Efectivo` o `Local / Banco` para que la siguiente caja abra con saldo real declarado.
 - `CORREGIDA` permite editar efectivo/banco declarado, recalcular diferencias y resincronizar movimientos.
 - `ANULADA` anula movimientos de diferencia, deja la diferencia efectiva en cero y revierte saldos proximos al valor esperado.
+- Estados canónicos: `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`.
+- Estados heredados se migran al cargar: `REVISADA` a `VERIFICADA`, `AJUSTADA` a `CORREGIDA`; `RESUELTA` sin diferencia ni gestion deja de crear un control artificial.
 - La pantalla es historial por periodo: mes anterior, mes actual o consulta historica por mes/ano.
 - Debe incluir resueltas/corregidas aunque la diferencia actual sea cero.
 - Error de observacion obligatoria aparece dentro del modal.
@@ -49,3 +52,4 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 7. Verificar que la fila siga apareciendo aunque la diferencia quede en cero.
 8. Abrir historial completo en el modal.
 9. Revisar `Cuentas corrientes` para ver movimiento actualizado.
+10. Ejecutar `pnpm test` para validar estados y sincronizacion contable.

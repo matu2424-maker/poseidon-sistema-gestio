@@ -203,6 +203,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Este movimiento permite que la proxima apertura tome el saldo real declarado, incluso si hubo faltante, sobrante o error a revisar.
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un `ENCARGADO` o `ADMINISTRADOR` las gestione.
 - La gestion de una diferencia exige seleccionar una accion (`VERIFICADA`, `CORREGIDA` o `ANULADA`) y escribir una observacion obligatoria.
+- Estados vigentes de diferencia: `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`. Los estados antiguos se normalizan al leer datos sin borrar auditoria.
 - La observacion original del cajero no se pisa; la gestion posterior guarda usuario, fecha/hora y nota propia.
 - Una diferencia puede deberse a error de carga, transferencia mal registrada, retiro/aporte omitido o faltante/sobrante real.
 - Si se verifica, los movimientos de diferencia quedan activos y mantienen el saldo real declarado.
@@ -212,7 +213,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - En la pantalla `Diferencias`, el encargado ve solo las recaudaciones de sus locales asignados; administrador ve todos los locales.
 - La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o consulta historica por mes/ano.
 - Visualmente usa el mismo criterio minimalista de `Liquidacion de salarios`: selector de periodo compacto, resumen superior de cuatro metricas, tabla principal como centro y detalle en ventana flotante.
-- La tabla muestra todas las recaudaciones con historial de diferencia/control en el periodo, incluidas verificadas, corregidas, anuladas y resueltas aunque la diferencia actual haya quedado en cero.
+- La tabla muestra todas las recaudaciones con historial real de diferencia/control en el periodo, incluidas verificadas, corregidas y anuladas aunque la diferencia actual haya quedado en cero. Una caja sin diferencia ni gestion no crea un control artificial.
 - Tiene buscador por ID/local/fecha/observacion y filtro por estado.
 - La tabla de diferencias es compacta y muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion. La observacion original se consulta dentro del detalle para no cargar la grilla principal.
 - La gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
@@ -404,6 +405,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - La cuenta corriente del empleado dentro del detalle muestra fecha, concepto, monto, total, pendiente y usuario; todas esas columnas son ordenables. `Total` es base + premio/gratificacion + horas extras + bonos - descuentos al momento del movimiento y `Pendiente` es el pendiente al momento de registrar ese movimiento.
 - La cuenta corriente del empleado se filtra por periodo trabajado de la liquidacion; si se carga una liquidacion de un mes anterior hoy, aparece dentro del mes anterior correspondiente.
 - Clic en un movimiento de la cuenta corriente del empleado abre un detalle completo con origen, usuario, recaudacion asociada y notas.
+- Si ese movimiento tiene `balanceId`, el detalle permite abrir el resumen completo de la recaudacion asociada.
 - La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, cubierto base, pagado/entregado, empleados, liquidaciones incluidas, usuario y fecha.
 - El cierre de liquidacion no borra movimientos ni liquida automaticamente obligaciones legales; sirve como corte mensual/historico para iniciar y controlar periodos siguientes.
 - La pantalla muestra abajo un historial de cierres de liquidacion; un cierre puede anularse sin borrar auditoria.
@@ -449,11 +451,13 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - La pantalla `Cuentas corrientes` no muestra cuentas personales; esas se consultan en `Liquidacion de salarios`.
 - `Cuentas corrientes` abre por defecto en mes corriente.
 - Permite consultar el mes anterior, el mes actual o `Consulta historica` por mes y ano.
+- Cuentas corrientes, Diferencias y Liquidacion de salarios usan el mismo selector mensual compartido para mantener meses, anos, etiquetas y tamanos consistentes.
 - Encargado ve solo cuentas y movimientos de sus locales asignados; en la demo actual ve Poseidon.
 - La pantalla no muestra tarjetas superiores de entrada/salida/saldo local; se centra en periodo, cuentas y movimientos.
 - La tabla de movimientos muestra fecha, tipo, detalle, usuario, debito, credito y saldo.
 - `Debito` representa salidas de la cuenta; `Credito` representa entradas.
 - El saldo de la tabla es corrido y considera saldo activo anterior al mes seleccionado.
+- El calculo de saldo corrido usa una unica regla compartida y probada, ordenada cronologicamente desde el saldo anterior.
 - El listado lateral y el resumen de cuenta muestran `Saldo final`: saldo anterior + entradas - salidas del periodo visible.
 - Al hacer clic en un movimiento se muestra detalle completo, recaudacion asociada y acceso al resumen completo de esa recaudacion cuando exista.
 - En empleados, los pagos y adelantos se registran como salidas.

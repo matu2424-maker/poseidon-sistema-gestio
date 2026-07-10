@@ -17,6 +17,8 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 - Editor: `SalarySettlementEditor` en `src/features/salaries/SalarySettlements.tsx`.
 - Cajero: `CashierSalaryPayments` en `src/features/cashier/Movements.tsx`.
 - Reglas salariales: `salaryBaseForPeriod`, `salaryConceptBreakdown`, `salarySettlementAmount`, `validateSalarySettlementLimit` y periodos viven en `src/lib/salaryRules.ts`.
+- Selector mensual y etiquetas comunes: `src/lib/periods.ts` y `src/components/MonthlyPeriodSelector.tsx`.
+- Referencia de la recaudacion asociada por `balanceId`: `src/lib/balanceReferences.ts`.
 - Movimientos contables: `salaryAccountMovement` y `localSalaryAccountMovement` viven en `src/lib/accountMovements.ts`.
 - Tipos: `StaffMember`, `SalarySettlement`, `SalaryConcept`, `SalaryClosure`, `SalaryHistory`.
 
@@ -42,6 +44,7 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 - Cierre de liquidacion es foto auditada, no borra movimientos.
 - Historial de cierres de liquidacion es tabla ordenable por todas sus columnas de datos.
 - Auditoria guarda usuario real.
+- Desde el detalle de un movimiento con `balanceId` se puede abrir la recaudacion completa asociada.
 
 ## Pruebas manuales
 
@@ -53,3 +56,4 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 6. Ver cuenta corriente del empleado.
 7. Intentar superar salario base y confirmar error.
 8. Anular una liquidacion y verificar que deja de impactar.
+9. Ejecutar `pnpm test` para validar limites salariales.

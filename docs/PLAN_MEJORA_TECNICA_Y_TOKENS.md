@@ -153,8 +153,17 @@ Ya salieron de `src/App.tsx`:
 - Antes de nuevos cambios, leer `docs/CONTEXTO_RAPIDO_CODEX.md`, el `AGENTS.md` local de la carpeta afectada y el contexto/modulo especifico en vez de releer toda la app.
 - Mantener los `AGENTS.md` de `src/features/*` como archivos cortos de referencias cruzadas. No copiar reglas completas ahi: apuntar a `docs/REGLAS_*`, `docs/contextos/` y `docs/modulos/`.
 
+## Bloque transversal completado 2026-07-10
+
+- Periodos mensuales extraidos a `src/lib/periods.ts`.
+- Selector mensual compartido en `src/components/MonthlyPeriodSelector.tsx`, usado por Cuentas corrientes, Diferencias y Liquidacion de salarios.
+- Referencias por `balanceId` centralizadas en `src/lib/balanceReferences.ts`; Cuentas y Salarios permiten abrir la recaudacion asociada.
+- Estados heredados de diferencias normalizados a cuatro estados vigentes sin borrar auditoria.
+- Pruebas automatizadas agregadas para periodos, referencias de recaudacion, diferencias, impactos de cuenta, saldo corrido y limites salariales.
+
 ## Validacion obligatoria por corte
 
+- `pnpm test`
 - `pnpm run build`
 - `http://127.0.0.1:5173/` responde `200`
 - Documentacion actualizada

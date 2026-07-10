@@ -62,6 +62,7 @@ No forman parte del resultado economico:
 - `VERIFICADA`: confirma que la diferencia existe y mantiene movimientos activos.
 - `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza saldo proximo y resincroniza movimientos.
 - `ANULADA`: anula los movimientos de diferencia, revierte su impacto en cuentas, deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
+- Estos cuatro son los unicos estados vigentes. `REVISADA`, `RESUELTA` y `AJUSTADA` son valores heredados y se normalizan al leer datos antiguos, conservando auditoria.
 - Las diferencias deben conservar observacion original del cajero e historial auditado de gestion.
 
 ## Salarios

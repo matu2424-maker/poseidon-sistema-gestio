@@ -16,7 +16,9 @@ Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de 
 - Pantalla: `AdminCurrentAccounts` en `src/features/accounts/CurrentAccounts.tsx`.
 - Tipos: `CurrentAccount`, `AccountMovement`, `CurrentAccountKind`, `AccountMovementSource`.
 - Helpers extraidos: ids de cuenta local/personal/transferencias, creacion/asegurado de cuentas, `accountTotals` y `localAccountBalances` viven en `src/lib/currentAccounts.ts`.
-- Movimientos por origen, sincronizacion y `accountTotalsFromMovements` viven en `src/lib/accountMovements.ts`.
+- Movimientos por origen, sincronizacion, `accountTotalsFromMovements` y saldo corrido `accountLedgerRows` viven en `src/lib/accountMovements.ts`.
+- Periodo mensual compartido: `src/lib/periods.ts` y `src/components/MonthlyPeriodSelector.tsx`.
+- Referencias de recaudacion por `balanceId`: `src/lib/balanceReferences.ts`.
 - La tabla de movimientos es ordenable por fecha, tipo, detalle, usuario, debito, credito y saldo.
 
 ## Reglas criticas
@@ -48,3 +50,5 @@ Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de 
 5. Abrir cuenta `Local / Banco`.
 6. Hacer clic en movimiento con recaudacion asociada.
 7. Verificar debito/credito/saldo corrido.
+8. Abrir la recaudacion completa desde el detalle del movimiento.
+9. Ejecutar `pnpm test` para validar saldo corrido y referencias.

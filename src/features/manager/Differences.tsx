@@ -6,6 +6,8 @@ import { formatDateTime, monthRange, nowIso } from "../../lib/dates";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceActionImpact, differenceIsPending } from "../../lib/differences";
 import { formatMoneyInput, money, moneyInputValue, normalizeMoneyInput, parseMoneyInput } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
+import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 
 type DifferenceDraft = { status: DifferenceStatus | ""; note: string; correctedCash?: string; correctedBank?: string };
 type DifferenceStatusFilter = DifferenceStatus | "TODAS" | "GESTIONADAS";
@@ -27,18 +29,6 @@ const localCode = (name: string) => (name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 
 const balanceVisibleId = (data: AppData, balance: Balance) => balance.visibleId ?? `${localCode(localName(data, balance.localId))}-${balance.id.slice(-4)}`;
 
 const userDisplayName = (data: AppData, userId: string | undefined) => (userId ? data.users.find((item) => item.id === userId)?.name ?? userId : "-");
-
-const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
-
-const monthLabel = (period: string) => capitalize(new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long", year: "numeric" }));
-
-const shortMonthLabel = (period: string) => capitalize(new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long" }));
-
-const periodEndDate = (period: string) => {
-  const [year, month] = period.split("-").map(Number);
-  const lastDay = new Date(year, month, 0).getDate();
-  return `${period}-${String(lastDay).padStart(2, "0")}`;
-};
 
 const parseAuditValue = (value: string): Record<string, unknown> => {
   try {
@@ -105,24 +95,20 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
   const previousRange = monthRange(-1);
   const currentPeriod = currentRange.start.slice(0, 7);
   const previousPeriod = previousRange.start.slice(0, 7);
-  const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">("current");
+  const [periodMode, setPeriodMode] = useState<MonthlyPeriodMode>("current");
   const [customMonth, setCustomMonth] = useState(currentPeriod.slice(5, 7));
   const [customYear, setCustomYear] = useState(currentPeriod.slice(0, 4));
   const [selectedBalanceId, setSelectedBalanceId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const canManage = user.role === "ADMINISTRADOR" || user.role === "ENCARGADO";
   const visibleLocalIds = user.role === "ADMINISTRADOR" ? null : new Set(user.localIds);
-  const customPeriod = `${customYear}-${customMonth}`;
-  const selectedPeriod = periodMode === "current" ? currentPeriod : periodMode === "previous" ? previousPeriod : customPeriod;
-  const activeRange = periodMode === "current" ? currentRange : periodMode === "previous" ? previousRange : { start: `${customPeriod}-01`, end: periodEndDate(customPeriod) };
-  const periodLabel = monthLabel(selectedPeriod);
-  const historicalYearOptions = Array.from(
-    new Set([
-      currentPeriod.slice(0, 4),
-      previousPeriod.slice(0, 4),
-      ...data.balances.map((balance) => String(balance.closedAt ?? balance.operatingDate).slice(0, 4)),
-    ]),
-  ).sort((a, b) => b.localeCompare(a));
+  const selectedPeriod = periodForMode(periodMode, currentPeriod, previousPeriod, customMonth, customYear);
+  const activeRange = periodRange(selectedPeriod);
+  const availableYears = historicalYearOptions(
+    currentPeriod,
+    previousPeriod,
+    ...data.balances.map((balance) => String(balance.closedAt ?? balance.operatingDate)),
+  );
   const balanceDate = (balance: Balance) => String(balance.closedAt ?? balance.operatingDate).slice(0, 10);
   const balanceInRange = (balance: Balance) => (!activeRange.start || balanceDate(balance) >= activeRange.start) && (!activeRange.end || balanceDate(balance) <= activeRange.end);
   const balanceHasDifferenceHistory = (balance: Balance) =>
@@ -293,7 +279,7 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
   const rowClass = (balance: Balance) => {
     const status = balance.differenceStatus ?? "PENDIENTE";
     if (status === "PENDIENTE") return "status-error";
-    if (status === "CORREGIDA" || status === "REVISADA" || status === "AJUSTADA") return "status-maintenance";
+    if (status === "CORREGIDA") return "status-maintenance";
     if (status === "ANULADA") return "status-inactive";
     return "status-active";
   };
@@ -308,44 +294,20 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
           <span>{balances.length} control(es)</span>
         </div>
       </div>
-      <div className="accounts-period-bar differences-period-bar">
-        <div className="button-row">
-          <button className={periodMode === "previous" ? "button primary compact differences-month-button" : "button muted compact differences-month-button"} type="button" onClick={() => setPeriodMode("previous")}>
-            {shortMonthLabel(previousPeriod)}
-          </button>
-          <button className={periodMode === "current" ? "button primary compact differences-month-button" : "button muted compact differences-month-button"} type="button" onClick={() => setPeriodMode("current")}>
-            {shortMonthLabel(currentPeriod)}
-          </button>
-          <button className={periodMode === "custom" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("custom")}>
-            Consulta historica
-          </button>
-        </div>
-        <div className="accounts-date-range differences-date-range">
-          <span>{periodLabel}</span>
-          {periodMode === "custom" && (
-            <>
-              <select value={customMonth} onChange={(event) => setCustomMonth(event.target.value)}>
-                {Array.from({ length: 12 }, (_, index) => {
-                  const value = String(index + 1).padStart(2, "0");
-                  const label = new Date(2026, index, 1).toLocaleDateString("es-UY", { month: "long" });
-                  return (
-                    <option key={value} value={value}>
-                      {capitalize(label)}
-                    </option>
-                  );
-                })}
-              </select>
-              <select value={customYear} onChange={(event) => setCustomYear(event.target.value)}>
-                {historicalYearOptions.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-        </div>
-      </div>
+      <MonthlyPeriodSelector
+        mode={periodMode}
+        currentPeriod={currentPeriod}
+        previousPeriod={previousPeriod}
+        customMonth={customMonth}
+        customYear={customYear}
+        yearOptions={availableYears}
+        onModeChange={setPeriodMode}
+        onCustomMonthChange={setCustomMonth}
+        onCustomYearChange={setCustomYear}
+        selectedPeriod={selectedPeriod}
+        className="differences-period-bar"
+        rangeClassName="differences-date-range"
+      />
       <div className="card-grid four difference-summary-grid">
         <InfoCard tone={pending > 0 ? "red" : "green"} title="Pendientes" lines={[`${pending}`, "Requieren gestion"]} />
         <InfoCard tone={totalCashDifference === 0 ? "green" : "red"} title="Diferencia efectivo" lines={[money(totalCashDifference), "Cuenta efectivo"]} />
@@ -361,7 +323,6 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
           <option value="TODAS">Todas</option>
           <option value="VERIFICADA">Verificadas</option>
           <option value="CORREGIDA">Corregidas</option>
-          <option value="RESUELTA">Resueltas</option>
           <option value="ANULADA">Anuladas</option>
         </select>
         <span>{activeRange.start} al {activeRange.end}</span>

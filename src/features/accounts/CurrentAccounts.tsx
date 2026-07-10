@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import type { AccountMovement, AppData, CurrentAccount, Local, Role, User } from "../../types";
-import { accountTotalsFromMovements } from "../../lib/accountMovements";
+import { accountLedgerRows, accountTotalsFromMovements } from "../../lib/accountMovements";
+import { balanceForMovement, balanceReferenceLabel } from "../../lib/balanceReferences";
 import { accountKindLabel } from "../../lib/currentAccounts";
 import { formatDateTime, monthRange } from "../../lib/dates";
 import { balanceVisibleId } from "../../lib/display";
 import { money } from "../../lib/money";
+import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
+import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { ClosedBalanceSummary } from "../cashier/ClosedBalanceSummary";
 import { EmptyState } from "../layout/AppShell";
 
@@ -20,18 +23,6 @@ type LedgerRow = {
   userName: string;
 };
 
-const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
-
-const monthLabel = (period: string) => capitalize(new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long", year: "numeric" }));
-
-const shortMonthLabel = (period: string) => capitalize(new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long" }));
-
-const periodEndDate = (period: string) => {
-  const [year, month] = period.split("-").map(Number);
-  const lastDay = new Date(year, month, 0).getDate();
-  return `${period}-${String(lastDay).padStart(2, "0")}`;
-};
-
 export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { data: AppData; user: User; effectiveRole: Role; local: Local }) {
   const [query, setQuery] = useState("");
   const [selectedMovementId, setSelectedMovementId] = useState<string | null>(null);
@@ -41,21 +32,17 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
   const previousRange = monthRange(-1);
   const currentPeriod = currentRange.start.slice(0, 7);
   const previousPeriod = previousRange.start.slice(0, 7);
-  const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">("current");
+  const [periodMode, setPeriodMode] = useState<MonthlyPeriodMode>("current");
   const [customMonth, setCustomMonth] = useState(currentPeriod.slice(5, 7));
   const [customYear, setCustomYear] = useState(currentPeriod.slice(0, 4));
-  const customPeriod = `${customYear}-${customMonth}`;
-  const selectedPeriod = periodMode === "current" ? currentPeriod : periodMode === "previous" ? previousPeriod : customPeriod;
-  const activeRange = periodMode === "current" ? currentRange : periodMode === "previous" ? previousRange : { start: `${customPeriod}-01`, end: periodEndDate(customPeriod) };
-  const activeRangeLabel = monthLabel(selectedPeriod);
-  const historicalYearOptions = Array.from(
-    new Set([
-      currentPeriod.slice(0, 4),
-      previousPeriod.slice(0, 4),
-      ...data.accountMovements.map((movement) => movement.createdAt.slice(0, 4)),
-      ...data.balances.map((balance) => String(balance.closedAt ?? balance.operatingDate).slice(0, 4)),
-    ]),
-  ).sort((a, b) => b.localeCompare(a));
+  const selectedPeriod = periodForMode(periodMode, currentPeriod, previousPeriod, customMonth, customYear);
+  const activeRange = periodRange(selectedPeriod);
+  const availableYears = historicalYearOptions(
+    currentPeriod,
+    previousPeriod,
+    ...data.accountMovements.map((movement) => movement.createdAt),
+    ...data.balances.map((balance) => String(balance.closedAt ?? balance.operatingDate)),
+  );
   const scopedLocalIds = effectiveRole === "ENCARGADO" ? (user.localIds.length ? user.localIds : [local.id]) : data.locals.map((item) => item.id);
   const scopedLocalSet = new Set(scopedLocalIds);
   const accountInScope = (account: CurrentAccount) => {
@@ -121,22 +108,11 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
           .filter((movement) => movementInScope(movement) && movement.accountId === selectedAccount.id && movement.status === "ACTIVO" && movement.createdAt.slice(0, 10) < activeRange.start)
           .reduce((total, movement) => total + (movement.direction === "ENTRADA" ? movement.amount : -movement.amount), 0)
       : 0;
-  let runningBalance = openingBalance;
-  const ledgerRows = [...movements]
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-    .map((movement) => {
-      const activeAmount = movement.status === "ACTIVO" ? movement.amount : 0;
-      const debit = movement.direction === "SALIDA" ? activeAmount : 0;
-      const credit = movement.direction === "ENTRADA" ? activeAmount : 0;
-      runningBalance += credit - debit;
-      return {
-        movement,
-        debit,
-        credit,
-        balance: runningBalance,
-        userName: data.users.find((item) => item.id === movement.userId)?.name ?? movement.userId,
-      };
-    })
+  const ledgerRows = accountLedgerRows(movements, openingBalance)
+    .map((row) => ({
+      ...row,
+      userName: data.users.find((item) => item.id === row.movement.userId)?.name ?? row.movement.userId,
+    }))
     .reverse();
   const sortedLedgerRows = [...ledgerRows].sort((a, b) => {
     const valueFor = (row: LedgerRow) => {
@@ -153,7 +129,7 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
   });
   const selectedMovementRow = ledgerRows.find((row) => row.movement.id === selectedMovementId);
   const selectedMovement = selectedMovementRow?.movement ?? null;
-  const selectedMovementBalance = selectedMovement?.balanceId ? data.balances.find((balance) => balance.id === selectedMovement.balanceId) : undefined;
+  const selectedMovementBalance = balanceForMovement(data, selectedMovement);
   const sortMovement = (key: AccountMovementColumn) => setMovementSort((current) => nextSort(current, key));
 
   return (
@@ -168,44 +144,18 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
         </div>
       </div>
 
-      <div className="accounts-period-bar">
-        <div className="button-row">
-          <button className={periodMode === "previous" ? "button primary compact accounts-month-button" : "button muted compact accounts-month-button"} type="button" onClick={() => setPeriodMode("previous")}>
-            {shortMonthLabel(previousPeriod)}
-          </button>
-          <button className={periodMode === "current" ? "button primary compact accounts-month-button" : "button muted compact accounts-month-button"} type="button" onClick={() => setPeriodMode("current")}>
-            {shortMonthLabel(currentPeriod)}
-          </button>
-          <button className={periodMode === "custom" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("custom")}>
-            Consulta historica
-          </button>
-        </div>
-        <div className="accounts-date-range">
-          <span>{activeRangeLabel}</span>
-          {periodMode === "custom" && (
-            <>
-              <select value={customMonth} onChange={(event) => setCustomMonth(event.target.value)}>
-                {Array.from({ length: 12 }, (_, index) => {
-                  const value = String(index + 1).padStart(2, "0");
-                  const label = new Date(2026, index, 1).toLocaleDateString("es-UY", { month: "long" });
-                  return (
-                    <option key={value} value={value}>
-                      {capitalize(label)}
-                    </option>
-                  );
-                })}
-              </select>
-              <select value={customYear} onChange={(event) => setCustomYear(event.target.value)}>
-                {historicalYearOptions.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-        </div>
-      </div>
+      <MonthlyPeriodSelector
+        mode={periodMode}
+        currentPeriod={currentPeriod}
+        previousPeriod={previousPeriod}
+        customMonth={customMonth}
+        customYear={customYear}
+        yearOptions={availableYears}
+        onModeChange={setPeriodMode}
+        onCustomMonthChange={setCustomMonth}
+        onCustomYearChange={setCustomYear}
+        selectedPeriod={selectedPeriod}
+      />
 
       <div className="accounts-layout">
         <aside className="accounts-list-panel">
@@ -392,7 +342,7 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                 </div>
                 <div>
                   <dt>Recaudacion asociada</dt>
-                  <dd>{selectedMovementBalance ? `${balanceVisibleId(data, selectedMovementBalance)} - ${selectedMovementBalance.operatingDate}` : "Sin recaudacion asociada"}</dd>
+                  <dd>{balanceReferenceLabel(data, selectedMovementBalance)}</dd>
                 </div>
               </dl>
               {selectedMovementBalance && (

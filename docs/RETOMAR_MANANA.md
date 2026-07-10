@@ -197,6 +197,10 @@ pnpm run build
 - Las diferencias de efectivo/banco no impactan el resultado economico; si mueven cuentas corrientes del local para que la siguiente apertura use el saldo real declarado.
 - Acciones del encargado sobre diferencias: verificada/corregida/anulada cambian el estado de control de la recaudacion y quedan auditadas. Corregida permite editar efectivo/banco declarado y recalcula movimientos; anular deja la diferencia efectiva en cero, revierte saldos proximos al valor esperado y anula los movimientos de cuenta de esa diferencia.
 - Pantalla Diferencias: abre como historial del mes actual, permite mes anterior o consulta historica por mes/ano, tiene buscador por ID/local/fecha/observacion, filtro por estado y gestiona cada recaudacion desde modal con detalle de efectivo/banco, observacion obligatoria e historial auditado completo. Su estetica queda minimalista similar a Liquidacion de salarios, con resumen superior chico y tabla principal como foco.
+- Cuentas corrientes, Diferencias y Liquidacion de salarios reutilizan `MonthlyPeriodSelector` y helpers de `src/lib/periods.ts`.
+- Estados de diferencias vigentes: `PENDIENTE`, `VERIFICADA`, `CORREGIDA`, `ANULADA`; datos heredados se normalizan al cargar sin perder auditoria.
+- Cuentas corrientes y Salarios comparten referencias por `balanceId`; ambos permiten abrir la recaudacion completa desde un movimiento asociado.
+- `accountLedgerRows()` centraliza y prueba el saldo corrido desde el saldo anterior.
 - Si el retiro final efectivo o banco es `0`, el selector de quien retira queda gris y dice `Sin retiros finales`.
 - IN/OUT actual no puede ser menor al anterior; si falla, la fila queda en rojo.
 - Las maquinas con recaudaciones no se eliminan directamente.
@@ -206,14 +210,15 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, datos demo/normalizacion, componentes UI compartidos, selector de columnas compartido, layout/base, paneles por rol, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Cuentas corrientes, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias, locales/maquinas/taller, pantalla de Auditoria, Reportes y Cierre periodico ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/periodos/referencias por balance/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, datos demo/normalizacion, componentes UI compartidos, selector mensual y selector de columnas, layout/base, paneles por rol y features operativos ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
+- `pnpm test`: 5 archivos, 16 pruebas correctas.
 - `pnpm run build`: correcto.
 - `http://127.0.0.1:5173/`: responde `200`.
 - Navegador integrado: renderiza pantalla inicial `POSEIDON` sin errores de consola.
-- Navegador integrado: entrada como `encargado`, pantalla `Diferencias` y modal `Gestionar` renderizan sin errores de consola.
+- Navegador integrado: entrada como `encargado`; Cuentas corrientes, Diferencias y Liquidacion de salarios renderizan el selector mensual compartido. Se verifico consulta historica, detalle de movimiento y apertura de recaudacion asociada desde Cuentas y Salarios, sin errores de consola.
 - URL de prueba preferida: `http://127.0.0.1:5173/`.
 - El mapa tecnico quedo actualizado en `docs/MAPA_TECNICO.md`.
 

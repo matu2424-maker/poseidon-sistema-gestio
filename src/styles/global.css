@@ -1803,7 +1803,7 @@ select:disabled {
   font-weight: 900;
 }
 
-.accounts-period-bar .accounts-month-button {
+.accounts-period-bar .period-month-button {
   min-width: 104px;
 }
 
@@ -1899,10 +1899,6 @@ select:disabled {
   margin-bottom: 6px;
 }
 
-.salary-period-bar .salary-month-button {
-  min-width: 104px;
-}
-
 .salary-summary-grid {
   gap: 14px;
   margin-bottom: 8px;
@@ -1923,10 +1919,6 @@ select:disabled {
 
 .differences-period-bar {
   margin-bottom: 6px;
-}
-
-.differences-period-bar .differences-month-button {
-  min-width: 104px;
 }
 
 .differences-date-range select {

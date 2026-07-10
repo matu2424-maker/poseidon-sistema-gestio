@@ -34,6 +34,8 @@ Antes de extraer codigo, identificar:
 src/lib/
   money.ts
   dates.ts
+  periods.ts
+  balanceReferences.ts
   display.ts
   ids.ts
   machineHistory.ts
@@ -52,6 +54,7 @@ src/lib/
 
 src/components/
   ui.tsx
+  MonthlyPeriodSelector.tsx
 
 src/data/
   appData.ts
@@ -134,6 +137,16 @@ No tocar sin aprobacion:
 Estado actual: agregados `AGENTS.md` cortos en `accounts`, `admin`, `audit`, `auth`, `cashier`, `dashboard`, `layout`, `manager`, `reports` y `salaries`. Cuando se cree una feature nueva, agregar su AGENTS local antes de empezar cambios relevantes.
 
 ## Primeros cortes seguros
+
+### Corte transversal: periodos y referencias de recaudacion
+
+- `periods.ts`: regla mensual comun, etiquetas, fin de mes y anos historicos.
+- `MonthlyPeriodSelector.tsx`: control visual compartido por Cuentas corrientes, Diferencias y Salarios.
+- `balanceReferences.ts`: resolucion y etiqueta de recaudaciones relacionadas por `balanceId`.
+
+Estado: implementado. Las referencias cruzadas se conservan en los contextos de Cuentas corrientes, Diferencias y Salarios.
+
+Riesgo bajo/medio: no cambia calculos economicos, pero cualquier cambio afecta tres pantallas y debe cerrar con pruebas de periodos y navegacion.
 
 ### Corte 1: utilidades puras
 
@@ -336,6 +349,7 @@ Riesgo medio/alto porque normaliza datos de `localStorage` y cruza locales, maqu
 
 Cada corte debe cerrar con:
 
+- `pnpm test`;
 - `pnpm run build`;
 - `http://127.0.0.1:5173/` respondiendo;
 - prueba manual del modulo movido;

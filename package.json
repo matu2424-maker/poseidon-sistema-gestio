@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --config vite.config.mjs --configLoader native",
     "build": "tsc -b && vite build --config vite.config.mjs --configLoader native",
-    "preview": "vite preview --config vite.config.mjs --configLoader native"
+    "preview": "vite preview --config vite.config.mjs --configLoader native",
+    "test": "vitest run --configLoader native"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -18,6 +19,7 @@
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^5.1.1",
     "typescript": "^5.7.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vitest": "^4.1.10"
   }
 }

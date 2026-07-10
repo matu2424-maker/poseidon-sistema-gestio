@@ -19,6 +19,8 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 - VERIFICADA: confirma que la diferencia existe y mantiene activos los movimientos de diferencia.
 - CORREGIDA: permite editar efectivo declarado y banco declarado, recalcula diferencias, sincroniza cuentas y mantiene trazabilidad.
 - ANULADA: anula la diferencia y sus movimientos de cuenta, deja diferencia efectiva en cero y revierte los saldos proximos de la recaudacion al calculo esperado, sin borrar auditoria.
+- Los unicos estados vigentes son `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`.
+- Compatibilidad historica: al cargar datos, `REVISADA` se convierte en `VERIFICADA`, `AJUSTADA` en `CORREGIDA` y `RESUELTA` se normaliza segun diferencia/gestion existente. Los eventos de auditoria no se borran.
 
 ## Obligatorio
 
@@ -30,7 +32,7 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 
 - La pantalla usa una estetica minimalista similar a `Liquidacion de salarios`: selector de periodo compacto, resumen chico, tabla principal como foco y modal de gestion.
 - La pantalla funciona como historial por periodo: boton del mes anterior, boton del mes actual o consulta historica por mes/ano.
-- Debe mostrar todas las recaudaciones con historial de diferencia o control en el periodo, incluidas verificadas, corregidas, anuladas y resueltas.
+- Debe mostrar todas las recaudaciones con historial real de diferencia o control en el periodo, incluidas verificadas, corregidas y anuladas. Una caja sin diferencia ni gestion no aparece como control artificial.
 - El resumen superior muestra pendientes, diferencia efectivo, diferencia banco y gestionadas.
 - La regla de impacto contable aparece como ayuda breve: mueve efectivo/banco del local para que la proxima caja abra con saldo real y no cambia resultado economico.
 - Arriba de la tabla hay buscador por ID, local, fecha u observacion y filtro de estado.

@@ -44,6 +44,7 @@ import {
 import { normalizeClientDocument, normalizeClientDocumentType } from "../lib/clients";
 import { nowIso, today } from "../lib/dates";
 import { localCode, localName } from "../lib/display";
+import { normalizeDifferenceStatus } from "../lib/differences";
 import { normalizeStoredFileMeta } from "../lib/files";
 import { nextShortId, shortNumberId } from "../lib/ids";
 import { machineHistoryEvent } from "../lib/machineHistory";
@@ -274,7 +275,6 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
     finalWithdrawalBank: 0,
     cashDifference: 0,
     bankDifference: 0,
-    differenceStatus: "RESUELTA",
   };
   const balance3: Balance = {
     id: "balance-demo-3",
@@ -299,7 +299,6 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
     finalWithdrawalBank: 0,
     cashDifference: 0,
     bankDifference: 0,
-    differenceStatus: "RESUELTA",
   };
   const balances = [balance3, balance2, balance1];
   const readings: Reading[] = [
@@ -1064,6 +1063,7 @@ export function normalizeData(data: AppData): AppData {
     finalWithdrawalCash: Number(balance.finalWithdrawalCash ?? 0),
     finalWithdrawalBank: Number(balance.finalWithdrawalBank ?? 0),
     bankDifference: Number(balance.bankDifference ?? 0),
+    differenceStatus: normalizeDifferenceStatus(balance),
     differenceReviewedBy: balance.differenceReviewedBy,
     differenceReviewedAt: balance.differenceReviewedAt,
     differenceReviewNote: balance.differenceReviewNote ?? "",

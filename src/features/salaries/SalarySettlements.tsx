@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from "react";
 import type { AccountMovement, AppData, SalaryClosure, SalarySettlement, SalarySettlementStatus, SalaryType, StaffMember, User } from "../../types";
 import { localSalaryAccountMovement, salaryAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
+import { balanceForMovement, balanceReferenceLabel } from "../../lib/balanceReferences";
 import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
 import { formatDateTime, monthRange, nowIso, today } from "../../lib/dates";
-import { balanceVisibleId, localName, userDisplayName } from "../../lib/display";
+import { localName, userDisplayName } from "../../lib/display";
 import { exportCsv } from "../../lib/export";
 import { uid } from "../../lib/ids";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, moneyInputValue, parseMoneyInput } from "../../lib/money";
+import { historicalYearOptions, monthLabel, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
 import { staffFullName } from "../../lib/people";
 import {
   isSalaryPaymentConcept,
@@ -16,7 +18,6 @@ import {
   salaryConceptBreakdown,
   salaryConceptLabel,
   salaryConceptOptions,
-  salaryPeriodEndDate,
   salarySettlementAmount,
   salarySettlementDisplayAmount,
   salarySettlementTotalDelta,
@@ -25,11 +26,11 @@ import {
 } from "../../lib/salaryRules";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal } from "../../components/ui";
+import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
+import { ClosedBalanceSummary } from "../cashier/ClosedBalanceSummary";
 
 const POSEIDON_LOCAL_ID = "1";
 const confirmAction = (message: string) => window.confirm(message);
-const capitalize = (value: string) => (value ? `${value.charAt(0).toLocaleUpperCase("es-UY")}${value.slice(1)}` : value);
-
 export function AdminSalarySettlements({
   data,
   user,
@@ -67,6 +68,7 @@ export function AdminSalarySettlements({
   const [editorStaffId, setEditorStaffId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedStaffMovementId, setSelectedStaffMovementId] = useState<string | null>(null);
+  const [showSelectedStaffMovementBalance, setShowSelectedStaffMovementBalance] = useState(false);
   const [closureMessage, setClosureMessage] = useState("");
   const [settlementSort, setSettlementSort] = useState<
     SortState<"period" | "concept" | "salaryPaid" | "advances" | "extraPrize" | "hoursExtra" | "bonuses" | "otherDeductions" | "status">
@@ -84,7 +86,7 @@ export function AdminSalarySettlements({
   const currentPeriod = currentRange.start.slice(0, 7);
   const previousPeriod = previousRange.start.slice(0, 7);
   const suggestedPeriodMonth = suggestedPeriodMode === "previous" ? previousPeriod : currentPeriod;
-  const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">(() => suggestedPeriodMode);
+  const [periodMode, setPeriodMode] = useState<MonthlyPeriodMode>(() => suggestedPeriodMode);
   const [customMonth, setCustomMonth] = useState(suggestedPeriodMonth.slice(5, 7));
   const [customYear, setCustomYear] = useState(suggestedPeriodMonth.slice(0, 4));
   const [sort, setSort] = useState<SortState<"name" | "baseSalary" | "extraAmount" | "bonuses" | "otherDeductions" | "totalAmount" | "advances" | "salaryPaid" | "pendingAmount">>({
@@ -97,30 +99,25 @@ export function AdminSalarySettlements({
     key: "createdAt",
     direction: "desc",
   });
-  const customPeriod = `${customYear}-${customMonth}`;
-  const selectedPeriod = periodMode === "current" ? currentPeriod : periodMode === "previous" ? previousPeriod : customPeriod;
-  const activeRange = { start: `${selectedPeriod}-01`, end: salaryPeriodEndDate(selectedPeriod) };
+  const selectedPeriod = periodForMode(periodMode, currentPeriod, previousPeriod, customMonth, customYear);
+  const activeRange = periodRange(selectedPeriod);
   const startMonth = selectedPeriod;
   const endMonth = selectedPeriod;
   const defaultPeriod = startMonth;
   const monthsInPeriod = [selectedPeriod];
   const projectedSalaryBase = (staff: StaffMember | undefined) =>
     staff?.status === "ACTIVO" ? monthsInPeriod.reduce((total, period) => total + salaryBaseForPeriod(data, staff, period).amount, 0) : 0;
-  const monthLabel = (period: string) => new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long", year: "numeric" });
-  const shortMonthLabel = (period: string) => new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long" });
   const suggestedPeriodLabel = monthLabel(suggestedPeriodMonth);
   const periodLabel = monthLabel(startMonth);
-  const historicalYearOptions = Array.from(
-    new Set([
-      String(new Date(`${today()}T00:00:00`).getFullYear()),
-      String(new Date(`${today()}T00:00:00`).getFullYear() - 1),
-      String(new Date(`${today()}T00:00:00`).getFullYear() + 1),
-      ...data.salarySettlements.map((settlement) => settlement.period.slice(0, 4)),
-      ...data.salaryHistories.map((history) => history.effectiveDate.slice(0, 4)),
-    ]),
-  )
-    .filter((year) => /^\d{4}$/.test(year))
-    .sort((a, b) => Number(b) - Number(a));
+  const currentYear = Number(currentPeriod.slice(0, 4));
+  const availableYears = historicalYearOptions(
+    currentPeriod,
+    previousPeriod,
+    `${currentYear - 1}`,
+    `${currentYear + 1}`,
+    ...data.salarySettlements.map((settlement) => settlement.period),
+    ...data.salaryHistories.map((history) => history.effectiveDate),
+  );
   const rangeSettlements = data.salarySettlements.filter((settlement) => settlement.period >= startMonth && settlement.period <= endMonth);
   const payableRows = rangeSettlements.filter((settlement) => settlement.status !== "ANULADA");
   const activeStaff = data.staff.filter((staff) => staff.status === "ACTIVO");
@@ -308,7 +305,7 @@ export function AdminSalarySettlements({
   });
   const selectedStaffMovementRow = selectedAccountRows.find((row) => row.movement.id === selectedStaffMovementId);
   const selectedStaffMovement = selectedStaffMovementRow?.movement;
-  const selectedStaffMovementBalance = selectedStaffMovement?.balanceId ? data.balances.find((balance) => balance.id === selectedStaffMovement.balanceId) : undefined;
+  const selectedStaffMovementBalance = balanceForMovement(data, selectedStaffMovement);
   const selectedStaffMovementSettlement =
     selectedStaffMovement?.sourceType === "SUELDO" ? data.salarySettlements.find((settlement) => settlement.id === selectedStaffMovement.sourceId) : undefined;
   const salaryClosureValue = (closure: SalaryClosure, key: typeof closureSort.key): string | number => {
@@ -480,47 +477,25 @@ export function AdminSalarySettlements({
         </div>
       </div>
       {closureMessage && <p className="notice">{closureMessage}</p>}
-      <div className="accounts-period-bar salary-period-bar">
-        <div className="button-row">
-          <button className={periodMode === "previous" ? "button primary compact salary-month-button" : "button muted compact salary-month-button"} type="button" onClick={() => setPeriodMode("previous")}>
-            {capitalize(shortMonthLabel(previousPeriod))}
-          </button>
-          <button className={periodMode === "current" ? "button primary compact salary-month-button" : "button muted compact salary-month-button"} type="button" onClick={() => setPeriodMode("current")}>
-            {capitalize(shortMonthLabel(currentPeriod))}
-          </button>
-          <button className={periodMode === "custom" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("custom")}>
-            Consultar mes
-          </button>
-        </div>
-        <div className="accounts-date-range">
-          <span>{periodLabel}</span>
-          {periodMode === "custom" && (
-            <>
-              <select value={customMonth} onChange={(event) => setCustomMonth(event.target.value)}>
-                {Array.from({ length: 12 }, (_, index) => {
-                  const value = String(index + 1).padStart(2, "0");
-                  const label = new Date(2026, index, 1).toLocaleDateString("es-UY", { month: "long" });
-                  return (
-                    <option key={value} value={value}>
-                      {capitalize(label)}
-                    </option>
-                  );
-                })}
-              </select>
-              <select value={customYear} onChange={(event) => setCustomYear(event.target.value)}>
-                {historicalYearOptions.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
+      <MonthlyPeriodSelector
+        mode={periodMode}
+        currentPeriod={currentPeriod}
+        previousPeriod={previousPeriod}
+        customMonth={customMonth}
+        customYear={customYear}
+        yearOptions={availableYears}
+        onModeChange={setPeriodMode}
+        onCustomMonthChange={setCustomMonth}
+        onCustomYearChange={setCustomYear}
+        selectedPeriod={selectedPeriod}
+        customButtonLabel="Consultar mes"
+        className="salary-period-bar"
+        actions={
           <button className="button primary compact" type="button" onClick={exportSalaryExcel}>
             Exportar Excel
           </button>
-        </div>
-      </div>
+        }
+      />
       <p className="helper">Periodo sugerido por fecha de pago: {suggestedPeriodLabel}. Podes cambiarlo manualmente.</p>
       <div className="card-grid four salary-summary-grid">
         <InfoCard tone={periodPending > 0 ? "orange" : "green"} title="Pendientes" lines={[money(periodPending), "Base - salario - adelantos - descuentos"]} />
@@ -834,7 +809,14 @@ export function AdminSalarySettlements({
                   </thead>
                   <tbody>
                     {selectedAccountRows.map(({ movement, amount, totalAfter, pendingAfter }) => (
-                      <tr key={movement.id} className="clickable-row" onClick={() => setSelectedStaffMovementId(movement.id)}>
+                      <tr
+                        key={movement.id}
+                        className="clickable-row"
+                        onClick={() => {
+                          setShowSelectedStaffMovementBalance(false);
+                          setSelectedStaffMovementId(movement.id);
+                        }}
+                      >
                         <td>{formatDateTime(movement.createdAt)}</td>
                         <td>{movementConceptLabel(movement.concept)}</td>
                         <td>{amount ? money(amount) : "-"}</td>
@@ -856,7 +838,17 @@ export function AdminSalarySettlements({
         </Modal>
       )}
       {selectedStaffMovement && selectedEmployee && (
-        <Modal title="Detalle de movimiento" onClose={() => setSelectedStaffMovementId(null)} wide>
+        <Modal
+          title={showSelectedStaffMovementBalance && selectedStaffMovementBalance ? `Recaudacion ${balanceReferenceLabel(data, selectedStaffMovementBalance)}` : "Detalle de movimiento"}
+          onClose={() => {
+            setSelectedStaffMovementId(null);
+            setShowSelectedStaffMovementBalance(false);
+          }}
+          wide
+        >
+          {showSelectedStaffMovementBalance && selectedStaffMovementBalance ? (
+            <ClosedBalanceSummary data={data} balance={selectedStaffMovementBalance} />
+          ) : (
           <div className="movement-detail-modal">
             <div className="account-summary-grid">
               <div>
@@ -931,14 +923,22 @@ export function AdminSalarySettlements({
               </div>
               <div>
                 <dt>Recaudacion asociada</dt>
-                <dd>{selectedStaffMovementBalance ? `${balanceVisibleId(data, selectedStaffMovementBalance)} - ${selectedStaffMovementBalance.operatingDate}` : "Sin recaudacion asociada"}</dd>
+                <dd>{balanceReferenceLabel(data, selectedStaffMovementBalance)}</dd>
               </div>
               <div>
                 <dt>Notas</dt>
                 <dd>{selectedStaffMovementSettlement?.notes || selectedStaffMovement.detail || "-"}</dd>
               </div>
             </dl>
+            {selectedStaffMovementBalance && (
+              <div className="button-row end">
+                <button className="button primary compact" type="button" onClick={() => setShowSelectedStaffMovementBalance(true)}>
+                  Ver recaudacion completa
+                </button>
+              </div>
+            )}
           </div>
+          )}
         </Modal>
       )}
       {editorId !== undefined && (

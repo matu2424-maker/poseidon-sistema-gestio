@@ -21,6 +21,7 @@ Estas reglas aplican a todo el sistema, salvo que un modulo indique una excepcio
 - Cuando el usuario marque un objetivo activo para ejecutar mejoras del sistema, Codex trabaja con autonomia dentro de ese objetivo: implementa, valida, documenta y commitea bloques locales estables sin pedir permiso paso a paso.
 - Con objetivo activo, Codex solo se detiene a pedir confirmacion ante push, publicacion, despliegue, conexion externa, cambios destructivos amplios, credenciales o decisiones de producto ambiguas.
 - Hacer commits locales cuando un bloque funcional quede estable, validado y sea correcto cerrar el punto de control.
+- Cuando existan pruebas automatizadas para el modulo afectado, ejecutar `pnpm test` antes del build final.
 - No hacer push, publicacion ni despliegue sin confirmacion explicita del usuario.
 - Para modularizar, leer `docs/MODULARIZACION_REFERENCIAS.md` y dejar referencias cruzadas porque muchos modulos estan asociados.
 

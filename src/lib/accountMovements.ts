@@ -213,3 +213,16 @@ export function accountTotalsFromMovements(movements: AccountMovement[]) {
   const outcome = activeMovements.filter((movement) => movement.direction === "SALIDA").reduce((total, movement) => total + movement.amount, 0);
   return { income, outcome, balance: income - outcome, count: activeMovements.length };
 }
+
+export function accountLedgerRows(movements: AccountMovement[], openingBalance = 0) {
+  let runningBalance = openingBalance;
+  return [...movements]
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((movement) => {
+      const activeAmount = movement.status === "ACTIVO" ? movement.amount : 0;
+      const debit = movement.direction === "SALIDA" ? activeAmount : 0;
+      const credit = movement.direction === "ENTRADA" ? activeAmount : 0;
+      runningBalance += credit - debit;
+      return { movement, debit, credit, balance: runningBalance };
+    });
+}

@@ -40,6 +40,7 @@
 - Admin/encargado ven la liquidacion por periodo mensual.
 - El selector muestra primero el nombre del mes anterior, luego el mes actual y luego `Consultar mes`.
 - Los botones de mes anterior y mes actual mantienen el mismo ancho aunque cambie el nombre del mes.
+- El selector mensual reutiliza el componente compartido con Diferencias y Cuentas corrientes para mantener etiquetas, anos y medidas consistentes.
 - `Consultar mes` permite elegir mes y ano; no usa rango libre entre dos fechas.
 - Al abrir la pantalla, el periodo inicial se sugiere segun fecha de pago: del dia 1 al 10 se abre mes anterior; desde el dia 11 se abre mes actual.
 - La sugerencia es solo inicial e informativa; el usuario puede cambiar manualmente el periodo.
@@ -81,6 +82,7 @@
 - La cuenta corriente del empleado muestra fecha, concepto, monto, total, pendiente y usuario. Todas sus columnas son ordenables. `Total` es base + premio/gratificacion + horas extras + bonos - descuentos al momento del movimiento, y `Pendiente` es el pendiente al momento de registrar ese movimiento.
 - La cuenta corriente del empleado usa el periodo trabajado de la liquidacion. Un pago cargado hoy para un mes anterior se ve en el detalle de ese mes anterior.
 - Al hacer clic en un movimiento de la cuenta corriente del empleado se abre un detalle completo con origen, usuario, recaudacion asociada y notas.
+- Si el movimiento tiene `balanceId`, desde ese detalle se puede abrir el resumen completo de la recaudacion asociada.
 - La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, empleados, liquidaciones incluidas, usuario y fecha.
 - Abajo se muestra historial de cierres de liquidacion. Anular un cierre no borra las liquidaciones ni la auditoria.
 - La tabla de historial de cierres de liquidacion permite ordenar por ID, periodo, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.

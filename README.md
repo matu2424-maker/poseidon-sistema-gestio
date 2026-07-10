@@ -65,6 +65,7 @@ pnpm install
 Antes de cerrar cambios:
 
 ```bash
+pnpm test
 pnpm run build
 ```
 
@@ -141,7 +142,7 @@ La auditoria registra usuario real y funcion usada.
 - Las diferencias si mueven la cuenta corriente del local al cerrar caja, para que la siguiente apertura use el saldo real declarado.
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un encargado o administrador las verifique, corrija o anule con observacion.
 - Corregir una diferencia permite editar efectivo/banco declarado y recalcula los movimientos de cuenta de esa recaudacion.
-- La pantalla de Diferencias funciona como historial por periodo: mes actual, mes anterior o intervalo manual, incluyendo diferencias ya resueltas/corregidas.
+- La pantalla de Diferencias funciona como historial por periodo: mes actual, mes anterior o consulta historica por mes/ano, incluyendo diferencias ya verificadas/corregidas/anuladas.
 - Si se anula una diferencia, se anulan sus movimientos de cuenta; cualquier correccion adicional posterior debe hacerse con ajuste explicito y auditado.
 - En salarios, el salario pagado no puede superar el salario base, salario pagado + adelantos tampoco puede superar el salario base y salario pagado + adelantos + descuentos tampoco puede superar el salario base.
 - En salarios, `Pagado / Entregado` no resta descuentos porque descuento no es dinero entregado; `Cubierto base` es salario pagado + adelantos + descuentos.
@@ -220,8 +221,8 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 src/App.tsx                    Estado global, lectura/escritura local, acciones y composicion de pantallas
 src/data/appData.ts            Datos demo, reset operativo, ID visible de caja y normalizacion/migracion
 src/types.ts                   Tipos principales del sistema
-src/lib/                       Reglas compartidas: dinero, fechas, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
-src/components/ui.tsx          Componentes compartidos: tarjetas, modales, botones basicos y selector de columnas
+src/lib/                       Reglas compartidas: dinero, fechas, periodos, referencias de recaudacion, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
+src/components/                Componentes compartidos: tarjetas, modales, botones, selector de columnas y selector mensual
 src/features/layout/           Pantalla inicial, login, layout lateral, layout cajero y navegacion base
 src/features/dashboard/        Paneles iniciales por rol y accesos rapidos
 src/features/accounts/         Cuentas corrientes y detalle de movimientos
@@ -253,6 +254,8 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `src/data/appData.ts`
 - `money.ts`
 - `dates.ts`
+- `periods.ts`
+- `balanceReferences.ts`
 - `audit.ts`
 - `clients.ts`
 - `files.ts`
@@ -269,6 +272,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - `machineHistory.ts`
 - `salaryRules.ts`
 - `src/components/ui.tsx`
+- `src/components/MonthlyPeriodSelector.tsx`
 - `src/features/layout/AppShell.tsx`
 - `src/features/dashboard/RoleDashboard.tsx`
 - `src/features/accounts/CurrentAccounts.tsx`

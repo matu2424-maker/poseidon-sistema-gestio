@@ -21,6 +21,8 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/types.ts`: tipos principales del dominio.
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
+- `src/lib/periods.ts`: etiquetas, rangos, fin de mes, modos y anos disponibles para selectores mensuales.
+- `src/lib/balanceReferences.ts`: resolucion y etiqueta comun de recaudaciones asociadas por `balanceId`.
 - `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
 - `src/lib/clients.ts`: documento de clientes, normalizacion, busqueda y duplicados.
 - `src/lib/export.ts`: descarga de archivos, exportacion CSV y exportacion Excel-compatible de cierre diario.
@@ -51,6 +53,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/reports/Reports.tsx`: reportes iniciales, exportaciones y tabla ordenable de cierres.
 - `src/features/reports/Periodic.tsx`: cierres periodicos, resumen por rango y cierres guardados.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.
+- `src/components/MonthlyPeriodSelector.tsx`: selector compartido de mes anterior, mes actual y consulta historica por mes/ano.
 - `src/styles/global.css`: clases visuales de toda la app.
 - `src/main.tsx`: arranque React.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no usado por el flujo actual.
@@ -77,7 +80,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - El boton `Reiniciar demo` vuelve a este estado inicial.
 - `monthRange()` vive en `src/lib/dates.ts` y apoya vistas mensuales.
 - `accountTotals()` y `localAccountBalances()` viven en `src/lib/currentAccounts.ts`.
-- `accountTotalsFromMovements()` vive en `src/lib/accountMovements.ts` y apoya saldo corrido por periodo.
+- `accountTotalsFromMovements()` y `accountLedgerRows()` viven en `src/lib/accountMovements.ts`; el segundo calcula el saldo corrido cronologico desde el saldo anterior.
 - `normalizeData()` vive en `src/data/appData.ts` y mantiene compatibilidad con datos viejos del navegador, IDs heredados, cuentas corrientes, movimientos y campos nuevos.
 
 ## Documentacion modular
@@ -269,7 +272,8 @@ Se calcula desde la cuenta banco del local menos retiros finales por transferenc
 - `VERIFICADA` mantiene activos los movimientos de diferencia.
 - `CORREGIDA` permite editar efectivo/banco declarado, recalcula diferencia, actualiza saldos proximos y resincroniza movimientos `DIFERENCIA_CAJA`.
 - `ANULADA` anula los movimientos de diferencia y revierte su impacto en saldos.
-- `Differences` abre como historial del mes actual, permite mes anterior o intervalo manual, buscar por ID/local/fecha/observacion, filtrar por estado y gestionar cada recaudacion desde ventana flotante.
+- `Differences` abre como historial del mes actual, permite mes anterior o consulta por mes/ano, buscar por ID/local/fecha/observacion, filtrar por estado y gestionar cada recaudacion desde ventana flotante.
+- Estados canonicos: `PENDIENTE`, `VERIFICADA`, `CORREGIDA`, `ANULADA`; `normalizeDifferenceStatus()` migra estados heredados al cargar.
 - La tabla incluye recaudaciones con historial de diferencia/control aunque la diferencia actual sea cero.
 - La tabla principal es compacta y ordenable por todas sus columnas visibles de datos; el detalle de efectivo/banco, observacion original, ultima gestion, formulario de revision e historial auditado viven en el modal.
 
@@ -297,6 +301,7 @@ Movimientos:
 - Encargado ve solo cuentas y movimientos de los locales asignados.
 - La tabla de movimientos usa debito, credito y saldo corrido por cuenta.
 - Clic en movimiento abre modal de detalle y, si hay `balanceId`, permite ver la recaudacion completa.
+- Cuentas corrientes y salarios resuelven esa referencia con `balanceForMovement()` y `balanceReferenceLabel()`.
 
 ## Locales
 
@@ -435,7 +440,7 @@ Las acciones sensibles usan confirmacion antes de ejecutarse.
 - `toolbar-row`: buscador + selector de columnas.
 - `editor-card`: editor embebido.
 - `embedded-panel`: panel interno.
-- `accounts-period-bar`, `accounts-date-range`: selector de periodo y rango de fechas en cuentas corrientes.
+- `accounts-period-bar`, `accounts-date-range`, `period-month-button`: selector mensual compartido en cuentas, diferencias y salarios.
 - `movement-detail-modal`: detalle de movimiento de cuenta corriente.
 - `salary-page`, `salary-period-bar`, `salary-summary-grid`: pantalla y resumen de liquidacion de salarios.
 - `salary-table`, `salary-detail-table`, `salary-detail-modal`, `salary-detail-compact`: tabla por empleado, ventana de detalle y resumen compacto de salarios.
@@ -460,8 +465,9 @@ Las acciones sensibles usan confirmacion antes de ejecutarse.
 
 Antes de cerrar cambios:
 
-1. Ejecutar `pnpm run build`.
-2. Levantar servidor local.
-3. Verificar `http://127.0.0.1:5173/`.
-4. Probar el flujo afectado con rol correspondiente.
-5. Actualizar `docs/POSEIDON_FUNCIONAMIENTO.md` si cambia una regla, calculo, pantalla o campo.
+1. Ejecutar `pnpm test`.
+2. Ejecutar `pnpm run build`.
+3. Levantar servidor local.
+4. Verificar `http://127.0.0.1:5173/`.
+5. Probar el flujo afectado con rol correspondiente.
+6. Actualizar `docs/POSEIDON_FUNCIONAMIENTO.md` si cambia una regla, calculo, pantalla o campo.

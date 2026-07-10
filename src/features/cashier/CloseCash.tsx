@@ -180,7 +180,7 @@ export function CloseCash({
               cashDifference: difference,
               bankDifference,
               differenceNote,
-              differenceStatus: difference === 0 && bankDifference === 0 ? "RESUELTA" : ("PENDIENTE" as DifferenceStatus),
+              differenceStatus: difference === 0 && bankDifference === 0 ? undefined : ("PENDIENTE" as DifferenceStatus),
             }
           : item,
       );

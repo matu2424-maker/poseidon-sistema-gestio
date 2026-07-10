@@ -15,7 +15,7 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 - Login local por seleccion de usuario, sin contrasena.
 - Supabase/Auth/Storage real quedan pendientes.
 - No publicar ni desplegar sin confirmacion explicita del usuario.
-- Modularizacion iniciada: `src/lib/money.ts`, `src/lib/dates.ts`, `src/lib/audit.ts`, `src/lib/clients.ts`, `src/lib/export.ts`, `src/lib/files.ts`, `src/lib/storage.ts`, `src/lib/display.ts`, `src/lib/ids.ts`, `src/lib/people.ts`, `src/lib/machineHistory.ts`, `src/lib/currentAccounts.ts`, `src/lib/accountMovements.ts`, `src/lib/cashTotals.ts`, `src/lib/differences.ts`, `src/lib/salaryRules.ts` y `src/lib/sorting.ts` ya contienen reglas compartidas. `src/data/appData.ts` contiene datos demo, reset operativo, IDs visibles de caja y normalizacion/migracion de datos locales. `src/components/ui.tsx` contiene `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`. `src/features/layout/AppShell.tsx`, `src/features/dashboard/RoleDashboard.tsx`, `src/features/accounts/CurrentAccounts.tsx`, `src/features/manager/Differences.tsx`, `src/features/manager/Expenses.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx`, `src/features/cashier/Movements.tsx`, `src/features/salaries/SalarySettlements.tsx`, `src/features/admin/Clients.tsx`, `src/features/admin/Staff.tsx`, `src/features/admin/Settings.tsx`, `src/features/admin/LocationsMachines.tsx`, `src/features/audit/Audit.tsx`, `src/features/reports/Reports.tsx` y `src/features/reports/Periodic.tsx` ya salieron de `src/App.tsx`.
+- Modularizacion iniciada: `src/lib/` concentra dinero, fechas, periodos mensuales, referencias por `balanceId`, auditoria, clientes, exportacion, archivos, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento. `src/components/MonthlyPeriodSelector.tsx` comparte el selector de mes entre Cuentas, Diferencias y Salarios. Las pantallas principales ya viven en `src/features/` y `src/App.tsx` queda como orquestador.
 
 ## Usuarios de prueba
 
@@ -44,6 +44,7 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 - Transferencias, aportes, retiros, efectivo inicial y banco inicial son movimientos financieros o de caja; no cambian el resultado economico.
 - Las diferencias de efectivo/banco no cambian resultado economico, pero si mueven la cuenta corriente del local para que la proxima caja abra con el saldo real declarado.
 - Encargado/admin gestionan diferencias como pendiente, verificada, corregida o anulada; anular revierte los movimientos de cuenta de la diferencia.
+- Los estados antiguos `REVISADA`, `RESUELTA` y `AJUSTADA` se normalizan al cargar; no forman parte de nuevas gestiones.
 - Todo cambio sensible debe quedar auditado con fecha/hora, usuario, rol real y funcion usada.
 - No borrar historial operativo: anular, desactivar, enviar a papelera o ajustar con auditoria.
 - El sistema debe mantenerse preparado para multi-local aunque hoy el local principal sea Poseidon.
