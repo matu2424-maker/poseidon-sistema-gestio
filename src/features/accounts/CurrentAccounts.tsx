@@ -230,37 +230,37 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                   <thead>
                     <tr>
                       <th>
-                        <button type="button" onClick={() => sortMovement("createdAt")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("createdAt")}>
                           Fecha {sortIndicator(movementSort, "createdAt")}
                         </button>
                       </th>
                       <th>
-                        <button type="button" onClick={() => sortMovement("sourceType")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("sourceType")}>
                           Tipo {sortIndicator(movementSort, "sourceType")}
                         </button>
                       </th>
                       <th>
-                        <button type="button" onClick={() => sortMovement("detail")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("detail")}>
                           Detalle {sortIndicator(movementSort, "detail")}
                         </button>
                       </th>
                       <th>
-                        <button type="button" onClick={() => sortMovement("user")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("user")}>
                           Usuario {sortIndicator(movementSort, "user")}
                         </button>
                       </th>
                       <th>
-                        <button type="button" onClick={() => sortMovement("debit")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("debit")}>
                           Debito {sortIndicator(movementSort, "debit")}
                         </button>
                       </th>
                       <th>
-                        <button type="button" onClick={() => sortMovement("credit")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("credit")}>
                           Credito {sortIndicator(movementSort, "credit")}
                         </button>
                       </th>
                       <th>
-                        <button type="button" onClick={() => sortMovement("balance")}>
+                        <button className="sort-button" type="button" onClick={() => sortMovement("balance")}>
                           Saldo {sortIndicator(movementSort, "balance")}
                         </button>
                       </th>
