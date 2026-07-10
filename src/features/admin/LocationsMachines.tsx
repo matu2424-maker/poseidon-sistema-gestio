@@ -149,6 +149,7 @@ export function AdminMachines({
     readColumnPreference(MACHINE_COLUMNS_STORAGE_KEY, machineColumns, fixedMachineColumns),
   );
   const [sort, setSort] = useState<SortState<MachineColumnKey>>({ key: "visibleId", direction: "asc" });
+  const [disusedSort, setDisusedSort] = useState<SortState<"visibleId" | "name" | "lastIn" | "lastOut">>({ key: "visibleId", direction: "asc" });
   useEffect(() => {
     writeColumnPreference(MACHINE_COLUMNS_STORAGE_KEY, visibleColumns);
   }, [visibleColumns]);
@@ -168,6 +169,16 @@ export function AdminMachines({
   };
   const workshopMachines = data.machines.filter((machine) => machine.localId === WORKSHOP_LOCAL_ID);
   const disusedWorkshopMachines = workshopMachines.filter((machine) => machine.status === "DESUSO");
+  const disusedSortValue = (machine: Machine): string | number => {
+    if (disusedSort.key === "visibleId") return Number(machine.visibleId) || machine.visibleId;
+    if (disusedSort.key === "name") return machine.name;
+    if (disusedSort.key === "lastIn") return machine.lastIn;
+    return machine.lastOut;
+  };
+  const sortedDisusedWorkshopMachines = [...disusedWorkshopMachines].sort((a, b) => {
+    const result = compareValues(disusedSortValue(a), disusedSortValue(b));
+    return disusedSort.direction === "asc" ? result : -result;
+  });
   const machinesSource = onlyWorkshop ? workshopMachines.filter((machine) => machine.status !== "DESUSO") : data.machines.filter((machine) => machine.status !== "DESUSO");
   const normalizedQuery = query.trim().toLowerCase();
   const filteredMachines = normalizedQuery
@@ -269,15 +280,24 @@ export function AdminMachines({
             <table className="data-table compact-data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Maquina</th>
-                  <th>IN actual</th>
-                  <th>OUT actual</th>
+                  {[
+                    ["visibleId", "ID"],
+                    ["name", "Maquina"],
+                    ["lastIn", "IN actual"],
+                    ["lastOut", "OUT actual"],
+                  ].map(([key, label]) => (
+                    <th key={key}>
+                      <button className="sort-button" type="button" onClick={() => setDisusedSort((current) => nextSort(current, key as typeof disusedSort.key))}>
+                        {label}
+                        {sortIndicator(disusedSort, key as typeof disusedSort.key)}
+                      </button>
+                    </th>
+                  ))}
                   <th>Accion</th>
                 </tr>
               </thead>
               <tbody>
-                {disusedWorkshopMachines.map((machine) => (
+                {sortedDisusedWorkshopMachines.map((machine) => (
                   <tr key={machine.id} className={machineStatusClass(machine.status)}>
                     <td>{machine.visibleId}</td>
                     <td>
@@ -353,6 +373,10 @@ function AdminMachineEditor({
     notes: existing?.notes ?? "",
   });
   const [error, setError] = useState("");
+  const [machineHistorySort, setMachineHistorySort] = useState<SortState<"createdAt" | "local" | "action" | "detail">>({
+    key: "createdAt",
+    direction: "desc",
+  });
   const isNew = !existing;
   const hasReadings = Boolean(existing && data.readings.some((reading) => reading.machineId === existing.id));
   const isInWorkshop = existing?.localId === WORKSHOP_LOCAL_ID;
@@ -363,6 +387,16 @@ function AdminMachineEditor({
         .slice()
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     : [];
+  const machineHistoryValue = (event: MachineLocalHistory): string | number => {
+    if (machineHistorySort.key === "createdAt") return event.createdAt;
+    if (machineHistorySort.key === "local") return localName(data, event.localId);
+    if (machineHistorySort.key === "action") return event.action;
+    return event.detail;
+  };
+  const sortedMachineHistory = [...machineHistory].sort((a, b) => {
+    const result = compareValues(machineHistoryValue(a), machineHistoryValue(b));
+    return machineHistorySort.direction === "asc" ? result : -result;
+  });
 
   const save = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -577,14 +611,23 @@ function AdminMachineEditor({
               <table className="data-table compact-data-table">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Local</th>
-                    <th>Movimiento</th>
-                    <th>Detalle</th>
+                    {[
+                      ["createdAt", "Fecha"],
+                      ["local", "Local"],
+                      ["action", "Movimiento"],
+                      ["detail", "Detalle"],
+                    ].map(([key, label]) => (
+                      <th key={key}>
+                        <button className="sort-button" type="button" onClick={() => setMachineHistorySort((current) => nextSort(current, key as typeof machineHistorySort.key))}>
+                          {label}
+                          {sortIndicator(machineHistorySort, key as typeof machineHistorySort.key)}
+                        </button>
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {machineHistory.map((event) => (
+                  {sortedMachineHistory.map((event) => (
                     <tr key={event.id}>
                       <td>{formatDateTime(event.createdAt)}</td>
                       <td>{localName(data, event.localId)}</td>

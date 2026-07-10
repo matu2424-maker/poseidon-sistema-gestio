@@ -31,11 +31,13 @@
 - DESUSO solo puede estar en Taller.
 - DESUSO aparece solo en apartado de desuso del Taller.
 - No aparece en listado general de Maquinas.
+- El historial dentro del editor de maquina permite ordenar por fecha, local, movimiento y detalle.
 
 ## Taller
 
 - Contiene maquinas disponibles.
 - Contiene apartado de maquinas en desuso.
+- El apartado de maquinas en desuso permite ordenar por ID, maquina, IN actual y OUT actual; `Accion` no se ordena.
 - Desde Taller se asignan maquinas a locales.
 
 ## Eliminacion de maquinas
