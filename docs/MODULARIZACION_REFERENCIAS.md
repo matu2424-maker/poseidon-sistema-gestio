@@ -53,6 +53,9 @@ src/lib/
 src/components/
   ui.tsx
 
+src/data/
+  appData.ts
+
 src/features/layout/
   AppShell.tsx
 
@@ -318,6 +321,14 @@ Riesgo medio porque la pantalla lee movimientos de caja, diferencias, transferen
 Estado: implementado en `src/features/dashboard/RoleDashboard.tsx`.
 
 Riesgo medio porque el panel cruza caja abierta, diferencias, cuentas corrientes, resultado mensual, accesos por rol y reinicio demo. Antes de modificar revisar `CODEX_LAYOUT_BASE`, `CODEX_CAJA`, `CODEX_ENCARGADO`, modulos 01/07/08 y reglas visuales.
+
+### Corte 22: datos demo y normalizacion
+
+- `appData.ts`: datos iniciales, limpieza operativa, ID visible de caja y normalizacion/migracion de datos locales.
+
+Estado: implementado en `src/data/appData.ts`.
+
+Riesgo medio/alto porque normaliza datos de `localStorage` y cruza locales, maquinas, caja, diferencias, cuentas corrientes, salarios, clientes, gastos, transferencias, regalos, retiros/aportes y auditoria. Antes de modificar revisar `docs/CONTEXTO_RAPIDO_CODEX.md`, `docs/MAPA_TECNICO.md`, modulos 00/02/05/06/10/11/12 y reglas contables si cambia algun impacto economico o financiero.
 
 ## Validacion por corte
 

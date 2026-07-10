@@ -46,6 +46,7 @@ Ya salieron de `src/App.tsx`:
 - `src/lib/differences.ts`
 - `src/lib/salaryRules.ts`
 - `src/lib/sorting.ts`
+- `src/data/appData.ts`
 - `src/components/ui.tsx`
 - `src/features/layout/AppShell.tsx`
 - `src/features/dashboard/RoleDashboard.tsx`
@@ -66,7 +67,7 @@ Ya salieron de `src/App.tsx`:
 - `src/features/reports/Reports.tsx`
 - `src/features/reports/Periodic.tsx`
 
-## Proximos cortes recomendados
+## Cortes registrados
 
 1. `src/lib/audit.ts`
    - Estado: iniciado/implementado para construccion centralizada de eventos.
@@ -137,11 +138,18 @@ Ya salieron de `src/App.tsx`:
    - Se mantuvo como un corte unico porque Locales, Maquinas y Taller comparten historial, asociaciones, cierres de local, maquinas en desuso, reset de contadores y auditoria.
    - Referencias: `CODEX_LOCALES_MAQUINAS`, modulos 03/05/09 y reglas de tablas ordenables.
 
+15. `src/data/appData.ts`
+
+   - Estado: implementado para datos demo, limpieza operativa, ID visible de recaudacion y normalizacion/migracion de datos locales.
+   - Se mantiene separado porque esta logica cruza usuarios, locales, maquinas, caja, diferencias, cuentas corrientes, salarios, clientes, gastos y auditoria.
+   - Referencias: `docs/CONTEXTO_RAPIDO_CODEX.md`, `docs/MAPA_TECNICO.md`, modulos 00/02/05/06/10/11/12.
+
 ## Pendientes despues del corte actual
 
-- Reducir `src/App.tsx` extrayendo helpers restantes de datos demo/normalizacion si conviene separarlos.
-- Crear contextos cortos para esos cortes antes de mover codigo.
+- Mantener `src/App.tsx` como orquestador de estado/acciones y extraer solo nuevos bloques cuando haya una razon clara.
+- Crear contextos cortos nuevos solo si aparece un modulo nuevo o un flujo que todavia no tenga contexto propio.
 - Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.
+- Antes de nuevos cambios, leer `docs/CONTEXTO_RAPIDO_CODEX.md` y el contexto/modulo especifico en vez de releer toda la app.
 
 ## Validacion obligatoria por corte
 
@@ -153,7 +161,7 @@ Ya salieron de `src/App.tsx`:
 
 ## Criterio de prioridad
 
-Primero se extraen piezas que reducen mucho contexto y tienen reglas compartidas claras:
+Primero se extrajeron piezas que reducen mucho contexto y tienen reglas compartidas claras:
 
 1. auditoria;
 2. storage;
@@ -163,6 +171,7 @@ Primero se extraen piezas que reducen mucho contexto y tienen reglas compartidas
 6. clientes;
 7. movimientos de cajero;
 8. auditoria;
-9. administracion.
+9. administracion;
+10. datos demo y normalizacion.
 
-Esto deberia reducir el costo porque cada nueva tarea podra leer el contexto corto del modulo y 1-3 archivos concretos, no todo `App.tsx` ni todo el historial del chat.
+Esto reduce costo porque cada nueva tarea deberia leer el contexto corto del modulo y 1-3 archivos concretos, no todo `App.tsx` ni todo el historial del chat. Si una tarea toca datos iniciales, migracion o reset operativo, abrir `src/data/appData.ts`; si toca acciones de usuario, abrir `src/App.tsx` mas el feature correspondiente.

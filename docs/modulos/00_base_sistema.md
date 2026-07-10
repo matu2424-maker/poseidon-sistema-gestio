@@ -7,7 +7,8 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 ## Estado actual
 
 - React + Vite + TypeScript.
-- `src/App.tsx` concentra estado global, persistencia, acciones y composicion de pantallas.
+- `src/App.tsx` concentra estado global, lectura/escritura local, acciones y composicion de pantallas.
+- `src/data/appData.ts` concentra datos demo, limpieza operativa, ID visible de caja y normalizacion/migracion de datos locales.
 - `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local, layout lateral, layout de cajero y navegacion base.
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` contiene estilos globales.

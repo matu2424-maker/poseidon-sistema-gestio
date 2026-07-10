@@ -27,7 +27,7 @@ Fecha de cierre: 2026-07-09
 - No hay storage real de archivos: comprobantes e imagenes guardan metadatos para evitar romper `localStorage`.
 - No publicar en Vercel hasta que el usuario lo pida explicitamente.
 - Localhost se levanta solo con `iniciar-poseidon.bat`; si queda ocupado, usar `detener-poseidon.bat`.
-- Ultimo commit local estable antes del bloque actual: `1bcd54a refactor: extrae personal y papelera`.
+- Ultimo bloque estable: modularizacion de datos demo/normalizacion hacia `src/data/appData.ts` pendiente de commit local si build, localhost y git status quedan correctos.
 
 ## Usuarios de prueba
 
@@ -78,7 +78,8 @@ pnpm run build
 
 ## Archivos principales
 
-- `src/App.tsx`: estado, datos demo/normalizacion, acciones principales y composicion de pantallas.
+- `src/App.tsx`: estado, lectura/escritura local, acciones principales y composicion de pantallas.
+- `src/data/appData.ts`: datos demo, limpieza operativa, ID visible de caja y normalizacion/migracion de datos locales.
 - `src/types.ts`: tipos principales del sistema extraidos desde `App.tsx`.
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fechas, horas visibles y rangos mensuales.
@@ -200,7 +201,7 @@ pnpm run build
 - Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
 - Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
 - Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, componentes UI compartidos, selector de columnas compartido, layout/base, paneles por rol, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Cuentas corrientes, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias, locales/maquinas/taller, pantalla de Auditoria, Reportes y Cierre periodico ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
+- Modularizacion iniciada: utilidades de dinero/fechas/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, datos demo/normalizacion, componentes UI compartidos, selector de columnas compartido, layout/base, paneles por rol, helpers de presentacion, historial de maquinas, cuentas corrientes, movimientos contables, totales de caja, diferencias, reglas salariales, apertura/resumen/cierre de caja, contadores, movimientos operativos del cajero, pantalla de Cuentas corrientes, pantalla de Diferencias, control de gastos, liquidacion de salarios, clientes administrativos, personal, papelera, usuarios, categorias, locales/maquinas/taller, pantalla de Auditoria, Reportes y Cierre periodico ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
 
 ## Validacion hecha al cierre
 
@@ -215,8 +216,7 @@ pnpm run build
 - Bloques recientes se cierran con commits locales chicos cuando build y localhost pasan.
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
-- Refactor pendiente por cortes chicos:
-  - Helpers restantes de datos demo/normalizacion si conviene separarlos.
+- Refactor pendiente por cortes chicos: ninguno obligatorio detectado. Los proximos cortes deben justificarse por beneficio concreto y mantenerse acotados.
 - Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar exportaciones avanzadas cuando el flujo de caja quede estable.

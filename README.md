@@ -215,7 +215,8 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ## Estructura del proyecto
 
 ```text
-src/App.tsx                    Estado global, persistencia, acciones y composicion de pantallas
+src/App.tsx                    Estado global, lectura/escritura local, acciones y composicion de pantallas
+src/data/appData.ts            Datos demo, reset operativo, ID visible de caja y normalizacion/migracion
 src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
 src/components/ui.tsx          Componentes compartidos: tarjetas, modales, botones basicos y selector de columnas
@@ -243,8 +244,9 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Refactor pendiente
 
-`src/App.tsx` todavia concentra estado global, datos demo/normalizacion, acciones principales y algunas pantallas pendientes. Ya se extrajeron `src/types.ts` y reglas compartidas hacia `src/lib/`:
+`src/App.tsx` todavia concentra estado global, acciones principales y composicion de pantallas. Ya se extrajeron `src/types.ts`, datos demo/normalizacion y reglas compartidas hacia `src/data/`, `src/lib/`, `src/components/` y `src/features/`:
 
+- `src/data/appData.ts`
 - `money.ts`
 - `dates.ts`
 - `audit.ts`
@@ -284,7 +286,8 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 Pendientes naturales:
 
-- Helpers restantes de datos demo/normalizacion, si conviene separarlos para bajar contexto.
+- Mantener `src/App.tsx` como orquestador y extraer nuevos bloques solo cuando bajen contexto o reduzcan riesgo real.
+- Seguir cerrando bloques estables con build, localhost y commit local.
 
 ## Documentacion viva
 

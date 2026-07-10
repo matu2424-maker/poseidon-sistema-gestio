@@ -38,7 +38,8 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Codigo actual
 
-- `src/App.tsx`: estado global, composicion de pantallas y pantallas administrativas aun no extraidas.
+- `src/App.tsx`: estado global, acciones principales y composicion de pantallas.
+- `src/data/appData.ts`: datos demo, limpieza operativa y normalizacion/migracion.
 - `src/features/layout/AppShell.tsx`: pantalla inicial, login, layout lateral, menu agrupado y cambio a funcion Cajero.
 - `src/features/dashboard/RoleDashboard.tsx`: paneles iniciales por rol y accesos rapidos.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
@@ -53,4 +54,4 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Refactor pendiente
 
-- Separar helpers restantes de datos demo/normalizacion si conviene por costo de contexto.
+- No queda pendiente conocido de datos demo/normalizacion. Cualquier nuevo refactor debe justificarse por reduccion real de contexto, riesgo o duplicacion.

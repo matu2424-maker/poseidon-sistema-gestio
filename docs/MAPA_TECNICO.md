@@ -16,7 +16,8 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 
 ## Archivos principales
 
-- `src/App.tsx`: estado general, persistencia, acciones principales y composicion de pantallas.
+- `src/App.tsx`: estado general, lectura/escritura local, acciones principales y composicion de pantallas.
+- `src/data/appData.ts`: datos demo, normalizacion/migracion de `localStorage`, reset operativo e IDs visibles de caja.
 - `src/types.ts`: tipos principales del dominio.
 - `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
 - `src/lib/dates.ts`: fecha actual, hora visible, fecha/hora y rangos mensuales.
@@ -63,8 +64,8 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 
 ## Datos demo
 
-- `createSeedData()` arma la demo inicial.
-- `createDemoOperationalData()` agrega datos operativos para probar encargado/admin/cajero:
+- `createSeedData()` vive en `src/data/appData.ts` y arma la demo inicial.
+- `createDemoOperationalData()` vive en `src/data/appData.ts` y agrega datos operativos para probar encargado/admin/cajero:
   - cajas cerradas;
   - lecturas de maquinas;
   - gastos, transferencias, regalos y salarios;
@@ -75,6 +76,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `monthRange()` vive en `src/lib/dates.ts` y apoya vistas mensuales.
 - `accountTotals()` y `localAccountBalances()` viven en `src/lib/currentAccounts.ts`.
 - `accountTotalsFromMovements()` vive en `src/lib/accountMovements.ts` y apoya saldo corrido por periodo.
+- `normalizeData()` vive en `src/data/appData.ts` y mantiene compatibilidad con datos viejos del navegador, IDs heredados, cuentas corrientes, movimientos y campos nuevos.
 
 ## Documentacion modular
 
@@ -110,8 +112,8 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 
 ## Deuda tecnica actual
 
-- `src/App.tsx` sigue siendo demasiado grande. Conviene refactorizar de a poco despues de estabilizar flujos.
-- Modularizacion iniciada con utilidades puras, helpers de presentacion, storage, auditoria, ordenamiento, reglas de salarios, movimientos contables, totales de caja, apertura/resumen/cierre de caja, contadores y diferencias. Falta mover mas componentes UI.
+- `src/App.tsx` sigue siendo el orquestador de estado y acciones, pero ya no concentra datos demo ni normalizacion.
+- Modularizacion iniciada con utilidades puras, helpers de presentacion, storage, auditoria, ordenamiento, reglas de salarios, movimientos contables, datos demo/normalizacion, totales de caja, apertura/resumen/cierre de caja, contadores y diferencias. Los proximos refactors deben ser mas chicos y justificados por pantalla o accion concreta.
 - `src/components/WelcomeScreen.tsx` no esta conectado al flujo actual y sus clases no son parte del CSS activo.
 - Hay textos sin acentos por decision de mantener ASCII y evitar problemas de codificacion.
 - El servidor local necesita iniciarse fuera del sandbox cuando se quiere usar el navegador integrado.
@@ -137,6 +139,7 @@ Extraer sin cambiar comportamiento y siguiendo `docs/MODULARIZACION_REFERENCIAS.
 - `src/lib/people.ts` - implementado.
 - `src/lib/salaryRules.ts` - implementado.
 - `src/lib/sorting.ts` - implementado.
+- `src/data/appData.ts` - implementado: datos demo, limpieza operativa, ID visible de caja y normalizacion/migracion de datos locales.
 - `src/components/ui.tsx` - implementado: tarjetas, botones, modales y selector de columnas.
 - `src/features/manager/Differences.tsx` - implementado.
 - `src/features/cashier/OpenCash.tsx` - implementado.

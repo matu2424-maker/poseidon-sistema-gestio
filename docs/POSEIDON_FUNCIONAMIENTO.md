@@ -17,6 +17,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Contextos cortos por modulo para Codex: `docs/contextos/`.
 - Documentacion modular por panel/funcion: `docs/modulos/`.
 - Reglas compartidas extraidas en `src/lib/`: dinero, fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y salarios.
+- Datos demo, reset operativo, IDs visibles de caja y normalizacion/migracion viven en `src/data/appData.ts`.
 - Persistencia actual: `localStorage`, clave `poseidon-sistema-gestion-v2`.
 - Supabase/Auth real queda pendiente para una etapa posterior.
 - En `localStorage` no se persisten archivos pesados/base64; comprobantes e imagenes guardan metadatos para evitar superar la cuota del navegador.
@@ -86,10 +87,10 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 ## Refactor tecnico
 
 - `src/types.ts` contiene los tipos principales del sistema.
-- `src/App.tsx` sigue concentrando estado global, datos demo/normalizacion, acciones principales y algunas pantallas pendientes, pero reglas compartidas ya viven en `src/types.ts`, `src/lib/` y `src/features/`.
-- Ya salieron de `src/App.tsx`: auditoria, storage, ordenamiento, helpers de clientes/archivos, componentes UI compartidos, `src/features/layout/AppShell.tsx`, `src/features/dashboard/RoleDashboard.tsx`, `src/features/accounts/CurrentAccounts.tsx`, `src/features/manager/Differences.tsx`, `src/features/manager/Expenses.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx`, `src/features/cashier/Movements.tsx`, `src/features/salaries/SalarySettlements.tsx`, `src/features/admin/Clients.tsx`, `src/features/admin/Staff.tsx`, `src/features/admin/Settings.tsx`, `src/features/admin/LocationsMachines.tsx`, `src/features/audit/Audit.tsx`, `src/features/reports/Reports.tsx` y `src/features/reports/Periodic.tsx`.
+- `src/App.tsx` sigue concentrando estado global, acciones principales y composicion de pantallas, pero datos demo/normalizacion, reglas compartidas y pantallas principales ya viven fuera.
+- Ya salieron de `src/App.tsx`: auditoria, storage, ordenamiento, datos demo/normalizacion, helpers de clientes/archivos, componentes UI compartidos, `src/features/layout/AppShell.tsx`, `src/features/dashboard/RoleDashboard.tsx`, `src/features/accounts/CurrentAccounts.tsx`, `src/features/manager/Differences.tsx`, `src/features/manager/Expenses.tsx`, `src/features/cashier/OpenCash.tsx`, `src/features/cashier/ClosedBalanceSummary.tsx`, `src/features/cashier/Counters.tsx`, `src/features/cashier/CloseCash.tsx`, `src/features/cashier/Movements.tsx`, `src/features/salaries/SalarySettlements.tsx`, `src/features/admin/Clients.tsx`, `src/features/admin/Staff.tsx`, `src/features/admin/Settings.tsx`, `src/features/admin/LocationsMachines.tsx`, `src/features/audit/Audit.tsx`, `src/features/reports/Reports.tsx` y `src/features/reports/Periodic.tsx`.
 - `src/components/ui.tsx` tambien centraliza `ColumnChooser` y `TableColumn` para que las tablas configurables no dupliquen markup ni tipos.
-- Los siguientes destinos de refactor siguen pendientes: helpers restantes de datos demo/normalizacion si conviene separarlos.
+- Los siguientes refactors deben decidirse por bloque chico y con beneficio claro; no queda pendiente conocido de datos demo/normalizacion.
 - `docs/MAPA_TECNICO.md` documenta el mapa de pantallas, clases CSS principales, calculos y deuda tecnica actual.
 - `src/components/WelcomeScreen.tsx` existe como componente heredado/no conectado al flujo principal actual.
 
