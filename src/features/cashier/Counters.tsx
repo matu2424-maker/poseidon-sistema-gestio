@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import type { AppData, Balance, Reading, ReadingStatus, User } from "../../types";
 import { counter, formatCounterInput, money, parseCounter } from "../../lib/money";
+import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 
 function InfoCard({ title, lines, tone }: { title: string; lines: string[]; tone: "blue" | "green" | "orange" | "red" }) {
   return (
@@ -12,6 +13,9 @@ function InfoCard({ title, lines, tone }: { title: string; lines: string[]; tone
     </article>
   );
 }
+
+type CounterSortKey = "visibleId" | "machine" | "status" | "inPrevious" | "inActual" | "outPrevious" | "outActual" | "result" | "observation";
+
 export function Counters({
   data,
   user,
@@ -28,6 +32,7 @@ export function Counters({
   const readings = data.readings.filter((reading) => reading.balanceId === balance.id);
   const [drafts, setDrafts] = useState<Record<string, { status: ReadingStatus; inActual: string; outActual: string; observation: string }>>({});
   const [savedMessage, setSavedMessage] = useState("");
+  const [sort, setSort] = useState<SortState<CounterSortKey>>({ key: "visibleId", direction: "asc" });
 
   useEffect(() => {
     setDrafts(
@@ -103,6 +108,41 @@ export function Counters({
   );
   const pendingCount = readings.filter((reading) => (drafts[reading.id]?.status ?? reading.status) === "PENDIENTE").length;
   const resultTone = draftSummary.resultMachines >= 0 ? "green" : "red";
+  const counterSortValue = (reading: Reading, key: CounterSortKey): string | number => {
+    const machine = data.machines.find((item) => item.id === reading.machineId);
+    const draft = drafts[reading.id] ?? {
+      status: reading.status,
+      inActual: counter(reading.inActual ?? reading.inPrevious),
+      outActual: counter(reading.outActual ?? reading.outPrevious),
+      observation: reading.observation,
+    };
+    const inActual = parseCounter(draft.inActual);
+    const outActual = parseCounter(draft.outActual);
+    if (key === "visibleId") return machine?.visibleId ?? "";
+    if (key === "machine") return machine?.name ?? "";
+    if (key === "status") return draft.status;
+    if (key === "inPrevious") return reading.inPrevious;
+    if (key === "inActual") return inActual;
+    if (key === "outPrevious") return reading.outPrevious;
+    if (key === "outActual") return outActual;
+    if (key === "result") return inActual - reading.inPrevious - (outActual - reading.outPrevious);
+    return draft.observation;
+  };
+  const sortedReadings = [...readings].sort((left, right) => {
+    const result = compareValues(counterSortValue(left, sort.key), counterSortValue(right, sort.key));
+    return sort.direction === "asc" ? result : -result;
+  });
+  const counterColumns: { key: CounterSortKey; label: string }[] = [
+    { key: "visibleId", label: "ID" },
+    { key: "machine", label: "Maquina" },
+    { key: "status", label: "Estado" },
+    { key: "inPrevious", label: "IN ant." },
+    { key: "inActual", label: "IN act." },
+    { key: "outPrevious", label: "OUT ant." },
+    { key: "outActual", label: "OUT act." },
+    { key: "result", label: "Resultado" },
+    { key: "observation", label: "Obs." },
+  ];
 
   return (
     <section className="counters-page">
@@ -136,19 +176,18 @@ export function Counters({
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Maquina</th>
-              <th>Estado</th>
-              <th>IN ant.</th>
-              <th>IN act.</th>
-              <th>OUT ant.</th>
-              <th>OUT act.</th>
-              <th>Resultado</th>
-              <th>Obs.</th>
+              {counterColumns.map((column) => (
+                <th key={column.key}>
+                  <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
+                    {column.label}
+                    {sortIndicator(sort, column.key)}
+                  </button>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {readings.map((reading) => {
+            {sortedReadings.map((reading) => {
               const machine = data.machines.find((item) => item.id === reading.machineId);
               const draft = drafts[reading.id] ?? {
                 status: reading.status,
