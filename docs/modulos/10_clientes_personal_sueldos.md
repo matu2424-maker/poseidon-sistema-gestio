@@ -49,6 +49,7 @@
 - Cada empleado activo inicia cada periodo mensual con un salario base tomado de `Personal` y su historial salarial.
 - La liquidacion se trabaja por periodo devengado/trabajado. El salario de enero puede pagarse del 1 al 10 de febrero, pero la liquidacion debe quedar asociada a enero.
 - Encargado/admin pueden modificar tipo de salario y salario base; cada cambio genera historial con fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
+- El historial salarial dentro del editor de personal permite ordenar por fecha efectiva, tipo anterior, tipo nuevo, salario anterior, salario nuevo, usuario y motivo.
 - El cambio de salario base es prospectivo: no modifica liquidaciones cerradas. Si la fecha efectiva afecta un cierre de liquidacion cerrado, se bloquea.
 - Si el cambio afecta periodos abiertos con liquidaciones activas, se pide reconfirmacion antes de guardar.
 - Tipos de salario disponibles: mensual, jornal y hora. Para mensual, el salario base representa 30 dias de trabajo.

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import type { AppData, Client, ClientStatus, SalaryType, StaffMember, StaffSchedule, StaffStatus, User, WeekDay } from "../../types";
+import type { AppData, Client, ClientStatus, SalaryHistory, SalaryType, StaffMember, StaffSchedule, StaffStatus, User, WeekDay } from "../../types";
 import { clientDocumentLabel, hasClientDocumentDuplicate, normalizeClientDocument, normalizeClientDocumentType, sanitizeDigits } from "../../lib/clients";
 import { formatDateTime, nowIso, today } from "../../lib/dates";
 import { localName } from "../../lib/display";
@@ -194,12 +194,28 @@ function StaffEditor({
   const isNew = !existing;
   const [schedule, setSchedule] = useState<StaffSchedule[]>(existing?.schedule ?? defaultSchedule);
   const [formError, setFormError] = useState("");
+  const [salaryHistorySort, setSalaryHistorySort] = useState<
+    SortState<"effectiveDate" | "previousSalaryType" | "newSalaryType" | "previousNominalSalary" | "newNominalSalary" | "userName" | "reason">
+  >({ key: "effectiveDate", direction: "desc" });
   const defaultSalaryEffectiveDate = isNew ? today() : `${shiftSalaryPeriod(today().slice(0, 7), 1)}-01`;
   const salaryHistory = existing
     ? data.salaryHistories
         .filter((history) => history.staffId === existing.id)
         .sort((a, b) => b.effectiveDate.localeCompare(a.effectiveDate) || b.createdAt.localeCompare(a.createdAt))
     : [];
+  const salaryHistoryValue = (history: SalaryHistory): string | number => {
+    if (salaryHistorySort.key === "effectiveDate") return history.effectiveDate;
+    if (salaryHistorySort.key === "previousSalaryType") return history.previousSalaryType;
+    if (salaryHistorySort.key === "newSalaryType") return history.newSalaryType;
+    if (salaryHistorySort.key === "previousNominalSalary") return history.previousNominalSalary;
+    if (salaryHistorySort.key === "newNominalSalary") return history.newNominalSalary;
+    if (salaryHistorySort.key === "userName") return history.userName;
+    return history.reason || "";
+  };
+  const sortedSalaryHistory = [...salaryHistory].sort((left, right) => {
+    const result = compareValues(salaryHistoryValue(left), salaryHistoryValue(right));
+    return salaryHistorySort.direction === "asc" ? result : -result;
+  });
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -433,17 +449,26 @@ function StaffEditor({
             <table className="data-table compact-data-table">
               <thead>
                 <tr>
-                  <th>Fecha efectiva</th>
-                  <th>Tipo anterior</th>
-                  <th>Tipo nuevo</th>
-                  <th>Salario anterior</th>
-                  <th>Salario nuevo</th>
-                  <th>Usuario</th>
-                  <th>Motivo</th>
+                  {[
+                    ["effectiveDate", "Fecha efectiva"],
+                    ["previousSalaryType", "Tipo anterior"],
+                    ["newSalaryType", "Tipo nuevo"],
+                    ["previousNominalSalary", "Salario anterior"],
+                    ["newNominalSalary", "Salario nuevo"],
+                    ["userName", "Usuario"],
+                    ["reason", "Motivo"],
+                  ].map(([key, label]) => (
+                    <th key={key}>
+                      <button className="sort-button" type="button" onClick={() => setSalaryHistorySort((current) => nextSort(current, key as typeof salaryHistorySort.key))}>
+                        {label}
+                        {sortIndicator(salaryHistorySort, key as typeof salaryHistorySort.key)}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {salaryHistory.map((history) => (
+                {sortedSalaryHistory.map((history) => (
                   <tr key={history.id}>
                     <td>{history.effectiveDate}</td>
                     <td>{history.previousSalaryType}</td>
