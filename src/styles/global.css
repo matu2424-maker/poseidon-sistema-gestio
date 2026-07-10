@@ -1894,6 +1894,38 @@ select:disabled {
   min-height: 128px;
 }
 
+.difference-summary-grid {
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.difference-summary-grid .info-card {
+  min-height: 128px;
+}
+
+.differences-period-bar {
+  margin-bottom: 6px;
+}
+
+.differences-period-bar .differences-month-button {
+  min-width: 104px;
+}
+
+.differences-date-range select {
+  min-height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 7px 10px;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.difference-impact-helper {
+  margin: -2px 0 2px;
+  font-size: 0.9rem;
+}
+
 .salary-detail-compact {
   display: grid;
   gap: 10px;
@@ -2289,7 +2321,11 @@ select:disabled {
 }
 
 .difference-table {
-  min-width: 1040px;
+  min-width: 940px;
+}
+
+.difference-table td {
+  vertical-align: middle;
 }
 
 .compact-table {
@@ -2503,6 +2539,78 @@ select:disabled {
   gap: 16px;
 }
 
+.difference-detail-compact {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #d5e0ec;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.difference-detail-context,
+.difference-detail-metrics,
+.difference-detail-notes {
+  display: grid;
+  gap: 8px;
+}
+
+.difference-detail-context {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid #e5ebf2;
+  padding-bottom: 10px;
+}
+
+.difference-detail-metrics {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.difference-detail-notes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid #e5ebf2;
+  padding-top: 10px;
+}
+
+.difference-detail-context div,
+.difference-detail-metrics div,
+.difference-detail-notes div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border-radius: 7px;
+  background: #f8fafc;
+  padding: 9px 10px;
+}
+
+.difference-detail-context span,
+.difference-detail-metrics span,
+.difference-detail-notes span {
+  color: #667487;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.difference-detail-context strong,
+.difference-detail-metrics strong,
+.difference-detail-notes p {
+  overflow-wrap: anywhere;
+  color: #142235;
+  font-size: 0.94rem;
+  font-weight: 900;
+  line-height: 1.18;
+}
+
+.difference-detail-metrics strong {
+  font-size: 1.08rem;
+}
+
+.difference-detail-notes p {
+  margin: 0;
+  color: #526173;
+}
+
 .difference-modal-panel {
   margin-top: 2px;
 }
@@ -2619,6 +2727,26 @@ select:disabled {
   font-size: 0.82rem;
   font-weight: 800;
   line-height: 1.3;
+}
+
+.status-pill.status-error {
+  background: #fff1f2;
+  color: var(--red);
+}
+
+.status-pill.status-maintenance {
+  background: #fff8eb;
+  color: #9a5a00;
+}
+
+.status-pill.status-inactive {
+  background: #eef2f7;
+  color: #64748b;
+}
+
+.status-pill.status-active {
+  background: #effaf2;
+  color: var(--green);
 }
 
 .movement-detail-modal {
@@ -2991,7 +3119,10 @@ select:disabled {
   }
 
   .salary-detail-context,
-  .salary-detail-metrics {
+  .salary-detail-metrics,
+  .difference-detail-context,
+  .difference-detail-metrics,
+  .difference-detail-notes {
     grid-template-columns: 1fr;
   }
 
@@ -3002,6 +3133,10 @@ select:disabled {
   }
 
   .accounts-date-range input {
+    width: 100%;
+  }
+
+  .accounts-date-range select {
     width: 100%;
   }
 

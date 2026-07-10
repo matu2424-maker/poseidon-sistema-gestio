@@ -27,15 +27,16 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 ## Archivos que conviene abrir primero
 
 1. `AGENTS.md`
-2. `docs/CONTEXTO_RAPIDO_CODEX.md`
-3. `docs/REGLAS_GENERALES.md`
-4. `docs/MAPA_TECNICO.md`
-5. `docs/REGLAS_CONTABLES.md` si cambia caja, cuentas, diferencias, salarios o movimientos.
-6. `docs/REGLAS_VISUALES.md` si cambia interfaz.
-7. `docs/MODULARIZACION_REFERENCIAS.md` si se va a mover codigo entre archivos.
-8. `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` si se va a optimizar estructura o consumo de contexto.
-9. El contexto corto de `docs/contextos/` que corresponda.
-10. El archivo del modulo dentro de `docs/modulos/` que corresponda.
+2. `docs/HANDOFF_TECNICO_POSEIDON.md` si se retoma desde otra cuenta/agente o falta contexto.
+3. `docs/CONTEXTO_RAPIDO_CODEX.md`
+4. `docs/REGLAS_GENERALES.md`
+5. `docs/MAPA_TECNICO.md`
+6. `docs/REGLAS_CONTABLES.md` si cambia caja, cuentas, diferencias, salarios o movimientos.
+7. `docs/REGLAS_VISUALES.md` si cambia interfaz.
+8. `docs/MODULARIZACION_REFERENCIAS.md` si se va a mover codigo entre archivos.
+9. `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` si se va a optimizar estructura o consumo de contexto.
+10. El contexto corto de `docs/contextos/` que corresponda.
+11. El archivo del modulo dentro de `docs/modulos/` que corresponda.
 
 ## Reglas intocables
 
@@ -88,6 +89,8 @@ Poseidon Sistema de Gestion es una app web administrativa para caja diaria, maqu
 - `docs/REGLAS_VISUALES.md`
 - `docs/MODULARIZACION_REFERENCIAS.md`
 - `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`
+- `docs/HANDOFF_TECNICO_POSEIDON.md`
+- `docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md`
 
 ## Contextos cortos para Codex
 

@@ -77,6 +77,8 @@ http://127.0.0.1:5173/
 ## Documentacion de trabajo
 
 - `docs/CONTEXTO_RAPIDO_CODEX.md`: entrada rapida para retomar.
+- `docs/HANDOFF_TECNICO_POSEIDON.md`: handoff completo para migrar el proyecto a otra cuenta/agente.
+- `docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md`: prompt corto para iniciar una nueva cuenta de ChatGPT con el contexto minimo.
 - `docs/REGLAS_GENERALES.md`: reglas generales de trabajo, auditoria y documentacion.
 - `docs/REGLAS_CONTABLES.md`: matriz de impactos economicos, financieros y cuentas corrientes.
 - `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.
@@ -232,6 +234,8 @@ src/features/reports/          Reportes iniciales, exportaciones y cierres perio
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
+docs/HANDOFF_TECNICO_POSEIDON.md Handoff tecnico completo para otra cuenta/agente
+docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md Prompt corto para iniciar nueva cuenta
 docs/RETOMAR_MANANA.md         Resumen para retomar trabajo
 docs/MAPA_TECNICO.md           Mapa tecnico de pantallas, clases y reglas
 docs/CONTEXTO_RAPIDO_CODEX.md  Contexto corto para cargar rapido el proyecto

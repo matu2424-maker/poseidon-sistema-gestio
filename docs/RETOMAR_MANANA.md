@@ -1,22 +1,23 @@
 # Poseidon - Retomar trabajo
 
-Fecha de cierre: 2026-07-09
+Fecha de cierre: 2026-07-10
 
 ## Antes de tocar codigo
 
 1. Leer `AGENTS.md`.
-2. Leer `docs/CONTEXTO_RAPIDO_CODEX.md`.
-3. Leer `docs/REGLAS_GENERALES.md`.
-4. Leer `docs/POSEIDON_FUNCIONAMIENTO.md`.
-5. Leer `docs/MAPA_TECNICO.md`.
-6. Si el cambio es contable, leer `docs/REGLAS_CONTABLES.md`.
-7. Si el cambio es visual, leer `docs/REGLAS_VISUALES.md`.
-8. Si se va a modularizar o mover codigo, leer `docs/MODULARIZACION_REFERENCIAS.md`.
-9. Si se busca bajar consumo de tokens o mejorar estructura, leer `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
-10. Leer el contexto corto correspondiente en `docs/contextos/`.
-11. Leer el documento correspondiente en `docs/modulos/`.
-12. Revisar este archivo.
-13. Correr `git status --short` para ver cambios pendientes.
+2. Si se retoma desde otra cuenta/agente, leer `docs/HANDOFF_TECNICO_POSEIDON.md`.
+3. Leer `docs/CONTEXTO_RAPIDO_CODEX.md`.
+4. Leer `docs/REGLAS_GENERALES.md`.
+5. Leer `docs/POSEIDON_FUNCIONAMIENTO.md`.
+6. Leer `docs/MAPA_TECNICO.md`.
+7. Si el cambio es contable, leer `docs/REGLAS_CONTABLES.md`.
+8. Si el cambio es visual, leer `docs/REGLAS_VISUALES.md`.
+9. Si se va a modularizar o mover codigo, leer `docs/MODULARIZACION_REFERENCIAS.md`.
+10. Si se busca bajar consumo de tokens o mejorar estructura, leer `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
+11. Leer el contexto corto correspondiente en `docs/contextos/`.
+12. Leer el documento correspondiente en `docs/modulos/`.
+13. Revisar este archivo.
+14. Correr `git status --short` para ver cambios pendientes.
 
 ## Estado actual
 
@@ -27,6 +28,8 @@ Fecha de cierre: 2026-07-09
 - No hay storage real de archivos: comprobantes e imagenes guardan metadatos para evitar romper `localStorage`.
 - No publicar en Vercel hasta que el usuario lo pida explicitamente.
 - Localhost se levanta solo con `iniciar-poseidon.bat`; si queda ocupado, usar `detener-poseidon.bat`.
+- Si hay objetivo activo, Codex debe trabajar con autonomia dentro del objetivo: implementar, validar, documentar y commitear bloques locales estables sin pedir permiso paso a paso.
+- Con objetivo activo, solo frenar para pedir confirmacion ante push, publicacion, despliegue, conexion externa, cambios destructivos amplios, credenciales o decisiones de producto ambiguas.
 - Ultimo bloque estable: modularizacion de datos demo/normalizacion hacia `src/data/appData.ts` pendiente de commit local si build, localhost y git status quedan correctos.
 
 ## Usuarios de prueba
@@ -123,6 +126,8 @@ pnpm run build
 - `docs/REGLAS_VISUALES.md`: reglas de UI, tablas, botones, modales y formularios.
 - `docs/MODULARIZACION_REFERENCIAS.md`: referencias cruzadas para refactor modular.
 - `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`: plan tecnico para mejorar estructura y bajar consumo de tokens.
+- `docs/HANDOFF_TECNICO_POSEIDON.md`: handoff completo para migrar a otra cuenta o agente.
+- `docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md`: prompt corto para iniciar una nueva cuenta con contexto minimo.
 - `docs/contextos/`: contextos cortos por modulo para Codex.
 - `docs/modulos/`: detalle por panel y funcion.
 - `AGENTS.md`: reglas de trabajo para Codex.
@@ -190,8 +195,8 @@ pnpm run build
 - Resultado final de cierre es economico: resultado de maquinas - gastos - salarios - regalos.
 - Transferencias, aportes, retiros, efectivo inicial y banco inicial son movimientos financieros o de caja, no cambian el resultado economico.
 - Las diferencias de efectivo/banco no impactan el resultado economico; si mueven cuentas corrientes del local para que la siguiente apertura use el saldo real declarado.
-- Acciones del encargado sobre diferencias: verificada/corregida/anulada cambian el estado de control de la recaudacion y quedan auditadas. Corregida permite editar efectivo/banco declarado y recalcula movimientos; anular revierte los movimientos de cuenta de esa diferencia.
-- Pantalla Diferencias: abre como historial del mes actual, permite mes anterior o intervalo manual, tiene buscador por ID/local/fecha/observacion, filtro por estado y gestiona cada recaudacion desde modal con detalle de efectivo/banco, observacion obligatoria e historial auditado completo.
+- Acciones del encargado sobre diferencias: verificada/corregida/anulada cambian el estado de control de la recaudacion y quedan auditadas. Corregida permite editar efectivo/banco declarado y recalcula movimientos; anular deja la diferencia efectiva en cero, revierte saldos proximos al valor esperado y anula los movimientos de cuenta de esa diferencia.
+- Pantalla Diferencias: abre como historial del mes actual, permite mes anterior o consulta historica por mes/ano, tiene buscador por ID/local/fecha/observacion, filtro por estado y gestiona cada recaudacion desde modal con detalle de efectivo/banco, observacion obligatoria e historial auditado completo. Su estetica queda minimalista similar a Liquidacion de salarios, con resumen superior chico y tabla principal como foco.
 - Si el retiro final efectivo o banco es `0`, el selector de quien retira queda gris y dice `Sin retiros finales`.
 - IN/OUT actual no puede ser menor al anterior; si falla, la fila queda en rojo.
 - Las maquinas con recaudaciones no se eliminan directamente.
@@ -208,6 +213,7 @@ pnpm run build
 - `pnpm run build`: correcto.
 - `http://127.0.0.1:5173/`: responde `200`.
 - Navegador integrado: renderiza pantalla inicial `POSEIDON` sin errores de consola.
+- Navegador integrado: entrada como `encargado`, pantalla `Diferencias` y modal `Gestionar` renderizan sin errores de consola.
 - URL de prueba preferida: `http://127.0.0.1:5173/`.
 - El mapa tecnico quedo actualizado en `docs/MAPA_TECNICO.md`.
 
@@ -217,7 +223,7 @@ pnpm run build
 - Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
 - Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
 - Refactor pendiente por cortes chicos: ninguno obligatorio detectado. Los proximos cortes deben justificarse por beneficio concreto y mantenerse acotados.
-- Al ver un bloque estable, sugerir commit local al usuario y esperar confirmacion antes de hacerlo.
+- Al ver un bloque estable, hacer commit local si el bloque esta validado y es correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin confirmacion explicita.
 - Seguir refinando cierre de caja con datos reales de prueba.
 - Revisar exportaciones avanzadas cuando el flujo de caja quede estable.
 - Reimplementar Supabase/Auth real cuando el modelo local este confirmado.

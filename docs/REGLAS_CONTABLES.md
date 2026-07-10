@@ -61,7 +61,7 @@ No forman parte del resultado economico:
 - `PENDIENTE`: requiere gestion.
 - `VERIFICADA`: confirma que la diferencia existe y mantiene movimientos activos.
 - `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza saldo proximo y resincroniza movimientos.
-- `ANULADA`: anula los movimientos de diferencia y revierte su impacto en cuentas.
+- `ANULADA`: anula los movimientos de diferencia, revierte su impacto en cuentas, deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
 - Las diferencias deben conservar observacion original del cajero e historial auditado de gestion.
 
 ## Salarios
@@ -84,4 +84,3 @@ No forman parte del resultado economico:
 - Cuentas corrientes: `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`, `docs/modulos/11_cuentas_corrientes.md`.
 - Salarios: `docs/contextos/CODEX_SALARIOS.md`, `docs/modulos/10_clientes_personal_sueldos.md`.
 - Auditoria: `docs/modulos/12_auditoria.md`.
-

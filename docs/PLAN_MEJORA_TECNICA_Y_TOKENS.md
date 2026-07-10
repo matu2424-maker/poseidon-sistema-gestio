@@ -1,6 +1,6 @@
 # Poseidon - Plan de mejora tecnica y ahorro de tokens
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-10
 
 Este documento define como vamos a mejorar el sistema y, al mismo tiempo, bajar el consumo de tokens al trabajar con Codex.
 
@@ -9,7 +9,8 @@ Este documento define como vamos a mejorar el sistema y, al mismo tiempo, bajar 
 - Reducir el tamano efectivo de contexto que Codex necesita leer en cada tarea.
 - Sacar logica y pantallas de `src/App.tsx` por cortes chicos y verificables.
 - Mantener referencias cruzadas entre modulos para no romper caja, diferencias, cuentas, salarios, clientes, locales ni auditoria.
-- Cerrar cada bloque estable con build, localhost y commit local sugerido o ejecutado con autorizacion.
+- Cerrar cada bloque estable con build, localhost y commit local cuando este validado.
+- Con objetivo activo, ejecutar este plan con autonomia: implementar, validar, documentar y commitear bloques locales estables sin pedir permiso paso a paso.
 
 ## Reglas de trabajo para ahorrar tokens
 

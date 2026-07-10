@@ -9,7 +9,7 @@ import { compareValues, nextSort, sortIndicator, type SortState } from "../../li
 
 type DifferenceDraft = { status: DifferenceStatus | ""; note: string; correctedCash?: string; correctedBank?: string };
 type DifferenceStatusFilter = DifferenceStatus | "TODAS" | "GESTIONADAS";
-type DifferenceSortKey = "id" | "operatingDate" | "local" | "cashDifference" | "bankDifference" | "status" | "closureNote" | "lastReview";
+type DifferenceSortKey = "id" | "operatingDate" | "local" | "cashDifference" | "bankDifference" | "status" | "lastReview";
 
 type DifferencesProps = {
   data: AppData;
@@ -27,6 +27,18 @@ const localCode = (name: string) => (name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 
 const balanceVisibleId = (data: AppData, balance: Balance) => balance.visibleId ?? `${localCode(localName(data, balance.localId))}-${balance.id.slice(-4)}`;
 
 const userDisplayName = (data: AppData, userId: string | undefined) => (userId ? data.users.find((item) => item.id === userId)?.name ?? userId : "-");
+
+const capitalize = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+
+const monthLabel = (period: string) => capitalize(new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long", year: "numeric" }));
+
+const shortMonthLabel = (period: string) => capitalize(new Date(`${period}-01T00:00:00`).toLocaleDateString("es-UY", { month: "long" }));
+
+const periodEndDate = (period: string) => {
+  const [year, month] = period.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return `${period}-${String(lastDay).padStart(2, "0")}`;
+};
 
 const parseAuditValue = (value: string): Record<string, unknown> => {
   try {
@@ -91,14 +103,26 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
   const [sort, setSort] = useState<SortState<DifferenceSortKey>>({ key: "operatingDate", direction: "desc" });
   const currentRange = monthRange(0);
   const previousRange = monthRange(-1);
+  const currentPeriod = currentRange.start.slice(0, 7);
+  const previousPeriod = previousRange.start.slice(0, 7);
   const [periodMode, setPeriodMode] = useState<"current" | "previous" | "custom">("current");
-  const [customStart, setCustomStart] = useState(currentRange.start);
-  const [customEnd, setCustomEnd] = useState(currentRange.end);
+  const [customMonth, setCustomMonth] = useState(currentPeriod.slice(5, 7));
+  const [customYear, setCustomYear] = useState(currentPeriod.slice(0, 4));
   const [selectedBalanceId, setSelectedBalanceId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const canManage = user.role === "ADMINISTRADOR" || user.role === "ENCARGADO";
   const visibleLocalIds = user.role === "ADMINISTRADOR" ? null : new Set(user.localIds);
-  const activeRange = periodMode === "current" ? currentRange : periodMode === "previous" ? previousRange : { start: customStart, end: customEnd };
+  const customPeriod = `${customYear}-${customMonth}`;
+  const selectedPeriod = periodMode === "current" ? currentPeriod : periodMode === "previous" ? previousPeriod : customPeriod;
+  const activeRange = periodMode === "current" ? currentRange : periodMode === "previous" ? previousRange : { start: `${customPeriod}-01`, end: periodEndDate(customPeriod) };
+  const periodLabel = monthLabel(selectedPeriod);
+  const historicalYearOptions = Array.from(
+    new Set([
+      currentPeriod.slice(0, 4),
+      previousPeriod.slice(0, 4),
+      ...data.balances.map((balance) => String(balance.closedAt ?? balance.operatingDate).slice(0, 4)),
+    ]),
+  ).sort((a, b) => b.localeCompare(a));
   const balanceDate = (balance: Balance) => String(balance.closedAt ?? balance.operatingDate).slice(0, 10);
   const balanceInRange = (balance: Balance) => (!activeRange.start || balanceDate(balance) >= activeRange.start) && (!activeRange.end || balanceDate(balance) <= activeRange.end);
   const balanceHasDifferenceHistory = (balance: Balance) =>
@@ -120,7 +144,6 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
     if (key === "cashDifference") return cashDifferenceForBalance(data, balance);
     if (key === "bankDifference") return bankDifferenceForBalance(balance);
     if (key === "status") return balance.differenceStatus ?? "PENDIENTE";
-    if (key === "closureNote") return balance.differenceNote ?? "";
     return `${balance.differenceReviewedAt ?? ""} ${balance.differenceReviewNote ?? ""}`;
   };
   const balances = allBalances
@@ -152,6 +175,7 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
   const managed = allBalances.length - pending;
   const totalCashDifference = allBalances.reduce((total, balance) => total + cashDifferenceForBalance(data, balance), 0);
   const totalBankDifference = allBalances.reduce((total, balance) => total + bankDifferenceForBalance(balance), 0);
+  const totalDifference = totalCashDifference + totalBankDifference;
   const selectedHistory = selectedBalance
     ? data.audit
         .filter((event) => event.entityId === selectedBalance.id && (event.entity === "DiferenciaCaja" || event.entity === "BalanceDiario"))
@@ -210,16 +234,18 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
       const correctedCash = status === "CORREGIDA" ? parseMoneyInput(draft.correctedCash ?? "") : previousDeclaredCash;
       const correctedBank = status === "CORREGIDA" ? parseMoneyInput(draft.correctedBank ?? "") : previousDeclaredBank;
       if (status === "CORREGIDA" && (correctedCash < 0 || correctedBank < 0)) return current;
-      const nextCashDifference = status === "CORREGIDA" ? correctedCash - expectedCash : previousCashDifference;
-      const nextBankDifference = status === "CORREGIDA" ? correctedBank - expectedBank : previousBankDifference;
+      const nextDeclaredCash = status === "CORREGIDA" ? correctedCash : status === "ANULADA" ? expectedCash : previousDeclaredCash;
+      const nextDeclaredBank = status === "CORREGIDA" ? correctedBank : status === "ANULADA" ? expectedBank : previousDeclaredBank;
+      const nextCashDifference = status === "CORREGIDA" ? correctedCash - expectedCash : status === "ANULADA" ? 0 : previousCashDifference;
+      const nextBankDifference = status === "CORREGIDA" ? correctedBank - expectedBank : status === "ANULADA" ? 0 : previousBankDifference;
       const next = {
         ...previous,
-        declaredCash: status === "CORREGIDA" ? correctedCash : previous.declaredCash,
-        declaredBank: status === "CORREGIDA" ? correctedBank : previous.declaredBank,
-        nextBase: status === "CORREGIDA" ? correctedCash : previous.nextBase,
-        nextBankBase: status === "CORREGIDA" ? correctedBank : previous.nextBankBase,
-        cashDifference: status === "CORREGIDA" ? nextCashDifference : previous.cashDifference,
-        bankDifference: status === "CORREGIDA" ? nextBankDifference : previous.bankDifference,
+        declaredCash: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredCash : previous.declaredCash,
+        declaredBank: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredBank : previous.declaredBank,
+        nextBase: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredCash : previous.nextBase,
+        nextBankBase: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredBank : previous.nextBankBase,
+        cashDifference: status === "CORREGIDA" || status === "ANULADA" ? nextCashDifference : previous.cashDifference,
+        bankDifference: status === "CORREGIDA" || status === "ANULADA" ? nextBankDifference : previous.bankDifference,
         differenceStatus: status,
         differenceReviewedBy: user.id,
         differenceReviewedAt: reviewedAt,
@@ -243,12 +269,12 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
           reviewNote,
           reviewedBy: user.name,
           reviewedAt,
-          ...(status === "CORREGIDA"
+          ...(status === "CORREGIDA" || status === "ANULADA"
             ? {
                 declaredCashBefore: previousDeclaredCash,
-                declaredCashAfter: correctedCash,
+                declaredCashAfter: nextDeclaredCash,
                 declaredBankBefore: previousDeclaredBank,
-                declaredBankAfter: correctedBank,
+                declaredBankAfter: nextDeclaredBank,
                 cashDifferenceBefore: previousCashDifference,
                 cashDifferenceAfter: nextCashDifference,
                 bankDifferenceBefore: previousBankDifference,
@@ -278,45 +304,55 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
         <div>
           <p className="helper">Las diferencias no modifican el resultado economico. Se revisan y quedan auditadas por encargado o administrador.</p>
         </div>
-      </div>
-      <div className="card-grid three">
-        <InfoCard tone={pending > 0 ? "red" : "green"} title="Pendientes" lines={[`${pending} diferencia(s)`, "Requieren gestion"]} />
-        <InfoCard tone={managed > 0 ? "blue" : "orange"} title="Gestionadas" lines={[`${managed} recaudacion(es)`, "Con revision auditada"]} />
-        <InfoCard tone="orange" title="Impacto contable" lines={["Mueve efectivo/banco del local", "No cambia el resultado economico", "Anular revierte el saldo"]} />
-      </div>
-      <div className="card-grid three difference-totals-grid">
-        <InfoCard tone={totalCashDifference === 0 ? "green" : "red"} title="Diferencia efectivo" lines={[money(totalCashDifference), "Suma de controles fisicos"]} />
-        <InfoCard tone={totalBankDifference === 0 ? "green" : "red"} title="Diferencia banco" lines={[money(totalBankDifference), "Suma de banco/transferencias"]} />
-        <InfoCard tone="blue" title="Alcance" lines={[user.role === "ADMINISTRADOR" ? "Todos los locales" : "Locales asignados", "Historial del periodo"]} />
+        <div className="admin-header-actions">
+          <span>{balances.length} control(es)</span>
+        </div>
       </div>
       <div className="accounts-period-bar differences-period-bar">
-        <div>
-          <button className={periodMode === "current" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("current")}>
-            Mes actual
+        <div className="button-row">
+          <button className={periodMode === "previous" ? "button primary compact differences-month-button" : "button muted compact differences-month-button"} type="button" onClick={() => setPeriodMode("previous")}>
+            {shortMonthLabel(previousPeriod)}
           </button>
-          <button className={periodMode === "previous" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("previous")}>
-            Mes anterior
+          <button className={periodMode === "current" ? "button primary compact differences-month-button" : "button muted compact differences-month-button"} type="button" onClick={() => setPeriodMode("current")}>
+            {shortMonthLabel(currentPeriod)}
           </button>
           <button className={periodMode === "custom" ? "button primary compact" : "button muted compact"} type="button" onClick={() => setPeriodMode("custom")}>
             Consulta historica
           </button>
         </div>
-        {periodMode === "custom" ? (
-          <div className="accounts-date-range">
-            <label>
-              Desde
-              <input type="date" value={customStart} onChange={(event) => setCustomStart(event.target.value)} />
-            </label>
-            <label>
-              Hasta
-              <input type="date" value={customEnd} onChange={(event) => setCustomEnd(event.target.value)} />
-            </label>
-          </div>
-        ) : null}
-        <span>
-          Periodo: {activeRange.start} al {activeRange.end}
-        </span>
+        <div className="accounts-date-range differences-date-range">
+          <span>{periodLabel}</span>
+          {periodMode === "custom" && (
+            <>
+              <select value={customMonth} onChange={(event) => setCustomMonth(event.target.value)}>
+                {Array.from({ length: 12 }, (_, index) => {
+                  const value = String(index + 1).padStart(2, "0");
+                  const label = new Date(2026, index, 1).toLocaleDateString("es-UY", { month: "long" });
+                  return (
+                    <option key={value} value={value}>
+                      {capitalize(label)}
+                    </option>
+                  );
+                })}
+              </select>
+              <select value={customYear} onChange={(event) => setCustomYear(event.target.value)}>
+                {historicalYearOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
       </div>
+      <div className="card-grid four difference-summary-grid">
+        <InfoCard tone={pending > 0 ? "red" : "green"} title="Pendientes" lines={[`${pending}`, "Requieren gestion"]} />
+        <InfoCard tone={totalCashDifference === 0 ? "green" : "red"} title="Diferencia efectivo" lines={[money(totalCashDifference), "Cuenta efectivo"]} />
+        <InfoCard tone={totalBankDifference === 0 ? "green" : "red"} title="Diferencia banco" lines={[money(totalBankDifference), "Cuenta banco"]} />
+        <InfoCard tone={managed > 0 ? "blue" : "orange"} title="Gestionadas" lines={[`${managed}`, `Total ${money(totalDifference)}`]} />
+      </div>
+      <p className="helper difference-impact-helper">Las diferencias mueven efectivo/banco del local para que la proxima caja abra con saldo real. No cambian el resultado economico.</p>
       <div className="difference-toolbar">
         <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por ID, local, fecha u observacion..." />
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as DifferenceStatusFilter)}>
@@ -328,20 +364,19 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
           <option value="RESUELTA">Resueltas</option>
           <option value="ANULADA">Anuladas</option>
         </select>
-        <span>{balances.length} resultado(s)</span>
+        <span>{activeRange.start} al {activeRange.end}</span>
       </div>
       {error && !selectedBalance ? <p className="validation error">{error}</p> : null}
       <div className="table-wrap">
         <table className="data-table difference-table">
           <thead>
             <tr>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "id"))}>ID{sortIndicator(sort, "id")}</button></th>
+              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "id"))}>Caja{sortIndicator(sort, "id")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "operatingDate"))}>Fecha{sortIndicator(sort, "operatingDate")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "local"))}>Local{sortIndicator(sort, "local")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "cashDifference"))}>Efectivo{sortIndicator(sort, "cashDifference")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "bankDifference"))}>Banco{sortIndicator(sort, "bankDifference")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "status"))}>Estado{sortIndicator(sort, "status")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "closureNote"))}>Obs. cierre{sortIndicator(sort, "closureNote")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "lastReview"))}>Ultima gestion{sortIndicator(sort, "lastReview")}</button></th>
               <th>Accion</th>
             </tr>
@@ -367,8 +402,7 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
                     <strong className={bankDifference === 0 ? "money-positive" : "money-negative"}>{money(bankDifference)}</strong>
                     <span>Esp. {money(expectedBank)} / Dec. {money(declaredBank)}</span>
                   </td>
-                  <td>{balance.differenceStatus ?? "PENDIENTE"}</td>
-                  <td className="long-cell">{balance.differenceNote || "-"}</td>
+                  <td><span className={`status-pill ${rowClass(balance)}`}>{balance.differenceStatus ?? "PENDIENTE"}</span></td>
                   <td className="long-cell">
                     {balance.differenceReviewNote ? (
                       <>
@@ -390,7 +424,7 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
             })}
             {!balances.length && (
               <tr>
-                <td colSpan={9}>No hay historial de diferencias o controles para el periodo seleccionado.</td>
+                <td colSpan={8}>No hay historial de diferencias o controles para el periodo seleccionado.</td>
               </tr>
             )}
           </tbody>
@@ -413,28 +447,26 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
             const correctedBankDifference = correctedBank - expectedBank;
             return (
               <div className="difference-detail-modal">
-                <div className="account-summary-grid">
-                  <div><span>Efectivo</span><strong className={cashDifference === 0 ? "money-positive" : "money-negative"}>{money(cashDifference)}</strong></div>
-                  <div><span>Banco</span><strong className={bankDifference === 0 ? "money-positive" : "money-negative"}>{money(bankDifference)}</strong></div>
-                  <div><span>Estado</span><strong>{selectedBalance.differenceStatus ?? "PENDIENTE"}</strong></div>
-                </div>
-                <dl className="summary-detail-list">
-                  <div><dt>Local</dt><dd>{localName(data, selectedBalance.localId)}</dd></div>
-                  <div><dt>Fecha operativa</dt><dd>{selectedBalance.operatingDate}</dd></div>
-                  <div><dt>Efectivo esperado</dt><dd>{money(expectedCash)}</dd></div>
-                  <div><dt>Efectivo declarado</dt><dd>{money(selectedBalance.declaredCash)}</dd></div>
-                  <div><dt>Banco esperado</dt><dd>{money(expectedBank)}</dd></div>
-                  <div><dt>Banco declarado</dt><dd>{money(declaredBank)}</dd></div>
-                  <div><dt>Observacion cierre</dt><dd>{selectedBalance.differenceNote || "-"}</dd></div>
-                  <div>
-                    <dt>Ultima gestion</dt>
-                    <dd>
-                      {selectedBalance.differenceReviewNote
-                        ? `${userDisplayName(data, selectedBalance.differenceReviewedBy)} - ${selectedBalance.differenceReviewedAt ? formatDateTime(selectedBalance.differenceReviewedAt) : ""} - ${selectedBalance.differenceReviewNote}`
-                        : "Sin gestion"}
-                    </dd>
+                <div className="difference-detail-compact">
+                  <div className="difference-detail-context">
+                    <div><span>Local</span><strong>{localName(data, selectedBalance.localId)}</strong></div>
+                    <div><span>Fecha</span><strong>{selectedBalance.operatingDate}</strong></div>
+                    <div><span>Estado</span><strong>{selectedBalance.differenceStatus ?? "PENDIENTE"}</strong></div>
+                    <div><span>Gestion</span><strong>{selectedBalance.differenceReviewedAt ? formatDateTime(selectedBalance.differenceReviewedAt) : "Sin gestion"}</strong></div>
                   </div>
-                </dl>
+                  <div className="difference-detail-metrics">
+                    <div><span>Efectivo esperado</span><strong>{money(expectedCash)}</strong></div>
+                    <div><span>Efectivo declarado</span><strong>{money(selectedBalance.declaredCash)}</strong></div>
+                    <div><span>Diferencia efectivo</span><strong className={cashDifference === 0 ? "money-positive" : "money-negative"}>{money(cashDifference)}</strong></div>
+                    <div><span>Banco esperado</span><strong>{money(expectedBank)}</strong></div>
+                    <div><span>Banco declarado</span><strong>{money(declaredBank)}</strong></div>
+                    <div><span>Diferencia banco</span><strong className={bankDifference === 0 ? "money-positive" : "money-negative"}>{money(bankDifference)}</strong></div>
+                  </div>
+                  <div className="difference-detail-notes">
+                    <div><span>Observacion cierre</span><p>{selectedBalance.differenceNote || "-"}</p></div>
+                    <div><span>Ultima gestion</span><p>{selectedBalance.differenceReviewNote ? `${userDisplayName(data, selectedBalance.differenceReviewedBy)} - ${selectedBalance.differenceReviewNote}` : "Sin gestion"}</p></div>
+                  </div>
+                </div>
                 <section className="embedded-panel difference-modal-panel">
                   <div className="section-toolbar">
                     <div>

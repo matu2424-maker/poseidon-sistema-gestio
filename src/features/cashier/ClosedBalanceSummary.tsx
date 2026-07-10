@@ -25,9 +25,11 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
   const local = localName(data, balance.localId);
   const totalCashOutflows = totals.totalExpenses + totals.totalSalaries + totals.giftCash;
   const hasDifference = recalculatedDifference !== 0 || recalculatedBankDifference !== 0;
-  const differenceTone = !hasDifference ? "green" : differenceIsPending(balance) ? "red" : "orange";
+  const hasDifferenceControl =
+    hasDifference || Boolean(balance.differenceStatus || balance.differenceNote || balance.differenceReviewNote || balance.differenceReviewedAt);
+  const differenceTone = !hasDifferenceControl ? "green" : differenceIsPending(balance) ? "red" : hasDifference ? "orange" : "green";
   const resultTone = totals.commercialResult >= 0 ? "green" : "red";
-  const differenceStatus = hasDifference ? balance.differenceStatus ?? "PENDIENTE" : "SIN DIFERENCIA";
+  const differenceStatus = hasDifferenceControl ? balance.differenceStatus ?? "PENDIENTE" : "SIN DIFERENCIA";
   const financialRows = [
     { concept: "Transferencias", count: String(transfers.length), amount: money(totals.totalTransfers), detail: "Entran a banco / descuentan efectivo" },
     { concept: "Aportes efectivo", count: String(cashContributions.length), amount: money(totals.capitalContributionsCash), detail: "Suman al efectivo de caja" },
@@ -128,7 +130,7 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
           </dl>
         </div>
 
-        <div className={`closed-summary-card difference-control-card ${hasDifference && differenceIsPending(balance) ? "danger" : hasDifference ? "warning" : "ok"}`}>
+        <div className={`closed-summary-card difference-control-card ${hasDifferenceControl && differenceIsPending(balance) ? "danger" : hasDifference ? "warning" : "ok"}`}>
           <h3>Control de diferencias</h3>
           <dl className="summary-detail-list">
             <div>

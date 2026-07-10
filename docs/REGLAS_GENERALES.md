@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales del sistema
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-10
 
 Estas reglas aplican a todo el sistema, salvo que un modulo indique una excepcion explicita.
 
@@ -18,8 +18,10 @@ Estas reglas aplican a todo el sistema, salvo que un modulo indique una excepcio
 - No conectar Supabase/Auth/Storage real hasta que se reactive esa etapa.
 - No publicar ni desplegar sin autorizacion explicita del usuario.
 - Para levantar localhost se usa solo `iniciar-poseidon.bat`. Si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
-- No hacer commits locales sin confirmacion explicita del usuario.
-- Cuando un bloque funcional quede estable, Codex debe sugerir un commit local con un mensaje claro y esperar aprobacion.
+- Cuando el usuario marque un objetivo activo para ejecutar mejoras del sistema, Codex trabaja con autonomia dentro de ese objetivo: implementa, valida, documenta y commitea bloques locales estables sin pedir permiso paso a paso.
+- Con objetivo activo, Codex solo se detiene a pedir confirmacion ante push, publicacion, despliegue, conexion externa, cambios destructivos amplios, credenciales o decisiones de producto ambiguas.
+- Hacer commits locales cuando un bloque funcional quede estable, validado y sea correcto cerrar el punto de control.
+- No hacer push, publicacion ni despliegue sin confirmacion explicita del usuario.
 - Para modularizar, leer `docs/MODULARIZACION_REFERENCIAS.md` y dejar referencias cruzadas porque muchos modulos estan asociados.
 
 ## Regla obligatoria de documentacion

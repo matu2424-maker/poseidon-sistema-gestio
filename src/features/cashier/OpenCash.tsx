@@ -105,6 +105,8 @@ export function OpenCash({
                 const recalculatedDifference = cashDifferenceForBalance(data, balance);
                 const bankDifference = bankDifferenceForBalance(balance);
                 const hasDifference = recalculatedDifference !== 0 || bankDifference !== 0;
+                const hasDifferenceControl =
+                  hasDifference || Boolean(balance.differenceStatus || balance.differenceNote || balance.differenceReviewNote || balance.differenceReviewedAt);
                 const loaded = data.readings.filter((reading) => reading.balanceId === balance.id && reading.status === "CARGADA").length;
                 const totalReadings = data.readings.filter((reading) => reading.balanceId === balance.id).length;
                 const selected = balance.id === selectedBalance?.id;
@@ -120,8 +122,8 @@ export function OpenCash({
                     <td className={recalculatedDifference === 0 ? "money-positive" : "money-negative"}>{money(recalculatedDifference)}</td>
                     <td className={bankDifference === 0 ? "money-positive" : "money-negative"}>{money(bankDifference)}</td>
                     <td>
-                      <span className={`status-pill ${hasDifference && differenceIsPending(balance) ? "danger" : hasDifference ? "warning" : "ok"}`}>
-                        {hasDifference ? balance.differenceStatus ?? "PENDIENTE" : "SIN DIF."}
+                      <span className={`status-pill ${hasDifferenceControl && differenceIsPending(balance) ? "danger" : hasDifferenceControl ? "warning" : "ok"}`}>
+                        {hasDifferenceControl ? balance.differenceStatus ?? "PENDIENTE" : "SIN DIF."}
                       </span>
                     </td>
                     <td>

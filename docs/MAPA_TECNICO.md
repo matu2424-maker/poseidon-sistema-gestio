@@ -55,6 +55,8 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/main.tsx`: arranque React.
 - `src/components/WelcomeScreen.tsx`: componente heredado/no usado por el flujo actual.
 - `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
+- `docs/HANDOFF_TECNICO_POSEIDON.md`: handoff completo para que otra cuenta/agente continue sin leer el chat.
+- `docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md`: prompt corto para iniciar una nueva cuenta con contexto minimo.
 - `docs/RETOMAR_MANANA.md`: resumen rapido para continuar.
 - `docs/REGLAS_CONTABLES.md`: matriz de impacto economico, financiero y cuentas corrientes.
 - `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.

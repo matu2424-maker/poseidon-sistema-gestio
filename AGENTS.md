@@ -12,6 +12,8 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Cuando el usuario diga "vamos a trabajar en..." o pida estudiar/revisar una funcion, tomarlo como pedido de analisis y sugerencia, no como permiso para modificar.
 - Siempre dar primero una sugerencia concreta: que se cambiaria, por que, que archivos se tocarian y como se probaria.
 - Solo despues de la aprobacion explicita del usuario se puede modificar archivos.
+- Cuando el usuario marque un objetivo activo para ejecutar mejoras del sistema, trabajar con autonomia dentro de ese objetivo: implementar, validar, documentar y cerrar commits locales estables sin pedir permiso paso a paso.
+- Aunque haya objetivo activo, no hacer push, publicacion, despliegue, conexion externa, cambios destructivos amplios ni decisiones de producto ambiguas sin confirmacion explicita.
 - Despues de modificar codigo, explicar como ejecutar y probar.
 - No agregar funcionalidades no solicitadas.
 - Priorizar claridad, mantenibilidad y seguridad.
@@ -26,7 +28,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Para modularizar o mover codigo entre archivos, leer `docs/MODULARIZACION_REFERENCIAS.md` y el contexto corto del modulo en `docs/contextos/`.
 - Al dividir `AGENTS.md` por carpetas en el futuro, cada AGENTS anidado debe referenciar documentos compartidos en vez de duplicar reglas completas, porque muchos modulos estan asociados.
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
-- No hacer commit local sin pedido explicito del usuario. Si un bloque queda estable, sugerir el commit y esperar confirmacion.
+- Hacer commit local cuando un bloque quede estable, validado y sea correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin pedido explicito del usuario.
 
 ## Criterios visuales
 

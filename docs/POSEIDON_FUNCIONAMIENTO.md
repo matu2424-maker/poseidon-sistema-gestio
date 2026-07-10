@@ -206,20 +206,22 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - Una diferencia puede deberse a error de carga, transferencia mal registrada, retiro/aporte omitido o faltante/sobrante real.
 - Si se verifica, los movimientos de diferencia quedan activos y mantienen el saldo real declarado.
 - Si se corrige, encargado/admin ingresa efectivo declarado corregido y dinero banco declarado corregido; el sistema recalcula las diferencias, actualiza el saldo proximo de la recaudacion y sincroniza movimientos de cuenta.
-- Si se anula, los movimientos de diferencia quedan anulados y dejan de impactar las cuentas del local.
+- Si se anula, los movimientos de diferencia quedan anulados, dejan de impactar las cuentas del local, la diferencia efectiva queda en cero y los saldos proximos vuelven al calculo esperado de la recaudacion.
 - Cualquier correccion adicional posterior debe hacerse mediante un ajuste explicito y auditado.
 - En la pantalla `Diferencias`, el encargado ve solo las recaudaciones de sus locales asignados; administrador ve todos los locales.
-- La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o intervalo manual.
+- La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o consulta historica por mes/ano.
+- Visualmente usa el mismo criterio minimalista de `Liquidacion de salarios`: selector de periodo compacto, resumen superior de cuatro metricas, tabla principal como centro y detalle en ventana flotante.
 - La tabla muestra todas las recaudaciones con historial de diferencia/control en el periodo, incluidas verificadas, corregidas, anuladas y resueltas aunque la diferencia actual haya quedado en cero.
 - Tiene buscador por ID/local/fecha/observacion y filtro por estado.
-- La tabla de diferencias es compacta; la gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
+- La tabla de diferencias es compacta y muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion. La observacion original se consulta dentro del detalle para no cargar la grilla principal.
+- La gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
 - Para guardar una gestion se debe elegir accion y escribir observacion obligatoria.
 - El error de observacion obligatoria aparece dentro de la ventana flotante de gestion.
 - El modal de cada recaudacion muestra historial completo auditado de cierre, revision, correccion o anulacion.
 - Impacto por accion del encargado:
   - `VERIFICADA`: confirma que la diferencia existe; mantiene activos los movimientos de diferencia y no cambia resultado economico.
   - `CORREGIDA`: permite corregir efectivo/banco declarado, recalcula diferencias, sincroniza cuentas y no cambia resultado economico.
-  - `ANULADA`: anula la diferencia y sus movimientos de cuenta; no borra la auditoria del cierre.
+  - `ANULADA`: anula la diferencia y sus movimientos de cuenta, deja diferencia efectiva en cero y revierte saldos proximos al valor esperado; no borra la auditoria del cierre.
 
 ## Panel del encargado
 
