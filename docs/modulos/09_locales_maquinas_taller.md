@@ -15,6 +15,8 @@
 - Clic en nombre abre historial.
 - El modal de historial de local permite ordenar las tablas de Datos, Maquinas, Estados, Recaudaciones y Auditoria por sus columnas visibles.
 - Clic en cantidad de maquinas abre ventana con maquinas asociadas.
+- La ventana de maquinas asociadas permite ordenar el listado por ID, maquina, estado, ubicacion, IN actual y OUT actual; `Accion` no se ordena.
+- El historial de maquinas dentro de esa ventana permite ordenar por fecha, ID, maquina, movimiento y detalle.
 - Agregar/editar abre ventana flotante.
 - Desde agregar/editar se pueden asociar maquinas del Taller.
 
@@ -41,6 +43,7 @@
 - Contiene apartado de maquinas en desuso.
 - El apartado de maquinas en desuso permite ordenar por ID, maquina, IN actual y OUT actual; `Accion` no se ordena.
 - Desde Taller se asignan maquinas a locales.
+- Los selectores de maquinas del Taller permiten ordenar por todas sus columnas visibles de datos; el checkbox de seleccion no se ordena.
 
 ## Eliminacion de maquinas
 

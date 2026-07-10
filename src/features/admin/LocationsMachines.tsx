@@ -899,6 +899,14 @@ function LocalMachinesModal({
 }) {
   const [historyQuery, setHistoryQuery] = useState("");
   const [historyMachineId, setHistoryMachineId] = useState<string | null>(null);
+  const [machineSort, setMachineSort] = useState<SortState<"visibleId" | "name" | "status" | "location" | "lastIn" | "lastOut">>({
+    key: "visibleId",
+    direction: "asc",
+  });
+  const [historySort, setHistorySort] = useState<SortState<"createdAt" | "machineVisibleId" | "machineName" | "action" | "detail">>({
+    key: "createdAt",
+    direction: "desc",
+  });
   const machines = data.machines.filter((machine) => machine.localId === local.id);
   const historyMachine = historyMachineId ? data.machines.find((machine) => machine.id === historyMachineId) : undefined;
   const history = data.machineLocalHistory
@@ -914,6 +922,29 @@ function LocalMachinesModal({
           .includes(normalizedQuery),
       )
     : history;
+  const sortedMachines = [...machines].sort((a, b) => {
+    const value = (machine: Machine): string | number => {
+      if (machineSort.key === "visibleId") return Number(machine.visibleId) || machine.visibleId;
+      if (machineSort.key === "name") return machine.name;
+      if (machineSort.key === "status") return machine.status;
+      if (machineSort.key === "location") return machine.location;
+      if (machineSort.key === "lastIn") return machine.lastIn;
+      return machine.lastOut;
+    };
+    const result = compareValues(value(a), value(b));
+    return machineSort.direction === "asc" ? result : -result;
+  });
+  const sortedVisibleHistory = [...visibleHistory].sort((a, b) => {
+    const value = (event: MachineLocalHistory): string | number => {
+      if (historySort.key === "createdAt") return event.createdAt;
+      if (historySort.key === "machineVisibleId") return Number(event.machineVisibleId) || event.machineVisibleId;
+      if (historySort.key === "machineName") return event.machineName;
+      if (historySort.key === "action") return event.action;
+      return event.detail;
+    };
+    const result = compareValues(value(a), value(b));
+    return historySort.direction === "asc" ? result : -result;
+  });
   const sendToWorkshop = (machine: Machine) => {
     if (!confirmAction(`Confirmar envio de ${machine.name} al Taller.`)) return;
     patchData((current) => {
@@ -949,17 +980,26 @@ function LocalMachinesModal({
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Maquina</th>
-              <th>Estado</th>
-              <th>Ubicacion</th>
-              <th>IN actual</th>
-              <th>OUT actual</th>
+              {[
+                ["visibleId", "ID"],
+                ["name", "Maquina"],
+                ["status", "Estado"],
+                ["location", "Ubicacion"],
+                ["lastIn", "IN actual"],
+                ["lastOut", "OUT actual"],
+              ].map(([key, label]) => (
+                <th key={key}>
+                  <button className="sort-button" type="button" onClick={() => setMachineSort((current) => nextSort(current, key as typeof machineSort.key))}>
+                    {label}
+                    {sortIndicator(machineSort, key as typeof machineSort.key)}
+                  </button>
+                </th>
+              ))}
               <th>Accion</th>
             </tr>
           </thead>
           <tbody>
-            {machines.map((machine) => (
+            {sortedMachines.map((machine) => (
               <tr key={machine.id} className={machineStatusClass(machine.status)}>
                 <td>{machine.visibleId}</td>
                 <td>
@@ -1002,15 +1042,24 @@ function LocalMachinesModal({
         <table className="data-table">
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>ID</th>
-              <th>Maquina</th>
-              <th>Movimiento</th>
-              <th>Detalle</th>
+              {[
+                ["createdAt", "Fecha"],
+                ["machineVisibleId", "ID"],
+                ["machineName", "Maquina"],
+                ["action", "Movimiento"],
+                ["detail", "Detalle"],
+              ].map(([key, label]) => (
+                <th key={key}>
+                  <button className="sort-button" type="button" onClick={() => setHistorySort((current) => nextSort(current, key as typeof historySort.key))}>
+                    {label}
+                    {sortIndicator(historySort, key as typeof historySort.key)}
+                  </button>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {visibleHistory.map((event) => (
+            {sortedVisibleHistory.map((event) => (
               <tr key={event.id}>
                 <td>{formatDateTime(event.createdAt)}</td>
                 <td>{event.machineVisibleId}</td>
@@ -1052,11 +1101,24 @@ function WorkshopMachinePicker({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
+  const [sort, setSort] = useState<SortState<"visibleId" | "name" | "status" | "lastIn" | "lastOut" | "notes">>({ key: "visibleId", direction: "asc" });
   const workshopMachines = data.machines.filter((machine) => machine.localId === WORKSHOP_LOCAL_ID && machine.status !== "DESUSO");
   const normalizedQuery = query.trim().toLowerCase();
   const visibleMachines = normalizedQuery
     ? workshopMachines.filter((machine) => [machine.visibleId, machine.name, machine.status, machine.notes].join(" ").toLowerCase().includes(normalizedQuery))
     : workshopMachines;
+  const sortedVisibleMachines = [...visibleMachines].sort((a, b) => {
+    const value = (machine: Machine): string | number => {
+      if (sort.key === "visibleId") return Number(machine.visibleId) || machine.visibleId;
+      if (sort.key === "name") return machine.name;
+      if (sort.key === "status") return machine.status;
+      if (sort.key === "lastIn") return machine.lastIn;
+      if (sort.key === "lastOut") return machine.lastOut;
+      return machine.notes || "";
+    };
+    const result = compareValues(value(a), value(b));
+    return sort.direction === "asc" ? result : -result;
+  });
 
   const assign = () => {
     if (!selectedIds.length) {
@@ -1099,16 +1161,25 @@ function WorkshopMachinePicker({
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>Maquina</th>
-              <th>Estado</th>
-              <th>IN</th>
-              <th>OUT</th>
-              <th>Obs.</th>
+              {[
+                ["visibleId", "ID"],
+                ["name", "Maquina"],
+                ["status", "Estado"],
+                ["lastIn", "IN"],
+                ["lastOut", "OUT"],
+                ["notes", "Obs."],
+              ].map(([key, label]) => (
+                <th key={key}>
+                  <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
+                    {label}
+                    {sortIndicator(sort, key as typeof sort.key)}
+                  </button>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {visibleMachines.map((machine) => (
+            {sortedVisibleMachines.map((machine) => (
               <tr key={machine.id} className={machineStatusClass(machine.status)}>
                 <td>
                   <input
@@ -1855,11 +1926,23 @@ function AdminLocalEditor({
   });
   const [selectedWorkshopMachineIds, setSelectedWorkshopMachineIds] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [workshopSort, setWorkshopSort] = useState<SortState<"visibleId" | "name" | "status" | "lastIn" | "lastOut">>({ key: "visibleId", direction: "asc" });
   const isNew = !existing;
   const balancesCount = existing ? data.balances.filter((balance) => balance.localId === existing.id).length : 0;
   const protectedLocal = Boolean(existing && (existing.id === POSEIDON_LOCAL_ID || balancesCount > 0));
   const localMachines = existing ? data.machines.filter((machine) => machine.localId === existing.id) : [];
   const workshopMachines = data.machines.filter((machine) => machine.localId === WORKSHOP_LOCAL_ID && machine.status !== "DESUSO");
+  const sortedWorkshopMachines = [...workshopMachines].sort((a, b) => {
+    const value = (machine: Machine): string | number => {
+      if (workshopSort.key === "visibleId") return Number(machine.visibleId) || machine.visibleId;
+      if (workshopSort.key === "name") return machine.name;
+      if (workshopSort.key === "status") return machine.status;
+      if (workshopSort.key === "lastIn") return machine.lastIn;
+      return machine.lastOut;
+    };
+    const result = compareValues(value(a), value(b));
+    return workshopSort.direction === "asc" ? result : -result;
+  });
 
   const updateImageFiles = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -2094,15 +2177,24 @@ function AdminLocalEditor({
                 <thead>
                   <tr>
                     <th></th>
-                    <th>ID</th>
-                    <th>Maquina</th>
-                    <th>Estado</th>
-                    <th>IN</th>
-                    <th>OUT</th>
+                    {[
+                      ["visibleId", "ID"],
+                      ["name", "Maquina"],
+                      ["status", "Estado"],
+                      ["lastIn", "IN"],
+                      ["lastOut", "OUT"],
+                    ].map(([key, label]) => (
+                      <th key={key}>
+                        <button className="sort-button" type="button" onClick={() => setWorkshopSort((current) => nextSort(current, key as typeof workshopSort.key))}>
+                          {label}
+                          {sortIndicator(workshopSort, key as typeof workshopSort.key)}
+                        </button>
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {workshopMachines.map((machine) => (
+                  {sortedWorkshopMachines.map((machine) => (
                     <tr key={machine.id} className={machineStatusClass(machine.status)}>
                       <td>
                         <input

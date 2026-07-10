@@ -215,6 +215,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `MachineHistoryModal`: historial ampliado de maquina. Vive en `src/features/admin/LocationsMachines.tsx`; sus tablas de locales, contadores y auditoria son ordenables por columnas visibles.
 - `AdminLocals`: locales. Vive en `src/features/admin/LocationsMachines.tsx`.
 - `AdminLocalEditor`: alta/edicion/cierre/quitar local y asociar maquinas. Vive en `src/features/admin/LocationsMachines.tsx`.
+- `LocalMachinesModal` y `WorkshopMachinePicker`: viven en `src/features/admin/LocationsMachines.tsx`; sus tablas de maquinas/historial/seleccion ordenan por columnas visibles de datos, con checkbox y acciones como excepciones.
 - `LocalHistoryModal`: historial ampliado de local. Vive en `src/features/admin/LocationsMachines.tsx`; sus tablas de datos, maquinas, estados, recaudaciones y auditoria son ordenables por columnas visibles.
 - `Differences`: gestion de diferencias de caja. Vive en `src/features/manager/Differences.tsx`.
 - `Audit`: auditoria. Vive en `src/features/audit/Audit.tsx`.
