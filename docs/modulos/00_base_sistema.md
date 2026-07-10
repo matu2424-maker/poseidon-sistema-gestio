@@ -7,12 +7,13 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 ## Estado actual
 
 - React + Vite + TypeScript.
-- `src/App.tsx` concentra estado global, lectura/escritura local, acciones y composicion de pantallas.
-- `src/data/appData.ts` concentra datos demo, limpieza operativa, ID visible de caja y normalizacion/migracion de datos locales.
+- `src/App.tsx` conserva estado global, sesion, acciones y composicion de pantallas.
+- `src/data/appData.ts` concentra datos demo, limpieza manual, ID visible de caja y normalizacion de datos locales.
+- `src/infrastructure/storage/` valida, versiona, importa y persiste el snapshot local.
 - `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local, layout lateral, layout de cajero y navegacion base.
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` contiene estilos globales.
-- Persistencia en `localStorage`.
+- Persistencia versionada en `localStorage`.
 - Login local sin contrasena.
 - La demo inicial incluye datos operativos para probar paneles:
   - 3 maquinas activas asignadas a Poseidon;
@@ -41,5 +42,8 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - No hay Auth real todavia.
 - No hay backend real todavia.
 - El boton `Reiniciar demo` del administrador vuelve a cargar este dataset inicial de prueba.
+- No se borran datos operativos automaticamente al iniciar.
+- `Sistema > Datos locales` permite exportar/importar respaldo JSON validado.
+- Si el almacenamiento esta corrupto se conserva sin sobrescribir hasta que el usuario descargue respaldo o confirme iniciar datos nuevos.
 - Localhost se levanta solo con `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.

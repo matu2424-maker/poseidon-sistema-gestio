@@ -13,7 +13,9 @@ Esta es la fuente canonica de reglas transversales de trabajo, documentacion y a
 - Toda accion sensible requiere confirmacion antes de ejecutarse.
 - Toda creacion, edicion, anulacion, baja, restauracion, eliminacion o ajuste importante debe registrarse en auditoria.
 - Las bajas operativas deben ser estado, anulacion o papelera antes de eliminacion definitiva.
-- Los datos de prueba se guardan localmente en `localStorage`.
+- Los datos de prueba se guardan en un snapshot local versionado.
+- Un snapshot corrupto no se reemplaza automaticamente: debe ofrecerse descarga de recuperacion o reinicio confirmado.
+- No recortar auditoria, movimientos ni historiales para forzar un guardado local. Si se supera la cuota, informar y pedir exportar respaldo.
 - No guardar archivos pesados/base64 en `localStorage`; solo metadatos.
 - No conectar Supabase/Auth/Storage real hasta que se reactive esa etapa.
 - No publicar ni desplegar sin autorizacion explicita del usuario.

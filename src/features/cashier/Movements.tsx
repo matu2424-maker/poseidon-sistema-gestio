@@ -35,7 +35,6 @@ import { staffFullName } from "../../lib/people";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import {
   cashierSalaryConceptOptions,
-  isSalaryPaymentConcept,
   isValidSalaryPeriod,
   normalizeSalaryConcept,
   salaryConceptBreakdown,

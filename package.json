@@ -7,7 +7,9 @@
     "dev": "vite --config vite.config.mjs --configLoader native",
     "build": "tsc -b && vite build --config vite.config.mjs --configLoader native",
     "preview": "vite preview --config vite.config.mjs --configLoader native",
-    "test": "vitest run --configLoader native"
+    "test": "vitest run --configLoader native",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
+    "check": "pnpm run typecheck && pnpm test"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

@@ -17,7 +17,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 13.800 lineas TypeScript/React.
 - `global.css`: aproximadamente 3.232 lineas.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Cinco archivos de pruebas, 16 casos.
+- Ocho archivos de pruebas, 24 casos.
 - Archivos de mayor concentracion: Locales/Maquinas, datos/normalizacion, Movimientos y Salarios.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -35,10 +35,11 @@ Agregar reglas contables, visuales o mapa tecnico solo si aplican. El enrutador 
 
 ## Prioridad 1 - Seguridad del desarrollo local
 
-- Corregir fecha operativa local y probar limites de dia/mes.
-- Agregar validacion runtime y `schemaVersion` al snapshot.
-- Evitar recorte silencioso de auditoria como solucion permanente.
-- Crear `pnpm check` con test, typecheck y lint.
+- Completado: fecha operativa local y timestamps historicos deterministas.
+- Completado: validacion runtime y `schemaVersion` del snapshot.
+- Completado: recuperacion de snapshot corrupto y exportacion/importacion administrativa.
+- Completado: se elimino el recorte silencioso de auditoria e historiales.
+- `pnpm check` ejecuta typecheck y pruebas; falta incorporar lint.
 - Ampliar fixtures de prueba sin depender de `AppData` completo.
 
 Resultado: datos locales mas previsibles y fallos detectados antes.

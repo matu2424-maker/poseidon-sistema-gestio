@@ -415,6 +415,7 @@ function menuGroupsForRole(role: Role): MenuGroup[] {
       {
         title: "Sistema",
         items: [
+          { label: "Datos locales", screen: "admin-local-data" },
           { label: "Papelera", screen: "admin-trash" },
         ],
       },
@@ -496,6 +497,7 @@ function titleForScreen(screen: Screen, role: Role) {
     "admin-clients": "Clientes",
     "admin-trash": "Papelera",
     "admin-expense-categories": "Categorias de gastos",
+    "admin-local-data": "Datos locales",
     "admin-machines": "Maquinas",
     workshop: "Taller",
     "admin-machine-edit": "Editar maquina",

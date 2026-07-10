@@ -8,7 +8,6 @@ import { InfoCard } from "../../components/ui";
 
 export function Panel({
   data,
-  user,
   local,
   openBalance,
   effectiveRole,

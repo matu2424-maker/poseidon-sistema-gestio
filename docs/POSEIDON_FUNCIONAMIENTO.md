@@ -18,8 +18,11 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Contextos cortos por modulo para Codex: `docs/contextos/`.
 - Documentacion modular por panel/funcion: `docs/modulos/`.
 - Reglas compartidas extraidas en `src/lib/`: dinero, fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y salarios.
-- Datos demo, reset operativo, IDs visibles de caja y normalizacion/migracion viven en `src/data/appData.ts`.
-- Persistencia actual: `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- Datos demo, limpieza manual, IDs visibles de caja y normalizacion de datos viven en `src/data/appData.ts`.
+- Persistencia actual: snapshot JSON versionado en `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- El snapshot se valida antes de leer o importar. Si esta corrupto no se sobrescribe y se ofrece descargar el contenido original.
+- Administrador dispone de `Sistema > Datos locales` para exportar o importar un respaldo JSON validado.
+- No existe limpieza operativa automatica durante el arranque.
 - Supabase/Auth real queda pendiente para una etapa posterior.
 - En `localStorage` no se persisten archivos pesados/base64; comprobantes e imagenes guardan metadatos para evitar superar la cuota del navegador.
 - El almacenamiento real de archivos queda pendiente para Supabase Storage u otro storage externo.
@@ -76,7 +79,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - `Cierres y reportes`: Reportes y Cierre periodico.
   - `Gestion`: Locales, Maquinas, Taller y Categorias gastos.
   - `Personas`: Clientes, Personal, Liquidacion salarios y Usuarios.
-  - `Sistema`: Papelera.
+  - `Sistema`: Datos locales y Papelera.
 - No muestra accesos operativos de caja; para abrir/cerrar/cargar caja el administrador cambia a funcion `CAJERO`.
 - Encargado:
   - `Inicio`: Panel encargado.

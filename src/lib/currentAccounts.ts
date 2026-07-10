@@ -21,14 +21,15 @@ export const accountKindLabel = (kind: CurrentAccountKind) => {
 
 export function createStaffCurrentAccount(staff: StaffMember, existing?: CurrentAccount): CurrentAccount {
   const name = `${staff.firstName} ${staff.lastName}`.trim() || `Personal ${staff.visibleId}`;
+  const status = staff.status === "PAPELERA" ? "INACTIVA" : "ACTIVA";
   return {
     id: staffAccountId(staff.id),
     kind: "PERSONAL",
     entityId: staff.id,
     name,
-    status: staff.status === "PAPELERA" ? "INACTIVA" : "ACTIVA",
+    status,
     createdAt: existing?.createdAt ?? staff.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
+    updatedAt: existing && existing.name === name && existing.status === status ? existing.updatedAt : nowIso(),
   };
 }
 
@@ -39,31 +40,35 @@ export function createTransferCurrentAccount(existing?: CurrentAccount): Current
     name: "Transferencias",
     status: "ACTIVA",
     createdAt: existing?.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
+    updatedAt: existing?.updatedAt ?? nowIso(),
   };
 }
 
 export function createLocalCashCurrentAccount(local: Local, existing?: CurrentAccount): CurrentAccount {
+  const name = `${local.name} - Efectivo`;
+  const status = local.status === "CERRADO" ? "INACTIVA" : "ACTIVA";
   return {
     id: localCashAccountId(local.id),
     kind: "LOCAL_EFECTIVO",
     entityId: local.id,
-    name: `${local.name} - Efectivo`,
-    status: local.status === "CERRADO" ? "INACTIVA" : "ACTIVA",
+    name,
+    status,
     createdAt: existing?.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
+    updatedAt: existing && existing.name === name && existing.status === status ? existing.updatedAt : nowIso(),
   };
 }
 
 export function createLocalBankCurrentAccount(local: Local, existing?: CurrentAccount): CurrentAccount {
+  const name = `${local.name} - Banco`;
+  const status = local.status === "CERRADO" ? "INACTIVA" : "ACTIVA";
   return {
     id: localBankAccountId(local.id),
     kind: "LOCAL_BANCO",
     entityId: local.id,
-    name: `${local.name} - Banco`,
-    status: local.status === "CERRADO" ? "INACTIVA" : "ACTIVA",
+    name,
+    status,
     createdAt: existing?.createdAt ?? nowIso(),
-    updatedAt: nowIso(),
+    updatedAt: existing && existing.name === name && existing.status === status ? existing.updatedAt : nowIso(),
   };
 }
 
@@ -93,4 +98,3 @@ export function localAccountBalances(data: AppData, localId: string) {
     bank: accountTotals(data, localBankAccountId(localId)).balance,
   };
 }
-

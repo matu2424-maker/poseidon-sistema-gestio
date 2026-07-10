@@ -20,4 +20,4 @@ Reglas locales:
 - Resultado economico no se mezcla con diferencias de control salvo decision explicita documentada.
 - Las diferencias de efectivo/banco quedan auditadas y gestionables por encargado/admin.
 - Toda tabla operativa debe ordenar por cada columna visible de datos. Las columnas de acciones son la excepcion.
-- Si se cambia cierre, apertura o movimientos, revisar `src/lib/totals.ts`, `src/lib/accountMovements.ts` y docs contables.
+- Si se cambia cierre, apertura o movimientos, revisar `src/lib/cashTotals.ts`, `src/lib/accountMovements.ts` y docs contables.

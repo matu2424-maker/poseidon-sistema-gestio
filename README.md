@@ -10,12 +10,14 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Vite
 - TypeScript
 - CSS global simple
-- Persistencia local con `localStorage`
+- Persistencia local versionada con `localStorage`
 - Usuarios simulados en frontend
 
 ## Estado actual
 
-- Persistencia: `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- Persistencia: snapshot JSON versionado en `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- El administrador puede exportar e importar respaldos desde `Sistema > Datos locales`.
+- Si el snapshot esta corrupto, la aplicacion no lo reemplaza: ofrece descargarlo antes de iniciar datos nuevos.
 - Login local: se selecciona un usuario activo desde una lista, sin contrasena.
 - Local principal: `Poseidon`.
 - La demo inicial trae datos para probar: 3 maquinas activas, 3 cajas cerradas de julio 2026, una diferencia pendiente, gastos, salarios, regalos, transferencias, aportes, retiros, cuentas corrientes y auditoria.
@@ -65,7 +67,7 @@ pnpm install
 Antes de cerrar cambios:
 
 ```bash
-pnpm test
+pnpm run check
 pnpm run build
 ```
 
@@ -135,6 +137,7 @@ La auditoria registra usuario real y funcion usada.
 - Papelera para personal y clientes.
 - Reportes y exportacion Excel-compatible.
 - Auditoria general.
+- Respaldo/importacion validada de datos locales.
 - Cierre periodico semanal, quincenal, mensual o por rango de fechas.
 
 ## Reglas contables importantes

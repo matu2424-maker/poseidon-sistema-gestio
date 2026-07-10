@@ -8,7 +8,7 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 
 - React 19, TypeScript estricto y Vite.
 - CSS global.
-- Persistencia local con `localStorage`.
+- Persistencia local con snapshot versionado en `localStorage`.
 - Vitest para pruebas puras.
 - Entrada: `src/main.tsx` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
@@ -23,7 +23,7 @@ main.tsx
         -> helpers puros de src/lib
         -> patchData(AppData)
         -> auditoria
-     -> storage.ts persiste snapshot local
+     -> infrastructure/storage persiste y valida snapshot local
 ```
 
 ## Estructura y propiedad
@@ -33,6 +33,7 @@ src/
   App.tsx                  orquestacion global y composicion
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed, reset y normalizacion local
+  infrastructure/storage/ snapshot, validacion y repositorio local
   lib/                     reglas y helpers compartidos
   components/              UI reutilizable transversal
   features/
@@ -58,7 +59,9 @@ src/
 | `display.ts` | Nombres, roles e IDs visibles |
 | `ids.ts` | IDs locales actuales |
 | `audit.ts` | Construccion de eventos de auditoria |
-| `storage.ts` | Snapshot local y preferencias de columnas |
+| `lib/storage.ts` | Preferencias locales de columnas |
+| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime del snapshot |
+| `infrastructure/storage/localAppDataRepository.ts` | Lectura, escritura, importacion y exportacion local |
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
 | `accountMovements.ts` | Movimientos derivados, sincronizacion y saldo corrido |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
@@ -130,11 +133,9 @@ Las cifras son orientativas; volver a medir antes de planificar un corte.
 
 ### Alta
 
-- Snapshot completo en `localStorage`, sin esquema runtime versionado.
-- Compaccion local puede recortar auditoria e historiales al superar cuota.
 - Reglas/mutaciones todavia viven en handlers React.
 - Cobertura automatizada insuficiente para ciclos completos.
-- Fechas operativas deben independizarse de `toISOString()` UTC.
+- El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
 
 ### Media
 
@@ -160,6 +161,7 @@ Las cifras son orientativas; volver a medir antes de planificar un corte.
 
 ```text
 pnpm test
+pnpm run typecheck
 pnpm run build
 iniciar-poseidon.bat
 http://127.0.0.1:5173/ -> 200

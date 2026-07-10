@@ -22,7 +22,6 @@ const asNumber = (value: FormDataEntryValue | null) => Number(value || 0);
 const confirmAction = (message: string) => window.confirm(message);
 const localOptionName = (local: { id: string; name: string }) => `${local.id} - ${local.name}`;
 const staffStatusClass = (status: StaffStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
-const clientStatusClass = (status: ClientStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
 export function AdminStaff({
   data,
   user,

@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import type { AppData, AuditEvent, Balance, Local, LocalImage, Machine, MachineLocalHistory, MachineStatus, User } from "../../types";
+import type { AppData, AuditEvent, Local, LocalImage, Machine, MachineLocalHistory, MachineStatus, User } from "../../types";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { sanitizeDigits } from "../../lib/clients";
 import {
@@ -10,7 +10,7 @@ import {
   localCashAccountId,
 } from "../../lib/currentAccounts";
 import { formatDateTime } from "../../lib/dates";
-import { balanceVisibleId, localName } from "../../lib/display";
+import { localName } from "../../lib/display";
 import { nextShortId, shortNumberId, uid } from "../../lib/ids";
 import { machineHistoryEvent } from "../../lib/machineHistory";
 import { counter, formatCounterInput, money, parseCounter } from "../../lib/money";
@@ -80,22 +80,9 @@ type LocalColumnKey =
   | "balances"
   | "actions";
 type MachineColumnKey = "visibleId" | "name" | "local" | "location" | "status" | "lastIn" | "lastOut" | "notes" | "actions";
-type BalanceColumnKey =
-  | "operatingDate"
-  | "local"
-  | "status"
-  | "initialFund"
-  | "declaredCash"
-  | "nextBase"
-  | "withdrawal"
-  | "cashDifference"
-  | "openedBy"
-  | "closedBy"
-  | "actions";
 
 const LOCAL_COLUMNS_STORAGE_KEY = "poseidon-locales-columnas-v2";
 const MACHINE_COLUMNS_STORAGE_KEY = "poseidon-maquinas-columnas-v2";
-const BALANCE_COLUMNS_STORAGE_KEY = "poseidon-caja-diaria-columnas-v1";
 
 const localColumns: TableColumn<LocalColumnKey>[] = [
   { key: "id", label: "ID", sortable: true },
@@ -125,8 +112,6 @@ const machineColumns: TableColumn<MachineColumnKey>[] = [
 ];
 const fixedLocalColumns: LocalColumnKey[] = ["id", "name", "status", "machines", "balances", "actions"];
 const fixedMachineColumns: MachineColumnKey[] = ["visibleId", "name", "local", "status", "lastIn", "lastOut", "actions"];
-const fixedBalanceColumns: BalanceColumnKey[] = ["operatingDate", "status", "initialFund", "declaredCash", "cashDifference", "actions"];
-
 export function AdminMachines({
   data,
   user,

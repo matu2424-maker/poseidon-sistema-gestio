@@ -53,9 +53,6 @@ import {
   isSalaryPaymentConcept,
   isValidSalaryPeriod,
   normalizeSalaryConcept,
-  salaryBaseForPeriod,
-  salarySettlementAmount,
-  salarySettlementTotalDelta,
 } from "../lib/salaryRules";
 
 export const LEGACY_POSEIDON_LOCAL_ID = "local-poseidon";

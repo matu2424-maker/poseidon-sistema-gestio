@@ -7,14 +7,9 @@ import type {
   CapitalMovementPerson,
   CapitalMovementTiming,
   CapitalMovementType,
-  Client,
-  Expense,
-  Local,
-  Machine,
   MovementStatus,
   Reading,
   Role,
-  SalarySettlement,
   Screen,
   User,
 } from "./types";
@@ -30,14 +25,14 @@ import { nowIso } from "./lib/dates";
 import { roleLabels } from "./lib/display";
 import { uid } from "./lib/ids";
 import {
-  isOperationalResetMarked,
-  markOperationalReset,
-  readStoredAppData,
-  writeStoredAppData,
-} from "./lib/storage";
+  clearLocalAppData,
+  importLocalAppData,
+  loadLocalAppData,
+  saveLocalAppData,
+  serializeAppData,
+} from "./infrastructure/storage/localAppDataRepository";
 import {
   POSEIDON_LOCAL_ID,
-  clearOperationalData,
   createSeedData,
   nextBalanceVisibleId,
   normalizeData,
@@ -59,58 +54,55 @@ import { Audit } from "./features/audit/Audit";
 import { CashierWorkspace, EmptyState, Login, Shell, Welcome } from "./features/layout/AppShell";
 import { Periodic } from "./features/reports/Periodic";
 import { Reports } from "./features/reports/Reports";
+import { StorageRecovery } from "./features/system/StorageRecovery";
+import { LocalDataMaintenance } from "./features/system/LocalDataMaintenance";
+import { downloadFile } from "./lib/export";
+import { localDate } from "./lib/dates";
 
-function readData(): AppData {
+type InitialLoad = {
+  data: AppData;
+  storageIssue?: { raw: string; error: string };
+  message?: string;
+};
+
+function readData(): InitialLoad {
+  const stored = loadLocalAppData();
+  if (stored.status === "empty") return { data: createSeedData() };
+  if (stored.status === "corrupt") {
+    return { data: createSeedData(), storageIssue: { raw: stored.raw, error: stored.error } };
+  }
   try {
-    const storedData = readStoredAppData();
-    const data = storedData ? normalizeData(storedData) : createSeedData();
-    if (window.location.search.includes("resetSaldos=1")) {
-      const cleaned = normalizeData(clearOperationalData(data));
-      writeStoredAppData(cleaned);
-      window.history.replaceState({}, "", window.location.pathname);
-      return cleaned;
-    }
-    return data;
-  } catch {
-    return createSeedData();
+    return {
+      data: normalizeData(stored.data),
+      message: stored.needsRewrite ? "Los datos locales se actualizaron al formato versionado." : undefined,
+    };
+  } catch (error) {
+    return {
+      data: createSeedData(),
+      storageIssue: {
+        raw: stored.raw,
+        error: error instanceof Error ? error.message : "No se pudo normalizar el almacenamiento local.",
+      },
+    };
   }
 }
 
 function App() {
-  const [data, setData] = useState<AppData>(() => readData());
+  const [initialLoad] = useState<InitialLoad>(() => readData());
+  const [data, setData] = useState<AppData>(initialLoad.data);
+  const [storageIssue, setStorageIssue] = useState(initialLoad.storageIssue);
   const [screen, setScreen] = useState<Screen>("welcome");
   const [user, setUser] = useState<User | null>(null);
   const [actingRole, setActingRole] = useState<Role | null>(null);
-  const [message, setMessage] = useState("");
-  const [operationalResetApplied, setOperationalResetApplied] = useState(
-    () => isOperationalResetMarked(),
-  );
+  const [message, setMessage] = useState(initialLoad.message ?? "");
 
   useEffect(() => {
-    if (operationalResetApplied) return;
-    setData((current) => {
-      const cleaned = normalizeData(clearOperationalData(current));
-      writeStoredAppData(cleaned);
-      markOperationalReset();
-      return cleaned;
-    });
-    setUser(null);
-    setActingRole(null);
-    setScreen("welcome");
-    setMessage("Saldos operativos limpiados. Listo para iniciar desde cero.");
-    setOperationalResetApplied(true);
-  }, [operationalResetApplied]);
-
-  useEffect(() => {
-    if (!operationalResetApplied) return;
-    const saveResult = writeStoredAppData(data);
-    if (saveResult === "compacted") {
-      setMessage("Guardado local compactado: se quitaron archivos pesados del almacenamiento del navegador.");
+    if (storageIssue) return;
+    const saveResult = saveLocalAppData(data);
+    if (saveResult.status === "failed") {
+      setMessage("No se pudo guardar localmente. Exporta un respaldo antes de continuar cargando datos.");
     }
-    if (saveResult === "failed") {
-      setMessage("No se pudo guardar localmente. El dato puede ser demasiado grande.");
-    }
-  }, [data, operationalResetApplied]);
+  }, [data, storageIssue]);
 
   const activeLocal = data.locals.find((local) => local.id === POSEIDON_LOCAL_ID) ?? data.locals[0];
   const openBalance = data.balances.find((balance) => balance.localId === activeLocal.id && balance.status === "EN_PROCESO");
@@ -135,13 +127,83 @@ function App() {
     reason = "",
   ): AppData => appendAuditEvent(current, { user, actorRole: effectiveRole }, action, entity, entityId, previousValue, newValue, reason);
 
+  const dataSummary = (value: AppData) => ({
+    users: value.users.length,
+    locals: value.locals.length,
+    machines: value.machines.length,
+    balances: value.balances.length,
+    accountMovements: value.accountMovements.length,
+    audit: value.audit.length,
+  });
+
   const resetDemo = () => {
-    const fresh = createSeedData();
+    if (!window.confirm("Reiniciar todos los datos demo? Se reemplazaran las operaciones locales actuales.")) return;
+    const fresh = appendAuditEvent(
+      createSeedData(),
+      { user, actorRole: effectiveRole },
+      "Reiniciar datos demo",
+      "Sistema",
+      "demo",
+      dataSummary(data),
+      "Dataset demo inicial",
+      "Reinicio manual confirmado",
+    );
     setData(fresh);
-    writeStoredAppData(fresh);
-    setMessage("Datos reiniciados.");
+    saveLocalAppData(fresh);
+    setMessage("Datos demo reiniciados.");
     setScreen("panel");
   };
+
+  const exportLocalBackup = () => {
+    const audited = audit(data, "Exportar respaldo local", "Sistema", "storage", "", dataSummary(data));
+    setData(audited);
+    downloadFile(`poseidon-respaldo-${localDate()}.json`, serializeAppData(audited), "application/json;charset=utf-8");
+    setMessage("Respaldo local exportado.");
+  };
+
+  const importLocalBackup = (raw: string) => {
+    const imported = importLocalAppData(raw);
+    if (imported.status !== "ready") return imported.status === "corrupt" ? imported.error : "El respaldo esta vacio.";
+    try {
+      const normalized = normalizeData(imported.data);
+      const audited = audit(
+        normalized,
+        "Importar respaldo local",
+        "Sistema",
+        "storage",
+        dataSummary(data),
+        dataSummary(normalized),
+        "Importacion manual validada",
+      );
+      const saveResult = saveLocalAppData(audited);
+      if (saveResult.status === "failed") return `El respaldo es valido pero no pudo guardarse: ${saveResult.error}`;
+      setData(audited);
+      setUser(null);
+      setActingRole(null);
+      setMessage("Respaldo local importado y validado.");
+      setScreen("login");
+      return "";
+    } catch (error) {
+      return error instanceof Error ? error.message : "El respaldo no pudo normalizarse.";
+    }
+  };
+
+  if (storageIssue) {
+    return (
+      <StorageRecovery
+        error={storageIssue.error}
+        raw={storageIssue.raw}
+        onStartNew={() => {
+          if (!window.confirm("Iniciar datos nuevos? El respaldo actual debe descargarse antes si queres conservarlo.")) return;
+          clearLocalAppData();
+          const fresh = createSeedData();
+          setData(fresh);
+          setStorageIssue(undefined);
+          setMessage("Se inicio un almacenamiento local nuevo.");
+        }}
+      />
+    );
+  }
 
   const login = (userId: string) => {
     const nextUser = data.users.find((item) => item.id === userId && item.status === "ACTIVO");
@@ -485,6 +547,7 @@ function App() {
       {screen === "admin-clients" && <AdminClients data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-trash" && <AdminTrash data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-expense-categories" && <AdminExpenseCategories data={data} patchData={patchData} audit={audit} />}
+      {screen === "admin-local-data" && <LocalDataMaintenance onExport={exportLocalBackup} onImport={importLocalBackup} />}
       {screen === "admin-machines" && (
         <AdminMachines
           data={data}

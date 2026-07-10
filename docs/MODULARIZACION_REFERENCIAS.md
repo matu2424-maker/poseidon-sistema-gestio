@@ -24,6 +24,7 @@ Mover codigo no autoriza cambiar comportamiento.
 src/App.tsx              orquestacion
 src/types.ts             tipos compartidos
 src/data/                seed y normalizacion
+src/infrastructure/      adaptadores de persistencia local
 src/lib/                 reglas/helpers puros o compartidos
 src/components/          UI transversal
 src/features/*           pantallas por dominio
@@ -37,7 +38,7 @@ src/styles/              estilos
 - UI usada por varias features: `src/components`.
 - UI propia de un modulo: carpeta de su feature.
 - Seed/migracion: `src/data`, separando datos demo de normalizadores.
-- Persistencia: `src/infrastructure` cuando se creen adaptadores.
+- Persistencia: `src/infrastructure`; el adaptador actual es local y versionado.
 
 Evitar archivos `index.ts` generales que oculten ciclos. Preferir imports explicitos.
 
@@ -83,8 +84,8 @@ Duplicaciones pendientes:
 - Reutilizar UI/presentacion existente.
 - Centralizar confirmacion sin cambiar flujo.
 - Eliminar `WelcomeScreen.tsx` y estados de pantalla heredados solo despues de confirmar ausencia de usos.
-- Corregir fecha local con pruebas.
-- Agregar comando `pnpm check` y lint gradual.
+- Fecha local y timestamps historicos ya tienen pruebas.
+- `pnpm check` ya ejecuta typecheck y pruebas; queda agregar lint gradual.
 
 Riesgo: bajo/medio.
 
@@ -124,10 +125,10 @@ Riesgo: alto.
 data/seed/
 data/normalizers/
 data/migrations/
-infrastructure/storage/localStorageRepository.ts
+infrastructure/storage/localAppDataRepository.ts
 ```
 
-Agregar `schemaVersion` antes de crear adaptador online.
+El snapshot versionado y el repositorio local ya existen. Falta dividir seed/normalizadores y agregar migraciones incrementales cuando cambie el esquema.
 
 Riesgo: muy alto; puede afectar datos existentes.
 

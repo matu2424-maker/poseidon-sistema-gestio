@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AccountMovement, Balance } from "../types";
-import { accountLedgerRows, accountTotalsFromMovements, syncDifferenceAccountMovements } from "./accountMovements";
+import { accountLedgerRows, accountTotalsFromMovements, machineResultAccountMovement, syncDifferenceAccountMovements } from "./accountMovements";
 
 const movement = (patch: Partial<AccountMovement>): AccountMovement => ({
   id: "movement-1",
@@ -71,5 +71,14 @@ describe("movimientos de cuentas", () => {
     const previous = syncDifferenceAccountMovements([], balance({ cashDifference: 500, bankDifference: -200 }), "user-1");
     const synced = syncDifferenceAccountMovements(previous, balance({ cashDifference: 0, bankDifference: 0, differenceStatus: "CORREGIDA" }), "user-2");
     expect(synced).toEqual([]);
+  });
+
+  it("mantiene una fecha historica estable para el resultado de maquinas", () => {
+    const closedBalance = balance({
+      openedAt: "2026-06-30T20:00:00.000Z",
+      closedAt: "2026-07-01T02:00:00.000Z",
+    });
+    expect(machineResultAccountMovement(closedBalance, 1200, "user-1")?.createdAt).toBe("2026-07-01T02:00:00.000Z");
+    expect(machineResultAccountMovement(balance(), 1200, "user-1")?.createdAt).toBe("2026-07-01T10:00:00.000Z");
   });
 });

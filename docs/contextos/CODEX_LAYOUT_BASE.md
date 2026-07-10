@@ -1,6 +1,6 @@
 # Contexto Codex - Layout base y navegacion
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-10
 
 Leer este contexto antes de modificar pantalla inicial, login local, barra superior, menu lateral, layout de cajero o navegacion base.
 
@@ -17,7 +17,8 @@ Referencias asociadas:
 ## Codigo actual
 
 - Pantalla inicial, login, layout lateral de encargado/admin, layout del cajero y estado vacio operativo viven en `src/features/layout/AppShell.tsx`.
-- `src/App.tsx` conserva estado global, datos, persistencia, acciones y composicion de pantallas.
+- `src/App.tsx` conserva estado global, sesion, acciones y composicion de pantallas.
+- Recuperacion y mantenimiento local viven en `src/features/system/`; el repositorio versionado vive en `src/infrastructure/storage/`.
 - `Panel` vive en `src/features/dashboard/RoleDashboard.tsx` porque cruza datos de caja, diferencias, cuentas y accesos por rol.
 
 ## Reglas criticas

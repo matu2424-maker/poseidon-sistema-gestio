@@ -146,7 +146,7 @@ export function machineResultAccountMovement(balance: Balance, result: number, u
     detail: `Caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
     status: "ACTIVO",
     userId,
-    createdAt: nowIso(),
+    createdAt: balance.closedAt ?? balance.openedAt ?? `${balance.operatingDate}T12:00:00.000Z`,
   };
 }
 

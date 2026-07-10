@@ -11,7 +11,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Login local por usuario de prueba.
 - Datos demo: Poseidon, tres maquinas y operaciones para probar roles.
 - El servidor oficial se inicia con `iniciar-poseidon.bat`.
-- Repositorio estable previo al bloque documental: `85b30f2 centraliza periodos y agrega pruebas contables`.
+- El snapshot local esta versionado y validado; no se recorta historial para forzar guardados.
+- Datos locales permite exportar/importar respaldo y recuperar almacenamiento corrupto sin sobrescribirlo.
 
 ## Ultimo bloque funcional completado
 
@@ -20,7 +21,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Referencias de recaudacion por `balanceId` compartidas entre Cuentas y Salarios.
 - Estados heredados de diferencias normalizados sin perder auditoria.
 - `accountLedgerRows()` centraliza saldo corrido.
-- 16 pruebas automatizadas en cinco archivos.
+- 24 pruebas automatizadas en ocho archivos.
 
 ## Bloque documental actual
 
@@ -32,18 +33,18 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Proximas prioridades de codigo
 
-1. Limpieza tecnica pequeña: duplicaciones UI, fechas locales y comando `pnpm check`.
-2. Dividir `src/features/admin/LocationsMachines.tsx` sin cambiar comportamiento.
-3. Dividir movimientos de cajero y liquidacion salarial.
-4. Extraer comandos de dominio con pruebas, comenzando por caja.
-5. Versionar y validar la persistencia local antes de preparar adaptadores online.
+1. Definir libro contable persistido e inmutable y proteger referencias historicas.
+2. Extraer comandos de dominio con pruebas, comenzando por caja y diferencias.
+3. Dividir `src/features/admin/LocationsMachines.tsx` sin cambiar comportamiento.
+4. Dividir movimientos de cajero, liquidacion salarial y datos demo/normalizacion.
+5. Centralizar navegacion, permisos, confirmaciones y avisos; luego separar CSS.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
 ## Riesgos vigentes
 
 - `localStorage` no es persistencia multiusuario ni durable.
-- El modo compacto puede recortar historial si se supera la cuota local.
+- La cuota de `localStorage` puede impedir nuevos guardados; el sistema conserva el snapshot anterior y pide exportar respaldo.
 - Varias operaciones de negocio siguen dentro de componentes React.
 - Los archivos mas grandes son Locales/Maquinas, datos demo/normalizacion, movimientos de cajero y salarios.
 - La cobertura automatizada todavia no incluye ciclos completos de caja.

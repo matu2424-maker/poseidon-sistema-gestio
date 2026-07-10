@@ -64,6 +64,7 @@ export type Screen =
   | "admin-current-accounts"
   | "admin-trash"
   | "admin-expense-categories"
+  | "admin-local-data"
   | "admin-machines"
   | "workshop"
   | "admin-machine-edit"
