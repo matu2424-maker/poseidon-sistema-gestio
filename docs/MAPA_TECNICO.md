@@ -212,6 +212,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `AdminExpenseCategories`: categorias/subcategorias de gastos. Vive en `src/features/admin/Settings.tsx`.
 - `AdminMachines`: maquinas y taller. Vive en `src/features/admin/LocationsMachines.tsx`. El listado principal y el apartado de maquinas en desuso mantienen columnas de datos ordenables.
 - `AdminMachineEditor`: alta/edicion/reset/envio a taller/eliminacion de maquina. Vive en `src/features/admin/LocationsMachines.tsx`. Su historial interno de maquina es ordenable por columnas visibles.
+- `MachineHistoryModal`: historial ampliado de maquina. Vive en `src/features/admin/LocationsMachines.tsx`; sus tablas de locales, contadores y auditoria son ordenables por columnas visibles.
 - `AdminLocals`: locales. Vive en `src/features/admin/LocationsMachines.tsx`.
 - `AdminLocalEditor`: alta/edicion/cierre/quitar local y asociar maquinas. Vive en `src/features/admin/LocationsMachines.tsx`.
 - `Differences`: gestion de diferencias de caja. Vive en `src/features/manager/Differences.tsx`.

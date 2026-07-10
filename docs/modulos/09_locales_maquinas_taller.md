@@ -32,6 +32,7 @@
 - DESUSO aparece solo en apartado de desuso del Taller.
 - No aparece en listado general de Maquinas.
 - El historial dentro del editor de maquina permite ordenar por fecha, local, movimiento y detalle.
+- El modal de historial de maquina permite ordenar sus pestañas de Locales, Contadores y Auditoria por todas las columnas visibles de datos.
 
 ## Taller
 

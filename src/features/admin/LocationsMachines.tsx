@@ -1147,6 +1147,12 @@ function WorkshopMachinePicker({
 
 function MachineHistoryModal({ data, machine, onClose }: { data: AppData; machine: Machine; onClose: () => void }) {
   const [tab, setTab] = useState<MachineHistoryTab>("resumen");
+  const [historySort, setHistorySort] = useState<SortState<"createdAt" | "local" | "action" | "detail">>({ key: "createdAt", direction: "desc" });
+  const [readingSort, setReadingSort] = useState<SortState<"operatingDate" | "status" | "inPrevious" | "inActual" | "outPrevious" | "outActual" | "result" | "observation">>({
+    key: "operatingDate",
+    direction: "desc",
+  });
+  const [auditSort, setAuditSort] = useState<SortState<"createdAt" | "action" | "user" | "reason">>({ key: "createdAt", direction: "desc" });
   const history = data.machineLocalHistory
     .filter((event) => event.machineId === machine.id)
     .slice()
@@ -1163,6 +1169,40 @@ function MachineHistoryModal({ data, machine, onClose }: { data: AppData; machin
     .filter((event) => event.entity === "Maquina" && event.entityId === machine.id)
     .slice()
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const historyValue = (event: MachineLocalHistory): string | number => {
+    if (historySort.key === "createdAt") return event.createdAt;
+    if (historySort.key === "local") return localName(data, event.localId);
+    if (historySort.key === "action") return event.action;
+    return event.detail;
+  };
+  const sortedHistory = [...history].sort((a, b) => {
+    const result = compareValues(historyValue(a), historyValue(b));
+    return historySort.direction === "asc" ? result : -result;
+  });
+  const readingValue = (row: (typeof readings)[number]): string | number => {
+    if (readingSort.key === "operatingDate") return row.balance?.operatingDate ?? "";
+    if (readingSort.key === "status") return row.reading.status;
+    if (readingSort.key === "inPrevious") return row.reading.inPrevious;
+    if (readingSort.key === "inActual") return row.reading.inActual ?? 0;
+    if (readingSort.key === "outPrevious") return row.reading.outPrevious;
+    if (readingSort.key === "outActual") return row.reading.outActual ?? 0;
+    if (readingSort.key === "result") return row.reading.result;
+    return row.reading.observation || "";
+  };
+  const sortedReadings = [...readings].sort((a, b) => {
+    const result = compareValues(readingValue(a), readingValue(b));
+    return readingSort.direction === "asc" ? result : -result;
+  });
+  const auditValue = (event: AuditEvent): string | number => {
+    if (auditSort.key === "createdAt") return event.createdAt;
+    if (auditSort.key === "action") return event.action;
+    if (auditSort.key === "user") return auditUserName(data, event);
+    return event.reason || "";
+  };
+  const sortedMachineAudits = [...machineAudits].sort((a, b) => {
+    const result = compareValues(auditValue(a), auditValue(b));
+    return auditSort.direction === "asc" ? result : -result;
+  });
   const loadedReadings = readings.filter(({ reading }) => reading.status === "CARGADA");
   const totalResult = loadedReadings.reduce((total, { reading }) => total + reading.result, 0);
   const lastReading = readings[0];
@@ -1231,14 +1271,23 @@ function MachineHistoryModal({ data, machine, onClose }: { data: AppData; machin
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Local</th>
-                <th>Movimiento</th>
-                <th>Detalle</th>
+                {[
+                  ["createdAt", "Fecha"],
+                  ["local", "Local"],
+                  ["action", "Movimiento"],
+                  ["detail", "Detalle"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setHistorySort((current) => nextSort(current, key as typeof historySort.key))}>
+                      {label}
+                      {sortIndicator(historySort, key as typeof historySort.key)}
+                    </button>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {history.map((event) => (
+              {sortedHistory.map((event) => (
                 <tr key={event.id}>
                   <td>{formatDateTime(event.createdAt)}</td>
                   <td>{localName(data, event.localId)}</td>
@@ -1262,18 +1311,27 @@ function MachineHistoryModal({ data, machine, onClose }: { data: AppData; machin
             <table className="data-table compact-data-table">
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                  <th>IN ant.</th>
-                  <th>IN act.</th>
-                  <th>OUT ant.</th>
-                  <th>OUT act.</th>
-                  <th>Resultado</th>
-                  <th>Obs.</th>
+                  {[
+                    ["operatingDate", "Fecha"],
+                    ["status", "Estado"],
+                    ["inPrevious", "IN ant."],
+                    ["inActual", "IN act."],
+                    ["outPrevious", "OUT ant."],
+                    ["outActual", "OUT act."],
+                    ["result", "Resultado"],
+                    ["observation", "Obs."],
+                  ].map(([key, label]) => (
+                    <th key={key}>
+                      <button className="sort-button" type="button" onClick={() => setReadingSort((current) => nextSort(current, key as typeof readingSort.key))}>
+                        {label}
+                        {sortIndicator(readingSort, key as typeof readingSort.key)}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {readings.map(({ reading, balance }) => (
+                {sortedReadings.map(({ reading, balance }) => (
                   <tr key={reading.id}>
                     <td>{balance?.operatingDate}</td>
                     <td>{reading.status}</td>
@@ -1300,14 +1358,23 @@ function MachineHistoryModal({ data, machine, onClose }: { data: AppData; machin
           <table className="data-table compact-data-table">
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Accion</th>
-                <th>Usuario</th>
-                <th>Motivo</th>
+                {[
+                  ["createdAt", "Fecha"],
+                  ["action", "Accion"],
+                  ["user", "Usuario"],
+                  ["reason", "Motivo"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setAuditSort((current) => nextSort(current, key as typeof auditSort.key))}>
+                      {label}
+                      {sortIndicator(auditSort, key as typeof auditSort.key)}
+                    </button>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {machineAudits.map((event) => (
+              {sortedMachineAudits.map((event) => (
                 <tr key={event.id}>
                   <td>{formatDateTime(event.createdAt)}</td>
                   <td>{event.action}</td>
