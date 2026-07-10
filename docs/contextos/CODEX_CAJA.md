@@ -43,6 +43,7 @@ Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre
 - Cierre crea diferencias si lo declarado no coincide con esperado.
 - Despues de cerrar, ir a Resumen de cajas.
 - Resumen de cajas muestra ultimas 10 cajas cerradas en tabla ordenable por todas sus columnas de datos; `Ver` es accion y no se ordena.
+- Las tablas operativas compartidas de gastos, transferencias, regalos, salarios y retiros/aportes usan `MovementTable` y ordenan por todas sus columnas visibles de datos; la ultima columna de accion no se ordena.
 - Importes monetarios usan formato con punto de miles.
 - IN/OUT actual no puede ser menor al anterior.
 

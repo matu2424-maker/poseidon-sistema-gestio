@@ -3,6 +3,7 @@
 ## Gastos
 
 - Se cargan directo desde tabla.
+- La tabla operativa del cajero es ordenable por categoria, descripcion y monto; `Accion` no se ordena.
 - Obligatorio: categoria, subcategoria y monto.
 - Opcional: descripcion y comprobante.
 - Comprobante guarda solo metadatos.
@@ -14,6 +15,7 @@
 ## Transferencias
 
 - Se cargan con comprobante, nombre/cliente, monto y cuenta.
+- La tabla operativa es ordenable por cliente, nombre, comprobante, cuenta, monto y estado; `Accion` no se ordena.
 - Pueden asociarse a cliente.
 - Impactan en cuenta Local / Banco y cuenta Transferencias.
 - Se pueden anular con auditoria.
@@ -21,6 +23,7 @@
 ## Regalos
 
 - Siempre se manejan como efectivo en esta etapa.
+- La tabla operativa es ordenable por clientes, detalle, referencia y monto; `Accion` no se ordena.
 - Obligatorio: cliente, referencia y monto.
 - Detalle opcional.
 - Cliente se selecciona desde lista con buscador y seleccion multiple.
@@ -30,6 +33,7 @@
 ## Salarios desde cajero
 
 - Campos: personal, concepto, periodo trabajado y monto.
+- La tabla operativa es ordenable por personal, concepto, periodo trabajado, monto y estado; `Accion` no se ordena.
 - Personal inicia vacio y es obligatorio.
 - Conceptos visibles para nuevos registros desde cajero: `SALARIO` y `ADELANTO`.
 - Encargado/admin siguen usando la lista completa desde `Liquidacion de salarios`: `SALARIO`, `ADELANTO`, `EXTRA`, `HORAS_EXTRAS`, `AGUINALDO`, `SALARIO_VACACIONAL` y `DESCUENTO`.
@@ -47,6 +51,7 @@
 ## Retiros y aportes
 
 - Tipo inicia vacio y es obligatorio.
+- La tabla operativa es ordenable por tipo, medio, persona, monto, fecha y nota; `Accion` no se ordena.
 - Momento no se muestra en pantalla operativa; se guarda como OPERATIVO.
 - Medio: EFECTIVO o TRANSFERENCIA.
 - Persona: RICARDO o MATHIAS.

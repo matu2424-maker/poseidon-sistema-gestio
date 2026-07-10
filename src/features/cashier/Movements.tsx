@@ -32,6 +32,7 @@ import { readUploadFile } from "../../lib/files";
 import { uid } from "../../lib/ids";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { staffFullName } from "../../lib/people";
+import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import {
   cashierSalaryConceptOptions,
   isSalaryPaymentConcept,
@@ -138,6 +139,7 @@ export function Expenses({
         rows={items.map((item) => ({
           id: item.id,
           cells: [`${item.category} / ${item.subcategory || "-"}`, item.description || "-", money(item.amount)],
+          sortValues: [`${item.category} ${item.subcategory || ""}`, item.description || "", item.amount],
           status: item.status,
         }))}
         actionLabel="Eliminar"
@@ -254,6 +256,7 @@ export function Transfers(props: {
         rows={items.map((item) => ({
           id: item.id,
           cells: [clientNameWithDocument(props.data, item.clientId) || "-", item.name, item.receipt, item.account, money(item.amount), item.status],
+          sortValues: [clientNameWithDocument(props.data, item.clientId) || "", item.name, item.receipt, item.account, item.amount, item.status],
           status: item.status,
         }))}
         onAnnul={(id) => annulTransfer(id, props.patchData, props.audit)}
@@ -382,6 +385,12 @@ export function Gifts(props: {
         columns={["Clientes", "Detalle", "Referencia", "Monto", "Accion"]}
         rows={items.map((item) => ({
           id: item.id,
+          sortValues: [
+            (item.clientIds ?? (item.clientId ? [item.clientId] : [])).map((id) => clientNameWithDocument(props.data, id)).filter(Boolean).join(", "),
+            item.description,
+            item.reference || "",
+            item.cashAmount,
+          ],
           cells: [
             (item.clientIds ?? (item.clientId ? [item.clientId] : [])).map((id) => clientNameWithDocument(props.data, id)).filter(Boolean).join(", ") || "-",
             item.description,
@@ -689,6 +698,7 @@ export function CashierSalaryPayments({
         rows={items.map((item) => ({
           id: item.id,
           cells: [item.staffName, salaryConceptLabel(normalizeSalaryConcept(item.concept)), item.period, money(salarySettlementDisplayAmount(item)), item.status],
+          sortValues: [item.staffName, salaryConceptLabel(normalizeSalaryConcept(item.concept)), item.period, salarySettlementDisplayAmount(item), item.status],
           status: item.status === "ANULADA" ? "ANULADO" : "ACTIVO",
         }))}
         actionLabel="Eliminar"
@@ -850,6 +860,7 @@ export function CapitalMovements({
         rows={items.map((item) => ({
           id: item.id,
           cells: [item.type, item.medium === "EFECTIVO" ? "Efectivo" : "Transferencia", item.person, money(item.amount), formatDateTime(item.createdAt), item.note || "-"],
+          sortValues: [item.type, item.medium, item.person, item.amount, item.createdAt, item.note || ""],
           status: item.status,
         }))}
         onAnnul={annulMovement}
@@ -1042,24 +1053,41 @@ function MovementTable({
   actionLabel = "Anular",
 }: {
   columns: string[];
-  rows: { id: string; cells: string[]; status: MovementStatus }[];
+  rows: { id: string; cells: string[]; sortValues?: (string | number)[]; status: MovementStatus }[];
   onAnnul: (id: string) => void;
   createRow?: ReactNode;
   actionLabel?: string;
 }) {
+  const sortableColumns = columns.slice(0, Math.max(columns.length - 1, 0));
+  const [sort, setSort] = useState<SortState<string>>({ key: sortableColumns[0] ?? "", direction: "asc" });
+  const sortIndex = Math.max(sortableColumns.indexOf(sort.key), 0);
+  const sortedRows = [...rows].sort((left, right) => {
+    const result = compareValues(left.sortValues?.[sortIndex] ?? left.cells[sortIndex] ?? "", right.sortValues?.[sortIndex] ?? right.cells[sortIndex] ?? "");
+    return sort.direction === "asc" ? result : -result;
+  });
+
   return (
     <div className="table-wrap grow">
       <table className="data-table movement-data-table">
         <thead>
           <tr>
-            {columns.map((column) => (
-              <th key={column}>{column}</th>
+            {columns.map((column, index) => (
+              <th key={column}>
+                {index < columns.length - 1 ? (
+                  <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column))}>
+                    {column}
+                    {sortIndicator(sort, column)}
+                  </button>
+                ) : (
+                  column
+                )}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {createRow}
-          {rows.map((row) => (
+          {sortedRows.map((row) => (
             <tr key={row.id} className={row.status === "ANULADO" ? "status-inactive" : undefined}>
               {row.cells.map((cell, index) => (
                 <td key={`${row.id}-${index}`}>{cell}</td>
