@@ -23,6 +23,7 @@
 - Cargo no es texto libre: se selecciona entre `Cajera/o`, `Encargado/a`, `Mantenimiento` y `Limpieza`.
 - Horarios por dia de semana.
 - Baja no elimina historial.
+- La tabla principal de personal permite ordenar por ID, nombre, cargo, local, salario, estado, vacaciones, aguinaldo estimado y salario vacacional estimado; `Acciones` no se ordena.
 
 ## Liquidacion de salarios
 

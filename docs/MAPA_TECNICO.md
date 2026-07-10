@@ -206,7 +206,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
 - `Reports`: reportes/exportaciones. Vive en `src/features/reports/Reports.tsx`.
 - `AdminCurrentAccounts`: cuentas corrientes. Vive en `src/features/accounts/CurrentAccounts.tsx`.
-- `AdminStaff`: personal. Vive en `src/features/admin/Staff.tsx`.
+- `AdminStaff`: personal. Vive en `src/features/admin/Staff.tsx`. Su tabla principal ordena por todas sus columnas visibles de datos; `Acciones` no se ordena.
 - `AdminSalarySettlements`: liquidacion simple. Vive en `src/features/salaries/SalarySettlements.tsx`.
 - `AdminUsers`: usuarios. Vive en `src/features/admin/Settings.tsx`.
 - `AdminExpenseCategories`: categorias/subcategorias de gastos. Vive en `src/features/admin/Settings.tsx`.

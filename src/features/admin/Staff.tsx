@@ -36,7 +36,9 @@ export function AdminStaff({
 }) {
   const [query, setQuery] = useState("");
   const [editorId, setEditorId] = useState<string | null | undefined>(undefined);
-  const [sort, setSort] = useState<SortState<"visibleId" | "name" | "position" | "local" | "status" | "salary">>({ key: "visibleId", direction: "asc" });
+  const [sort, setSort] = useState<
+    SortState<"visibleId" | "name" | "position" | "local" | "status" | "salary" | "vacations" | "estimatedAguinaldo" | "estimatedVacationSalary">
+  >({ key: "visibleId", direction: "asc" });
   const activeStaff = data.staff.filter((staff) => staff.status !== "PAPELERA");
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = normalizedQuery
@@ -53,6 +55,9 @@ export function AdminStaff({
     if (key === "position") return staff.position;
     if (key === "local") return localName(data, staff.localId);
     if (key === "salary") return staff.nominalSalary;
+    if (key === "vacations") return staff.vacationDays - staff.usedVacationDays;
+    if (key === "estimatedAguinaldo") return staff.estimatedAguinaldo;
+    if (key === "estimatedVacationSalary") return staff.estimatedVacationSalary;
     return staff.status;
   };
   const rows = [...filtered].sort((a, b) => {
@@ -105,6 +110,9 @@ export function AdminStaff({
                 ["local", "Local"],
                 ["salary", "Salario"],
                 ["status", "Estado"],
+                ["vacations", "Vacaciones"],
+                ["estimatedAguinaldo", "Aguinaldo est."],
+                ["estimatedVacationSalary", "Sal. vacacional est."],
               ].map(([key, label]) => (
                 <th key={key}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
@@ -113,9 +121,6 @@ export function AdminStaff({
                   </button>
                 </th>
               ))}
-              <th>Vacaciones</th>
-              <th>Aguinaldo est.</th>
-              <th>Sal. vacacional est.</th>
               <th>Acciones</th>
             </tr>
           </thead>
