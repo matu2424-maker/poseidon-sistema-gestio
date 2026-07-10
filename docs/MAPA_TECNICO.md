@@ -202,7 +202,7 @@ Cada extraccion debe dejar imports/referencias claras hacia los modulos asociado
 - `CashierSalaryPayments`: carga simple de salarios. Vive en `src/features/cashier/Movements.tsx`.
 - `CapitalMovements`: retiros y aportes. Vive en `src/features/cashier/Movements.tsx`.
 - `CashierClients`: clientes desde cajero. Vive en `src/features/cashier/Movements.tsx`.
-- `AdminClients`: clientes administrativos. Vive en `src/features/admin/Clients.tsx`.
+- `AdminClients`: clientes administrativos. Vive en `src/features/admin/Clients.tsx`; su tabla ordena por todas sus columnas visibles de datos.
 - `CloseCash`: cierre de caja. Vive en `src/features/cashier/CloseCash.tsx`.
 - `Reports`: reportes/exportaciones. Vive en `src/features/reports/Reports.tsx`.
 - `AdminCurrentAccounts`: cuentas corrientes. Vive en `src/features/accounts/CurrentAccounts.tsx`.

@@ -31,7 +31,9 @@ export function AdminClients({
 }) {
   const [query, setQuery] = useState("");
   const [editorId, setEditorId] = useState<string | null | undefined>(undefined);
-  const [sort, setSort] = useState<SortState<"visibleId" | "name" | "document" | "category" | "local" | "status">>({ key: "visibleId", direction: "asc" });
+  const [sort, setSort] = useState<
+    SortState<"visibleId" | "name" | "document" | "category" | "local" | "status" | "phone" | "email" | "photo" | "identityDocument">
+  >({ key: "visibleId", direction: "asc" });
   const activeClients = data.clients.filter((client) => client.status !== "PAPELERA");
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = normalizedQuery
@@ -57,6 +59,8 @@ export function AdminClients({
     if (key === "visibleId") return Number(client.visibleId);
     if (key === "document") return clientDocumentKey(normalizeClientDocumentType(client.documentType), client.documentId);
     if (key === "local") return localName(data, client.localId);
+    if (key === "photo") return fileMetaLabel(client.photoFile);
+    if (key === "identityDocument") return fileMetaLabel(client.identityDocumentFile);
     return client[key];
   };
   const rows = [...filtered].sort((a, b) => {
@@ -100,6 +104,10 @@ export function AdminClients({
                 ["category", "Categoria"],
                 ["local", "Local"],
                 ["status", "Estado"],
+                ["phone", "Telefono"],
+                ["email", "Email"],
+                ["photo", "Foto"],
+                ["identityDocument", "Cedula"],
               ].map(([key, label]) => (
                 <th key={key}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
@@ -108,10 +116,6 @@ export function AdminClients({
                   </button>
                 </th>
               ))}
-              <th>Telefono</th>
-              <th>Email</th>
-              <th>Foto</th>
-              <th>Cedula</th>
               <th>Acciones</th>
             </tr>
           </thead>

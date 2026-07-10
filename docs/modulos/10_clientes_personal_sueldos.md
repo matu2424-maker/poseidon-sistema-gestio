@@ -13,6 +13,7 @@
 - La tabla de clientes desde cajero es ordenable por ID, cliente, documento, categoria, telefono, email y estado; `Acciones` no se ordena.
 - El selector multiple de clientes para regalos es ordenable por ID, cliente, documento, categoria y telefono; el checkbox de seleccion no se ordena.
 - Administrador puede gestionar clientes.
+- La tabla administrativa de clientes es ordenable por ID, cliente, documento, categoria, local, estado, telefono, email, foto y archivo de cedula/pasaporte; `Acciones` no se ordena.
 
 ## Personal
 
