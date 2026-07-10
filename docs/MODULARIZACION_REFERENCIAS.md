@@ -114,7 +114,7 @@ src/features/reports/
 
 ## Regla para AGENTS anidados
 
-Cuando se creen carpetas `src/features/*`, cada grupo puede tener un `AGENTS.md` corto, pero debe referenciar los documentos compartidos. No duplicar reglas contables completas dentro de cada AGENTS.
+Cada carpeta `src/features/*` tiene o puede tener un `AGENTS.md` corto. Estos archivos son mapas de lectura para reducir contexto: deben referenciar documentos compartidos y no duplicar reglas contables completas.
 
 Formato recomendado:
 
@@ -130,6 +130,8 @@ No tocar sin aprobacion:
 - reglas contables globales
 - auditoria
 ```
+
+Estado actual: agregados `AGENTS.md` cortos en `accounts`, `admin`, `audit`, `auth`, `cashier`, `dashboard`, `layout`, `manager`, `reports` y `salaries`. Cuando se cree una feature nueva, agregar su AGENTS local antes de empezar cambios relevantes.
 
 ## Primeros cortes seguros
 

@@ -150,7 +150,8 @@ Ya salieron de `src/App.tsx`:
 - Mantener `src/App.tsx` como orquestador de estado/acciones y extraer solo nuevos bloques cuando haya una razon clara.
 - Crear contextos cortos nuevos solo si aparece un modulo nuevo o un flujo que todavia no tenga contexto propio.
 - Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.
-- Antes de nuevos cambios, leer `docs/CONTEXTO_RAPIDO_CODEX.md` y el contexto/modulo especifico en vez de releer toda la app.
+- Antes de nuevos cambios, leer `docs/CONTEXTO_RAPIDO_CODEX.md`, el `AGENTS.md` local de la carpeta afectada y el contexto/modulo especifico en vez de releer toda la app.
+- Mantener los `AGENTS.md` de `src/features/*` como archivos cortos de referencias cruzadas. No copiar reglas completas ahi: apuntar a `docs/REGLAS_*`, `docs/contextos/` y `docs/modulos/`.
 
 ## Validacion obligatoria por corte
 
@@ -182,3 +183,5 @@ Primero se extrajeron piezas que reducen mucho contexto y tienen reglas comparti
 10. datos demo y normalizacion.
 
 Esto reduce costo porque cada nueva tarea deberia leer el contexto corto del modulo y 1-3 archivos concretos, no todo `App.tsx` ni todo el historial del chat. Si una tarea toca datos iniciales, migracion o reset operativo, abrir `src/data/appData.ts`; si toca acciones de usuario, abrir `src/App.tsx` mas el feature correspondiente.
+
+Como mejora adicional, se agregaron `AGENTS.md` anidados por feature. En tareas futuras, Codex debe empezar por el AGENTS local de la carpeta afectada para cargar solo las reglas y documentos necesarios del modulo.
