@@ -1793,6 +1793,20 @@ select:disabled {
   width: 150px;
 }
 
+.accounts-date-range select {
+  min-height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 7px 10px;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.accounts-period-bar .accounts-month-button {
+  min-width: 104px;
+}
+
 .accounts-list-panel,
 .account-detail-panel {
   display: grid;

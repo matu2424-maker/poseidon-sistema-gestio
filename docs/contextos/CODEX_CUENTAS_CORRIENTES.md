@@ -43,7 +43,7 @@ Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de 
 
 1. Entrar como `encargado` o `admin`.
 2. Ir a `Cuentas corrientes`.
-3. Consultar mes actual, mes anterior e intervalo.
+3. Consultar mes actual, mes anterior y consulta historica por mes/ano.
 4. Abrir cuenta `Local / Efectivo`.
 5. Abrir cuenta `Local / Banco`.
 6. Hacer clic en movimiento con recaudacion asociada.

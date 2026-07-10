@@ -293,7 +293,7 @@ Movimientos:
 - Aportes entran a Local / Efectivo o Local / Banco.
 - Diferencias de caja entran o salen de Local / Efectivo o Local / Banco.
 - `syncDifferenceAccountMovements()` mantiene esos movimientos sincronizados al cierre y al gestionar diferencias.
-- La pantalla filtra por mes actual, mes anterior o rango historico manual.
+- La pantalla filtra por mes anterior, mes actual o consulta historica por mes y ano.
 - Encargado ve solo cuentas y movimientos de los locales asignados.
 - La tabla de movimientos usa debito, credito y saldo corrido por cuenta.
 - Clic en movimiento abre modal de detalle y, si hay `balanceId`, permite ver la recaudacion completa.

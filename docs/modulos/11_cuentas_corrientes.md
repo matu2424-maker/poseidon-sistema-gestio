@@ -31,8 +31,9 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 - El encabezado interno muestra una descripcion operativa y contadores de cuentas/movimientos.
 - El encargado ve solamente cuentas y movimientos de sus locales asignados. En la demo actual ve Poseidon.
 - Al abrir la pantalla se muestra siempre el mes corriente.
-- Se puede alternar entre `Mes actual`, `Mes anterior` y `Consulta historica`.
-- En `Consulta historica` se selecciona manualmente un intervalo de fechas.
+- Se puede alternar entre el mes anterior, el mes actual y `Consulta historica`.
+- Los botones de mes muestran el nombre del mes para evitar ambiguedad.
+- En `Consulta historica` se selecciona mes y ano, no un intervalo libre de fechas.
 - Los saldos, entradas, salidas, listado de cuentas y movimientos respetan el periodo seleccionado.
 - La tabla de movimientos muestra: fecha, tipo, detalle, usuario, debito, credito y saldo.
 - La tabla de movimientos permite ordenar por fecha, tipo, detalle, usuario, debito, credito y saldo.

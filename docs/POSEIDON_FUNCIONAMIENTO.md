@@ -448,12 +448,12 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - La pantalla `Cuentas corrientes` no repite el titulo principal dentro del contenido; inicia con descripcion operativa y contadores de cuentas/movimientos.
 - La pantalla `Cuentas corrientes` no muestra cuentas personales; esas se consultan en `Liquidacion de salarios`.
 - `Cuentas corrientes` abre por defecto en mes corriente.
-- Permite consultar `Mes actual`, `Mes anterior` o `Consulta historica` con rango manual de fechas.
+- Permite consultar el mes anterior, el mes actual o `Consulta historica` por mes y ano.
 - Encargado ve solo cuentas y movimientos de sus locales asignados; en la demo actual ve Poseidon.
 - La pantalla no muestra tarjetas superiores de entrada/salida/saldo local; se centra en periodo, cuentas y movimientos.
 - La tabla de movimientos muestra fecha, tipo, detalle, usuario, debito, credito y saldo.
 - `Debito` representa salidas de la cuenta; `Credito` representa entradas.
-- El saldo de la tabla es corrido y considera saldo activo anterior al rango seleccionado.
+- El saldo de la tabla es corrido y considera saldo activo anterior al mes seleccionado.
 - El listado lateral y el resumen de cuenta muestran `Saldo final`: saldo anterior + entradas - salidas del periodo visible.
 - Al hacer clic en un movimiento se muestra detalle completo, recaudacion asociada y acceso al resumen completo de esa recaudacion cuando exista.
 - En empleados, los pagos y adelantos se registran como salidas.

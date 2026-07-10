@@ -156,7 +156,7 @@ pnpm run build
 - Control de gastos para encargado con detalle completo, revision, observacion y anulacion auditada.
 - Encargado tiene acceso a Cuentas corrientes para ver empleados, transferencias y cuentas por local en efectivo/banco.
 - En `Cuentas corrientes` no se repite el titulo dentro del contenido; la barra superior ya muestra la pantalla.
-- En `Cuentas corrientes`, encargado ve solo datos de sus locales asignados. La pantalla abre en mes actual y permite mes anterior o consulta historica con rango manual.
+- En `Cuentas corrientes`, encargado ve solo datos de sus locales asignados. La pantalla abre en mes actual y permite mes anterior o consulta historica por mes y ano.
 - La tabla de `Cuentas corrientes` muestra fecha, tipo, detalle, usuario, debito, credito y saldo corrido; clic en un movimiento abre detalle y acceso a la recaudacion asociada.
 - Las cuentas personales se quitaron de `Cuentas corrientes` y se muestran en `Liquidacion de salarios` como cuenta corriente del personal.
 - Cierre periodico para encargado/admin: semanal, quincenal, mensual o entre fechas, con guardado auditado de totales y cajas incluidas.
