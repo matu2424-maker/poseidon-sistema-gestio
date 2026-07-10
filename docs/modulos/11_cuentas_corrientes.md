@@ -38,6 +38,7 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 - La tabla de movimientos permite ordenar por fecha, tipo, detalle, usuario, debito, credito y saldo.
 - `Debito` representa salidas de la cuenta y `Credito` representa entradas.
 - El saldo es corrido: toma el saldo activo anterior al rango y acumula los movimientos visibles.
+- El listado lateral y el resumen de la cuenta muestran `Saldo final`, calculado como saldo anterior al rango + entradas - salidas del periodo visible.
 - Al hacer clic en un movimiento se abre una ventana flotante con el detalle completo.
 - Si el movimiento esta asociado a una recaudacion, la ventana muestra la recaudacion asociada y permite abrir el resumen completo de esa recaudacion.
 

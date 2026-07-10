@@ -1,6 +1,6 @@
 # Contexto Codex - Cuentas corrientes
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-10
 
 Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de movimientos. Referencias asociadas:
 
@@ -27,6 +27,7 @@ Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de 
 - Pantalla general no muestra cuentas personales; estas viven dentro de Liquidacion de salarios.
 - Tabla muestra fecha, tipo, detalle, usuario, debito, credito y saldo.
 - Saldo es corrido e incluye saldo anterior al rango.
+- El listado lateral y el resumen de cuenta muestran `Saldo final`: saldo anterior + entradas - salidas del periodo.
 - Diferencias de caja impactan cuentas local efectivo/banco, no resultado economico.
 
 ## Asociaciones

@@ -1852,6 +1852,10 @@ select:disabled {
   gap: 12px;
 }
 
+.account-summary-grid.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .account-summary-grid div {
   display: grid;
   gap: 5px;

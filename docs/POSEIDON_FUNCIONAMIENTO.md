@@ -452,6 +452,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - La tabla de movimientos muestra fecha, tipo, detalle, usuario, debito, credito y saldo.
 - `Debito` representa salidas de la cuenta; `Credito` representa entradas.
 - El saldo de la tabla es corrido y considera saldo activo anterior al rango seleccionado.
+- El listado lateral y el resumen de cuenta muestran `Saldo final`: saldo anterior + entradas - salidas del periodo visible.
 - Al hacer clic en un movimiento se muestra detalle completo, recaudacion asociada y acceso al resumen completo de esa recaudacion cuando exista.
 - En empleados, los pagos y adelantos se registran como salidas.
 - `Liquidacion de salarios` muestra la cuenta corriente dentro del detalle de cada empleado, no como seccion general de la pantalla.

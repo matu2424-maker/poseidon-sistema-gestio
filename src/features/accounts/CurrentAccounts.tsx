@@ -60,6 +60,16 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
   };
   const visibleMovements = data.accountMovements.filter((movement) => movementInScope(movement) && movementInRange(movement));
   const totalsForVisibleAccount = (accountId: string) => accountTotalsFromMovements(visibleMovements.filter((movement) => movement.accountId === accountId));
+  const openingBalanceForAccount = (accountId: string) =>
+    activeRange.start
+      ? data.accountMovements
+          .filter((movement) => movementInScope(movement) && movement.accountId === accountId && movement.status === "ACTIVO" && movement.createdAt.slice(0, 10) < activeRange.start)
+          .reduce((total, movement) => total + (movement.direction === "ENTRADA" ? movement.amount : -movement.amount), 0)
+      : 0;
+  const closingBalanceForAccount = (accountId: string) => {
+    const totals = totalsForVisibleAccount(accountId);
+    return openingBalanceForAccount(accountId) + totals.income - totals.outcome;
+  };
   const normalizedQuery = query.trim().toLowerCase();
   const scopedAccounts = data.currentAccounts.filter(accountInScope);
   const accounts = [...scopedAccounts]
@@ -167,7 +177,7 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
           <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar cuenta..." />
           <div className="account-selector-list">
             {accounts.map((account) => {
-              const totals = totalsForVisibleAccount(account.id);
+              const closingBalance = closingBalanceForAccount(account.id);
               return (
                 <button
                   key={account.id}
@@ -177,7 +187,7 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                 >
                   <span>{accountKindLabel(account.kind)}</span>
                   <strong>{account.name}</strong>
-                  <small>Saldo {money(totals.balance)}</small>
+                  <small>Saldo final {money(closingBalance)}</small>
                 </button>
               );
             })}
@@ -197,7 +207,11 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                 </div>
                 <span className="close-status-pill">{selectedTotals.count} movimientos activos</span>
               </div>
-              <div className="account-summary-grid">
+              <div className="account-summary-grid four">
+                <div>
+                  <span>Saldo anterior</span>
+                  <strong>{money(openingBalance)}</strong>
+                </div>
                 <div>
                   <span>Entradas</span>
                   <strong>{money(selectedTotals.income)}</strong>
@@ -207,8 +221,8 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                   <strong>{money(selectedTotals.outcome)}</strong>
                 </div>
                 <div>
-                  <span>Saldo</span>
-                  <strong>{money(selectedTotals.balance)}</strong>
+                  <span>Saldo final</span>
+                  <strong>{money(openingBalance + selectedTotals.income - selectedTotals.outcome)}</strong>
                 </div>
               </div>
               <div className="table-wrap grow">
