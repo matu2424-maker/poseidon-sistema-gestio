@@ -1,8 +1,8 @@
 # Poseidon - Reglas visuales
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-10
 
-Este documento concentra criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo y el contexto del modulo afectado.
+Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo y el contexto del modulo afectado.
 
 ## Principios
 

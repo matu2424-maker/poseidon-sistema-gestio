@@ -1,196 +1,123 @@
-# Poseidon - Plan de mejora tecnica y ahorro de tokens
+# Poseidon - Plan tecnico y ahorro de contexto
 
 Ultima actualizacion: 2026-07-10
 
-Este documento define como vamos a mejorar el sistema y, al mismo tiempo, bajar el consumo de tokens al trabajar con Codex.
+Este documento contiene prioridades vigentes. Los bloques terminados viven en Git y no se enumeran uno por uno aqui.
 
-## Objetivo
+## Objetivos
 
-- Reducir el tamano efectivo de contexto que Codex necesita leer en cada tarea.
-- Sacar logica y pantallas de `src/App.tsx` por cortes chicos y verificables.
-- Mantener referencias cruzadas entre modulos para no romper caja, diferencias, cuentas, salarios, clientes, locales ni auditoria.
-- Cerrar cada bloque estable con build, localhost y commit local cuando este validado.
-- Con objetivo activo, ejecutar este plan con autonomia: implementar, validar, documentar y commitear bloques locales estables sin pedir permiso paso a paso.
+- Reducir riesgo al modificar reglas contables y flujos operativos.
+- Leer menos codigo y documentacion por tarea.
+- Mantener referencias entre modulos asociados.
+- Preparar el codigo para persistencia futura sin abandonar `localStorage` ahora.
+- Cerrar cambios pequeños, probados, documentados y commiteados localmente.
 
-## Reglas de trabajo para ahorrar tokens
+## Linea base
 
-1. Antes de tocar codigo, leer solo:
-   - `docs/CONTEXTO_RAPIDO_CODEX.md`;
-   - el contexto corto del modulo afectado en `docs/contextos/`;
-   - el documento del modulo en `docs/modulos/`;
-   - `docs/MODULARIZACION_REFERENCIAS.md` si se mueve codigo.
-2. Evitar releer `src/App.tsx` completo. Buscar funciones concretas con `rg` y leer rangos chicos.
-3. No mezclar modulos grandes en el mismo corte. Un corte debe tener una razon clara y validacion propia.
-4. Todo cambio de regla, calculo, flujo o pantalla se documenta en el archivo correspondiente antes de cerrar.
-5. Cuando un bloque queda estable, hacer commit local para no arrastrar diffs grandes entre sesiones.
-6. No publicar, desplegar ni conectar servicios externos sin confirmacion explicita.
+- Aproximadamente 13.800 lineas TypeScript/React.
+- `global.css`: aproximadamente 3.232 lineas.
+- Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
+- Cinco archivos de pruebas, 16 casos.
+- Archivos de mayor concentracion: Locales/Maquinas, datos/normalizacion, Movimientos y Salarios.
+- `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
-## Estado del refactor
+## Lectura eficiente
 
-Ya salieron de `src/App.tsx`:
+Para una tarea normal leer:
 
-- `src/types.ts`
-- `src/lib/money.ts`
-- `src/lib/dates.ts`
-- `src/lib/display.ts`
-- `src/lib/ids.ts`
-- `src/lib/machineHistory.ts`
-- `src/lib/audit.ts`
-- `src/lib/clients.ts`
-- `src/lib/export.ts`
-- `src/lib/files.ts`
-- `src/lib/people.ts`
-- `src/lib/storage.ts`
-- `src/lib/currentAccounts.ts`
-- `src/lib/accountMovements.ts`
-- `src/lib/cashTotals.ts`
-- `src/lib/differences.ts`
-- `src/lib/salaryRules.ts`
-- `src/lib/sorting.ts`
-- `src/data/appData.ts`
-- `src/components/ui.tsx`
-- `src/features/layout/AppShell.tsx`
-- `src/features/dashboard/RoleDashboard.tsx`
-- `src/features/accounts/CurrentAccounts.tsx`
-- `src/features/manager/Differences.tsx`
-- `src/features/cashier/OpenCash.tsx`
-- `src/features/cashier/ClosedBalanceSummary.tsx`
-- `src/features/cashier/Counters.tsx`
-- `src/features/cashier/CloseCash.tsx`
-- `src/features/cashier/Movements.tsx`
-- `src/features/salaries/SalarySettlements.tsx`
-- `src/features/admin/Clients.tsx`
-- `src/features/admin/Staff.tsx`
-- `src/features/admin/Settings.tsx`
-- `src/features/admin/LocationsMachines.tsx`
-- `src/features/manager/Expenses.tsx`
-- `src/features/audit/Audit.tsx`
-- `src/features/reports/Reports.tsx`
-- `src/features/reports/Periodic.tsx`
+1. `AGENTS.md`.
+2. `docs/CONTEXTO_RAPIDO_CODEX.md`.
+3. `AGENTS.md` de la feature.
+4. Contexto corto del modulo.
+5. Documento funcional del modulo.
 
-## Cortes registrados
+Agregar reglas contables, visuales o mapa tecnico solo si aplican. El enrutador completo esta en `docs/INDICE_DOCUMENTACION.md`.
 
-1. `src/lib/audit.ts`
-   - Estado: iniciado/implementado para construccion centralizada de eventos.
-   - Mantiene usuario real, rol real y funcion usada.
-   - La pantalla `Audit` ya vive en `src/features/audit/Audit.tsx`.
+## Prioridad 1 - Seguridad del desarrollo local
 
-2. `src/lib/storage.ts`
-   - Estado: implementado para lectura/escritura de `localStorage`, compactacion, reset operativo y preferencias de columnas.
-   - Mantener clave `poseidon-sistema-gestion-v2`.
-   - Preparar futura migracion a Supabase sin activar Supabase todavia.
+- Corregir fecha operativa local y probar limites de dia/mes.
+- Agregar validacion runtime y `schemaVersion` al snapshot.
+- Evitar recorte silencioso de auditoria como solucion permanente.
+- Crear `pnpm check` con test, typecheck y lint.
+- Ampliar fixtures de prueba sin depender de `AppData` completo.
 
-3. `src/lib/sorting.ts`
-   - Estado: implementado para ordenamiento compartido de tablas.
-   - Mantiene la regla general de ordenar por cada columna visible, salvo columnas de acciones.
-   - Evita duplicar helpers en pantallas administrativas, encargado y futuras extracciones.
+Resultado: datos locales mas previsibles y fallos detectados antes.
 
-4. `src/components/ui.tsx`
-   - Estado: implementado para tarjetas informativas, botones basicos de formulario, modales, selector de columnas y tipos compartidos de columnas.
-   - Evita que cada modulo extraido copie el mismo markup visual o la misma logica base de columnas configurables.
+## Prioridad 2 - Reducir archivos grandes
 
-5. `src/features/salaries/SalarySettlements.tsx`
-   - Estado: implementado para liquidacion de salarios y detalle de empleado.
-   - Mantener reglas de periodo trabajado, salario base, adelantos, descuentos y cierre mensual.
-   - Referencias: `CODEX_SALARIOS`, modulos 10/11/12.
+Orden:
 
-6. `src/features/admin/Clients.tsx`
-   - Estado: implementado para clientes administrativos y editor compartido.
-   - `CashierClients` ya vive con los movimientos operativos del cajero.
-   - Mantener documento como identificador, foto/cedula como metadata local y papelera.
+1. `LocationsMachines.tsx`.
+2. `Movements.tsx`.
+3. `SalarySettlements.tsx`.
+4. `appData.ts`.
 
-7. Movimientos de cajero
-   - Estado: implementado en `src/features/cashier/Movements.tsx`.
-   - Contiene gastos, transferencias, regalos, salarios, retiros/aportes, clientes desde cajero y tablas auxiliares.
-   - Mantener impacto contable y auditoria en helpers compartidos.
+Primero mover codigo sin comportamiento; despues extraer reglas. Seguir `docs/MODULARIZACION_REFERENCIAS.md`.
 
-8. Administracion general
-   - Estado: clientes, personal, papelera, usuarios y categorias ya extraidos.
-   - Extraer locales, maquinas, taller y administracion general restante.
+## Prioridad 3 - Comandos de dominio
 
-9. `src/features/admin/Settings.tsx`
-   - Estado: implementado para usuarios y categorias/subcategorias de gastos.
-   - Mantiene tablas ordenables, selector de columnas para usuarios y auditoria de altas/cambios.
-   - Referencias: `CODEX_ADMINISTRACION`, modulos 08/10/12.
+- Sacar operaciones multi-entidad de componentes React.
+- Recibir actor, reloj e IDs explicitamente.
+- Devolver `Result` con error tipado.
+- Mantener entidad, cuenta y auditoria en una operacion coherente.
+- Empezar por apertura/cierre de caja y diferencias.
 
-10. `src/features/manager/Expenses.tsx`
-   - Estado: implementado para control de gastos de encargado/admin.
-   - Mantiene detalle modal, revision, observacion, anulacion auditada y ordenamiento por todas las columnas visibles de datos.
-   - Referencias: `CODEX_ENCARGADO`, modulos 04/07/11/12.
+No agregar Redux o un store complejo antes de definir comandos.
 
-11. `src/features/audit/Audit.tsx`
-   - Estado: implementado para bitacora general.
-   - Mantiene logs sinteticos de usuarios y ordenamiento por fecha, usuario, accion y entidad.
-   - Referencias: `CODEX_AUDITORIA`, modulo 12.
+## Prioridad 4 - Cobertura automatizada
 
-12. `src/features/reports/Reports.tsx`
-   - Estado: implementado para reportes iniciales y exportaciones.
-   - `exportDailyExcel` vive en `src/lib/export.ts` junto con `exportCsv`.
-   - Mantiene historial de cierres ordenable por columnas visibles de datos.
-   - Referencias: modulos 07/08 y reglas de tablas ordenables.
+Agregar en este orden:
 
-13. `src/features/reports/Periodic.tsx`
-   - Estado: implementado para cierres periodicos.
-   - Mantiene generacion/anulacion auditada y tablas ordenables de cajas incluidas y cierres guardados.
-   - Referencias: modulos 05/07/08/12 y reglas de tablas ordenables.
+- apertura -> contadores -> movimientos -> cierre;
+- correccion/anulacion de diferencias y saldos;
+- pagos/adelantos/descuentos y cierre salarial;
+- traslado, reset y eliminacion de maquinas;
+- migracion de snapshots antiguos;
+- permisos por rol/local;
+- pruebas UI de formularios criticos;
+- tres smoke tests por rol en navegador.
 
-14. `src/features/admin/LocationsMachines.tsx`
-   - Estado: implementado para Locales, Maquinas, Taller, editores, modales de historial y modales de maquinas asociadas.
-   - Se mantuvo como un corte unico porque Locales, Maquinas y Taller comparten historial, asociaciones, cierres de local, maquinas en desuso, reset de contadores y auditoria.
-   - Referencias: `CODEX_LOCALES_MAQUINAS`, modulos 03/05/09 y reglas de tablas ordenables.
+## Prioridad 5 - Navegacion y UI compartida
 
-15. `src/data/appData.ts`
+- Registro unico de pantalla, titulo, menu y roles.
+- Dialogo de confirmacion compartido.
+- Mensajes con ciclo de vida claro para evitar avisos obsoletos.
+- Mover componentes transversales fuera de features propietarias.
+- Dividir CSS por base, layout, componentes y feature despues de dividir TSX.
 
-   - Estado: implementado para datos demo, limpieza operativa, ID visible de recaudacion y normalizacion/migracion de datos locales.
-   - Se mantiene separado porque esta logica cruza usuarios, locales, maquinas, caja, diferencias, cuentas corrientes, salarios, clientes, gastos y auditoria.
-   - Referencias: `docs/CONTEXTO_RAPIDO_CODEX.md`, `docs/MAPA_TECNICO.md`, modulos 00/02/05/06/10/11/12.
+## Preparacion online sin implementacion
 
-## Pendientes despues del corte actual
+- Arquitectura objetivo: `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
+- Plan reversible: `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`.
+- Mientras no se autorice: mantener adaptador local y no crear conexiones/credenciales.
 
-- Mantener `src/App.tsx` como orquestador de estado/acciones y extraer solo nuevos bloques cuando haya una razon clara.
-- Crear contextos cortos nuevos solo si aparece un modulo nuevo o un flujo que todavia no tenga contexto propio.
-- Mantener commits locales por bloque estable para evitar diffs largos entre sesiones.
-- Antes de nuevos cambios, leer `docs/CONTEXTO_RAPIDO_CODEX.md`, el `AGENTS.md` local de la carpeta afectada y el contexto/modulo especifico en vez de releer toda la app.
-- Mantener los `AGENTS.md` de `src/features/*` como archivos cortos de referencias cruzadas. No copiar reglas completas ahi: apuntar a `docs/REGLAS_*`, `docs/contextos/` y `docs/modulos/`.
+## Reglas para ahorrar tokens
 
-## Bloque transversal completado 2026-07-10
+- Buscar simbolos/rangos, no leer archivos grandes completos.
+- Un objetivo por modulo o corte transversal bien definido.
+- Contextos cortos enlazan fuentes; no copian reglas.
+- Git conserva historial; documentos muestran estado vigente.
+- Hacer commit local al estabilizar un bloque.
+- Si el diff mezcla temas, dividir antes de validar.
 
-- Periodos mensuales extraidos a `src/lib/periods.ts`.
-- Selector mensual compartido en `src/components/MonthlyPeriodSelector.tsx`, usado por Cuentas corrientes, Diferencias y Liquidacion de salarios.
-- Referencias por `balanceId` centralizadas en `src/lib/balanceReferences.ts`; Cuentas y Salarios permiten abrir la recaudacion asociada.
-- Estados heredados de diferencias normalizados a cuatro estados vigentes sin borrar auditoria.
-- Pruebas automatizadas agregadas para periodos, referencias de recaudacion, diferencias, impactos de cuenta, saldo corrido y limites salariales.
+## Validacion por bloque
 
-## Validacion obligatoria por corte
+```text
+pnpm test
+pnpm run build
+http://127.0.0.1:5173/ -> 200
+git diff --check
+documentacion de la fuente canonica y modulo
+```
 
-- `pnpm test`
-- `pnpm run build`
-- `http://127.0.0.1:5173/` responde `200`
-- Documentacion actualizada
-- `git status --short` revisado
-- Commit local cuando el bloque quede estable
+Para cambios documentales: comprobar referencias y contradicciones. Para UI: navegador y consola. Para contabilidad: casos de saldo antes/despues.
 
-## Regla de tablas para ahorrar revisiones
+## Definicion de terminado
 
-- Toda tabla de datos reales debe ordenar por sus columnas visibles de datos.
-- Columnas de accion/comando y checkboxes de seleccion no se ordenan.
-- Mini-tablas resumen tipo ficha visual pueden mantener orden semantico fijo si tienen pocas filas, no tienen acciones por fila y no representan un listado operativo. Este criterio evita convertir resúmenes contables compactos en grillas innecesarias.
-
-## Criterio de prioridad
-
-Primero se extrajeron piezas que reducen mucho contexto y tienen reglas compartidas claras:
-
-1. auditoria;
-2. storage;
-3. ordenamiento compartido;
-4. componentes UI compartidos;
-5. salarios;
-6. clientes;
-7. movimientos de cajero;
-8. auditoria;
-9. administracion;
-10. datos demo y normalizacion.
-
-Esto reduce costo porque cada nueva tarea deberia leer el contexto corto del modulo y 1-3 archivos concretos, no todo `App.tsx` ni todo el historial del chat. Si una tarea toca datos iniciales, migracion o reset operativo, abrir `src/data/appData.ts`; si toca acciones de usuario, abrir `src/App.tsx` mas el feature correspondiente.
-
-Como mejora adicional, se agregaron `AGENTS.md` anidados por feature. En tareas futuras, Codex debe empezar por el AGENTS local de la carpeta afectada para cargar solo las reglas y documentos necesarios del modulo.
+- Requisito comprobado contra el estado actual.
+- Pruebas proporcionales al riesgo.
+- Sin regresiones visibles conocidas.
+- Fuente canonica actualizada.
+- Worktree revisado.
+- Commit local si el bloque es estable.
+- Sin push, publicacion o conexion externa salvo pedido explicito.

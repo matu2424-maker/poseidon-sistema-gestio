@@ -13,12 +13,12 @@ C:\Users\Mathias\OneDrive\Documentos\New project codex
 Antes de modificar cualquier archivo, lee:
 
 1. `AGENTS.md`
-2. `docs/HANDOFF_TECNICO_POSEIDON.md`
-3. `docs/CONTEXTO_RAPIDO_CODEX.md`
-4. `docs/REGLAS_GENERALES.md`
-5. `docs/POSEIDON_FUNCIONAMIENTO.md`
-6. `docs/MAPA_TECNICO.md`
-7. El contexto corto de `docs/contextos/` y el modulo de `docs/modulos/` que correspondan a la tarea.
+2. `docs/INDICE_DOCUMENTACION.md`
+3. `docs/HANDOFF_TECNICO_POSEIDON.md`
+4. `docs/CONTEXTO_RAPIDO_CODEX.md`
+5. El `AGENTS.md`, contexto corto y modulo de la feature que corresponda.
+
+No leas toda la documentacion por defecto. El indice indica cuando agregar reglas contables, visuales, mapa tecnico o documentos funcionales largos.
 
 No publiques, no despliegues y no actives Supabase/Auth/Storage real sin autorizacion explicita.
 

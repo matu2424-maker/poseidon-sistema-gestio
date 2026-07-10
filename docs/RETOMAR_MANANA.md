@@ -1,235 +1,68 @@
 # Poseidon - Retomar trabajo
 
-Fecha de cierre: 2026-07-10
+Ultima actualizacion: 2026-07-10
 
-## Antes de tocar codigo
+Este archivo registra continuidad inmediata. Las reglas permanentes viven en las fuentes canonicas indicadas por `docs/INDICE_DOCUMENTACION.md`.
 
-1. Leer `AGENTS.md`.
-2. Si se retoma desde otra cuenta/agente, leer `docs/HANDOFF_TECNICO_POSEIDON.md`.
-3. Leer `docs/CONTEXTO_RAPIDO_CODEX.md`.
-4. Leer `docs/REGLAS_GENERALES.md`.
-5. Leer `docs/POSEIDON_FUNCIONAMIENTO.md`.
-6. Leer `docs/MAPA_TECNICO.md`.
-7. Si el cambio es contable, leer `docs/REGLAS_CONTABLES.md`.
-8. Si el cambio es visual, leer `docs/REGLAS_VISUALES.md`.
-9. Si se va a modularizar o mover codigo, leer `docs/MODULARIZACION_REFERENCIAS.md`.
-10. Si se busca bajar consumo de tokens o mejorar estructura, leer `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
-11. Leer el contexto corto correspondiente en `docs/contextos/`.
-12. Leer el documento correspondiente en `docs/modulos/`.
-13. Revisar este archivo.
-14. Correr `git status --short` para ver cambios pendientes.
+## Estado
 
-## Estado actual
+- Sistema local React/Vite/TypeScript con `localStorage`.
+- Sin Supabase, Auth, Storage remoto ni despliegue activo.
+- Login local por usuario de prueba.
+- Datos demo: Poseidon, tres maquinas y operaciones para probar roles.
+- El servidor oficial se inicia con `iniciar-poseidon.bat`.
+- Repositorio estable previo al bloque documental: `85b30f2 centraliza periodos y agrega pruebas contables`.
 
-- App React + Vite + TypeScript.
-- Persistencia actual en `localStorage`, clave `poseidon-sistema-gestion-v2`.
-- La demo inicial contiene datos operativos para probar: 3 maquinas activas, 3 cajas cerradas de julio 2026, una diferencia pendiente, gastos, salarios, regalos, transferencias, aportes/retiros, cuentas corrientes y auditoria.
-- No hay Supabase/Auth real activo. Login de prueba local.
-- No hay storage real de archivos: comprobantes e imagenes guardan metadatos para evitar romper `localStorage`.
-- No publicar en Vercel hasta que el usuario lo pida explicitamente.
-- Localhost se levanta solo con `iniciar-poseidon.bat`; si queda ocupado, usar `detener-poseidon.bat`.
-- Si hay objetivo activo, Codex debe trabajar con autonomia dentro del objetivo: implementar, validar, documentar y commitear bloques locales estables sin pedir permiso paso a paso.
-- Con objetivo activo, solo frenar para pedir confirmacion ante push, publicacion, despliegue, conexion externa, cambios destructivos amplios, credenciales o decisiones de producto ambiguas.
-- Ultimo bloque estable: modularizacion de datos demo/normalizacion hacia `src/data/appData.ts` pendiente de commit local si build, localhost y git status quedan correctos.
+## Ultimo bloque funcional completado
 
-## Usuarios de prueba
+- Periodos mensuales centralizados en `src/lib/periods.ts`.
+- Selector compartido en Cuentas corrientes, Diferencias y Salarios.
+- Referencias de recaudacion por `balanceId` compartidas entre Cuentas y Salarios.
+- Estados heredados de diferencias normalizados sin perder auditoria.
+- `accountLedgerRows()` centraliza saldo corrido.
+- 16 pruebas automatizadas en cinco archivos.
 
-El login local de prueba no pide contrasena. Se selecciona un usuario activo desde una lista.
+## Bloque documental actual
 
-| Usuario | Rol |
-| --- | --- |
-| `admin` | Administrador |
-| `cajero1` | Cajero |
-| `cajero2` | Cajero |
-| `encargado` | Encargado |
+- Indice unico de documentacion.
+- Fuentes canonicas explicitadas.
+- Documentos de arranque/tecnica reducidos para evitar repeticion.
+- Arquitectura objetivo online documentada sin implementacion.
+- Plan de migracion local a online documentado y sujeto a autorizacion futura.
 
-El login queda precargado con `cajero1` para probar rapido el panel del cajero.
+## Proximas prioridades de codigo
 
-## Comandos
+1. Limpieza tecnica pequeña: duplicaciones UI, fechas locales y comando `pnpm check`.
+2. Dividir `src/features/admin/LocationsMachines.tsx` sin cambiar comportamiento.
+3. Dividir movimientos de cajero y liquidacion salarial.
+4. Extraer comandos de dominio con pruebas, comenzando por caja.
+5. Versionar y validar la persistencia local antes de preparar adaptadores online.
 
-Camino oficial para levantar localhost:
+No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
-```text
-iniciar-poseidon.bat
-```
+## Riesgos vigentes
 
-URL local habitual:
+- `localStorage` no es persistencia multiusuario ni durable.
+- El modo compacto puede recortar historial si se supera la cuota local.
+- Varias operaciones de negocio siguen dentro de componentes React.
+- Los archivos mas grandes son Locales/Maquinas, datos demo/normalizacion, movimientos de cajero y salarios.
+- La cobertura automatizada todavia no incluye ciclos completos de caja.
+
+## Validacion esperada al cerrar un bloque
 
 ```text
-http://127.0.0.1:5173/
-```
-
-Verificar entorno sin iniciar servidor:
-
-```text
-iniciar-poseidon.bat --check
-```
-
-Liberar puerto si queda ocupado:
-
-```text
-detener-poseidon.bat
-```
-
-No usar Python, `pnpm preview` ni alternativas para levantar la app durante el trabajo diario.
-
-Validacion:
-
-```bash
+pnpm test
 pnpm run build
+http://127.0.0.1:5173/ -> 200
+git diff --check
+git status --short
 ```
 
-## Archivos principales
+Para cambios documentales puros, validar ademas referencias internas y ausencia de contradicciones.
 
-- `src/App.tsx`: estado, lectura/escritura local, acciones principales y composicion de pantallas.
-- `src/data/appData.ts`: datos demo, limpieza operativa, ID visible de caja y normalizacion/migracion de datos locales.
-- `src/types.ts`: tipos principales del sistema extraidos desde `App.tsx`.
-- `src/lib/money.ts`: formato de dinero/contadores y helpers de inputs monetarios.
-- `src/lib/dates.ts`: fechas, horas visibles y rangos mensuales.
-- `src/lib/audit.ts`: construccion centralizada de eventos de auditoria.
-- `src/lib/clients.ts`: documento, busqueda y duplicados de clientes.
-- `src/lib/export.ts`: descarga de archivos y exportacion CSV.
-- `src/lib/files.ts`: metadatos locales de archivos.
-- `src/lib/storage.ts`: lectura/escritura de `localStorage`, compactacion y preferencias de columnas.
-- `src/lib/currentAccounts.ts`: ids, creacion, asegurado y saldos de cuentas corrientes.
-- `src/lib/accountMovements.ts`: movimientos contables por origen, sincronizacion y saldo corrido de movimientos.
-- `src/lib/cashTotals.ts`: contadores y totales por recaudacion.
-- `src/lib/differences.ts`: helpers de diferencias de caja.
-- `src/lib/display.ts`: nombres visibles de local/usuario, etiquetas de rol e IDs visibles de recaudacion.
-- `src/lib/ids.ts`: generacion de IDs locales.
-- `src/lib/machineHistory.ts`: eventos de historial de maquinas.
-- `src/lib/people.ts`: nombres visibles de personal.
-- `src/lib/salaryRules.ts`: conceptos, periodos, salario base, importes y validaciones de salarios.
-- `src/lib/sorting.ts`: ordenamiento compartido de tablas por columnas visibles.
-- `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.
-- `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
-- `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de caja cerrada.
-- `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
-- `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final y sincronizacion de diferencias/cuentas.
-- `src/features/cashier/Movements.tsx`: gastos, transferencias, regalos, salarios desde caja, retiros/aportes y clientes del cajero.
-- `src/features/manager/Differences.tsx`: pantalla de diferencias de caja.
-- `src/features/manager/Expenses.tsx`: control de gastos del encargado/admin.
-- `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios y detalle de empleado.
-- `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
-- `src/features/admin/Staff.tsx`: personal, editor de personal y papelera.
-- `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
-- `src/features/audit/Audit.tsx`: bitacora general de auditoria.
-- `src/features/reports/Reports.tsx`: reportes iniciales y exportaciones.
-- `src/features/reports/Periodic.tsx`: cierres periodicos.
-- `src/styles/global.css`: estilos globales.
-- `src/components/WelcomeScreen.tsx`: componente heredado/no conectado al flujo actual.
-- `docs/POSEIDON_FUNCIONAMIENTO.md`: reglas funcionales vivas.
-- `docs/MAPA_TECNICO.md`: mapa tecnico de pantallas, clases, calculos y deuda tecnica.
-- `docs/CONTEXTO_RAPIDO_CODEX.md`: resumen corto para cargar contexto con poco costo.
-- `docs/REGLAS_GENERALES.md`: reglas globales funcionales, contables y esteticas.
-- `docs/REGLAS_CONTABLES.md`: matriz de impacto economico, financiero y cuentas corrientes.
-- `docs/REGLAS_VISUALES.md`: reglas de UI, tablas, botones, modales y formularios.
-- `docs/MODULARIZACION_REFERENCIAS.md`: referencias cruzadas para refactor modular.
-- `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`: plan tecnico para mejorar estructura y bajar consumo de tokens.
-- `docs/HANDOFF_TECNICO_POSEIDON.md`: handoff completo para migrar a otra cuenta o agente.
-- `docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md`: prompt corto para iniciar una nueva cuenta con contexto minimo.
-- `docs/contextos/`: contextos cortos por modulo para Codex.
-- `docs/modulos/`: detalle por panel y funcion.
-- `AGENTS.md`: reglas de trabajo para Codex.
-- `README.md`: instrucciones generales del proyecto.
+## Para continuar
 
-## Modulos ya trabajados
-
-- Login local y roles.
-- Panel administrador.
-- Locales con tabla, editor, maquinas asociadas, historial y cierre de local.
-- Maquinas con taller, desuso, reset, historial y auditoria.
-- Panel cajero sin barra lateral.
-- Apertura de caja con saldos iniciales de efectivo/banco.
-- Contadores con guardado manual y validacion visual de errores.
-- Gastos, transferencias, regalos, salarios y clientes desde cajero.
-- Retiros y aportes de capital.
-- Cierre de caja con resultado economico separado de movimientos financieros.
-- Cuentas corrientes internas para local efectivo, local banco, personal y transferencias.
-- Resumen de cajas actualizado para mostrar diferencia de efectivo, diferencia de banco y gestion de diferencias.
-- Panel del encargado rearmado como tablero de control: primera fila con diferencias, cuenta efectivo y cuenta banco; segunda fila con ingreso total del mes, salida total del mes y resultado neto del mes; accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
-- El boton `Reiniciar demo` del administrador recarga el dataset demo inicial con datos para probar el panel del encargado.
-- Encargado y administrador pueden cambiar funcion activa a cajero y operar el panel de cajero existente con su mismo usuario real.
-- Apertura y cierre de caja registran usuario real y funcion usada, para saber quien actuo como cajero en cada recaudacion.
-- Barra lateral agrupada por funcion para administrador y encargado; ninguno muestra caja operativa directa. Para operar caja cambian a funcion cajero.
-- Grupos de barra lateral desplegables, con apertura automatica del grupo activo.
-- Control de gastos para encargado con detalle completo, revision, observacion y anulacion auditada.
-- Encargado tiene acceso a Cuentas corrientes para ver empleados, transferencias y cuentas por local en efectivo/banco.
-- En `Cuentas corrientes` no se repite el titulo dentro del contenido; la barra superior ya muestra la pantalla.
-- En `Cuentas corrientes`, encargado ve solo datos de sus locales asignados. La pantalla abre en mes actual y permite mes anterior o consulta historica por mes y ano.
-- La tabla de `Cuentas corrientes` muestra fecha, tipo, detalle, usuario, debito, credito y saldo corrido; clic en un movimiento abre detalle y acceso a la recaudacion asociada.
-- Las cuentas personales se quitaron de `Cuentas corrientes` y se muestran en `Liquidacion de salarios` como cuenta corriente del personal.
-- Cierre periodico para encargado/admin: semanal, quincenal, mensual o entre fechas, con guardado auditado de totales y cajas incluidas.
-- Encargado puede acceder a personal, clientes y liquidacion simple de salarios.
-- Auditoria general.
-
-## Reglas delicadas
-
-- Criterio visual estable: disenar para 1080p, botones alineados y consistentes, acciones al borde inferior/derecho dentro de tarjetas, tablas compactas y no repetir arriba/abajo datos que ya muestra la barra superior. En pantallas del encargado, los recuadros de resumen siguen estetica tipo `Datos de caja` y los accesos rapidos mantienen mismo ancho/altura.
-- Regla permanente de tablas: toda tabla nueva o existente que se modifique debe poder ordenarse por cada columna/concepto visible. Las columnas de acciones/comandos no necesitan ordenamiento. Cualquier excepcion debe explicarse y aprobarse antes.
-- Pantallas administrativas: evitar repetir dentro del cuerpo el mismo titulo que ya aparece en la barra superior. Personal, Clientes, Usuarios, Locales, Maquinas, Taller, Categorias de gastos, Diferencias, Cierre periodico y Liquidacion de salarios usan el encabezado interno solo para descripcion/contadores/acciones.
-- Personal: alta/edicion muestra nota de campos obligatorios y marca con `*` nombre, apellido, cargo, local, estado, tipo salario y salario base. Cargo es lista cerrada: `Cajera/o`, `Encargado/a`, `Mantenimiento`, `Limpieza`.
-- Personal registra historial salarial cuando cambia tipo de salario o salario base: fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
-- Liquidacion de salarios quedo redisenada: selector mensual con nombre del mes anterior, nombre del mes actual y `Consultar mes` por mes/ano; resumen global de pendientes/total salarios/total salarios base/premios y horas, tabla principal por empleado con boton `Detalle`, cierre de liquidacion e historial de cierres.
-- Regla economica de salarios: cada empleado activo inicia el periodo con salario base desde su ficha/historial. Una liquidacion con concepto `Salario` es pago realizado contra pendiente, no reemplaza la base. Total = base + premio/gratificacion + horas extras + bonos - descuentos. Pagado/Entregado = salario pagado + adelantos + premio/gratificacion + horas extras + bonos. Cubierto base = salario pagado + adelantos + descuentos. Pendiente = base - cubierto base.
-- Validacion de salarios: salario pagado no puede superar salario base, salario pagado + adelantos tampoco puede superar salario base y salario pagado + adelantos + descuentos tampoco puede superar salario base. Se aplica tanto en cajero como en encargado/admin.
-- En la tabla de liquidacion por empleado el orden final es: nombre, salario base, premios y horas, bonos, descuentos, total, adelantos, salario pagado, pendiente y accion. Debajo del nombre se ve si no hay liquidacion cargada o cuantas liquidaciones activas tiene el empleado.
-- La cuenta corriente del personal ya no aparece en la pantalla general de liquidacion; se consulta dentro del detalle de cada empleado.
-- El boton global `Agregar` se quito de la pantalla general. Las liquidaciones se agregan desde `Detalle` de cada empleado con mes, personal fijo, concepto, monto y notas.
-- En `Detalle`, la tabla `Liquidaciones del periodo` es ordenable por mes, concepto, importes y estado.
-- Cajero carga nuevos pagos de salario solo con `Salario` o `Adelanto`; encargado/admin mantienen la lista completa: Adelanto, Salario, Premio / Gratificacion, Horas extras, Aguinaldo, Salario vacacional y Descuento. `Sueldo` y `Ajuste` quedan solo como datos heredados; `Ajuste` se normaliza como Premio / Gratificacion.
-- En pagos desde cajero, `Periodo trabajado` es obligatorio. Si la fecha operativa de caja cae del dia 1 al 10, se sugiere el mes anterior; desde el dia 11, se sugiere el mes actual.
-- `Liquidacion de salarios` tambien usa esa regla como periodo inicial sugerido: dia 1 al 10 abre mes anterior y desde dia 11 abre mes actual, pero siempre permite cambio manual por mes/ano.
-- El pago de salario desde cajero sale de la caja abierta por `balanceId`, pero se imputa a liquidacion/cuenta personal por el periodo trabajado elegido.
-- Eliminar pago de salario desde cajero ahora es anulacion logica auditada: cambia a `ANULADA`, anula movimientos asociados y deja de impactar caja, liquidacion y cuenta personal.
-- `Premio / Gratificacion` es reconocimiento interno al empleado; `Horas extras` es pago por trabajo fuera del horario/base. No mezclarlo con Regalos de clientes.
-- El pago de salario es a mes vencido: el periodo trabajado define la liquidacion, aunque el pago se realice del 1 al 10 del mes siguiente.
-- El impacto de conceptos esta centralizado: salario, adelanto y descuento descuentan pendiente; adelanto no suma al total; descuento no genera salida de caja; salario y adelanto siguen contando como salida de efectivo si fueron cargados desde caja.
-- En detalle de liquidacion por empleado, `Eliminar` cambia la liquidacion a `ANULADA`; internamente es baja logica auditada para no borrar historial ni impactar totales.
-- Cada liquidacion guarda origen (`CAJA` o `LIQUIDACION`), creador, aprobador, fecha de aprobacion y, si aplica, anulador/fecha de anulacion.
-- Los movimientos de cuenta de salarios usan el usuario real que hizo la accion; el uso de `system` queda solo como fallback para datos migrados.
-- En el detalle del empleado, la cuenta corriente muestra fecha, concepto, monto, total, pendiente y usuario; todas esas columnas son ordenables. `Total` y `Pendiente` son los valores al momento de registrar ese movimiento.
-- La cuenta corriente del detalle usa el periodo trabajado de la liquidacion; una liquidacion cargada hoy para mes anterior se muestra en el mes anterior.
-- El detalle del empleado usa resumen compacto, no tarjetas grandes, para ocupar menos espacio vertical.
-- Los indicadores de orden de tablas usan texto ASCII (`asc` / `desc`) para evitar errores de codificacion en flechas.
-- Resultado final de cierre es economico: resultado de maquinas - gastos - salarios - regalos.
-- Transferencias, aportes, retiros, efectivo inicial y banco inicial son movimientos financieros o de caja, no cambian el resultado economico.
-- Las diferencias de efectivo/banco no impactan el resultado economico; si mueven cuentas corrientes del local para que la siguiente apertura use el saldo real declarado.
-- Acciones del encargado sobre diferencias: verificada/corregida/anulada cambian el estado de control de la recaudacion y quedan auditadas. Corregida permite editar efectivo/banco declarado y recalcula movimientos; anular deja la diferencia efectiva en cero, revierte saldos proximos al valor esperado y anula los movimientos de cuenta de esa diferencia.
-- Pantalla Diferencias: abre como historial del mes actual, permite mes anterior o consulta historica por mes/ano, tiene buscador por ID/local/fecha/observacion, filtro por estado y gestiona cada recaudacion desde modal con detalle de efectivo/banco, observacion obligatoria e historial auditado completo. Su estetica queda minimalista similar a Liquidacion de salarios, con resumen superior chico y tabla principal como foco.
-- Cuentas corrientes, Diferencias y Liquidacion de salarios reutilizan `MonthlyPeriodSelector` y helpers de `src/lib/periods.ts`.
-- Estados de diferencias vigentes: `PENDIENTE`, `VERIFICADA`, `CORREGIDA`, `ANULADA`; datos heredados se normalizan al cargar sin perder auditoria.
-- Cuentas corrientes y Salarios comparten referencias por `balanceId`; ambos permiten abrir la recaudacion completa desde un movimiento asociado.
-- `accountLedgerRows()` centraliza y prueba el saldo corrido desde el saldo anterior.
-- Si el retiro final efectivo o banco es `0`, el selector de quien retira queda gris y dice `Sin retiros finales`.
-- IN/OUT actual no puede ser menor al anterior; si falla, la fila queda en rojo.
-- Las maquinas con recaudaciones no se eliminan directamente.
-- Las maquinas en `DESUSO` solo viven en Taller y no aparecen en Maquinas.
-- Personal y clientes pasan por papelera antes de eliminar definitivamente.
-- Todo cambio sensible debe quedar auditado con fecha/hora y usuario.
-- Auditoria tambien guarda la funcion usada cuando un encargado o administrador opera como cajero.
-- Los gastos revisados por encargado tienen estado `PENDIENTE`, `REVISADO` u `OBSERVADO`; anular un gasto no lo borra.
-- Cierre periodico es una foto de control del rango seleccionado; si se anula, queda registrado y no borra las cajas.
-- Modularizacion iniciada: utilidades de dinero/fechas/periodos/referencias por balance/IDs/auditoria/storage/ordenamiento/exportacion/personal/clientes/archivos, datos demo/normalizacion, componentes UI compartidos, selector mensual y selector de columnas, layout/base, paneles por rol y features operativos ya salieron de `src/App.tsx`. Mantener referencias cruzadas antes de mover mas codigo.
-
-## Validacion hecha al cierre
-
-- `pnpm test`: 5 archivos, 16 pruebas correctas.
-- `pnpm run build`: correcto.
-- `http://127.0.0.1:5173/`: responde `200`.
-- Navegador integrado: renderiza pantalla inicial `POSEIDON` sin errores de consola.
-- Navegador integrado: entrada como `encargado`; Cuentas corrientes, Diferencias y Liquidacion de salarios renderizan el selector mensual compartido. Se verifico consulta historica, detalle de movimiento y apertura de recaudacion asociada desde Cuentas y Salarios, sin errores de consola.
-- URL de prueba preferida: `http://127.0.0.1:5173/`.
-- El mapa tecnico quedo actualizado en `docs/MAPA_TECNICO.md`.
-
-## Pendientes naturales
-
-- Bloques recientes se cierran con commits locales chicos cuando build y localhost pasan.
-- Seguir trabajando en local hasta que el usuario pida explicitamente publicar.
-- Antes de publicar o desplegar cualquier version, avisar al usuario y esperar confirmacion.
-- Refactor pendiente por cortes chicos: ninguno obligatorio detectado. Los proximos cortes deben justificarse por beneficio concreto y mantenerse acotados.
-- Al ver un bloque estable, hacer commit local si el bloque esta validado y es correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin confirmacion explicita.
-- Seguir refinando cierre de caja con datos reales de prueba.
-- Revisar exportaciones avanzadas cuando el flujo de caja quede estable.
-- Reimplementar Supabase/Auth real cuando el modelo local este confirmado.
-- Implementar storage real para comprobantes e imagenes cuando se reactive Supabase u otro proveedor.
+1. Ejecutar `git status --short` y `git log -1 --oneline`.
+2. Leer `docs/CONTEXTO_RAPIDO_CODEX.md`.
+3. Abrir solo el contexto y modulo de la tarea.
+4. Respetar el limite local: no publicar ni conectar servicios externos.

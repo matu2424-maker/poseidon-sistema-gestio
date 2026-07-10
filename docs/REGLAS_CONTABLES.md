@@ -1,8 +1,8 @@
 # Poseidon - Reglas contables
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-10
 
-Este documento concentra las reglas economicas, financieras y de cuentas corrientes. Antes de modificar caja, cierre, diferencias, cuentas corrientes, salarios, gastos, transferencias, regalos, retiros o aportes, leer este archivo y el contexto del modulo afectado.
+Esta es la fuente canonica de reglas economicas, financieras y de cuentas corrientes. Antes de modificar caja, cierre, diferencias, cuentas corrientes, salarios, gastos, transferencias, regalos, retiros o aportes, leer este archivo y el contexto del modulo afectado.
 
 ## Regla madre
 

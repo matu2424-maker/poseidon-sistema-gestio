@@ -77,18 +77,21 @@ http://127.0.0.1:5173/
 
 ## Documentacion de trabajo
 
+- `docs/INDICE_DOCUMENTACION.md`: puerta de entrada, perfiles de lectura y fuentes canonicas.
 - `docs/CONTEXTO_RAPIDO_CODEX.md`: entrada rapida para retomar.
-- `docs/HANDOFF_TECNICO_POSEIDON.md`: handoff completo para migrar el proyecto a otra cuenta/agente.
+- `docs/HANDOFF_TECNICO_POSEIDON.md`: handoff compacto para otra cuenta/agente.
 - `docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md`: prompt corto para iniciar una nueva cuenta de ChatGPT con el contexto minimo.
 - `docs/REGLAS_GENERALES.md`: reglas generales de trabajo, auditoria y documentacion.
 - `docs/REGLAS_CONTABLES.md`: matriz de impactos economicos, financieros y cuentas corrientes.
 - `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.
 - `docs/MODULARIZACION_REFERENCIAS.md`: plan de refactor modular con referencias cruzadas.
 - `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`: plan para mejorar estructura y reducir consumo de contexto/tokens.
+- `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`: diseno futuro, no implementado.
+- `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`: etapas y controles para una migracion futura autorizada.
 - `docs/contextos/`: contextos cortos para trabajar por modulo sin releer todo el sistema.
 - `docs/modulos/`: especificacion funcional por pantalla/modulo.
 
-Cuando un modulo este estable, Codex debe sugerir un commit local. El commit no se hace sin confirmacion explicita del usuario.
+Cuando un bloque quede estable y validado, se cierra con commit local segun las reglas de trabajo. No hacer push, publicacion ni despliegue sin confirmacion explicita.
 
 ## Usuarios de prueba
 
@@ -235,12 +238,15 @@ src/features/reports/          Reportes iniciales, exportaciones y cierres perio
 src/styles/global.css          Estilos globales
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
-docs/HANDOFF_TECNICO_POSEIDON.md Handoff tecnico completo para otra cuenta/agente
+docs/INDICE_DOCUMENTACION.md   Indice, rutas de lectura y fuentes canonicas
+docs/HANDOFF_TECNICO_POSEIDON.md Handoff tecnico compacto
 docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md Prompt corto para iniciar nueva cuenta
 docs/RETOMAR_MANANA.md         Resumen para retomar trabajo
-docs/MAPA_TECNICO.md           Mapa tecnico de pantallas, clases y reglas
+docs/MAPA_TECNICO.md           Propiedad, dependencias y deuda tecnica
 docs/CONTEXTO_RAPIDO_CODEX.md  Contexto corto para cargar rapido el proyecto
-docs/REGLAS_GENERALES.md       Reglas globales funcionales, contables y esteticas
+docs/REGLAS_GENERALES.md       Reglas transversales de trabajo y auditoria
+docs/ARQUITECTURA_OBJETIVO_ONLINE.md Diseno futuro sin implementar
+docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md Plan futuro reversible
 docs/modulos/                  Reglas detalladas por panel o modulo
 AGENTS.md                      Instrucciones para Codex/agentes
 iniciar-poseidon.bat           Camino oficial para levantar localhost
@@ -249,56 +255,11 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Refactor pendiente
 
-`src/App.tsx` todavia concentra estado global, acciones principales y composicion de pantallas. Ya se extrajeron `src/types.ts`, datos demo/normalizacion y reglas compartidas hacia `src/data/`, `src/lib/`, `src/components/` y `src/features/`:
-
-- `src/data/appData.ts`
-- `money.ts`
-- `dates.ts`
-- `periods.ts`
-- `balanceReferences.ts`
-- `audit.ts`
-- `clients.ts`
-- `files.ts`
-- `export.ts`
-- `storage.ts`
-- `sorting.ts`
-- `currentAccounts.ts`
-- `accountMovements.ts`
-- `cashTotals.ts`
-- `differences.ts`
-- `display.ts`
-- `ids.ts`
-- `people.ts`
-- `machineHistory.ts`
-- `salaryRules.ts`
-- `src/components/ui.tsx`
-- `src/components/MonthlyPeriodSelector.tsx`
-- `src/features/layout/AppShell.tsx`
-- `src/features/dashboard/RoleDashboard.tsx`
-- `src/features/accounts/CurrentAccounts.tsx`
-- `src/features/manager/Differences.tsx`
-- `src/features/cashier/OpenCash.tsx`
-- `src/features/cashier/ClosedBalanceSummary.tsx`
-- `src/features/cashier/Counters.tsx`
-- `src/features/cashier/CloseCash.tsx`
-- `src/features/cashier/Movements.tsx`
-- `src/features/manager/Expenses.tsx`
-- `src/features/salaries/SalarySettlements.tsx`
-- `src/features/admin/Clients.tsx`
-- `src/features/admin/Staff.tsx`
-- `src/features/admin/Settings.tsx`
-- `src/features/admin/LocationsMachines.tsx`
-- `src/features/audit/Audit.tsx`
-- `src/features/reports/Reports.tsx`
-- `src/features/reports/Periodic.tsx`
-
-Pendientes naturales:
-
-- Mantener `src/App.tsx` como orquestador y extraer nuevos bloques solo cuando bajen contexto o reduzcan riesgo real.
-- Seguir cerrando bloques estables con build, localhost y commit local.
+`src/App.tsx` ya es principalmente orquestador. Las proximas prioridades son dividir Locales/Maquinas, Movimientos y Salarios; separar seed de normalizacion; y extraer comandos de dominio con pruebas. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
 
 ## Documentacion viva
 
+- Indice y fuentes canonicas: `docs/INDICE_DOCUMENTACION.md`
 - Reglas funcionales: `docs/POSEIDON_FUNCIONAMIENTO.md`
 - Resumen para retomar: `docs/RETOMAR_MANANA.md`
 - Mapa tecnico: `docs/MAPA_TECNICO.md`
@@ -306,10 +267,12 @@ Pendientes naturales:
 - Reglas generales: `docs/REGLAS_GENERALES.md`
 - Modulos: `docs/modulos/`
 - Instrucciones de trabajo: `AGENTS.md`
+- Arquitectura futura: `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`
+- Migracion futura: `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`
 
 ## Publicacion
 
-El proyecto tiene `vercel.json`, pero no se debe publicar ni desplegar sin confirmacion explicita.
+El proyecto sigue en modo local. `vercel.json` existe como preparacion historica, pero no se debe publicar, desplegar, conectar Supabase ni activar servicios externos sin confirmacion explicita.
 
 Configuracion prevista para Vercel:
 

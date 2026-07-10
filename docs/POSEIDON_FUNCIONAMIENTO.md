@@ -1,9 +1,10 @@
 # Poseidon Sistema de Gestion - Funcionamiento y reglas
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-10
 
-Este documento es la memoria funcional viva del sistema. Cada cambio funcional relevante debe actualizar este archivo en el mismo trabajo.
+Este documento es la fuente canonica del comportamiento funcional transversal. Cada cambio funcional relevante debe actualizar este archivo en el mismo trabajo.
 Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar el documento correspondiente en `docs/modulos/`.
+La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`.
 
 ## Base tecnica
 

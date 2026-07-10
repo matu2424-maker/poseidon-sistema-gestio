@@ -2,7 +2,7 @@
 
 Ultima actualizacion: 2026-07-10
 
-Estas reglas aplican a todo el sistema, salvo que un modulo indique una excepcion explicita.
+Esta es la fuente canonica de reglas transversales de trabajo, documentacion y auditoria general. Aplica a todo el sistema, salvo que un modulo indique una excepcion explicita.
 
 ## Reglas de funcionamiento
 
