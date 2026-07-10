@@ -1,6 +1,6 @@
 # Contexto Codex - Salarios
 
-Ultima actualizacion: 2026-07-08
+Ultima actualizacion: 2026-07-10
 
 Leer este contexto antes de modificar personal, pago de salarios, liquidacion de salarios o cuenta corriente del empleado. Referencias asociadas:
 
@@ -40,6 +40,7 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 - Cuenta personal se filtra por `period`.
 - Liquidacion mensual usa salario base vigente desde historial salarial.
 - Cierre de liquidacion es foto auditada, no borra movimientos.
+- Historial de cierres de liquidacion es tabla ordenable por todas sus columnas de datos.
 - Auditoria guarda usuario real.
 
 ## Pruebas manuales

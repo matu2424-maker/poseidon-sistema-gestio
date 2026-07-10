@@ -78,6 +78,7 @@
 - Al hacer clic en un movimiento de la cuenta corriente del empleado se abre un detalle completo con origen, usuario, recaudacion asociada y notas.
 - La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, empleados, liquidaciones incluidas, usuario y fecha.
 - Abajo se muestra historial de cierres de liquidacion. Anular un cierre no borra las liquidaciones ni la auditoria.
+- La tabla de historial de cierres de liquidacion permite ordenar por ID, periodo, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.
 - Las cuentas personales no se muestran en `Cuentas corrientes`; se consultan desde este modulo.
 - Cajero carga pago simple desde caja abierta.
 - Salarios de una caja nueva siempre inician en 0.

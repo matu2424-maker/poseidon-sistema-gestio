@@ -91,6 +91,12 @@ export function AdminSalarySettlements({
     key: "name",
     direction: "asc",
   });
+  const [closureSort, setClosureSort] = useState<
+    SortState<"visibleId" | "periodLabel" | "employeeCount" | "totalSalaries" | "totalBaseCovered" | "totalLiquidated" | "totalPending" | "createdByName" | "createdAt" | "status">
+  >({
+    key: "createdAt",
+    direction: "desc",
+  });
   const customPeriod = `${customYear}-${customMonth}`;
   const selectedPeriod = periodMode === "current" ? currentPeriod : periodMode === "previous" ? previousPeriod : customPeriod;
   const activeRange = { start: `${selectedPeriod}-01`, end: salaryPeriodEndDate(selectedPeriod) };
@@ -305,7 +311,22 @@ export function AdminSalarySettlements({
   const selectedStaffMovementBalance = selectedStaffMovement?.balanceId ? data.balances.find((balance) => balance.id === selectedStaffMovement.balanceId) : undefined;
   const selectedStaffMovementSettlement =
     selectedStaffMovement?.sourceType === "SUELDO" ? data.salarySettlements.find((settlement) => settlement.id === selectedStaffMovement.sourceId) : undefined;
-  const salaryClosures = [...data.salaryClosures].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const salaryClosureValue = (closure: SalaryClosure, key: typeof closureSort.key): string | number => {
+    if (key === "visibleId") return closure.visibleId;
+    if (key === "periodLabel") return closure.periodLabel;
+    if (key === "employeeCount") return closure.employeeCount;
+    if (key === "totalSalaries") return closure.totalSalaries;
+    if (key === "totalBaseCovered") return closure.totalBaseCovered;
+    if (key === "totalLiquidated") return closure.totalLiquidated;
+    if (key === "totalPending") return closure.totalPending;
+    if (key === "createdByName") return closure.createdByName;
+    if (key === "status") return closure.status;
+    return closure.createdAt;
+  };
+  const salaryClosures = [...data.salaryClosures].sort((a, b) => {
+    const result = compareValues(salaryClosureValue(a, closureSort.key), salaryClosureValue(b, closureSort.key));
+    return closureSort.direction === "asc" ? result : -result;
+  });
   const nextSalaryClosureVisibleId = (current: AppData) => {
     const max = current.salaryClosures
       .map((closure) => {
@@ -590,16 +611,25 @@ export function AdminSalarySettlements({
           <table className="data-table admin-data-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Periodo</th>
-                <th>Empleados</th>
-                <th>Total salarios</th>
-                <th>Cubierto base</th>
-                <th>Pagado / Entregado</th>
-                <th>Pendiente</th>
-                <th>Usuario</th>
-                <th>Fecha cierre</th>
-                <th>Estado</th>
+                {[
+                  ["visibleId", "ID"],
+                  ["periodLabel", "Periodo"],
+                  ["employeeCount", "Empleados"],
+                  ["totalSalaries", "Total salarios"],
+                  ["totalBaseCovered", "Cubierto base"],
+                  ["totalLiquidated", "Pagado / Entregado"],
+                  ["totalPending", "Pendiente"],
+                  ["createdByName", "Usuario"],
+                  ["createdAt", "Fecha cierre"],
+                  ["status", "Estado"],
+                ].map(([key, label]) => (
+                  <th key={key}>
+                    <button className="sort-button" type="button" onClick={() => setClosureSort((current) => nextSort(current, key as typeof closureSort.key))}>
+                      {label}
+                      {sortIndicator(closureSort, key as typeof closureSort.key)}
+                    </button>
+                  </th>
+                ))}
                 <th>Accion</th>
               </tr>
             </thead>

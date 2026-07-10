@@ -407,6 +407,7 @@ Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar 
 - La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, cubierto base, pagado/entregado, empleados, liquidaciones incluidas, usuario y fecha.
 - El cierre de liquidacion no borra movimientos ni liquida automaticamente obligaciones legales; sirve como corte mensual/historico para iniciar y controlar periodos siguientes.
 - La pantalla muestra abajo un historial de cierres de liquidacion; un cierre puede anularse sin borrar auditoria.
+- La tabla de historial de cierres de liquidacion permite ordenar por ID, periodo, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.
 - Exportar Excel descarga un CSV compatible con Excel del periodo consultado.
 - En esta etapa la liquidacion no calcula automaticamente obligaciones legales; se registra manualmente por concepto para saber cuanto se pago, a quien y por que.
 - El efectivo en caja descuenta solo salarios asociados a esa caja; una caja nueva siempre inicia salarios en 0.
