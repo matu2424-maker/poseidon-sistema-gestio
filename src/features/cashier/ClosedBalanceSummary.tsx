@@ -1,10 +1,16 @@
 ﻿import type { AppData, Balance } from "../../types";
+import { useState } from "react";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { formatDateTime, formatTime } from "../../lib/dates";
 import { balanceVisibleId, localName, userDisplayName, userDisplayNameWithRole } from "../../lib/display";
 import { bankDifferenceForBalance, cashDifferenceForBalance, differenceIsPending } from "../../lib/differences";
 import { money } from "../../lib/money";
+import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+
+type SummaryMachineSortKey = "visibleId" | "name" | "in" | "out" | "result" | "status";
+
 export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance: Balance }) {
+  const [machineSort, setMachineSort] = useState<SortState<SummaryMachineSortKey>>({ key: "visibleId", direction: "asc" });
   const totals = totalsForBalance(data, balance.id);
   const recalculatedDifference = cashDifferenceForBalance(data, balance);
   const declaredBank = balance.declaredBank ?? balance.nextBankBase ?? 0;
@@ -43,6 +49,19 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
     { concept: "Regalos", count: String(gifts.length), amount: money(totals.giftCash) },
     { concept: "Salida total", count: "-", amount: money(totalCashOutflows) },
   ];
+  const machineSortValue = (reading: (typeof readings)[number]): string | number => {
+    const machine = data.machines.find((item) => item.id === reading.machineId);
+    if (machineSort.key === "visibleId") return Number(machine?.visibleId ?? 0) || machine?.visibleId || "";
+    if (machineSort.key === "name") return machine?.name ?? "";
+    if (machineSort.key === "in") return (reading.inActual ?? reading.inPrevious) - reading.inPrevious;
+    if (machineSort.key === "out") return (reading.outActual ?? reading.outPrevious) - reading.outPrevious;
+    if (machineSort.key === "result") return reading.result;
+    return reading.status;
+  };
+  const sortedReadings = [...readings].sort((a, b) => {
+    const result = compareValues(machineSortValue(a), machineSortValue(b));
+    return machineSort.direction === "asc" ? result : -result;
+  });
 
   return (
     <section className="closed-summary-panel">
@@ -254,16 +273,25 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
             <table className="data-table compact-data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Maquina</th>
-                  <th>IN</th>
-                  <th>OUT</th>
-                  <th>Resultado</th>
-                  <th>Estado</th>
+                  {[
+                    ["visibleId", "ID"],
+                    ["name", "Maquina"],
+                    ["in", "IN"],
+                    ["out", "OUT"],
+                    ["result", "Resultado"],
+                    ["status", "Estado"],
+                  ].map(([key, label]) => (
+                    <th key={key}>
+                      <button className="sort-button" type="button" onClick={() => setMachineSort((current) => nextSort(current, key as typeof machineSort.key))}>
+                        {label}
+                        {sortIndicator(machineSort, key as typeof machineSort.key)}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {readings.map((reading) => {
+                {sortedReadings.map((reading) => {
                   const machine = data.machines.find((item) => item.id === reading.machineId);
                   return (
                     <tr key={reading.id}>

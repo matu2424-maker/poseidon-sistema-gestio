@@ -33,4 +33,5 @@ Esos aportes crean movimientos de cuenta corriente del local.
 - La tabla de ultimas cajas cerradas permite ordenar por ID, fecha, horario, resultado final, declarado, diferencia efectivo, diferencia banco, estado de diferencia y maquinas.
 - Se ve una caja por vez.
 - Permite ver resumen en pantalla, sin exportar desde esa vista.
+- En el resumen de una caja cerrada, la tabla de maquinas permite ordenar por ID, maquina, IN, OUT, resultado y estado.
 - Despues de cerrar una caja, el sistema envia a Resumen de cajas.

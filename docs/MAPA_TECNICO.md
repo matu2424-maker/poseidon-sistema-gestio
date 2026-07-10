@@ -37,7 +37,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/lib/salaryRules.ts`: conceptos, periodos, base salarial, importes y validaciones de salarios.
 - `src/lib/sorting.ts`: estado y helpers compartidos para ordenar tablas por columnas visibles.
 - `src/features/cashier/OpenCash.tsx`: apertura de caja y listado de ultimas cajas cerradas.
-- `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de una caja cerrada.
+- `src/features/cashier/ClosedBalanceSummary.tsx`: resumen solo lectura de una caja cerrada; la tabla de maquinas es ordenable por columnas visibles.
 - `src/features/cashier/Counters.tsx`: carga manual de IN/OUT, validaciones y totales previos al guardado.
 - `src/features/cashier/CloseCash.tsx`: cierre de caja, declaracion final, retiros finales y sincronizacion de diferencias/cuentas.
 - `src/features/cashier/Movements.tsx`: gastos, transferencias, regalos, salarios desde caja, retiros/aportes y clientes del cajero.
@@ -47,7 +47,7 @@ Este documento resume como esta armado el sistema para seguir programando sin pe
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido por administrador/cajero.
 - `src/features/admin/Staff.tsx`: personal, editor de personal, historial salarial y papelera.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
-- `src/features/audit/Audit.tsx`: bitacora general con ordenamiento por fecha, usuario, accion y entidad.
+- `src/features/audit/Audit.tsx`: bitacora general con ordenamiento por todas sus columnas visibles.
 - `src/features/reports/Reports.tsx`: reportes iniciales, exportaciones y tabla ordenable de cierres.
 - `src/features/reports/Periodic.tsx`: cierres periodicos, resumen por rango y cierres guardados.
 - `src/components/ui.tsx`: componentes visuales compartidos `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser` y `TableColumn`.

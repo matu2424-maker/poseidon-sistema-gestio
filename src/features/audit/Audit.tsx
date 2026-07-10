@@ -4,7 +4,7 @@ import { formatDateTime, nowIso } from "../../lib/dates";
 import { roleLabels } from "../../lib/display";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 
-type AuditSortKey = "createdAt" | "user" | "action" | "entity";
+type AuditSortKey = "createdAt" | "user" | "action" | "entity" | "actorRole" | "reason";
 
 export function Audit({ data }: { data: AppData }) {
   const [sort, setSort] = useState<SortState<AuditSortKey>>({ key: "createdAt", direction: "desc" });
@@ -27,7 +27,9 @@ export function Audit({ data }: { data: AppData }) {
     if (key === "createdAt") return new Date(event.createdAt).getTime();
     if (key === "user") return auditUserName(data, event);
     if (key === "action") return event.action;
-    return event.entity;
+    if (key === "entity") return event.entity;
+    if (key === "actorRole") return event.actorRole ? roleLabels[event.actorRole] : "";
+    return event.reason || "";
   };
   const sortedRows = [...rows].sort((a, b) => {
     const result = compareValues(auditValue(a, sort.key), auditValue(b, sort.key));
@@ -41,16 +43,24 @@ export function Audit({ data }: { data: AppData }) {
         <table className="data-table">
           <thead>
             <tr>
-              {(["createdAt", "user", "action", "entity"] as AuditSortKey[]).map((key) => (
+              {(["createdAt", "user", "action", "entity", "actorRole", "reason"] as AuditSortKey[]).map((key) => (
                 <th key={key}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key))}>
-                    {key === "createdAt" ? "Fecha/hora" : key === "user" ? "Usuario" : key === "action" ? "Accion" : "Entidad"}
+                    {key === "createdAt"
+                      ? "Fecha/hora"
+                      : key === "user"
+                        ? "Usuario"
+                        : key === "action"
+                          ? "Accion"
+                          : key === "entity"
+                            ? "Entidad"
+                            : key === "actorRole"
+                              ? "Funcion"
+                              : "Motivo"}
                     {sortIndicator(sort, key)}
                   </button>
                 </th>
               ))}
-              <th>Funcion</th>
-              <th>Motivo</th>
             </tr>
           </thead>
           <tbody>

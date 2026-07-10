@@ -56,4 +56,4 @@ Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 - Los cambios de salario base deben auditar fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
 - Los descuentos salariales deben quedar auditados como reduccion de pendiente/base cubierta, no como salida de caja.
 - Las eliminaciones definitivas requieren confirmacion.
-- La tabla principal de auditoria permite ordenar por fecha/hora, usuario, accion y entidad.
+- La tabla principal de auditoria permite ordenar por fecha/hora, usuario, accion, entidad, funcion y motivo.
