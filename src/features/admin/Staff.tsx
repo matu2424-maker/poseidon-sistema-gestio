@@ -9,6 +9,8 @@ import { salaryHistoryEvent, staffFullName } from "../../lib/people";
 import { shiftSalaryPeriod } from "../../lib/salaryRules";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
+import { clientDeletionReferences, referenceMessage, staffDeletionReferences } from "../../lib/entityReferences";
+import { staffAccountId } from "../../lib/currentAccounts";
 
 const POSEIDON_LOCAL_ID = "1";
 const weekDays: WeekDay[] = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
@@ -522,6 +524,7 @@ export function AdminTrash({
     key: "deletedAt",
     direction: "desc",
   });
+  const [error, setError] = useState("");
   const sortedTrashedStaff = [...trashedStaff].sort((left, right) => {
     const value = (staff: StaffMember) => {
       if (trashStaffSort.key === "visibleId") return Number(staff.visibleId);
@@ -555,11 +558,11 @@ export function AdminTrash({
     const documentType = normalizeClientDocumentType(client.documentType);
     const documentId = normalizeClientDocument(documentType, client.documentId);
     if (!documentId) {
-      window.alert("No se puede restaurar: el cliente no tiene documento.");
+      setError("No se puede restaurar: el cliente no tiene documento.");
       return;
     }
     if (hasClientDocumentDuplicate(data.clients, documentType, documentId, client.id)) {
-      window.alert("No se puede restaurar: ya existe otro cliente activo o inactivo con ese documento.");
+      setError("No se puede restaurar: ya existe otro cliente activo o inactivo con ese documento.");
       return;
     }
     patchData((current) => {
@@ -570,12 +573,29 @@ export function AdminTrash({
     });
   };
   const deleteStaff = (staff: StaffMember) => {
+    const references = staffDeletionReferences(data, staff.id);
+    if (references.length) {
+      setError(`No se puede eliminar definitivamente: conserva ${referenceMessage(references)}. Mantenelo en la papelera.`);
+      return;
+    }
     if (!confirmAction(`Eliminar definitivamente a ${staffFullName(staff)}?`)) return;
-    patchData((current) => audit({ ...current, staff: current.staff.filter((item) => item.id !== staff.id) }, "Eliminar definitivo personal", "Personal", staff.id, staff, ""));
+    patchData((current) => audit({
+      ...current,
+      staff: current.staff.filter((item) => item.id !== staff.id),
+      salaryHistories: current.salaryHistories.filter((item) => item.staffId !== staff.id),
+      currentAccounts: current.currentAccounts.filter((item) => item.id !== staffAccountId(staff.id)),
+    }, "Eliminar definitivo personal", "Personal", staff.id, staff, ""));
+    setError("");
   };
   const deleteClient = (client: Client) => {
+    const references = clientDeletionReferences(data, client.id);
+    if (references.length) {
+      setError(`No se puede eliminar definitivamente: conserva ${referenceMessage(references)}. Mantenelo en la papelera.`);
+      return;
+    }
     if (!confirmAction(`Eliminar definitivamente a ${client.name}?`)) return;
     patchData((current) => audit({ ...current, clients: current.clients.filter((item) => item.id !== client.id) }, "Eliminar definitivo cliente", "Cliente", client.id, client, ""));
+    setError("");
   };
 
   return (
@@ -587,6 +607,7 @@ export function AdminTrash({
         </div>
         <span>{trashedStaff.length + trashedClients.length} elementos</span>
       </div>
+      {error && <p className="validation error">{error}</p>}
       <section className="embedded-panel">
         <h3>Personal</h3>
         <div className="table-wrap compact-table">

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { AccountMovement, Balance } from "../types";
-import { accountLedgerRows, accountTotalsFromMovements, machineResultAccountMovement, syncDifferenceAccountMovements } from "./accountMovements";
+import {
+  accountLedgerRows,
+  accountTotalsFromMovements,
+  machineResultAccountMovement,
+  reverseSourceAccountMovements,
+  syncDifferenceAccountMovements,
+} from "./accountMovements";
 
 const movement = (patch: Partial<AccountMovement>): AccountMovement => ({
   id: "movement-1",
@@ -67,10 +73,26 @@ describe("movimientos de cuentas", () => {
     expect(synced.find((item) => item.concept === "DIFERENCIA_BANCO")).toMatchObject({ direction: "SALIDA", amount: 200, status: "ACTIVO" });
   });
 
-  it("elimina movimientos de diferencia cuando la correccion deja ambos importes en cero", () => {
+  it("contrarresta diferencias sin borrar los movimientos originales", () => {
     const previous = syncDifferenceAccountMovements([], balance({ cashDifference: 500, bankDifference: -200 }), "user-1");
-    const synced = syncDifferenceAccountMovements(previous, balance({ cashDifference: 0, bankDifference: 0, differenceStatus: "CORREGIDA" }), "user-2");
-    expect(synced).toEqual([]);
+    const corrected = balance({
+      cashDifference: 0,
+      bankDifference: 0,
+      differenceStatus: "CORREGIDA",
+      differenceReviewedAt: "2026-07-02T10:00:00.000Z",
+    });
+    const synced = syncDifferenceAccountMovements(previous, corrected, "user-2");
+    expect(synced).toHaveLength(4);
+    expect(accountTotalsFromMovements(synced)).toMatchObject({ balance: 0 });
+    expect(syncDifferenceAccountMovements(synced, corrected, "user-2")).toEqual(synced);
+  });
+
+  it("anula una fuente con contramovimiento idempotente", () => {
+    const original = movement({ id: "expense", sourceType: "GASTO", sourceId: "expense-1", amount: 700, direction: "SALIDA" });
+    const reversed = reverseSourceAccountMovements([original], ["GASTO"], "expense-1", "manager-1", "Anulacion", "2026-07-02T10:00:00.000Z");
+    expect(reversed).toHaveLength(2);
+    expect(accountTotalsFromMovements(reversed).balance).toBe(0);
+    expect(reverseSourceAccountMovements(reversed, ["GASTO"], "expense-1", "manager-1", "Anulacion")).toEqual(reversed);
   });
 
   it("mantiene una fecha historica estable para el resultado de maquinas", () => {

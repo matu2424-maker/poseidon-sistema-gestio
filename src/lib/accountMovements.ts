@@ -157,12 +157,18 @@ export function differenceMovementIds(balanceId: string) {
   };
 }
 
-export function differenceAccountMovement(balance: Balance, kind: "EFECTIVO" | "BANCO", amount: number, userId: string): AccountMovement | null {
+export function differenceAccountMovement(
+  balance: Balance,
+  kind: "EFECTIVO" | "BANCO",
+  amount: number,
+  userId: string,
+  options: { id?: string; createdAt?: string; detailPrefix?: string } = {},
+): AccountMovement | null {
   if (amount === 0) return null;
   const ids = differenceMovementIds(balance.id);
   const isCash = kind === "EFECTIVO";
   return {
-    id: isCash ? ids.cash : ids.bank,
+    id: options.id ?? (isCash ? ids.cash : ids.bank),
     accountId: isCash ? localCashAccountId(balance.localId) : localBankAccountId(balance.localId),
     balanceId: balance.id,
     sourceType: "DIFERENCIA_CAJA",
@@ -170,19 +176,74 @@ export function differenceAccountMovement(balance: Balance, kind: "EFECTIVO" | "
     direction: amount >= 0 ? "ENTRADA" : "SALIDA",
     concept: isCash ? "DIFERENCIA_EFECTIVO" : "DIFERENCIA_BANCO",
     amount: Math.abs(amount),
-    detail: `Diferencia ${isCash ? "efectivo" : "banco"} caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
+    detail: `${options.detailPrefix ?? "Diferencia"} ${isCash ? "efectivo" : "banco"} caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
     status: balance.differenceStatus === "ANULADA" ? "ANULADO" : "ACTIVO",
     userId,
-    createdAt: balance.closedAt ?? nowIso(),
+    createdAt: options.createdAt ?? balance.differenceReviewedAt ?? balance.closedAt ?? nowIso(),
   };
 }
 
 export function syncDifferenceAccountMovements(movements: AccountMovement[], balance: Balance, userId: string) {
   const ids = differenceMovementIds(balance.id);
-  const withoutCurrent = movements.filter((movement) => movement.id !== ids.cash && movement.id !== ids.bank);
-  const cashMovement = differenceAccountMovement(balance, "EFECTIVO", balance.cashDifference ?? 0, userId);
-  const bankMovement = differenceAccountMovement(balance, "BANCO", balance.bankDifference ?? 0, userId);
-  return [cashMovement, bankMovement, ...withoutCurrent].filter((movement): movement is AccountMovement => Boolean(movement));
+  const syncKind = (current: AccountMovement[], kind: "EFECTIVO" | "BANCO", target: number) => {
+    const sourceId = `${balance.id}-${kind}`;
+    const related = current.filter(
+      (movement) => movement.sourceType === "DIFERENCIA_CAJA" && movement.sourceId === sourceId && movement.status === "ACTIVO",
+    );
+    const currentAmount = related.reduce(
+      (total, movement) => total + (movement.direction === "ENTRADA" ? movement.amount : -movement.amount),
+      0,
+    );
+    const delta = target - currentAmount;
+    if (delta === 0) return current;
+    const baseId = kind === "EFECTIVO" ? ids.cash : ids.bank;
+    const revision = (balance.differenceReviewedAt ?? balance.closedAt ?? nowIso()).replace(/[^0-9A-Za-z]/g, "");
+    const id = related.length === 0 && !current.some((movement) => movement.id === baseId) ? baseId : `${baseId}-ajuste-${revision}`;
+    const adjustment = differenceAccountMovement(balance, kind, delta, userId, {
+      id,
+      createdAt: balance.differenceReviewedAt ?? balance.closedAt,
+      detailPrefix: related.length ? "Ajuste diferencia" : "Diferencia",
+    });
+    return adjustment ? upsertAccountMovement(current, adjustment) : current;
+  };
+  return syncKind(syncKind(movements, "EFECTIVO", Number(balance.cashDifference ?? 0)), "BANCO", Number(balance.bankDifference ?? 0));
+}
+
+export function reverseSourceAccountMovements(
+  movements: AccountMovement[],
+  sourceTypes: AccountMovement["sourceType"][],
+  sourceId: string,
+  userId: string,
+  reason: string,
+  createdAt = nowIso(),
+) {
+  const originals = movements.filter(
+    (movement) =>
+      sourceTypes.includes(movement.sourceType) &&
+      movement.sourceId === sourceId &&
+      movement.status === "ACTIVO" &&
+      !movement.reversalOf,
+  );
+  return originals.reduce((current, original) => {
+    const reversalId = `account-movement-reversal-${original.id}`;
+    if (current.some((movement) => movement.id === reversalId)) return current;
+    const reversal: AccountMovement = {
+      id: reversalId,
+      accountId: original.accountId,
+      balanceId: original.balanceId,
+      sourceType: "AJUSTE",
+      sourceId: original.sourceId,
+      direction: original.direction === "ENTRADA" ? "SALIDA" : "ENTRADA",
+      concept: `REVERSO_${original.concept}`,
+      amount: original.amount,
+      detail: `${reason} - reverso de ${original.detail}`,
+      status: "ACTIVO",
+      userId,
+      createdAt,
+      reversalOf: original.id,
+    };
+    return [reversal, ...current];
+  }, movements);
 }
 
 export function syncMachineResultAccountMovement(data: AppData, balanceId: string, userId: string): AppData {

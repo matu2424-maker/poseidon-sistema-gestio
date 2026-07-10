@@ -23,6 +23,7 @@ import {
   localTransferAccountMovement,
   salaryAccountMovement,
   transferAccountMovement,
+  reverseSourceAccountMovements,
   upsertAccountMovement,
 } from "../../lib/accountMovements";
 import { createStaffCurrentAccount, createTransferCurrentAccount, ensureLocalCurrentAccounts, staffAccountId, TRANSFER_ACCOUNT_ID } from "../../lib/currentAccounts";
@@ -268,7 +269,7 @@ export function Transfers(props: {
           sortValues: [clientNameWithDocument(props.data, item.clientId) || "", item.name, item.receipt, item.account, item.amount, item.status],
           status: item.status,
         }))}
-        onAnnul={(id) => annulTransfer(id, props.patchData, props.audit)}
+        onAnnul={(id) => annulTransfer(id, props.user.id, props.patchData, props.audit)}
         createRow={
           <tr className="create-row">
             <td>
@@ -312,6 +313,7 @@ export function Transfers(props: {
 
 function annulTransfer(
   id: string,
+  userId: string,
   patchData: (updater: (current: AppData) => AppData) => void,
   audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData,
 ) {
@@ -319,8 +321,12 @@ function annulTransfer(
   patchData((current) => {
     const previous = current.transfers.find((item) => item.id === id);
     const transfers = current.transfers.map((item) => (item.id === id ? { ...item, status: "ANULADO" as MovementStatus } : item));
-    const accountMovements = current.accountMovements.map((movement) =>
-      movement.sourceType === "TRANSFERENCIA" && movement.sourceId === id ? { ...movement, status: "ANULADO" as MovementStatus } : movement,
+    const accountMovements = reverseSourceAccountMovements(
+      current.accountMovements,
+      ["TRANSFERENCIA"],
+      id,
+      userId,
+      "Anulacion operativa",
     );
     const next = transfers.find((item) => item.id === id);
     return audit({ ...current, transfers, accountMovements }, "Anular transferencia", "Transferencia", id, previous, next, "Anulacion operativa");
@@ -686,9 +692,14 @@ export function CashierSalaryPayments({
       const staffUpdated = current.staff.map((staffItem) =>
         staffItem.id === previous.staffId ? { ...staffItem, salaryAdvanceBalance: activeAdvanceBalance, updatedAt } : staffItem,
       );
-      const accountMovements = next
-        ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
-        : current.accountMovements;
+      const accountMovements = reverseSourceAccountMovements(
+        current.accountMovements,
+        ["SUELDO"],
+        id,
+        user.id,
+        "Anulacion de pago en caja abierta",
+        updatedAt,
+      );
       return audit(
         {
           ...current,
@@ -845,10 +856,12 @@ export function CapitalMovements({
     patchData((current) => {
       const previous = current.capitalMovements.find((item) => item.id === id);
       const capitalMovements = current.capitalMovements.map((item) => (item.id === id ? { ...item, status: "ANULADO" as MovementStatus } : item));
-      const accountMovements = current.accountMovements.map((movement) =>
-        (movement.sourceType === "RETIRO" || movement.sourceType === "APORTE") && movement.sourceId === id
-          ? { ...movement, status: "ANULADO" as MovementStatus }
-          : movement,
+      const accountMovements = reverseSourceAccountMovements(
+        current.accountMovements,
+        ["RETIRO", "APORTE"],
+        id,
+        user.id,
+        "Anulacion operativa",
       );
       const next = capitalMovements.find((item) => item.id === id);
       return audit({ ...current, capitalMovements, accountMovements }, "Anular retiro/aporte", "MovimientoCapital", id, previous, next, "Anulacion operativa");

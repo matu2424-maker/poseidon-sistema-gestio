@@ -89,11 +89,11 @@
 - Las cuentas personales no se muestran en `Cuentas corrientes`; se consultan desde este modulo.
 - Cajero carga pago simple desde caja abierta.
 - Salarios de una caja nueva siempre inician en 0.
-- Anular salario antes de cerrar caja deja el movimiento asociado en estado anulado y no impacta caja, liquidacion ni cuenta personal.
+- Anular salario antes de cerrar caja conserva el movimiento original y agrega contramovimientos que dejan el impacto neto en cero.
 
 ## Papelera
 
 - Aplica a personal y clientes.
 - Permite restaurar.
-- Permite eliminar definitivamente con confirmacion y auditoria.
+- Permite eliminar definitivamente con confirmacion y auditoria solo si no existen operaciones relacionadas; de lo contrario permanece en papelera.
 - Las tablas de papelera permiten ordenar por sus columnas visibles de datos; `Accion` no se ordena.

@@ -267,6 +267,7 @@ export type AccountMovement = {
   status: MovementStatus;
   userId: string;
   createdAt: string;
+  reversalOf?: string;
 };
 
 export type CapitalMovement = {

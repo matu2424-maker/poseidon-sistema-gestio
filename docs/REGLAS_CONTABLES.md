@@ -48,6 +48,13 @@ No forman parte del resultado economico:
 - El saldo final declarado por el cajero define el saldo real para la siguiente apertura.
 - El cierre registra usuario real y funcion usada.
 
+## Libro de movimientos
+
+- Los movimientos contables persistidos no se reescriben durante la normalizacion.
+- Una anulacion posterior genera un contramovimiento activo de direccion opuesta; no borra ni modifica el movimiento original.
+- Una correccion de diferencia agrega solo el delta necesario para alcanzar el nuevo saldo auditado.
+- Operaciones aun no cerradas pueden quitarse antes de contabilizarse definitivamente cuando la regla funcional lo permite.
+
 ## Cierre de caja
 
 - Efectivo esperado se calcula desde el flujo de caja del balance.
@@ -60,8 +67,8 @@ No forman parte del resultado economico:
 
 - `PENDIENTE`: requiere gestion.
 - `VERIFICADA`: confirma que la diferencia existe y mantiene movimientos activos.
-- `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza saldo proximo y resincroniza movimientos.
-- `ANULADA`: anula los movimientos de diferencia, revierte su impacto en cuentas, deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
+- `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza saldo proximo y agrega el ajuste contable necesario sin borrar el movimiento anterior.
+- `ANULADA`: agrega el contramovimiento que revierte el impacto, deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
 - Estos cuatro son los unicos estados vigentes. `REVISADA`, `RESUELTA` y `AJUSTADA` son valores heredados y se normalizan al leer datos antiguos, conservando auditoria.
 - Las diferencias deben conservar observacion original del cajero e historial auditado de gestion.
 

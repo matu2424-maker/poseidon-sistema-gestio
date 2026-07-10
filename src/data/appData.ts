@@ -1208,39 +1208,44 @@ export function normalizeData(data: AppData): AppData {
       status: movement.status ?? "ACTIVO",
       userId: movement.userId ?? "system",
       createdAt: movement.createdAt ?? nowIso(),
+      reversalOf: movement.reversalOf,
     });
   });
+  const addDerivedMovement = (movement: AccountMovement | null) => {
+    if (!movement || !accountIds.has(movement.accountId) || movementById.has(movement.id)) return;
+    movementById.set(movement.id, movement);
+  };
   salarySettlements.forEach((settlement) => {
     if (!accountIds.has(staffAccountId(settlement.staffId))) return;
     const movementUserId = settlement.approvedBy ?? settlement.createdBy ?? "system";
-    movementById.set(`account-movement-salary-${settlement.id}`, salaryAccountMovement(settlement, movementUserId));
+    addDerivedMovement(salaryAccountMovement(settlement, movementUserId));
     if (accountIds.has(localCashAccountId(settlement.localId))) {
-      movementById.set(`account-movement-local-salary-${settlement.id}`, localSalaryAccountMovement(settlement, movementUserId));
+      addDerivedMovement(localSalaryAccountMovement(settlement, movementUserId));
     }
   });
   expenses.forEach((expense) => {
     const localId = balanceLocalId(expense.balanceId);
     if (accountIds.has(localCashAccountId(localId))) {
-      movementById.set(`account-movement-local-expense-${expense.id}`, localExpenseAccountMovement(expense, localId));
+      addDerivedMovement(localExpenseAccountMovement(expense, localId));
     }
   });
   transfers.forEach((transfer) => {
-    movementById.set(`account-movement-transfer-${transfer.id}`, transferAccountMovement(transfer));
+    addDerivedMovement(transferAccountMovement(transfer));
     const localId = balanceLocalId(transfer.balanceId);
     if (accountIds.has(localBankAccountId(localId))) {
-      movementById.set(`account-movement-local-transfer-${transfer.id}`, localTransferAccountMovement(transfer, localId));
+      addDerivedMovement(localTransferAccountMovement(transfer, localId));
     }
   });
   gifts.forEach((gift) => {
     const localId = balanceLocalId(gift.balanceId);
     if (accountIds.has(localCashAccountId(localId))) {
-      movementById.set(`account-movement-local-gift-${gift.id}`, localGiftAccountMovement(gift, localId));
+      addDerivedMovement(localGiftAccountMovement(gift, localId));
     }
   });
   capitalMovements.forEach((movement) => {
     const accountId = localAccountIdForMedium(movement.localId, movement.medium);
     if (accountIds.has(accountId)) {
-      movementById.set(`account-movement-capital-${movement.id}`, capitalAccountMovement(movement));
+      addDerivedMovement(capitalAccountMovement(movement));
     }
   });
   balances.forEach((balance) => {
@@ -1248,17 +1253,11 @@ export function normalizeData(data: AppData): AppData {
       .filter((reading) => reading.balanceId === balance.id && reading.status === "CARGADA")
       .reduce((total, reading) => total + Number(reading.result ?? 0), 0);
     const movement = machineResultAccountMovement(balance, result, balance.closedBy ?? balance.openedBy ?? "system");
-    if (movement && accountIds.has(movement.accountId)) {
-      movementById.set(movement.id, movement);
-    }
+    addDerivedMovement(movement);
     const movementUserId = balance.closedBy ?? balance.openedBy ?? "system";
     const cashDifferenceMovement = differenceAccountMovement(balance, "EFECTIVO", Number(balance.cashDifference ?? 0), movementUserId);
     const bankDifferenceMovement = differenceAccountMovement(balance, "BANCO", Number(balance.bankDifference ?? 0), movementUserId);
-    [cashDifferenceMovement, bankDifferenceMovement].forEach((differenceMovement) => {
-      if (differenceMovement && accountIds.has(differenceMovement.accountId)) {
-        movementById.set(differenceMovement.id, differenceMovement);
-      }
-    });
+    [cashDifferenceMovement, bankDifferenceMovement].forEach(addDerivedMovement);
   });
   const accountMovements = [...movementById.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const auditEvents = source.audit.map((event) => ({

@@ -26,6 +26,8 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 ## Reglas
 
 - Los saldos se calculan desde movimientos.
+- Los movimientos persistidos no se reescriben al iniciar la aplicacion.
+- Anulaciones posteriores generan contramovimientos; correcciones de diferencias agregan el delta necesario.
 - Cada local tiene cuenta de efectivo y cuenta banco.
 - Existe cuenta unica de transferencias.
 - La pantalla no muestra cuentas personales; esas cuentas se ven dentro de `Liquidacion de salarios`.
@@ -64,4 +66,4 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 ## Auditoria
 
 - Cada movimiento debe registrar origen, usuario, fecha, concepto, monto, direccion y estado.
-- Si se anula un origen, se anula su movimiento asociado. En salarios desde cajero, la liquidacion queda `ANULADA` y sus movimientos asociados dejan de impactar saldos. En diferencias, la recaudacion queda con diferencia `ANULADA` y sus movimientos dejan de impactar saldos.
+- Si se anula un origen, se conserva el asiento y se agrega un contramovimiento. En salarios, transferencias, capital, gastos revisados y diferencias el impacto neto queda en cero sin perder historial.

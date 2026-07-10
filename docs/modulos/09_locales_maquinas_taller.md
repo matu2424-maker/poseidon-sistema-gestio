@@ -8,6 +8,8 @@
 
 ## Locales
 
+- Un local con recaudaciones, personal, clientes, usuarios, cuentas o historial de maquinas no se elimina fisicamente; debe pasar a `CERRADO`.
+
 - ID numerico corto.
 - Estados: ACTIVO, INACTIVO, CERRADO.
 - Tabla principal con buscador, ordenamiento y selector de columnas.

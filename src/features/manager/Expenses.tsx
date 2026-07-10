@@ -5,6 +5,7 @@ import { balanceVisibleId, localName, userDisplayName } from "../../lib/display"
 import { money } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal, type TableColumn } from "../../components/ui";
+import { reverseSourceAccountMovements } from "../../lib/accountMovements";
 
 const confirmAction = (message: string) => window.confirm(message);
 
@@ -172,8 +173,13 @@ export function ManagerExpenses({
             }
           : expense,
       );
-      const accountMovements = current.accountMovements.map((movement) =>
-        movement.sourceType === "GASTO" && movement.sourceId === selectedRow.expense.id ? { ...movement, status: "ANULADO" as MovementStatus } : movement,
+      const accountMovements = reverseSourceAccountMovements(
+        current.accountMovements,
+        ["GASTO"],
+        selectedRow.expense.id,
+        user.id,
+        note,
+        reviewedAt,
       );
       const next = expenses.find((expense) => expense.id === selectedRow.expense.id);
       return audit({ ...current, expenses, accountMovements }, "Anular gasto encargado", "Gasto", selectedRow.expense.id, previous, next, note);

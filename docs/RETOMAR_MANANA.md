@@ -13,6 +13,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - El servidor oficial se inicia con `iniciar-poseidon.bat`.
 - El snapshot local esta versionado y validado; no se recorta historial para forzar guardados.
 - Datos locales permite exportar/importar respaldo y recuperar almacenamiento corrupto sin sobrescribirlo.
+- Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
+- Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 
 ## Ultimo bloque funcional completado
 

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import type { AccountMovement, AppData, SalaryClosure, SalarySettlement, SalarySettlementStatus, SalaryType, StaffMember, User } from "../../types";
-import { localSalaryAccountMovement, salaryAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
+import { localSalaryAccountMovement, reverseSourceAccountMovements, salaryAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
 import { balanceForMovement, balanceReferenceLabel } from "../../lib/balanceReferences";
 import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
 import { formatDateTime, monthRange, nowIso, today } from "../../lib/dates";
@@ -418,9 +418,11 @@ export function AdminSalarySettlements({
         ? [createStaffCurrentAccount(staffMember), ...current.currentAccounts]
         : current.currentAccounts;
       const withLocalAccounts = ensureLocalCurrentAccounts({ ...current, currentAccounts }, settlement.localId);
-      const accountMovements = next
-        ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
-        : current.accountMovements;
+      const accountMovements = status === "ANULADA"
+        ? reverseSourceAccountMovements(current.accountMovements, ["SUELDO"], settlement.id, user.id, "Anulacion de liquidacion", updatedAt)
+        : next
+          ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
+          : current.accountMovements;
       const activeAdvanceBalance = salarySettlements
         .filter((item) => item.staffId === settlement.staffId && item.status !== "ANULADA" && item.concept === "ADELANTO")
         .reduce((total, item) => total + Number(item.advances ?? 0), 0);

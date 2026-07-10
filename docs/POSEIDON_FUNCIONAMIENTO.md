@@ -51,6 +51,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 
 - No se borra historial operativo sin pasar por auditoria.
 - Las bajas operativas deben quedar como estado, anulacion o papelera antes de eliminacion definitiva.
+- Personal, clientes o locales con referencias operativas no se eliminan definitivamente; se conservan en papelera o estado cerrado/inactivo.
 - Las acciones sensibles usan confirmacion simple antes de ejecutar.
 - Las tablas principales deben mantener foco en grilla, busqueda, ordenamiento cuando aplique y acciones claras.
 - Todo cambio de datos importante debe crear evento de auditoria.
@@ -211,8 +212,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La observacion original del cajero no se pisa; la gestion posterior guarda usuario, fecha/hora y nota propia.
 - Una diferencia puede deberse a error de carga, transferencia mal registrada, retiro/aporte omitido o faltante/sobrante real.
 - Si se verifica, los movimientos de diferencia quedan activos y mantienen el saldo real declarado.
-- Si se corrige, encargado/admin ingresa efectivo declarado corregido y dinero banco declarado corregido; el sistema recalcula las diferencias, actualiza el saldo proximo de la recaudacion y sincroniza movimientos de cuenta.
-- Si se anula, los movimientos de diferencia quedan anulados, dejan de impactar las cuentas del local, la diferencia efectiva queda en cero y los saldos proximos vuelven al calculo esperado de la recaudacion.
+- Si se corrige, encargado/admin ingresa efectivo declarado corregido y dinero banco declarado corregido; el sistema recalcula diferencias y agrega el delta contable necesario sin borrar asientos anteriores.
+- Si se anula, se agrega un contramovimiento que revierte el impacto sin borrar el asiento original; la diferencia efectiva queda en cero y los saldos proximos vuelven al calculo esperado.
 - Cualquier correccion adicional posterior debe hacerse mediante un ajuste explicito y auditado.
 - En la pantalla `Diferencias`, el encargado ve solo las recaudaciones de sus locales asignados; administrador ve todos los locales.
 - La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o consulta historica por mes/ano.
@@ -451,6 +452,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - `Local / Banco`.
 - Los saldos no se cargan manualmente: se calculan desde movimientos.
 - Los movimientos tienen cuenta, origen, fecha, usuario, concepto, direccion, monto y estado.
+- Los movimientos persistidos son historicos: anulaciones y correcciones posteriores se representan con contramovimientos o deltas, no reescribiendo el asiento original.
 - La pantalla `Cuentas corrientes` no repite el titulo principal dentro del contenido; inicia con descripcion operativa y contadores de cuentas/movimientos.
 - La pantalla `Cuentas corrientes` no muestra cuentas personales; esas se consultan en `Liquidacion de salarios`.
 - `Cuentas corrientes` abre por defecto en mes corriente.
@@ -475,8 +477,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - retiros salen de `Local / Efectivo` o `Local / Banco` segun medio;
   - aportes entran en `Local / Efectivo` o `Local / Banco` segun medio;
   - diferencias de caja entran o salen de `Local / Efectivo` y/o `Local / Banco` para reflejar el saldo declarado al cierre.
-- Si se elimina un salario antes del cierre, se elimina tambien su movimiento de cuenta.
-- Si se anula una transferencia, se anula tambien su movimiento de cuenta.
+- Si se elimina un salario antes del cierre, se conservan los asientos y se agregan contramovimientos para dejar impacto neto cero.
+- Si se anula una transferencia, se agrega el contramovimiento de cuenta y se conserva el asiento original.
 - Administrador puede ver `Cuentas corrientes` como pantalla solo lectura de saldos y movimientos, incluyendo usuario que ejecuto cada movimiento.
 
 ## Clientes
@@ -500,6 +502,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Existe para personal y clientes.
 - Permite restaurar o eliminar definitivamente.
 - La eliminacion definitiva requiere confirmacion y auditoria.
+- La eliminacion definitiva se bloquea si personal o cliente tiene operaciones relacionadas; en ese caso permanece en papelera.
 
 ## Auditoria
 

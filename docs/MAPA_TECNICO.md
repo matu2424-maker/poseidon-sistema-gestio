@@ -137,6 +137,8 @@ Las cifras son orientativas; volver a medir antes de planificar un corte.
 - Cobertura automatizada insuficiente para ciclos completos.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
 
+Completado en integridad local: los movimientos persistidos se conservan, las anulaciones usan contramovimientos y las bajas definitivas validan referencias.
+
 ### Media
 
 - Permisos, confirmaciones y mensajes distribuidos.

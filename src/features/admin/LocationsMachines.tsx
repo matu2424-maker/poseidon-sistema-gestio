@@ -17,6 +17,7 @@ import { counter, formatCounterInput, money, parseCounter } from "../../lib/mone
 import { readColumnPreference, writeColumnPreference } from "../../lib/storage";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ColumnChooser, InfoCard, Modal, type TableColumn } from "../../components/ui";
+import { localDeletionReferences, referenceMessage } from "../../lib/entityReferences";
 
 const POSEIDON_LOCAL_ID = "1";
 const WORKSHOP_LOCAL_ID = "taller";
@@ -2029,7 +2030,13 @@ function AdminLocalEditor({
   };
 
   const remove = () => {
-    if (!existing || protectedLocal || !confirmAction(`Confirmar baja del local ${existing.name}. Las maquinas volveran al Taller.`)) return;
+    if (!existing || protectedLocal) return;
+    const references = localDeletionReferences(data, existing.id);
+    if (references.length) {
+      setError(`No se puede quitar definitivamente: conserva ${referenceMessage(references)}. Usa el estado CERRADO.`);
+      return;
+    }
+    if (!confirmAction(`Confirmar baja del local ${existing.name}. Las maquinas volveran al Taller.`)) return;
 
     patchData((current) => {
       const removedMachines = current.machines.filter((machine) => machine.localId === existing.id);
