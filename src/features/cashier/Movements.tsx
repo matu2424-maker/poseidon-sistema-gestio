@@ -50,6 +50,16 @@ import { Modal } from "../../components/ui";
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 const confirmAction = (message: string) => window.confirm(message);
 const clientStatusClass = (status: ClientStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
+type ClientTableColumn = "visibleId" | "name" | "document" | "category" | "phone" | "email" | "status";
+const clientSortValue = (client: Client, key: ClientTableColumn): string | number => {
+  if (key === "visibleId") return client.visibleId;
+  if (key === "name") return client.name;
+  if (key === "document") return clientDocumentLabel(client);
+  if (key === "category") return client.category;
+  if (key === "phone") return client.phone || "";
+  if (key === "email") return client.email || "";
+  return client.status;
+};
 const clientNameWithDocument = (data: AppData, clientId: string | undefined) => {
   const client = data.clients.find((item) => item.id === clientId);
   return client ? `${client.name} - ${clientDocumentLabel(client)}` : "";
@@ -458,12 +468,17 @@ function ClientPickerModal({
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState<Exclude<ClientTableColumn, "email" | "status">>>({ key: "name", direction: "asc" });
   const normalizedQuery = query.trim().toLowerCase();
   const filteredClients = normalizedQuery
     ? clients.filter((client) =>
         [client.visibleId, client.name, clientDocumentSearchText(client), client.phone, client.email, client.category].join(" ").toLowerCase().includes(normalizedQuery),
       )
     : clients;
+  const sortedClients = [...filteredClients].sort((left, right) => {
+    const result = compareValues(clientSortValue(left, sort.key), clientSortValue(right, sort.key));
+    return sort.direction === "asc" ? result : -result;
+  });
   const toggleClient = (clientId: string) => {
     onChange(selectedIds.includes(clientId) ? selectedIds.filter((id) => id !== clientId) : [...selectedIds, clientId]);
   };
@@ -479,15 +494,24 @@ function ClientPickerModal({
           <thead>
             <tr>
               <th></th>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Documento</th>
-              <th>Categoria</th>
-              <th>Telefono</th>
+              {[
+                ["visibleId", "ID"],
+                ["name", "Cliente"],
+                ["document", "Documento"],
+                ["category", "Categoria"],
+                ["phone", "Telefono"],
+              ].map(([key, label]) => (
+                <th key={key}>
+                  <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
+                    {label}
+                    {sortIndicator(sort, key as typeof sort.key)}
+                  </button>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {filteredClients.map((client) => (
+            {sortedClients.map((client) => (
               <tr key={client.id}>
                 <td>
                   <input type="checkbox" checked={selectedIds.includes(client.id)} onChange={() => toggleClient(client.id)} />
@@ -499,7 +523,7 @@ function ClientPickerModal({
                 <td>{client.phone || "-"}</td>
               </tr>
             ))}
-            {!filteredClients.length && (
+            {!sortedClients.length && (
               <tr>
                 <td colSpan={6}>No hay clientes para mostrar.</td>
               </tr>
@@ -926,6 +950,7 @@ export function CashierClients({
 }) {
   const [query, setQuery] = useState("");
   const [editorId, setEditorId] = useState<string | null | undefined>(undefined);
+  const [sort, setSort] = useState<SortState<ClientTableColumn>>({ key: "visibleId", direction: "asc" });
   const normalizedQuery = query.trim().toLowerCase();
   const clients = data.clients.filter((client) => client.status !== "PAPELERA");
   const filtered = normalizedQuery
@@ -933,6 +958,10 @@ export function CashierClients({
         [client.visibleId, client.name, clientDocumentSearchText(client), client.phone, client.email, client.category, client.status].join(" ").toLowerCase().includes(normalizedQuery),
       )
     : clients;
+  const sorted = [...filtered].sort((left, right) => {
+    const result = compareValues(clientSortValue(left, sort.key), clientSortValue(right, sort.key));
+    return sort.direction === "asc" ? result : -result;
+  });
   const sendToTrash = (client: Client) => {
     if (!confirmAction(`Enviar a papelera a ${client.name}?`)) return;
     patchData((current) => {
@@ -953,18 +982,27 @@ export function CashierClients({
         <table className="data-table movement-data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Documento</th>
-              <th>Categoria</th>
-              <th>Telefono</th>
-              <th>Email</th>
-              <th>Estado</th>
+              {[
+                ["visibleId", "ID"],
+                ["name", "Cliente"],
+                ["document", "Documento"],
+                ["category", "Categoria"],
+                ["phone", "Telefono"],
+                ["email", "Email"],
+                ["status", "Estado"],
+              ].map(([key, label]) => (
+                <th key={key}>
+                  <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
+                    {label}
+                    {sortIndicator(sort, key as typeof sort.key)}
+                  </button>
+                </th>
+              ))}
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((client) => (
+            {sorted.map((client) => (
               <tr key={client.id} className={clientStatusClass(client.status)}>
                 <td>{client.visibleId}</td>
                 <td>{client.name}</td>
@@ -985,7 +1023,7 @@ export function CashierClients({
                 </td>
               </tr>
             ))}
-            {!filtered.length && (
+            {!sorted.length && (
               <tr>
                 <td colSpan={8}>No hay clientes para mostrar.</td>
               </tr>

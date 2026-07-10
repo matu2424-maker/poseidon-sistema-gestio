@@ -10,6 +10,8 @@
 - No puede duplicarse tipo + documento en clientes activos/inactivos.
 - Pueden tener foto y archivo de documento como metadatos.
 - Cajero puede agregar, editar y enviar a papelera.
+- La tabla de clientes desde cajero es ordenable por ID, cliente, documento, categoria, telefono, email y estado; `Acciones` no se ordena.
+- El selector multiple de clientes para regalos es ordenable por ID, cliente, documento, categoria y telefono; el checkbox de seleccion no se ordena.
 - Administrador puede gestionar clientes.
 
 ## Personal
