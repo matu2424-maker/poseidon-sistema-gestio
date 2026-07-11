@@ -16,13 +16,14 @@ export function appendAuditEvent(
   previousValue: unknown,
   newValue: unknown,
   reason = "",
+  options: { id?: string; createdAt?: string } = {},
 ): AppData {
   const user = actor.user;
   return {
     ...current,
     audit: [
       {
-        id: uid("audit"),
+        id: options.id ?? uid("audit"),
         userId: user?.id ?? "system",
         userName: user?.name ?? "Sistema",
         actualRole: user?.role,
@@ -33,7 +34,7 @@ export function appendAuditEvent(
         previousValue: JSON.stringify(previousValue ?? ""),
         newValue: JSON.stringify(newValue ?? ""),
         reason,
-        createdAt: nowIso(),
+        createdAt: options.createdAt ?? nowIso(),
       },
       ...current.audit,
     ],

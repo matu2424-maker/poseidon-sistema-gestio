@@ -48,5 +48,6 @@ export function auditCommand(
     previousValue,
     newValue,
     reason,
+    { id: context.id("audit"), createdAt: context.now() },
   );
 }

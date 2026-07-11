@@ -110,7 +110,7 @@ Riesgo: alto por caja, taller, historial y contadores.
 
 ### Corte C - Movimientos del cajero
 
-Estado parcial: `CashierClients`, `CashierSalaryPayments` y `MovementTable` ya estan separados. Permanecen juntos gastos, transferencias, regalos y capital hasta extraer sus comandos contables.
+Estado completado para negocio: `CashierClients`, `CashierSalaryPayments` y `MovementTable` estan separados, y gastos, transferencias, regalos y capital delegan altas/anulaciones en `application/movements/operatingMovementCommands.ts`. La fachada conserva la composicion de formularios y tablas.
 
 Riesgo: alto por impactos contables y anulaciones.
 
@@ -145,7 +145,7 @@ Completados con contexto inyectable y pruebas:
 
 Pendientes de extraer uno por vez:
 
-- movimientos;
+- completado: movimientos operativos;
 - locales/maquinas.
 
 Cada comando debe ser puro o recibir explícitamente reloj/ID, devolver error tipado y aplicar auditoria/movimientos de manera consistente.

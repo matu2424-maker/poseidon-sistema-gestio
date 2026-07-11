@@ -343,19 +343,19 @@ function App() {
           />
         )}
         {cashierScreen === "expenses" && openBalance && (
-          <Expenses data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
+          <Expenses data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "transfers" && openBalance && (
-          <Transfers data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
+          <Transfers data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "gifts" && openBalance && (
-          <Gifts data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
+          <Gifts data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "salary-payments" && openBalance && (
           <CashierSalaryPayments data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "capital-movements" && openBalance && (
-          <CapitalMovements data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
+          <CapitalMovements data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "cashier-clients" && (
           <CashierClients data={data} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
@@ -443,16 +443,16 @@ function App() {
         />
       )}
       {screen === "expenses" && openBalance && (
-        <Expenses data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />
+        <Expenses data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} />
       )}
       {screen === "transfers" && openBalance && (
-        <Transfers data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />
+        <Transfers data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} />
       )}
       {screen === "gifts" && openBalance && (
-        <Gifts data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />
+        <Gifts data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} />
       )}
       {screen === "capital-movements" && openBalance && (
-        <CapitalMovements data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />
+        <CapitalMovements data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} />
       )}
       {screen === "close-cash" && openBalance && (
         <CloseCash

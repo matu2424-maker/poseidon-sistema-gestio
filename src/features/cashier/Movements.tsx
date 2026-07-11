@@ -2,37 +2,32 @@ import { useState, type FormEvent } from "react";
 import type {
   AppData,
   Balance,
-  CapitalMovement,
   CapitalMovementMedium,
   CapitalMovementPerson,
   CapitalMovementType,
   Client,
-  Expense,
-  Gift,
-  MovementStatus,
-  Transfer,
   User,
 } from "../../types";
-import {
-  capitalAccountMovement,
-  localExpenseAccountMovement,
-  localGiftAccountMovement,
-  localTransferAccountMovement,
-  transferAccountMovement,
-  reverseSourceAccountMovements,
-  upsertAccountMovement,
-} from "../../lib/accountMovements";
-import { createTransferCurrentAccount, ensureLocalCurrentAccounts, TRANSFER_ACCOUNT_ID } from "../../lib/currentAccounts";
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
-import { formatDateTime, nowIso } from "../../lib/dates";
+import { formatDateTime } from "../../lib/dates";
 import { readUploadFile } from "../../lib/files";
 import { confirmAction } from "../../lib/confirmations";
-import { uid } from "../../lib/ids";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
 import { CashierMovementPanel, MovementTable } from "./MovementTable";
 import { clientSortValue, type ClientTableColumn } from "../clients/clientTable";
+import { commandContext } from "../../application/command";
+import {
+  annulCapitalMovementCommand,
+  annulTransferCommand,
+  createCapitalMovementCommand,
+  createExpenseCommand,
+  createGiftCommand,
+  createTransferCommand,
+  deleteExpenseCommand,
+  deleteGiftCommand,
+} from "../../application/movements/operatingMovementCommands";
 export { CashierClients } from "./CashierClients";
 export { CashierSalaryPayments } from "./CashierSalaryPayments";
 
@@ -46,7 +41,6 @@ export function Expenses({
   balance,
   user,
   patchData,
-  audit,
   setMessage,
   onBack,
 }: {
@@ -54,7 +48,6 @@ export function Expenses({
   balance: Balance;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
@@ -67,42 +60,30 @@ export function Expenses({
     const form = new FormData(event.currentTarget);
     const receiptFile = form.get("receiptFile");
     const uploadedReceipt = receiptFile instanceof File && receiptFile.size > 0 ? readUploadFile(receiptFile) : null;
-    const expense: Expense = {
-      id: uid("expense"),
+    const input = {
       balanceId: balance.id,
       category: selectedCategory?.name ?? "",
       subcategory: String(form.get("subcategory") ?? ""),
       amount: parseMoneyInput(form.get("amount")),
       description: String(form.get("description")),
-      receipt: uploadedReceipt?.name ?? "",
       receiptFileName: uploadedReceipt?.name,
       receiptFileType: uploadedReceipt?.type,
-      receiptDataUrl: undefined,
-      status: "ACTIVO",
-      userId: user.id,
-      createdAt: nowIso(),
     };
-    if (!expense.category || !expense.subcategory || !expense.amount) {
-      setMessage("Categoria, subcategoria y monto son obligatorios.");
-      return;
-    }
-    patchData((current) =>
-      audit(
-        {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(current, balance.localId),
-          accountMovements: upsertAccountMovement(current.accountMovements, localExpenseAccountMovement(expense, balance.localId)),
-          expenses: [expense, ...current.expenses],
-        },
-        "Crear gasto",
-        "Gasto",
-        expense.id,
-        "",
-        expense,
-      ),
-    );
-    setMessage("Gasto guardado.");
+    patchData((current) => {
+      const result = createExpenseCommand(current, input, commandContext(user, "CAJERO"));
+      setMessage(result.ok ? "Gasto guardado." : result.error);
+      return result.ok ? result.data : current;
+    });
     event.currentTarget.reset();
+  };
+
+  const removeExpense = (id: string) => {
+    if (!confirmAction("Eliminar este gasto de la caja abierta?")) return;
+    patchData((current) => {
+      const result = deleteExpenseCommand(current, balance.id, id, commandContext(user, "CAJERO"));
+      setMessage(result.ok ? "Gasto eliminado." : result.error);
+      return result.ok ? result.data : current;
+    });
   };
 
   if (!activeCategories.length) {
@@ -130,7 +111,7 @@ export function Expenses({
           status: item.status,
         }))}
         actionLabel="Eliminar"
-        onAnnul={(id) => deleteExpense(id, balance, patchData, audit, setMessage)}
+        onAnnul={removeExpense}
         createRow={
           <tr className="create-row">
             <td>
@@ -176,7 +157,6 @@ export function Transfers(props: {
   balance: Balance;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
@@ -184,50 +164,29 @@ export function Transfers(props: {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const transfer: Transfer = {
-      id: uid("transfer"),
+    const input = {
       balanceId: props.balance.id,
       clientId: String(form.get("clientId") || "") || undefined,
       receipt: String(form.get("receipt")),
       name: String(form.get("name")),
       amount: parseMoneyInput(form.get("amount")),
       account: String(form.get("account") || "Cuenta unica inicial"),
-      status: "ACTIVO",
-      userId: props.user.id,
-      createdAt: nowIso(),
     };
-    if (!transfer.receipt.trim() || !transfer.name.trim() || !transfer.amount) {
-      props.setMessage("Comprobante, nombre y monto son obligatorios.");
-      return;
-    }
-    props.patchData((current) =>
-      props.audit(
-        {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(
-            {
-              ...current,
-              currentAccounts: current.currentAccounts.some((account) => account.id === TRANSFER_ACCOUNT_ID)
-                ? current.currentAccounts
-                : [createTransferCurrentAccount(), ...current.currentAccounts],
-            },
-            props.balance.localId,
-          ),
-          accountMovements: upsertAccountMovement(
-            upsertAccountMovement(current.accountMovements, transferAccountMovement(transfer)),
-            localTransferAccountMovement(transfer, props.balance.localId),
-          ),
-          transfers: [transfer, ...current.transfers],
-        },
-        "Crear transferencia",
-        "Transferencia",
-        transfer.id,
-        "",
-        transfer,
-      ),
-    );
-    props.setMessage("Transferencia guardada.");
+    props.patchData((current) => {
+      const result = createTransferCommand(current, input, commandContext(props.user, "CAJERO"));
+      props.setMessage(result.ok ? "Transferencia guardada." : result.error);
+      return result.ok ? result.data : current;
+    });
     event.currentTarget.reset();
+  };
+
+  const annul = (id: string) => {
+    if (!confirmAction("Anular esta transferencia?")) return;
+    props.patchData((current) => {
+      const result = annulTransferCommand(current, props.balance.id, id, commandContext(props.user, "CAJERO"));
+      props.setMessage(result.ok ? "Transferencia anulada." : result.error);
+      return result.ok ? result.data : current;
+    });
   };
 
   return (
@@ -246,7 +205,7 @@ export function Transfers(props: {
           sortValues: [clientNameWithDocument(props.data, item.clientId) || "", item.name, item.receipt, item.account, item.amount, item.status],
           status: item.status,
         }))}
-        onAnnul={(id) => annulTransfer(id, props.user.id, props.patchData, props.audit)}
+        onAnnul={annul}
         createRow={
           <tr className="create-row">
             <td>
@@ -288,34 +247,11 @@ export function Transfers(props: {
   );
 }
 
-function annulTransfer(
-  id: string,
-  userId: string,
-  patchData: (updater: (current: AppData) => AppData) => void,
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData,
-) {
-  if (!confirmAction("Anular esta transferencia?")) return;
-  patchData((current) => {
-    const previous = current.transfers.find((item) => item.id === id);
-    const transfers = current.transfers.map((item) => (item.id === id ? { ...item, status: "ANULADO" as MovementStatus } : item));
-    const accountMovements = reverseSourceAccountMovements(
-      current.accountMovements,
-      ["TRANSFERENCIA"],
-      id,
-      userId,
-      "Anulacion operativa",
-    );
-    const next = transfers.find((item) => item.id === id);
-    return audit({ ...current, transfers, accountMovements }, "Anular transferencia", "Transferencia", id, previous, next, "Anulacion operativa");
-  });
-}
-
 export function Gifts(props: {
   data: AppData;
   balance: Balance;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
@@ -326,42 +262,28 @@ export function Gifts(props: {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const amount = parseMoneyInput(form.get("amount"));
-    const gift: Gift = {
-      id: uid("gift"),
+    const input = {
       balanceId: props.balance.id,
-      clientId: selectedClientIds[0],
       clientIds: selectedClientIds,
-      type: "EFECTIVO",
-      cashAmount: amount,
-      creditAmount: 0,
+      amount,
       reference: String(form.get("reference") ?? ""),
       description: String(form.get("description")),
-      status: "ACTIVO",
-      userId: props.user.id,
-      createdAt: nowIso(),
     };
-    if (selectedClientIds.length === 0 || !gift.reference.trim() || amount <= 0) {
-      props.setMessage("Cliente, referencia y monto son obligatorios.");
-      return;
-    }
-    props.patchData((current) =>
-      props.audit(
-        {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(current, props.balance.localId),
-          accountMovements: upsertAccountMovement(current.accountMovements, localGiftAccountMovement(gift, props.balance.localId)),
-          gifts: [gift, ...current.gifts],
-        },
-        "Crear regalo",
-        "Regalo",
-        gift.id,
-        "",
-        gift,
-      ),
-    );
-    props.setMessage("Regalo guardado.");
+    props.patchData((current) => {
+      const result = createGiftCommand(current, input, commandContext(props.user, "CAJERO"));
+      props.setMessage(result.ok ? "Regalo guardado." : result.error);
+      return result.ok ? result.data : current;
+    });
     setSelectedClientIds([]);
     event.currentTarget.reset();
+  };
+  const removeGift = (id: string) => {
+    if (!confirmAction("Eliminar este regalo de la caja abierta?")) return;
+    props.patchData((current) => {
+      const result = deleteGiftCommand(current, props.balance.id, id, commandContext(props.user, "CAJERO"));
+      props.setMessage(result.ok ? "Regalo eliminado." : result.error);
+      return result.ok ? result.data : current;
+    });
   };
   const selectedClientNames = selectedClientIds.map((id) => clientNameWithDocument(props.data, id)).filter(Boolean).join(", ");
 
@@ -392,7 +314,7 @@ export function Gifts(props: {
           status: item.status,
         }))}
         actionLabel="Eliminar"
-        onAnnul={(id) => deleteGift(id, props.balance, props.patchData, props.audit, props.setMessage)}
+        onAnnul={removeGift}
         createRow={
           <tr className="create-row">
             <td>
@@ -530,7 +452,6 @@ export function CapitalMovements({
   balance,
   user,
   patchData,
-  audit,
   setMessage,
   onBack,
 }: {
@@ -538,7 +459,6 @@ export function CapitalMovements({
   balance: Balance;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
@@ -555,59 +475,29 @@ export function CapitalMovements({
       setMessage("Selecciona si es retiro o aporte.");
       return;
     }
-    const movement: CapitalMovement = {
-      id: uid("capital"),
+    const input = {
       balanceId: balance.id,
-      localId: balance.localId,
       type,
       medium: String(form.get("medium") ?? "EFECTIVO") as CapitalMovementMedium,
-      timing: "OPERATIVO",
       person: String(form.get("person") ?? "RICARDO") as CapitalMovementPerson,
       amount: parseMoneyInput(form.get("amount")),
       note: String(form.get("note") ?? "").trim(),
-      status: "ACTIVO",
-      userId: user.id,
-      createdAt: nowIso(),
     };
-    if (!movement.amount || movement.amount <= 0) {
-      setMessage("El monto es obligatorio y debe ser mayor a cero.");
-      return;
-    }
-    patchData((current) =>
-      audit(
-        {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(current, balance.localId),
-          accountMovements: upsertAccountMovement(current.accountMovements, capitalAccountMovement(movement)),
-          capitalMovements: [movement, ...current.capitalMovements],
-        },
-        movement.type === "RETIRO" ? "Crear retiro" : "Crear aporte de capital",
-        "MovimientoCapital",
-        movement.id,
-        "",
-        movement,
-      ),
-    );
-    setMessage(movement.type === "RETIRO" ? "Retiro registrado." : "Aporte de capital registrado.");
+    patchData((current) => {
+      const result = createCapitalMovementCommand(current, input, commandContext(user, "CAJERO"));
+      setMessage(result.ok ? (type === "RETIRO" ? "Retiro registrado." : "Aporte de capital registrado.") : result.error);
+      return result.ok ? result.data : current;
+    });
     event.currentTarget.reset();
   };
 
   const annulMovement = (id: string) => {
     if (!confirmAction("Anular este retiro/aporte?")) return;
     patchData((current) => {
-      const previous = current.capitalMovements.find((item) => item.id === id);
-      const capitalMovements = current.capitalMovements.map((item) => (item.id === id ? { ...item, status: "ANULADO" as MovementStatus } : item));
-      const accountMovements = reverseSourceAccountMovements(
-        current.accountMovements,
-        ["RETIRO", "APORTE"],
-        id,
-        user.id,
-        "Anulacion operativa",
-      );
-      const next = capitalMovements.find((item) => item.id === id);
-      return audit({ ...current, capitalMovements, accountMovements }, "Anular retiro/aporte", "MovimientoCapital", id, previous, next, "Anulacion operativa");
+      const result = annulCapitalMovementCommand(current, balance.id, id, commandContext(user, "CAJERO"));
+      setMessage(result.ok ? "Movimiento anulado." : result.error);
+      return result.ok ? result.data : current;
     });
-    setMessage("Movimiento anulado.");
   };
 
   return (
@@ -686,69 +576,5 @@ export function CapitalMovements({
       />
     </CashierMovementPanel>
   );
-}
-
-function deleteExpense(
-  id: string,
-  balance: Balance,
-  patchData: (updater: (current: AppData) => AppData) => void,
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData,
-  setMessage: (message: string) => void,
-) {
-  if (balance.status !== "EN_PROCESO") {
-    setMessage("Solo se pueden eliminar gastos antes de cerrar la caja.");
-    return;
-  }
-  if (!confirmAction("Eliminar este gasto de la caja abierta?")) return;
-  patchData((current) => {
-    const previous = current.expenses.find((expense) => expense.id === id);
-    if (!previous) return current;
-    return audit(
-      {
-        ...current,
-        accountMovements: current.accountMovements.filter((movement) => movement.sourceType !== "GASTO" || movement.sourceId !== id),
-        expenses: current.expenses.filter((expense) => expense.id !== id),
-      },
-      "Eliminar gasto antes de cierre",
-      "Gasto",
-      id,
-      previous,
-      "",
-      "Caja abierta",
-    );
-  });
-  setMessage("Gasto eliminado.");
-}
-
-function deleteGift(
-  id: string,
-  balance: Balance,
-  patchData: (updater: (current: AppData) => AppData) => void,
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData,
-  setMessage: (message: string) => void,
-) {
-  if (balance.status !== "EN_PROCESO") {
-    setMessage("Solo se pueden eliminar regalos antes de cerrar la caja.");
-    return;
-  }
-  if (!confirmAction("Eliminar este regalo de la caja abierta?")) return;
-  patchData((current) => {
-    const previous = current.gifts.find((gift) => gift.id === id);
-    if (!previous) return current;
-    return audit(
-      {
-        ...current,
-        accountMovements: current.accountMovements.filter((movement) => movement.sourceType !== "REGALO" || movement.sourceId !== id),
-        gifts: current.gifts.filter((gift) => gift.id !== id),
-      },
-      "Eliminar regalo antes de cierre",
-      "Regalo",
-      id,
-      previous,
-      "",
-      "Caja abierta",
-    );
-  });
-  setMessage("Regalo eliminado.");
 }
 

@@ -93,6 +93,7 @@ src/
 | --- | --- |
 | `application/cash/openCash.ts` | Apertura, aportes iniciales, lecturas, cuentas y auditoria |
 | `application/cash/saveReading.ts` | Validacion/guardado de contador, resultado, cuenta y auditoria |
+| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con cuenta y auditoria |
 | `application/cash/closeCash.ts` | Cierre, retiros, maquinas, diferencias, cuentas, historial y auditoria |
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
 | `application/salaries/salarySettlementCommands.ts` | Alta, correccion y anulacion salarial con cuentas y auditoria |
@@ -154,7 +155,7 @@ Medicion de referencia 2026-07-10:
 | `features/admin/locationsMachines/HistoryModals.tsx` | 759 | Medio: dos historiales complejos, sin mutaciones |
 | `data/appData.ts` | 834 | Medio: seed demo; normalizacion ya separada |
 | `data/normalizeData.ts` | 508 | Alto por impacto: migracion central, aunque aislada |
-| `features/cashier/Movements.tsx` | 754 | Medio: gastos, transferencias, regalos y capital |
+| `features/cashier/Movements.tsx` | 580 | Bajo/medio: formularios y tablas; negocio operativo delegado a comandos |
 | `features/salaries/SalarySettlements.tsx` | 965 | Medio/alto: listado, detalle, cuentas y cierres; editor separado |
 | `features/admin/Staff.tsx` | 696 | Medio: personal, editor y papelera |
 | `App.tsx` | 531 | Medio: orquestacion y algunos comandos |

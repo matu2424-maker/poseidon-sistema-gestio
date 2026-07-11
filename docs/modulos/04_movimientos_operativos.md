@@ -1,5 +1,7 @@
 # Modulo 04 - Gastos, transferencias, regalos, salarios, retiros y aportes
 
+Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se ejecutan mediante `src/application/movements/operatingMovementCommands.ts`. Cada comando valida funcion Cajero y caja abierta, y actualiza entidad, cuentas y auditoria en una operacion tipada. La interfaz conserva solamente formularios, confirmaciones y mensajes.
+
 ## Gastos
 
 - Se cargan directo desde tabla.
