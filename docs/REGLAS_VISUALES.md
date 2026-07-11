@@ -4,6 +4,17 @@ Ultima actualizacion: 2026-07-10
 
 Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo y el contexto del modulo afectado.
 
+## Propiedad de estilos
+
+- `src/styles/global.css` es solo el manifiesto de imports; no recibe selectores nuevos.
+- `base.css`: variables, reset, formularios y elementos compartidos basicos.
+- `layout.css`: shell lateral, cabecera y estructura general.
+- `features/dashboards.css`: paneles de cajero/encargado y accesos.
+- `features/cash.css`: caja diaria, cierre, resumen y cuentas relacionadas.
+- `features/salaries.css`: liquidacion y resumen de diferencias salariales.
+- `features/admin.css`: tablas, modales, formularios administrativos y diferencias.
+- `responsive.css`: ajustes de breakpoints; conserva el orden final de la cascada.
+
 ## Principios
 
 - Disenar para pantalla 1080p.

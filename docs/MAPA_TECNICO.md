@@ -52,7 +52,11 @@ src/
     admin/                 locales, maquinas, personal, clientes y ajustes
     audit/                 bitacora
     reports/               reportes y cierres periodicos
-  styles/global.css        estilos actuales
+  styles/global.css        manifiesto ordenado de estilos
+  styles/base.css          tokens, reset y controles base
+  styles/layout.css        shell y estructura general
+  styles/features/         paneles, caja, salarios y administracion
+  styles/responsive.css    breakpoints al final de la cascada
 ```
 
 ## Librerias internas
@@ -151,7 +155,10 @@ Medicion de referencia 2026-07-10:
 | `features/salaries/SalarySettlements.tsx` | 965 | Medio/alto: listado, detalle, cuentas y cierres; editor separado |
 | `features/admin/Staff.tsx` | 696 | Medio: personal, editor y papelera |
 | `App.tsx` | 531 | Medio: orquestacion y algunos comandos |
-| `styles/global.css` | 3232 | Medio: alcance global |
+| `styles/features/admin.css` | 921 | Medio: tablas, modales y administracion |
+| `styles/features/cash.css` | 821 | Medio: caja, cierre y resumen |
+| `styles/features/dashboards.css` | 579 | Bajo/medio: paneles por rol |
+| `styles/global.css` | 7 | Bajo: manifiesto de imports |
 
 Las cifras son orientativas; volver a medir antes de planificar un corte.
 
@@ -168,7 +175,7 @@ Completado en integridad local: los movimientos persistidos se conservan, las an
 ### Media
 
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
-- CSS global grande.
+- Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.
 - IDs locales no son adecuados para concurrencia online.
 
 Completado en navegacion: registro tipado de pantallas, permisos por funcion, requisito de caja abierta, menus/titulos centralizados, confirmacion unica y avisos compartidos. Se eliminaron estados de pantalla heredados sin render y `WelcomeScreen.tsx` sin uso.

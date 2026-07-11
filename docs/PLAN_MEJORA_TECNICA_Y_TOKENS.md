@@ -15,7 +15,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 ## Linea base
 
 - Aproximadamente 13.800 lineas TypeScript/React.
-- `global.css`: aproximadamente 3.232 lineas.
+- `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
 - Ocho archivos de pruebas, 24 casos.
 - Archivos de mayor concentracion: Locales/Maquinas, datos/normalizacion, Movimientos y Salarios.
@@ -53,7 +53,7 @@ Orden ejecutado:
 3. `SalarySettlements.tsx`.
 4. `appData.ts`.
 
-Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. Navegacion, permisos, confirmaciones y avisos tambien quedaron centralizados. Siguiente corte: separar CSS y ampliar lint/smoke tests.
+Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. Navegacion, permisos, confirmaciones, avisos y CSS por capas tambien quedaron centralizados. Siguiente corte: ampliar lint y smoke tests.
 
 ## Prioridad 3 - Comandos de dominio
 
@@ -83,7 +83,7 @@ Agregar en este orden:
 - Dialogo de confirmacion compartido.
 - Mensajes con ciclo de vida claro para evitar avisos obsoletos.
 - Mover componentes transversales fuera de features propietarias.
-- Dividir CSS por base, layout, componentes y feature despues de dividir TSX.
+- Completado: CSS dividido por base, layout, features y responsive, preservando exactamente el orden original.
 
 ## Preparacion online sin implementacion
 

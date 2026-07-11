@@ -1,0 +1,167 @@
+.salary-page {
+  gap: 18px;
+}
+
+.salary-period-bar {
+  margin-bottom: 6px;
+}
+
+.salary-summary-grid {
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.salary-summary-grid .info-card {
+  min-height: 128px;
+}
+
+.difference-summary-grid {
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.difference-summary-grid .info-card {
+  min-height: 128px;
+}
+
+.differences-period-bar {
+  margin-bottom: 6px;
+}
+
+.differences-date-range select {
+  min-height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 7px 10px;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.difference-impact-helper {
+  margin: -2px 0 2px;
+  font-size: 0.9rem;
+}
+
+.salary-detail-compact {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #d5e0ec;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.salary-detail-context,
+.salary-detail-metrics {
+  display: grid;
+  gap: 8px;
+}
+
+.salary-detail-context {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid #e5ebf2;
+  padding-bottom: 10px;
+}
+
+.salary-detail-metrics {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.salary-detail-context div,
+.salary-detail-metrics div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border-radius: 7px;
+  background: #f8fafc;
+  padding: 9px 10px;
+}
+
+.salary-detail-context span,
+.salary-detail-metrics span {
+  color: #667487;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.salary-detail-context strong,
+.salary-detail-metrics strong {
+  overflow-wrap: anywhere;
+  color: #142235;
+  font-size: 0.94rem;
+  font-weight: 900;
+  line-height: 1.18;
+}
+
+.salary-detail-metrics strong {
+  font-size: 1.08rem;
+}
+
+.salary-main-panel,
+.salary-detail-modal {
+  display: grid;
+  gap: 16px;
+}
+
+.salary-table {
+  min-width: 1060px;
+}
+
+.salary-detail-table {
+  min-width: 1120px;
+}
+
+.mini-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mini-summary-table th,
+.mini-summary-table td {
+  border-bottom: 1px solid #e5ebf2;
+  padding: 9px 6px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.mini-summary-table th {
+  color: #172434;
+  font-weight: 900;
+}
+
+.mini-summary-table td:last-child {
+  font-weight: 900;
+  text-align: right;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 58px;
+}
+
+.required-note {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.form-grid .info-card {
+  min-height: 72px;
+  grid-column: span 1;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+

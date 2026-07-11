@@ -1,0 +1,261 @@
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    min-height: auto;
+    position: static;
+  }
+
+  .side nav {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
+
+  .side-link {
+    font-size: 1rem;
+  }
+
+  .card-grid.three,
+  .card-grid.four,
+  .card-grid.five,
+  .card-grid.six,
+  .cashier-status-grid,
+  .cashier-summary-grid,
+  .movement-layout,
+  .admin-layout,
+  .close-workspace,
+  .open-cash-layout,
+  .closed-summary-grid,
+  .accounts-layout,
+  .manager-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .periodic-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .close-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .closed-summary-wide {
+    grid-column: span 1;
+  }
+
+  .cashier-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cashier-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cashier-secondary-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: stretch;
+  }
+
+  .cashier-secondary-actions .button {
+    width: 100%;
+  }
+
+  .manager-shortcuts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cashier-metric.strong {
+    grid-column: span 1;
+  }
+
+  .content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 720px) {
+  .login-top {
+    height: 120px;
+    padding-left: 24px;
+    font-size: 2.2rem;
+  }
+
+  .login-card {
+    margin-top: 30px;
+    padding: 30px 22px;
+  }
+
+  .top {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px 20px;
+  }
+
+  .top-meta {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .top-meta-items {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .top-meta-actions,
+  .top-meta-actions .button {
+    width: 100%;
+  }
+
+  .cashier-top {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    padding: 18px 20px;
+  }
+
+  .cashier-user {
+    text-align: left;
+  }
+
+  .cashier-heading {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
+  .cashier-heading-balances {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .close-cash-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .close-status-pill {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .close-kpi-grid,
+  .close-form-grid,
+  .open-cash-form,
+  .account-summary-grid,
+  .periodic-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .salary-detail-context,
+  .salary-detail-metrics,
+  .difference-detail-context,
+  .difference-detail-metrics,
+  .difference-detail-notes {
+    grid-template-columns: 1fr;
+  }
+
+  .accounts-period-bar,
+  .accounts-date-range {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .accounts-date-range input {
+    width: 100%;
+  }
+
+  .accounts-date-range select {
+    width: 100%;
+  }
+
+  .open-cash-title {
+    flex-direction: column;
+  }
+
+  .cashier-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .cashier-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2,
+  .form-grid .info-card {
+    grid-column: auto;
+  }
+
+  .wide-card,
+  .movement-layout {
+    margin: 0;
+    padding-inline: 0;
+  }
+
+  .mini-list div {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .manager-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .manager-hero-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .manager-hero-actions .button {
+    flex: 1;
+  }
+
+  .manager-shortcuts {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .modal-backdrop {
+    align-items: start;
+    padding: 12px;
+  }
+
+  .modal-card {
+    max-height: calc(100vh - 24px);
+    padding: 22px 18px;
+  }
+
+  .modal-header,
+  .modal-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .local-data-grid,
+  .storage-recovery-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .storage-recovery-panel .button-row,
+  .storage-recovery-panel > svg {
+    grid-column: auto;
+  }
+}

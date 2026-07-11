@@ -40,7 +40,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 2. Completado: comandos de caja, contadores, diferencias y salarios con pruebas.
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
-5. Siguiente: separar CSS global y ampliar lint/smoke tests.
+5. Completado: CSS global separado sin alterar la cascada.
+6. Siguiente: ampliar lint, pruebas y smoke tests por rol.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

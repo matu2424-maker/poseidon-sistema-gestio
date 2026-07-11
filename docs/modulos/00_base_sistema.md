@@ -14,7 +14,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - `src/navigation/screens.ts` es la fuente unica de titulos, menus, roles permitidos y requisito de caja abierta.
 - `src/hooks/useNotice.ts` y `src/components/NoticeBanner.tsx` centralizan avisos.
 - `src/types.ts` contiene tipos principales.
-- `src/styles/global.css` contiene estilos globales.
+- `src/styles/global.css` es un manifiesto; los estilos se dividen en `base.css`, `layout.css`, `features/` y `responsive.css` conservando el orden de cascada.
 - Persistencia versionada en `localStorage`.
 - Login local sin contrasena.
 - La demo inicial incluye datos operativos para probar paneles:
