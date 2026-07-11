@@ -8,6 +8,7 @@ import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMo
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { commandContext } from "../../application/command";
 import { manageDifferenceCommand } from "../../application/differences/manageDifference";
+import { confirmAction } from "../../lib/confirmations";
 
 type DifferenceDraft = { status: DifferenceStatus | ""; note: string; correctedCash?: string; correctedBank?: string };
 type DifferenceStatusFilter = DifferenceStatus | "TODAS" | "GESTIONADAS";
@@ -163,9 +164,21 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
   const totalDifference = totalCashDifference + totalBankDifference;
   const selectedHistory = selectedBalance
     ? data.audit
-        .filter((event) => event.entityId === selectedBalance.id && (event.entity === "DiferenciaCaja" || event.entity === "BalanceDiario"))
+        .filter(
+          (event) =>
+            event.entityId === selectedBalance.id &&
+            ["DiferenciaCaja", "BalanceDiario", "Caja"].includes(event.entity),
+        )
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     : [];
+  const openDifference = (id: string) => {
+    setError("");
+    setSelectedBalanceId(id);
+  };
+  const closeDifference = () => {
+    setError("");
+    setSelectedBalanceId(null);
+  };
   const updateDraft = (id: string, patch: Partial<DifferenceDraft>) => {
     setDrafts((current) => ({
       ...current,
@@ -198,6 +211,17 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
       setError("Selecciona una accion de gestion para la diferencia.");
       return;
     }
+    if (!reviewNote) {
+      setError("La observacion del encargado/admin es obligatoria.");
+      return;
+    }
+    const confirmation =
+      status === "VERIFICADA"
+        ? "Confirmar que la diferencia es real? El saldo declarado se mantiene y la accion queda auditada."
+        : status === "CORREGIDA"
+          ? "Confirmar la correccion? Se actualizaran los importes declarados y las cuentas del local."
+          : "Confirmar la anulacion? Se revertira el impacto de la diferencia en las cuentas del local.";
+    if (!confirmAction(confirmation)) return;
     patchData((current) => {
       const result = manageDifferenceCommand(
         current,
@@ -296,7 +320,7 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
               const declaredBank = balance.declaredBank ?? balance.nextBankBase ?? 0;
               const expectedBank = declaredBank - bankDifference;
               return (
-                <tr key={balance.id} className={`${rowClass(balance)} clickable-row`} onClick={() => setSelectedBalanceId(balance.id)}>
+                <tr key={balance.id} className={`${rowClass(balance)} clickable-row`} onClick={() => openDifference(balance.id)}>
                   <td>{balanceVisibleId(data, balance)}</td>
                   <td>{balance.operatingDate}</td>
                   <td>{localName(data, balance.localId)}</td>
@@ -321,7 +345,7 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
                     )}
                   </td>
                   <td>
-                    <button className="button primary compact" type="button" onClick={(event) => { event.stopPropagation(); setSelectedBalanceId(balance.id); }}>
+                    <button className="button primary compact" type="button" onClick={(event) => { event.stopPropagation(); openDifference(balance.id); }}>
                       Gestionar
                     </button>
                   </td>
@@ -337,7 +361,7 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
         </table>
       </div>
       {selectedBalance && (
-        <Modal title={`Diferencia ${balanceVisibleId(data, selectedBalance)}`} onClose={() => setSelectedBalanceId(null)} wide>
+        <Modal title={`Diferencia ${balanceVisibleId(data, selectedBalance)}`} onClose={closeDifference} wide>
           {(() => {
             const cashDifference = cashDifferenceForBalance(data, selectedBalance);
             const bankDifference = bankDifferenceForBalance(selectedBalance);
@@ -386,7 +410,7 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
                       <option value="">Elegir accion</option>
                       <option value="VERIFICADA">Verificar diferencia</option>
                       <option value="CORREGIDA">Marcar como corregida</option>
-                      <option value="ANULADA">Anulada</option>
+                      <option value="ANULADA">Anular diferencia</option>
                     </select>
                     <p className="difference-impact-note">{differenceActionImpact(selectedDraft.status)}</p>
                     {selectedDraft.status === "CORREGIDA" ? (
@@ -423,7 +447,7 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
                     ) : null}
                     <textarea value={selectedDraft.note} onChange={(event) => updateDraft(selectedBalance.id, { note: event.target.value })} placeholder="Observacion obligatoria" disabled={!canManage} />
                     <div className="button-row end">
-                      <button className="button muted compact" type="button" onClick={() => setSelectedBalanceId(null)}>Cerrar</button>
+                      <button className="button muted compact" type="button" onClick={closeDifference}>Cerrar</button>
                       <button className="button primary compact" type="button" onClick={() => update(selectedBalance.id)} disabled={!canManage}>Guardar gestion</button>
                     </div>
                   </div>

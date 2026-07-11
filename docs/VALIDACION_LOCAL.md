@@ -61,9 +61,9 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia del bloque 2026-07-10
+## Evidencia del bloque 2026-07-11
 
-- 18 archivos de pruebas y 54 casos aprobados, incluido ciclo financiero transversal, migracion de transferencias, contrato de repositorio y orden de escrituras.
+- 18 archivos de pruebas y 58 casos aprobados, incluidos ciclo financiero transversal, anulacion real de diferencias, alcance por local, migracion de transferencias, contrato de repositorio y orden de escrituras.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.

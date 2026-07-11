@@ -19,12 +19,11 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Ultimo bloque funcional completado
 
-- Periodos mensuales centralizados en `src/lib/periods.ts`.
-- Selector compartido en Cuentas corrientes, Diferencias y Salarios.
-- Referencias de recaudacion por `balanceId` compartidas entre Cuentas y Salarios.
-- Estados heredados de diferencias normalizados sin perder auditoria.
-- `accountLedgerRows()` centraliza saldo corrido.
-- 34 pruebas automatizadas en trece archivos.
+- Diferencias reconfirma toda gestion sensible y limpia errores al cerrar o cambiar de recaudacion.
+- Encargado solo puede gestionar diferencias de sus locales asignados, validado tambien por el comando.
+- Correcciones exigen importes validos de efectivo y banco.
+- Anular una diferencia conserva el asiento original y agrega contramovimientos activos, dejando impacto neto cero.
+- 58 pruebas automatizadas en 18 archivos.
 
 ## Bloque documental actual
 
@@ -41,11 +40,12 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: ESLint, 54 pruebas, smoke HTTP y smoke manual por los tres roles.
+6. Completado: ESLint, 58 pruebas, smoke HTTP y smoke manual por los tres roles.
 7. Completado: E2E critico de cajero y carga diferida por pantalla; bundle inicial reducido a 283,65 kB.
 8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
 9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.
-10. Siguiente paso: volver a un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
+10. Completado: primer regreso funcional en Diferencias, con permisos por local, validaciones y anulacion contable corregida.
+11. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

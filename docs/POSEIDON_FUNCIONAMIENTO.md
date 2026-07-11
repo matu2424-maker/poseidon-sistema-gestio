@@ -1,6 +1,6 @@
 # Poseidon Sistema de Gestion - Funcionamiento y reglas
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Este documento es la fuente canonica del comportamiento funcional transversal. Cada cambio funcional relevante debe actualizar este archivo en el mismo trabajo.
 Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar el documento correspondiente en `docs/modulos/`.
@@ -213,15 +213,15 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - diferencia banco negativa sale de `Local / Banco`.
 - Este movimiento permite que la proxima apertura tome el saldo real declarado, incluso si hubo faltante, sobrante o error a revisar.
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un `ENCARGADO` o `ADMINISTRADOR` las gestione.
-- La gestion de una diferencia exige seleccionar una accion (`VERIFICADA`, `CORREGIDA` o `ANULADA`) y escribir una observacion obligatoria.
+- La gestion de una diferencia exige seleccionar una accion (`VERIFICADA`, `CORREGIDA` o `ANULADA`), escribir una observacion obligatoria y reconfirmar antes de guardar.
 - Estados vigentes de diferencia: `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`. Los estados antiguos se normalizan al leer datos sin borrar auditoria.
 - La observacion original del cajero no se pisa; la gestion posterior guarda usuario, fecha/hora y nota propia.
 - Una diferencia puede deberse a error de carga, transferencia mal registrada, retiro/aporte omitido o faltante/sobrante real.
 - Si se verifica, los movimientos de diferencia quedan activos y mantienen el saldo real declarado.
 - Si se corrige, encargado/admin ingresa efectivo declarado corregido y dinero banco declarado corregido; el sistema recalcula diferencias y agrega el delta contable necesario sin borrar asientos anteriores.
-- Si se anula, se agrega un contramovimiento que revierte el impacto sin borrar el asiento original; la diferencia efectiva queda en cero y los saldos proximos vuelven al calculo esperado.
+- Si se anula, se agrega un contramovimiento activo que revierte el impacto sin borrar el asiento original; la diferencia efectiva queda en cero y los saldos proximos vuelven al calculo esperado.
 - Cualquier correccion adicional posterior debe hacerse mediante un ajuste explicito y auditado.
-- En la pantalla `Diferencias`, el encargado ve solo las recaudaciones de sus locales asignados; administrador ve todos los locales.
+- En la pantalla y en el comando de `Diferencias`, el encargado solo puede gestionar recaudaciones de sus locales asignados; administrador ve y gestiona todos los locales.
 - La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o consulta historica por mes/ano.
 - Visualmente usa el mismo criterio minimalista de `Liquidacion de salarios`: selector de periodo compacto, resumen superior de cuatro metricas, tabla principal como centro y detalle en ventana flotante.
 - La tabla muestra todas las recaudaciones con historial real de diferencia/control en el periodo, incluidas verificadas, corregidas y anuladas aunque la diferencia actual haya quedado en cero. Una caja sin diferencia ni gestion no crea un control artificial.
@@ -229,8 +229,10 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La tabla de diferencias es compacta y muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion. La observacion original se consulta dentro del detalle para no cargar la grilla principal.
 - La gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
 - Para guardar una gestion se debe elegir accion y escribir observacion obligatoria.
+- Una correccion exige efectivo declarado y banco declarado validos; el comando rechaza valores ausentes, no numericos o negativos.
 - El error de observacion obligatoria aparece dentro de la ventana flotante de gestion.
 - El modal de cada recaudacion muestra historial completo auditado de cierre, revision, correccion o anulacion.
+- El historial conserva compatibilidad con cierres antiguos auditados como entidad `Caja`, ademas de las entidades actuales `BalanceDiario` y `DiferenciaCaja`.
 - Impacto por accion del encargado:
   - `VERIFICADA`: confirma que la diferencia existe; mantiene activos los movimientos de diferencia y no cambia resultado economico.
   - `CORREGIDA`: permite corregir efectivo/banco declarado, recalcula diferencias, sincroniza cuentas y no cambia resultado economico.

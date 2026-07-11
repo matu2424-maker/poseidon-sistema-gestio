@@ -14,7 +14,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
 - `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
-- Pruebas actuales: 54 casos en 18 archivos, incluidos ciclo financiero completo, diferencias, salarios, cuentas, migracion, activos, repositorio y permisos; ademas un E2E critico de cajero.
+- Pruebas actuales: 58 casos en 18 archivos, incluidos ciclo financiero completo, diferencias, salarios, cuentas, migracion, activos, repositorio y permisos; ademas un E2E critico de cajero.
 
 ## Usuarios de prueba
 

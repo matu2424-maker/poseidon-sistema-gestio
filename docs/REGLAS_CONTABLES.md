@@ -69,7 +69,7 @@ No forman parte del resultado economico:
 - `PENDIENTE`: requiere gestion.
 - `VERIFICADA`: confirma que la diferencia existe y mantiene movimientos activos.
 - `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza saldo proximo y agrega el ajuste contable necesario sin borrar el movimiento anterior.
-- `ANULADA`: agrega el contramovimiento que revierte el impacto, deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
+- `ANULADA`: conserva el asiento original y agrega un contramovimiento activo por el delta que revierte su impacto; deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
 - Estos cuatro son los unicos estados vigentes. `REVISADA`, `RESUELTA` y `AJUSTADA` son valores heredados y se normalizan al leer datos antiguos, conservando auditoria.
 - Las diferencias deben conservar observacion original del cajero e historial auditado de gestion.
 

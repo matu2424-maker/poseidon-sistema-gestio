@@ -21,6 +21,7 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 - VERIFICADA: confirma que la diferencia existe y mantiene activos los movimientos de diferencia.
 - CORREGIDA: permite editar efectivo declarado y banco declarado, recalcula diferencias, sincroniza cuentas y mantiene trazabilidad.
 - ANULADA: anula la diferencia y sus movimientos de cuenta, deja diferencia efectiva en cero y revierte los saldos proximos de la recaudacion al calculo esperado, sin borrar auditoria.
+- La anulacion conserva los asientos originales y agrega contramovimientos activos de sentido contrario; no marca como inactivo el ajuste que debe llevar el saldo a cero.
 - Los unicos estados vigentes son `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`.
 - Compatibilidad historica: al cargar datos, `REVISADA` se convierte en `VERIFICADA`, `AJUSTADA` en `CORREGIDA` y `RESUELTA` se normaliza segun diferencia/gestion existente. Los eventos de auditoria no se borran.
 
@@ -45,9 +46,13 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 - La observacion de cierre no se muestra como columna principal para mantener la tabla limpia; se ve dentro del detalle.
 - Clic en una fila o en `Gestionar` abre una ventana flotante con el detalle de efectivo/banco, observacion original y ultima gestion.
 - La gestion se guarda desde la ventana flotante con accion y observacion obligatoria.
+- Antes de guardar, la interfaz reconfirma la accion y explica si mantiene, corrige o revierte el impacto contable.
 - El error de observacion obligatoria se muestra dentro de la ventana flotante donde se esta gestionando la diferencia.
 - Si la accion es `CORREGIDA`, la ventana muestra campos para efectivo declarado corregido y dinero banco declarado corregido.
+- Una correccion no se acepta si falta alguno de los dos importes o si contiene un valor no numerico.
+- El comando vuelve a validar permisos: encargado solo puede gestionar cajas de sus locales asignados; administrador puede gestionar todos.
 - Al guardar una correccion, se actualizan los importes declarados, saldos proximos, diferencias y movimientos de cuenta de la recaudacion.
 - Al guardar una anulacion, se conservan los datos auditados del antes/despues, pero la diferencia efectiva queda en cero y los movimientos de cuenta quedan sin impacto activo.
 - La ventana flotante muestra el historial completo auditado de cierre, revision, correccion o anulacion de esa recaudacion.
+- Para cierres historicos, el historial reconoce eventos de auditoria con entidad `Caja` ademas de `BalanceDiario` y `DiferenciaCaja`.
 - Al guardar, el estado queda en la recaudacion y se registra auditoria.

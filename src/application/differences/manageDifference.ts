@@ -20,11 +20,17 @@ export function manageDifferenceCommand(
   if (context.actorRole !== "ENCARGADO" && context.actorRole !== "ADMINISTRADOR") {
     return commandError("Solo administrador o encargado pueden gestionar diferencias.");
   }
+  if (!(["VERIFICADA", "CORREGIDA", "ANULADA"] as DifferenceStatus[]).includes(input.status)) {
+    return commandError("Selecciona una accion valida para gestionar la diferencia.");
+  }
   const reviewNote = input.reviewNote.trim();
   if (!reviewNote) return commandError("La observacion del encargado/admin es obligatoria.");
   const previous = data.balances.find((balance) => balance.id === input.balanceId);
   if (!previous) return commandError("No se encontro la recaudacion.");
   if (previous.status !== "CERRADO") return commandError("Solo se gestionan diferencias de cajas cerradas.");
+  if (context.actorRole === "ENCARGADO" && !context.user.localIds.includes(previous.localId)) {
+    return commandError("El encargado solo puede gestionar diferencias de sus locales asignados.");
+  }
 
   const previousCashDifference = cashDifferenceForBalance(data, previous);
   const previousBankDifference = bankDifferenceForBalance(previous);
@@ -32,8 +38,17 @@ export function manageDifferenceCommand(
   const previousDeclaredBank = previous.declaredBank ?? previous.nextBankBase ?? 0;
   const expectedCash = previousDeclaredCash - previousCashDifference;
   const expectedBank = previousDeclaredBank - previousBankDifference;
-  const correctedCash = input.status === "CORREGIDA" ? Number(input.correctedCash ?? 0) : previousDeclaredCash;
-  const correctedBank = input.status === "CORREGIDA" ? Number(input.correctedBank ?? 0) : previousDeclaredBank;
+  if (
+    input.status === "CORREGIDA" &&
+    (input.correctedCash === undefined ||
+      input.correctedBank === undefined ||
+      !Number.isFinite(input.correctedCash) ||
+      !Number.isFinite(input.correctedBank))
+  ) {
+    return commandError("Completa importes validos de efectivo y banco para corregir la diferencia.");
+  }
+  const correctedCash = input.status === "CORREGIDA" ? Number(input.correctedCash) : previousDeclaredCash;
+  const correctedBank = input.status === "CORREGIDA" ? Number(input.correctedBank) : previousDeclaredBank;
   if (correctedCash < 0 || correctedBank < 0) return commandError("Los importes corregidos no pueden ser negativos.");
 
   const nextDeclaredCash = input.status === "CORREGIDA" ? correctedCash : input.status === "ANULADA" ? expectedCash : previousDeclaredCash;

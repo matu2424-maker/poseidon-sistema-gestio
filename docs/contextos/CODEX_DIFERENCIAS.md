@@ -1,6 +1,6 @@
 # Contexto Codex - Diferencias
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 
@@ -33,6 +33,10 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 - Debe incluir resueltas/corregidas aunque la diferencia actual sea cero.
 - Error de observacion obligatoria aparece dentro del modal.
 - Tabla principal ordenable por todas sus columnas visibles.
+- El comando valida tambien el alcance por local: un encargado no puede gestionar recaudaciones fuera de `user.localIds`; administrador conserva alcance global.
+- Una correccion exige importes finitos de efectivo y banco. La interfaz pide reconfirmacion antes de verificar, corregir o anular.
+- Al anular, el libro conserva los asientos originales y agrega contramovimientos activos para que el impacto neto quede en cero.
+- El historial acepta entidades actuales `BalanceDiario`/`DiferenciaCaja` y la entidad heredada `Caja`, para no ocultar cierres antiguos.
 
 ## Asociaciones
 

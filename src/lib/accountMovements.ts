@@ -179,7 +179,7 @@ export function differenceAccountMovement(
   kind: "EFECTIVO" | "BANCO",
   amount: number,
   userId: string,
-  options: { id?: string; createdAt?: string; detailPrefix?: string } = {},
+  options: { id?: string; createdAt?: string; detailPrefix?: string; status?: AccountMovement["status"] } = {},
 ): AccountMovement | null {
   if (amount === 0) return null;
   const ids = differenceMovementIds(balance.id);
@@ -194,7 +194,7 @@ export function differenceAccountMovement(
     concept: isCash ? "DIFERENCIA_EFECTIVO" : "DIFERENCIA_BANCO",
     amount: Math.abs(amount),
     detail: `${options.detailPrefix ?? "Diferencia"} ${isCash ? "efectivo" : "banco"} caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
-    status: balance.differenceStatus === "ANULADA" ? "ANULADO" : "ACTIVO",
+    status: options.status ?? (balance.differenceStatus === "ANULADA" ? "ANULADO" : "ACTIVO"),
     userId,
     createdAt: options.createdAt ?? balance.differenceReviewedAt ?? balance.closedAt ?? nowIso(),
   };
@@ -220,6 +220,7 @@ export function syncDifferenceAccountMovements(movements: AccountMovement[], bal
       id,
       createdAt: balance.differenceReviewedAt ?? balance.closedAt,
       detailPrefix: related.length ? "Ajuste diferencia" : "Diferencia",
+      status: "ACTIVO",
     });
     return adjustment ? upsertAccountMovement(current, adjustment) : current;
   };
