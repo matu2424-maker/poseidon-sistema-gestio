@@ -75,7 +75,10 @@ Con el servidor activo, verificar que responda:
 
 ```bash
 pnpm run smoke:localhost
+pnpm run test:e2e
 ```
+
+La prueba E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, cierre sin diferencias y persistencia de la recaudacion tras recargar.
 
 La matriz de smoke por rol esta en `docs/VALIDACION_LOCAL.md`.
 

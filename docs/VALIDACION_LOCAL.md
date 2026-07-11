@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Este documento define la validacion tecnica y funcional minima. No reemplaza las pruebas especificas de cada modulo.
 
@@ -23,9 +23,12 @@ Con `iniciar-poseidon.bat` activo:
 
 ```bash
 pnpm run smoke:localhost
+pnpm run test:e2e
 ```
 
 El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http://127.0.0.1:5173/`.
+
+La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina solamente la clave local de Poseidon, carga el dataset demo y prueba apertura, tres lecturas, cierre sin diferencias y persistencia despues de recargar. Las trazas y capturas se conservan solo cuando falla.
 
 ## Smoke de interfaz por rol
 
@@ -71,6 +74,6 @@ El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http:
 - Viewports 1920 x 1080 y 390 x 844 sin overflow horizontal en panel administrativo.
 - CSS final mantuvo el mismo hash de salida tras separarlo por capas.
 
-## Limite conocido
+## Cobertura pendiente
 
-El smoke por rol se valida actualmente en navegador durante el bloque de trabajo; todavia no existe una suite E2E Playwright dentro del repositorio. Incorporarla conviene cuando el flujo de datos deje `localStorage` o cuando las rutas sean estables.
+El flujo critico de cajero ya tiene E2E. Los formularios administrativos y los flujos completos de encargado todavia se validan con pruebas de integracion y smoke manual por rol.

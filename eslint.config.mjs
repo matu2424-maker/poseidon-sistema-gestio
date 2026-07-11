@@ -8,7 +8,7 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig([
   {
-    ignores: ["dist/**", "node_modules/**"],
+    ignores: ["dist/**", "node_modules/**", "playwright-report/**", "test-results/**"],
   },
   {
     files: ["src/**/*.{ts,tsx}"],
@@ -22,6 +22,13 @@ export default defineConfig([
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "react-hooks/rules-of-hooks": "error",
+    },
+  },
+  {
+    files: ["e2e/**/*.ts", "playwright.config.ts"],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
     },
   },
 ]);

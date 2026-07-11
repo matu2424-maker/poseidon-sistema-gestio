@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -9,7 +9,8 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 - React 19, TypeScript estricto y Vite.
 - CSS global.
 - Persistencia local con snapshot versionado en `localStorage`.
-- Vitest para pruebas puras.
+- Vitest para pruebas puras e integracion de comandos.
+- Playwright con Chrome para el flujo E2E critico del cajero.
 - Entrada: `src/main.tsx` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 

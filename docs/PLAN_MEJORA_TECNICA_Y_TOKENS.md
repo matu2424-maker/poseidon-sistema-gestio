@@ -1,6 +1,6 @@
 # Poseidon - Plan tecnico y ahorro de contexto
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Este documento contiene prioridades vigentes. Los bloques terminados viven en Git y no se enumeran uno por uno aqui.
 
@@ -74,7 +74,8 @@ Agregar en este orden:
 - Pendiente: traslado, reset y eliminacion de maquinas;
 - Completado inicial: migracion de ID historico, limpieza de imagenes y reconstruccion de asientos faltantes;
 - Completado inicial: permisos por rol y requisito de caja abierta;
-- Pendiente: pruebas UI automatizadas de formularios criticos;
+- Completado inicial: E2E Playwright de apertura, carga de las tres maquinas, cierre y persistencia despues de recargar;
+- Pendiente: pruebas UI automatizadas de formularios administrativos y flujos completos del encargado;
 - Completado manual/documentado: smoke de cajero, encargado y administrador en navegador.
 
 ## Prioridad 5 - Navegacion y UI compartida
