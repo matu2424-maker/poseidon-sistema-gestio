@@ -44,6 +44,7 @@ Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 - Valor anterior.
 - Valor nuevo.
 - Motivo/observacion.
+- Local asociado cuando pueda resolverse por entidad, recaudacion, cuenta o payload.
 
 ## Reglas
 
@@ -57,3 +58,7 @@ Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 - Los descuentos salariales deben quedar auditados como reduccion de pendiente/base cubierta, no como salida de caja.
 - Las eliminaciones definitivas requieren confirmacion.
 - La tabla principal de auditoria permite ordenar por fecha/hora, usuario, accion, entidad, funcion y motivo.
+- La columna `Accion` abre el detalle y es la unica columna no ordenable por ser un comando.
+- Administrador ve todos los eventos. Encargado ve solo eventos asociados a sus locales; eventos globales o sin contexto local resoluble quedan fuera de su vista.
+- El detalle muestra valor anterior/nuevo, entidad e ID, local y motivo.
+- Una gestion de diferencia muestra ademas saldos efectivo/banco antes y despues y los movimientos contables generados, incluidos sus IDs y `previousAdjustmentId`.

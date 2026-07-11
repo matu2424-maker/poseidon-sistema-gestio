@@ -133,6 +133,8 @@ revisar referencias documentales
 
 Una tarea Codex ya iniciada puede no recargar perfiles agregados durante esa misma ejecucion. La carga nominal de perfiles nuevos debe comprobarse desde una tarea nueva; el piloto inicial puede aplicar sus contratos con agentes integrados de solo lectura.
 
+Validacion 2026-07-11: una tarea nueva encontro los tres perfiles y ejecuto `poseidon_scope_mapper` y `poseidon_accounting_reviewer` sin modificar Git. La API disponible no expone selector nativo `agent_type`; la evidencia confirma presencia, lectura y obediencia del TOML nominal, no seleccion interna por tipo.
+
 Para cambios funcionales posteriores se mantiene la validacion normal:
 
 ```text

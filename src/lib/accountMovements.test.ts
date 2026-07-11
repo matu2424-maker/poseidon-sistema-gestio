@@ -87,6 +87,35 @@ describe("movimientos de cuentas", () => {
     expect(syncDifferenceAccountMovements(synced, corrected, "user-2")).toEqual(synced);
   });
 
+  it("agrega ajustes con IDs unicos y cadena aun si comparten timestamp", () => {
+    const originalMovements = syncDifferenceAccountMovements([], balance({ cashDifference: 100, bankDifference: 0 }), "user-1");
+    const original = originalMovements.find((item) => item.sourceId === "balance-1-EFECTIVO")!;
+    const managedAt = "2026-07-02T10:00:00.000Z";
+    const first = syncDifferenceAccountMovements(
+      originalMovements,
+      balance({ cashDifference: 40, bankDifference: 0, differenceStatus: "CORREGIDA", differenceReviewedAt: managedAt }),
+      "user-2",
+      { id: () => "difference-adjustment", createdAt: managedAt },
+    );
+    const firstAdjustment = first.find((item) => item.previousAdjustmentId === original.id)!;
+    const second = syncDifferenceAccountMovements(
+      first,
+      balance({ cashDifference: -25, bankDifference: 0, differenceStatus: "CORREGIDA", differenceReviewedAt: managedAt }),
+      "user-2",
+      { id: () => "difference-adjustment", createdAt: managedAt },
+    );
+    const related = second.filter((item) => item.sourceId === "balance-1-EFECTIVO");
+    const secondAdjustment = related.find((item) => item.previousAdjustmentId === firstAdjustment.id)!;
+
+    expect(related).toHaveLength(3);
+    expect(new Set(related.map((item) => item.id)).size).toBe(3);
+    expect(related.every((item) => item.status === "ACTIVO")).toBe(true);
+    expect(second.find((item) => item.id === original.id)).toEqual(original);
+    expect(firstAdjustment.createdAt).toBe(managedAt);
+    expect(secondAdjustment.createdAt).toBe(managedAt);
+    expect(accountTotalsFromMovements(related).balance).toBe(-25);
+  });
+
   it("anula una fuente con contramovimiento idempotente", () => {
     const original = movement({ id: "expense", sourceType: "GASTO", sourceId: "expense-1", amount: 700, direction: "SALIDA" });
     const reversed = reverseSourceAccountMovements([original], ["GASTO"], "expense-1", "manager-1", "Anulacion", "2026-07-02T10:00:00.000Z");

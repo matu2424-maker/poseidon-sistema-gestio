@@ -38,6 +38,7 @@ export function auditCommand(
   previousValue: unknown,
   newValue: unknown,
   reason = "",
+  options: { localId?: string } = {},
 ) {
   return appendAuditEvent(
     data,
@@ -48,6 +49,6 @@ export function auditCommand(
     previousValue,
     newValue,
     reason,
-    { id: context.id("audit"), createdAt: context.now() },
+    { id: context.id("audit"), createdAt: context.now(), localId: options.localId },
   );
 }

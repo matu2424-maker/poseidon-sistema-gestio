@@ -25,6 +25,23 @@ describe("normalizacion de datos locales", () => {
     expect(normalized.accountMovements.find((movement) => movement.reversalOf === original?.id)?.createdAt).toBe("2026-07-10T12:00:00.000Z");
   });
 
+  it("preserva la cadena de ajustes de diferencias al normalizar", () => {
+    const seed = createSeedData();
+    const original = seed.accountMovements.find((movement) => movement.sourceId.endsWith("-EFECTIVO") && movement.sourceType === "DIFERENCIA_CAJA")!;
+    const adjustment = {
+      ...original,
+      id: "difference-adjustment-normalized",
+      direction: original.direction === "ENTRADA" ? ("SALIDA" as const) : ("ENTRADA" as const),
+      amount: 125,
+      detail: "Ajuste persistido",
+      createdAt: "2026-07-10T12:00:00.000Z",
+      previousAdjustmentId: original.id,
+    };
+    const normalized = normalizeData({ ...seed, accountMovements: [adjustment, ...seed.accountMovements] });
+
+    expect(normalized.accountMovements.find((movement) => movement.id === adjustment.id)).toEqual(adjustment);
+  });
+
   it("migra el ID historico de Poseidon en todas las referencias principales", () => {
     const seed = createSeedData();
     const legacyId = "local-poseidon";

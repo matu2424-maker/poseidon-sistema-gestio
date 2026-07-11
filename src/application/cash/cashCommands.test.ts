@@ -125,6 +125,99 @@ describe("comandos de caja", () => {
     ).toMatchObject({ ok: false, error: "Toda diferencia requiere observacion." });
   });
 
+  it.each([
+    ["declaredCash", Number.NaN],
+    ["declaredCash", Number.POSITIVE_INFINITY],
+    ["declaredCash", Number.NEGATIVE_INFINITY],
+    ["declaredBank", Number.NaN],
+    ["declaredBank", Number.POSITIVE_INFINITY],
+    ["declaredBank", Number.NEGATIVE_INFINITY],
+    ["finalWithdrawalCash", Number.NaN],
+    ["finalWithdrawalCash", Number.POSITIVE_INFINITY],
+    ["finalWithdrawalCash", Number.NEGATIVE_INFINITY],
+    ["finalWithdrawalBank", Number.NaN],
+    ["finalWithdrawalBank", Number.POSITIVE_INFINITY],
+    ["finalWithdrawalBank", Number.NEGATIVE_INFINITY],
+  ] as const)("rechaza %s no finito antes de cerrar", (field, invalidAmount) => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const opened = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 0,
+        initialBankFund: 0,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    if (!opened.ok) throw new Error(opened.error);
+    const input = {
+      balanceId: opened.value.id,
+      declaredCash: 0,
+      declaredBank: 0,
+      finalWithdrawalCash: 0,
+      finalWithdrawalBank: 0,
+      withdrawalCashPerson: "MATHIAS" as const,
+      withdrawalBankPerson: "MATHIAS" as const,
+      differenceNote: "",
+      [field]: invalidAmount,
+    };
+
+    expect(closeCashCommand(opened.data, input, context)).toMatchObject({
+      ok: false,
+      error: "Los importes del cierre deben ser numeros finitos.",
+    });
+  });
+
+  it("rechaza totales derivados no finitos antes de persistir", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const opened = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 0,
+        initialBankFund: 0,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    if (!opened.ok) throw new Error(opened.error);
+    const firstReadingId = opened.data.readings.find((reading) => reading.balanceId === opened.value.id)!.id;
+    const invalidData = {
+      ...opened.data,
+      readings: opened.data.readings.map((reading) => ({
+        ...reading,
+        status: reading.id === firstReadingId ? ("CARGADA" as const) : ("SIN_LECTURA" as const),
+        result: reading.id === firstReadingId ? Number.POSITIVE_INFINITY : reading.result,
+        observation: "Validada",
+      })),
+    };
+    expect(
+      closeCashCommand(
+        invalidData,
+        {
+          balanceId: opened.value.id,
+          declaredCash: 0,
+          declaredBank: 0,
+          finalWithdrawalCash: 0,
+          finalWithdrawalBank: 0,
+          withdrawalCashPerson: "MATHIAS",
+          withdrawalBankPerson: "MATHIAS",
+          differenceNote: "",
+        },
+        context,
+      ),
+    ).toMatchObject({ ok: false, error: "Los importes del cierre deben ser numeros finitos." });
+  });
+
   it("impide abrir dos cajas en proceso para el mismo local y fecha", () => {
     const data = clearOperationalData(createSeedData());
     const context = fixedContext();

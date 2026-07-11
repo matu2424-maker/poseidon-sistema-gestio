@@ -430,6 +430,7 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
       userId: movement.userId ?? "system",
       createdAt: movement.createdAt ?? nowIso(),
       reversalOf: movement.reversalOf,
+      previousAdjustmentId: movement.previousAdjustmentId,
     });
   });
   const addDerivedMovement = (movement: AccountMovement | null) => {

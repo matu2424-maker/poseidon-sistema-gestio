@@ -28,7 +28,7 @@ pnpm run test:e2e
 
 El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http://127.0.0.1:5173/`.
 
-La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina solamente la clave local de Poseidon, carga el dataset demo y prueba apertura, tres lecturas, cierre sin diferencias y persistencia despues de recargar. Las trazas y capturas se conservan solo cuando falla.
+La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina solamente la clave local de Poseidon y carga el dataset demo. Un caso prueba apertura, tres lecturas, cierre y persistencia; el segundo prueba importe obligatorio, correccion de diferencia, auditoria contable y ausencia de overflow a 1920x1080. Las trazas y capturas se conservan solo cuando falla.
 
 ## Smoke de interfaz por rol
 
@@ -63,7 +63,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Evidencia del bloque 2026-07-11
 
-- 18 archivos de pruebas y 58 casos aprobados, incluidos ciclo financiero transversal, anulacion real de diferencias, alcance por local, migracion de transferencias, contrato de repositorio y orden de escrituras.
+- 20 archivos de pruebas y 90 casos aprobados, incluidos ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion de transferencias, snapshot, contrato de repositorio y orden de escrituras.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.
@@ -76,4 +76,4 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Cobertura pendiente
 
-El flujo critico de cajero ya tiene E2E. Los formularios administrativos y los flujos completos de encargado todavia se validan con pruebas de integracion y smoke manual por rol.
+Los flujos criticos de cajero y de diferencias/auditoria del encargado tienen E2E. Los demas formularios administrativos todavia se validan con pruebas de integracion y smoke manual por rol.

@@ -8,6 +8,7 @@ import {
   serializeAppData,
   type KeyValueStorage,
 } from "./localAppDataRepository";
+import { CURRENT_SCHEMA_VERSION } from "./snapshot";
 
 describe("repositorio local de AppData", () => {
   it("conserva auditoria e historiales completos al preparar el guardado", () => {
@@ -28,7 +29,7 @@ describe("repositorio local de AppData", () => {
   it("exporta e importa un snapshot versionado", () => {
     const seed = createSeedData();
     const result = importLocalAppData(serializeAppData(seed));
-    expect(result).toMatchObject({ status: "ready", sourceVersion: 1, needsRewrite: false });
+    expect(result).toMatchObject({ status: "ready", sourceVersion: CURRENT_SCHEMA_VERSION, needsRewrite: false });
     if (result.status === "ready") expect(result.data.locals[0].name).toBe("Poseidon");
   });
 
@@ -46,7 +47,7 @@ describe("repositorio local de AppData", () => {
     const saved = await repository.save(seed);
     expect(saved.status).toBe("ok");
     const loaded = await repository.load();
-    expect(loaded).toMatchObject({ status: "ready", sourceVersion: 1, needsRewrite: false });
+    expect(loaded).toMatchObject({ status: "ready", sourceVersion: CURRENT_SCHEMA_VERSION, needsRewrite: false });
     if (loaded.status === "ready") expect(loaded.data.machines).toHaveLength(3);
 
     await repository.clear();

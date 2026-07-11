@@ -1,6 +1,13 @@
 import type { AppData, Balance, DifferenceStatus } from "../types";
 import { totalsForBalance } from "./cashTotals";
 
+const DIFFERENCE_TRANSITIONS: Readonly<Record<DifferenceStatus, readonly DifferenceStatus[]>> = {
+  PENDIENTE: ["VERIFICADA", "CORREGIDA", "ANULADA"],
+  VERIFICADA: ["CORREGIDA", "ANULADA"],
+  CORREGIDA: ["CORREGIDA", "ANULADA"],
+  ANULADA: [],
+};
+
 export function cashDifferenceForBalance(data: AppData, balance: Balance) {
   return balance.cashDifference ?? totalsForBalance(data, balance.id).difference;
 }
@@ -27,6 +34,14 @@ export function normalizeDifferenceStatus(balance: Balance): DifferenceStatus | 
     if (Number(balance.cashDifference ?? 0) !== 0 || Number(balance.bankDifference ?? 0) !== 0) return "VERIFICADA";
   }
   return undefined;
+}
+
+export function allowedDifferenceTransitions(status: DifferenceStatus): readonly DifferenceStatus[] {
+  return [...DIFFERENCE_TRANSITIONS[status]];
+}
+
+export function canTransitionDifferenceStatus(fromStatus: DifferenceStatus, toStatus: DifferenceStatus) {
+  return allowedDifferenceTransitions(fromStatus).includes(toStatus);
 }
 
 export function pendingDifferenceCount(data: AppData) {

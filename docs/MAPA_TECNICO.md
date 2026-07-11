@@ -10,7 +10,7 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 - CSS global.
 - Persistencia local con snapshot versionado en `localStorage`.
 - Vitest para pruebas puras e integracion de comandos.
-- Playwright con Chrome para el flujo E2E critico del cajero.
+- Playwright con Chrome para los flujos E2E criticos de cajero y diferencias/auditoria del encargado.
 - Entrada: `src/main.tsx` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 
@@ -81,20 +81,20 @@ src/
 
 | Archivo | Responsabilidad |
 | --- | --- |
-| `money.ts` | Formato y entrada de importes/contadores |
-| `dates.ts` | Fecha/hora actual y rangos base |
+| `money.ts` | Formato, entrada general y parser estricto de importes obligatorios |
+| `dates.ts` | Fecha/hora, rangos base y fecha operativa en `America/Montevideo` |
 | `periods.ts` | Periodos mensuales y etiquetas |
 | `display.ts` | Nombres, roles e IDs visibles |
 | `ids.ts` | IDs locales actuales |
-| `audit.ts` | Construccion de eventos de auditoria |
+| `audit.ts` | Construccion de eventos, resolucion de local y visibilidad por rol |
 | `lib/storage.ts` | Preferencias locales de columnas |
-| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime del snapshot |
+| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 2 preserva cadena de ajustes |
 | `application/ports/AppDataRepository.ts` | Puerto asincrono de datos y codec de respaldo |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
 | `hooks/useAppDataRepository.ts` | Hidratacion, recuperacion y persistencia sin acoplar App al adaptador |
 | `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, importacion y exportacion local |
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
-| `accountMovements.ts` | Movimientos derivados, sincronizacion y saldo corrido |
+| `accountMovements.ts` | Movimientos derivados, saldo corrido y ajustes de diferencias append-only encadenados |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
 | `differences.ts` | Estados y calculos de diferencias |
 | `salaryRules.ts` | Conceptos, base, periodos y limites salariales |
@@ -227,4 +227,4 @@ pnpm run smoke:localhost
 git diff --check
 ```
 
-`pnpm run check` ejecuta typecheck, ESLint y 58 pruebas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
+`pnpm run check` ejecuta typecheck, ESLint y 90 pruebas en 20 archivos. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.

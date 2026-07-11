@@ -215,14 +215,19 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un `ENCARGADO` o `ADMINISTRADOR` las gestione.
 - La gestion de una diferencia exige seleccionar una accion (`VERIFICADA`, `CORREGIDA` o `ANULADA`), escribir una observacion obligatoria y reconfirmar antes de guardar.
 - Estados vigentes de diferencia: `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`. Los estados antiguos se normalizan al leer datos sin borrar auditoria.
+- Matriz de estados: pendiente puede pasar a verificada, corregida o anulada; verificada puede pasar a corregida o anulada; corregida puede volver a corregirse o anularse; anulada es terminal.
 - La observacion original del cajero no se pisa; la gestion posterior guarda usuario, fecha/hora y nota propia.
 - Una diferencia puede deberse a error de carga, transferencia mal registrada, retiro/aporte omitido o faltante/sobrante real.
 - Si se verifica, los movimientos de diferencia quedan activos y mantienen el saldo real declarado.
 - Si se corrige, encargado/admin ingresa efectivo declarado corregido y dinero banco declarado corregido; el sistema recalcula diferencias y agrega el delta contable necesario sin borrar asientos anteriores.
-- Si se anula, se agrega un contramovimiento activo que revierte el impacto sin borrar el asiento original; la diferencia efectiva queda en cero y los saldos proximos vuelven al calculo esperado.
+- Si se anula, se agrega un contramovimiento activo que revierte el impacto sin borrar el asiento original; la diferencia efectiva queda en cero y los campos de base de la recaudacion objetivo vuelven al calculo esperado.
 - Cualquier correccion adicional posterior debe hacerse mediante un ajuste explicito y auditado.
+- Cada ajuste agrega un movimiento nuevo con ID unico y `previousAdjustmentId`; no reemplaza asientos anteriores aunque dos acciones compartan fecha/hora.
+- No se puede gestionar una diferencia si existe una caja abierta del mismo local. Una caja abierta de otro local no bloquea.
+- Gestionar una caja historica no modifica cajas posteriores ni sus fondos iniciales; el delta se registra con fecha de gestion.
 - En la pantalla y en el comando de `Diferencias`, el encargado solo puede gestionar recaudaciones de sus locales asignados; administrador ve y gestiona todos los locales.
 - La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o consulta historica por mes/ano.
+- El filtro mensual usa `operatingDate`; solo para datos heredados sin esa fecha convierte `closedAt` a la zona `America/Montevideo`.
 - Visualmente usa el mismo criterio minimalista de `Liquidacion de salarios`: selector de periodo compacto, resumen superior de cuatro metricas, tabla principal como centro y detalle en ventana flotante.
 - La tabla muestra todas las recaudaciones con historial real de diferencia/control en el periodo, incluidas verificadas, corregidas y anuladas aunque la diferencia actual haya quedado en cero. Una caja sin diferencia ni gestion no crea un control artificial.
 - Tiene buscador por ID/local/fecha/observacion y filtro por estado.
@@ -230,13 +235,14 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
 - Para guardar una gestion se debe elegir accion y escribir observacion obligatoria.
 - Una correccion exige efectivo declarado y banco declarado validos; el comando rechaza valores ausentes, no numericos o negativos.
+- En correccion, un campo vacio permanece vacio y muestra error; nunca se convierte automaticamente en cero.
 - El error de observacion obligatoria aparece dentro de la ventana flotante de gestion.
 - El modal de cada recaudacion muestra historial completo auditado de cierre, revision, correccion o anulacion.
 - El historial conserva compatibilidad con cierres antiguos auditados como entidad `Caja`, ademas de las entidades actuales `BalanceDiario` y `DiferenciaCaja`.
 - Impacto por accion del encargado:
   - `VERIFICADA`: confirma que la diferencia existe; mantiene activos los movimientos de diferencia y no cambia resultado economico.
   - `CORREGIDA`: permite corregir efectivo/banco declarado, recalcula diferencias, sincroniza cuentas y no cambia resultado economico.
-  - `ANULADA`: anula la diferencia y sus movimientos de cuenta, deja diferencia efectiva en cero y revierte saldos proximos al valor esperado; no borra la auditoria del cierre.
+  - `ANULADA`: anula la diferencia y sus movimientos de cuenta, deja diferencia efectiva en cero y ajusta los campos de base de la recaudacion objetivo al valor esperado; no borra la auditoria del cierre.
 
 ## Panel del encargado
 
@@ -518,11 +524,14 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Todo objeto creado, editado, anulado, enviado a papelera, restaurado o eliminado debe quedar registrado en auditoria.
 - Cada evento registra fecha/hora, id de usuario, nombre de usuario al momento de la accion, funcion usada, accion, entidad, id de entidad, valor anterior, valor nuevo y motivo.
 - Auditoria se usa para cambios sensibles, anulaciones, cierres, liquidaciones y papelera.
+- Administrador ve todos los eventos. Encargado solo ve los eventos que se pueden asociar a sus locales asignados; los eventos sin local resoluble no se exponen al encargado.
+- La tabla permite ordenar todas sus columnas visibles de datos y `Ver` abre una ventana con el detalle completo.
+- En gestiones de diferencias, el detalle incluye saldos efectivo/banco antes y despues y cada movimiento nuevo con ID, cuenta, direccion, importe y cadena de ajuste.
 
-## Estado actual al 2026-07-06
+## Estado actual al 2026-07-11
 
 - Proyecto en prueba local, sin publicacion nueva.
-- Build local validado con `pnpm run build`.
+- `pnpm run check` valida TypeScript, ESLint y 90 pruebas en 20 archivos; el build y smoke se vuelven a ejecutar al cerrar cada bloque.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.
@@ -530,7 +539,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - El panel del encargado esta en version minimalista con tarjetas estilo resumen de caja.
 - La barra lateral de encargado/admin usa grupos desplegables.
 - Liquidacion de salarios usa periodo trabajado, validacion de salario base, tablas ordenables y resumen compacto en el detalle de empleado.
-- Pago de salarios desde cajero quedo limitado a Salario/Adelanto, con periodo trabajado obligatorio y anulación logica antes del cierre.
+- Pago de salarios desde cajero quedo limitado a Salario/Adelanto, con periodo trabajado obligatorio y anulacion logica antes del cierre.
 - Queda pendiente reimplementar Supabase/Auth real y storage real de comprobantes/imagenes en una etapa posterior.
 - Para retomar, revisar `docs/RETOMAR_MANANA.md` y `docs/MAPA_TECNICO.md`.
 

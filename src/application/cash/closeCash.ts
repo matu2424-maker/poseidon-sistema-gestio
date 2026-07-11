@@ -32,6 +32,17 @@ export type CloseCashInput = {
 export function closeCashCommand(data: AppData, input: CloseCashInput, context: CommandContext): CommandResult<Balance> {
   const balance = data.balances.find((item) => item.id === input.balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return commandError("La caja ya no esta abierta.");
+  const inputAmounts = [
+    input.declaredCash,
+    input.declaredBank,
+    input.finalWithdrawalCash,
+    input.finalWithdrawalBank,
+    balance.initialFund,
+    balance.initialBankFund ?? 0,
+  ];
+  if (!inputAmounts.every((amount) => Number.isFinite(amount))) {
+    return commandError("Los importes del cierre deben ser numeros finitos.");
+  }
   const pendingInvalid = data.readings.filter(
     (reading) => reading.balanceId === balance.id && reading.status === "PENDIENTE" && !reading.observation.trim(),
   );
@@ -41,6 +52,12 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
 
   const totals = totalsForBalance(data, balance.id);
   const localBalances = localAccountBalances(data, balance.localId);
+  if (
+    !Object.values(totals).every((amount) => Number.isFinite(amount)) ||
+    ![localBalances.cash, localBalances.bank].every((amount) => Number.isFinite(amount))
+  ) {
+    return commandError("Los importes del cierre deben ser numeros finitos.");
+  }
   if (input.finalWithdrawalCash > totals.expectedCash) {
     return commandError("El retiro final en efectivo no puede superar el efectivo esperado antes del retiro.");
   }
@@ -52,6 +69,9 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
   const expectedBankAfterWithdrawal = localBalances.bank - input.finalWithdrawalBank;
   const cashDifference = input.declaredCash - expectedCashAfterWithdrawal;
   const bankDifference = input.declaredBank - expectedBankAfterWithdrawal;
+  if (![expectedCashAfterWithdrawal, expectedBankAfterWithdrawal, cashDifference, bankDifference].every((amount) => Number.isFinite(amount))) {
+    return commandError("Los importes del cierre deben ser numeros finitos.");
+  }
   const differenceNote = input.differenceNote.trim();
   if ((cashDifference !== 0 || bankDifference !== 0) && !differenceNote) {
     return commandError("Toda diferencia requiere observacion.");
@@ -153,7 +173,10 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
   );
   synced = {
     ...synced,
-    accountMovements: syncDifferenceAccountMovements(synced.accountMovements, next, context.user.id),
+    accountMovements: syncDifferenceAccountMovements(synced.accountMovements, next, context.user.id, {
+      id: context.id,
+      createdAt: timestamp,
+    }),
   };
   return commandSuccess(
     auditCommand(synced, context, "Cerrar caja", "BalanceDiario", balance.id, balance, next, differenceNote),

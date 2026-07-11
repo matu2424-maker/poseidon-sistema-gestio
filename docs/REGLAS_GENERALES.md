@@ -92,6 +92,7 @@ No se considera cerrado un cambio si la documentacion relacionada quedo desactua
 - Campos monetarios se escriben como numeros simples y se formatean con punto de miles.
 - Si un monto esta en `0`, al hacer foco se limpia para escribir.
 - Si el usuario deja vacio un monto, vuelve a `0`.
+- Excepcion: en la correccion de diferencias, efectivo y banco son obligatorios; un campo vacio permanece vacio y genera error, nunca se interpreta como cero.
 - Donde corresponde solo numeros, validar entrada numerica.
 - Las acciones destructivas o sensibles no se ejecutan sin reconfirmacion.
 - Los formularios deben marcar claramente los campos obligatorios; en Personal se usa nota visible y `*` en cada campo requerido.
@@ -110,3 +111,7 @@ Cada evento debe registrar, cuando aplique:
 - valor anterior;
 - valor nuevo;
 - motivo u observacion.
+- local asociado, cuando la entidad o el movimiento pertenece a un local.
+
+- Administrador puede consultar la auditoria completa; encargado solo puede consultar eventos resueltos a uno de sus `localIds`.
+- Un evento sin contexto local resoluble no se muestra al encargado.

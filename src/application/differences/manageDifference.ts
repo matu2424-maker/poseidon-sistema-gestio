@@ -1,7 +1,12 @@
 import type { AppData, Balance, DifferenceStatus } from "../../types";
 import { syncDifferenceAccountMovements } from "../../lib/accountMovements";
-import { ensureLocalCurrentAccounts } from "../../lib/currentAccounts";
-import { bankDifferenceForBalance, cashDifferenceForBalance } from "../../lib/differences";
+import { ensureLocalCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
+import {
+  bankDifferenceForBalance,
+  canTransitionDifferenceStatus,
+  cashDifferenceForBalance,
+  normalizeDifferenceStatus,
+} from "../../lib/differences";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
 
 export type ManageDifferenceInput = {
@@ -31,11 +36,34 @@ export function manageDifferenceCommand(
   if (context.actorRole === "ENCARGADO" && !context.user.localIds.includes(previous.localId)) {
     return commandError("El encargado solo puede gestionar diferencias de sus locales asignados.");
   }
+  if (data.balances.some((balance) => balance.localId === previous.localId && balance.status === "EN_PROCESO")) {
+    return commandError("No se pueden gestionar diferencias mientras exista una caja abierta en el mismo local.");
+  }
+  const previousDifferenceStatus = normalizeDifferenceStatus(previous) ?? "PENDIENTE";
+  if (!canTransitionDifferenceStatus(previousDifferenceStatus, input.status)) {
+    return commandError(`No se puede cambiar una diferencia de ${previousDifferenceStatus} a ${input.status}.`);
+  }
 
   const previousCashDifference = cashDifferenceForBalance(data, previous);
   const previousBankDifference = bankDifferenceForBalance(previous);
   const previousDeclaredCash = previous.declaredCash ?? 0;
   const previousDeclaredBank = previous.declaredBank ?? previous.nextBankBase ?? 0;
+  const accountBalancesBefore = localAccountBalances(data, previous.localId);
+  const previousAmounts = [
+    previous.initialFund,
+    previous.initialBankFund ?? 0,
+    previousDeclaredCash,
+    previousDeclaredBank,
+    previous.nextBase ?? previousDeclaredCash,
+    previous.nextBankBase ?? previousDeclaredBank,
+    previousCashDifference,
+    previousBankDifference,
+    accountBalancesBefore.cash,
+    accountBalancesBefore.bank,
+  ];
+  if (!previousAmounts.every((amount) => Number.isFinite(amount))) {
+    return commandError("Los importes de la diferencia deben ser numeros finitos.");
+  }
   const expectedCash = previousDeclaredCash - previousCashDifference;
   const expectedBank = previousDeclaredBank - previousBankDifference;
   if (
@@ -55,6 +83,20 @@ export function manageDifferenceCommand(
   const nextDeclaredBank = input.status === "CORREGIDA" ? correctedBank : input.status === "ANULADA" ? expectedBank : previousDeclaredBank;
   const nextCashDifference = input.status === "CORREGIDA" ? correctedCash - expectedCash : input.status === "ANULADA" ? 0 : previousCashDifference;
   const nextBankDifference = input.status === "CORREGIDA" ? correctedBank - expectedBank : input.status === "ANULADA" ? 0 : previousBankDifference;
+  if (
+    ![
+      expectedCash,
+      expectedBank,
+      correctedCash,
+      correctedBank,
+      nextDeclaredCash,
+      nextDeclaredBank,
+      nextCashDifference,
+      nextBankDifference,
+    ].every((amount) => Number.isFinite(amount))
+  ) {
+    return commandError("Los importes de la diferencia deben ser numeros finitos.");
+  }
   const reviewedAt = context.now();
   const next: Balance = {
     ...previous,
@@ -70,20 +112,32 @@ export function manageDifferenceCommand(
     differenceReviewNote: reviewNote,
   };
   const balances = data.balances.map((balance) => (balance.id === input.balanceId ? next : balance));
-  const accountMovements = syncDifferenceAccountMovements(data.accountMovements, next, context.user.id);
+  const accountMovements = syncDifferenceAccountMovements(data.accountMovements, next, context.user.id, {
+    id: context.id,
+    createdAt: reviewedAt,
+  });
+  const previousMovementIds = new Set(data.accountMovements.map((movement) => movement.id));
+  const newAccountMovements = accountMovements.filter((movement) => !previousMovementIds.has(movement.id));
+  const changedData = {
+    ...data,
+    currentAccounts: ensureLocalCurrentAccounts(data, next.localId),
+    accountMovements,
+    balances,
+  };
+  const accountBalancesAfter = localAccountBalances(changedData, next.localId);
+  if (![accountBalancesAfter.cash, accountBalancesAfter.bank].every((amount) => Number.isFinite(amount))) {
+    return commandError("Los importes de la diferencia deben ser numeros finitos.");
+  }
   const nextData = auditCommand(
-    {
-      ...data,
-      currentAccounts: ensureLocalCurrentAccounts(data, next.localId),
-      accountMovements,
-      balances,
-    },
+    changedData,
     context,
     "Gestionar diferencia de caja",
     "DiferenciaCaja",
     input.balanceId,
     previous,
     {
+      localId: next.localId,
+      balanceId: next.id,
       status: input.status,
       reviewNote,
       reviewedBy: context.user.name,
@@ -96,8 +150,21 @@ export function manageDifferenceCommand(
       cashDifferenceAfter: nextCashDifference,
       bankDifferenceBefore: previousBankDifference,
       bankDifferenceAfter: nextBankDifference,
+      accountBalancesBefore,
+      accountBalancesAfter,
+      newAccountMovements: newAccountMovements.map((movement) => ({
+        id: movement.id,
+        accountId: movement.accountId,
+        sourceId: movement.sourceId,
+        direction: movement.direction,
+        amount: movement.amount,
+        status: movement.status,
+        detail: movement.detail,
+        previousAdjustmentId: movement.previousAdjustmentId,
+      })),
     },
     reviewNote,
+    { localId: next.localId },
   );
   return commandSuccess(nextData, next);
 }

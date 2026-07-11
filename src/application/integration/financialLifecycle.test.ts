@@ -4,6 +4,7 @@ import { createSeedData, normalizeData, POSEIDON_LOCAL_ID } from "../../data/app
 import { localAccountBalances } from "../../lib/currentAccounts";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { importLocalAppData, serializeAppData } from "../../infrastructure/storage/localAppDataRepository";
+import { CURRENT_SCHEMA_VERSION } from "../../infrastructure/storage/snapshot";
 import { commandContext } from "../command";
 import { closeCashCommand } from "../cash/closeCash";
 import { openCashCommand } from "../cash/openCash";
@@ -231,7 +232,7 @@ describe("ciclo financiero integrado", () => {
     const versionedImport = importLocalAppData(serializeAppData(migrated));
     expect(versionedImport.status).toBe("ready");
     if (versionedImport.status !== "ready") return;
-    expect(versionedImport.sourceVersion).toBe(1);
+    expect(versionedImport.sourceVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(versionedImport.needsRewrite).toBe(false);
     const normalizedAgain = normalizeData(versionedImport.data);
     expect(normalizedAgain.accountMovements.filter((movement) => movement.id === cashMovementId)).toHaveLength(1);

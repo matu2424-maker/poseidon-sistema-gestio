@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Balance } from "../types";
-import { normalizeDifferenceStatus } from "./differences";
+import { allowedDifferenceTransitions, canTransitionDifferenceStatus, normalizeDifferenceStatus } from "./differences";
 
 const balance = (patch: Partial<Balance> = {}): Balance => ({
   id: "balance-1",
@@ -32,5 +32,17 @@ describe("estados de diferencias", () => {
 
   it("no crea una gestion artificial para una caja historica sin diferencia", () => {
     expect(normalizeDifferenceStatus(balance({ differenceStatus: "RESUELTA" as never, cashDifference: 0, bankDifference: 0 }))).toBeUndefined();
+  });
+
+  it("expone la matriz completa de transiciones permitidas", () => {
+    expect(allowedDifferenceTransitions("PENDIENTE")).toEqual(["VERIFICADA", "CORREGIDA", "ANULADA"]);
+    expect(allowedDifferenceTransitions("VERIFICADA")).toEqual(["CORREGIDA", "ANULADA"]);
+    expect(allowedDifferenceTransitions("CORREGIDA")).toEqual(["CORREGIDA", "ANULADA"]);
+    expect(allowedDifferenceTransitions("ANULADA")).toEqual([]);
+
+    expect(canTransitionDifferenceStatus("PENDIENTE", "VERIFICADA")).toBe(true);
+    expect(canTransitionDifferenceStatus("VERIFICADA", "VERIFICADA")).toBe(false);
+    expect(canTransitionDifferenceStatus("CORREGIDA", "VERIFICADA")).toBe(false);
+    expect(canTransitionDifferenceStatus("ANULADA", "CORREGIDA")).toBe(false);
   });
 });

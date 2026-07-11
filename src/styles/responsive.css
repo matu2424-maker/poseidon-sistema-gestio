@@ -72,6 +72,15 @@
   .content {
     padding: 24px;
   }
+
+  .audit-detail-grid,
+  .audit-account-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .audit-movements article {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
@@ -152,6 +161,13 @@
   .difference-detail-context,
   .difference-detail-metrics,
   .difference-detail-notes {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-detail-grid,
+  .audit-account-grid,
+  .audit-values-grid,
+  .audit-movements article {
     grid-template-columns: 1fr;
   }
 

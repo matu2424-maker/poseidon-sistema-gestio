@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { AppData } from "../../types";
-import { createSnapshot, CURRENT_SCHEMA_VERSION, decodeSnapshot } from "./snapshot";
+import { createSnapshot, CURRENT_SCHEMA_VERSION, decodeSnapshot, SNAPSHOT_KIND } from "./snapshot";
 
 const minimumData = {
   users: [],
@@ -10,10 +10,50 @@ const minimumData = {
 
 describe("snapshot local versionado", () => {
   it("lee snapshots actuales", () => {
+    expect(CURRENT_SCHEMA_VERSION).toBe(2);
     const result = decodeSnapshot(JSON.stringify(createSnapshot(minimumData, "2026-07-10T12:00:00.000Z")));
     expect(result).toMatchObject({
       ok: true,
       value: { sourceVersion: CURRENT_SCHEMA_VERSION, needsRewrite: false },
+    });
+  });
+
+  it("lee schema 1 y exige reescritura al schema actual", () => {
+    const result = decodeSnapshot(
+      JSON.stringify({ kind: SNAPSHOT_KIND, schemaVersion: 1, savedAt: "2026-07-10T12:00:00.000Z", data: minimumData }),
+    );
+    expect(result).toMatchObject({ ok: true, value: { sourceVersion: 1, needsRewrite: true } });
+  });
+
+  it("conserva previousAdjustmentId en un roundtrip schema 2", () => {
+    const data = {
+      ...minimumData,
+      accountMovements: [
+        {
+          id: "adjustment-2",
+          accountId: "account-local-1-efectivo",
+          balanceId: "balance-1",
+          sourceType: "DIFERENCIA_CAJA",
+          sourceId: "balance-1-EFECTIVO",
+          direction: "SALIDA",
+          concept: "DIFERENCIA_EFECTIVO",
+          amount: 100,
+          detail: "Ajuste",
+          status: "ACTIVO",
+          userId: "manager-1",
+          createdAt: "2026-07-10T12:00:00.000Z",
+          previousAdjustmentId: "adjustment-1",
+        },
+      ],
+    } as AppData;
+    const result = decodeSnapshot(JSON.stringify(createSnapshot(data, "2026-07-10T12:00:00.000Z")));
+    expect(result).toMatchObject({
+      ok: true,
+      value: {
+        sourceVersion: 2,
+        needsRewrite: false,
+        data: { accountMovements: [{ id: "adjustment-2", previousAdjustmentId: "adjustment-1" }] },
+      },
     });
   });
 

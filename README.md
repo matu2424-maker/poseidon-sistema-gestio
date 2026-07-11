@@ -79,7 +79,7 @@ pnpm run smoke:localhost
 pnpm run test:e2e
 ```
 
-La prueba E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, cierre sin diferencias y persistencia de la recaudacion tras recargar.
+La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, cierre y persistencia; ademas valida correccion de diferencias, importe obligatorio y detalle contable de Auditoria como encargado.
 
 La matriz de smoke por rol esta en `docs/VALIDACION_LOCAL.md`.
 
@@ -141,7 +141,7 @@ La auditoria registra usuario real y funcion usada.
 - Retiros y aportes de capital.
 - Cierre de caja con declaracion de efectivo y banco.
 - Resumen de cajas cerradas.
-- Diferencias de caja con gestion por encargado/admin.
+- Diferencias de caja con gestion por encargado/admin, matriz de estados e historial contable append-only.
 - Cuentas corrientes de local efectivo, local banco, empleados y transferencias.
 - Locales con maquinas asociadas, historial y cierre de local.
 - Maquinas con taller, desuso, reset, historial y auditoria.
@@ -149,7 +149,7 @@ La auditoria registra usuario real y funcion usada.
 - Liquidacion de salarios por periodo trabajado, con tabla por empleado, detalle ordenable, cuenta corriente del empleado y cierre de liquidacion.
 - Papelera para personal y clientes.
 - Reportes y exportacion Excel-compatible.
-- Auditoria general.
+- Auditoria general con alcance por local y detalle de saldos/movimientos.
 - Respaldo/importacion validada de datos locales.
 - Cierre periodico semanal, quincenal, mensual o por rango de fechas.
 
@@ -161,9 +161,11 @@ La auditoria registra usuario real y funcion usada.
 - Las diferencias de efectivo o banco no modifican el resultado economico.
 - Las diferencias si mueven la cuenta corriente del local al cerrar caja, para que la siguiente apertura use el saldo real declarado.
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un encargado o administrador las verifique, corrija o anule con observacion.
+- `ANULADA` es terminal; las demas transiciones estan definidas por una matriz unica compartida entre comando e interfaz.
 - Corregir una diferencia permite editar efectivo/banco declarado y recalcula los movimientos de cuenta de esa recaudacion.
 - La pantalla de Diferencias funciona como historial por periodo: mes actual, mes anterior o consulta historica por mes/ano, incluyendo diferencias ya verificadas/corregidas/anuladas.
-- Si se anula una diferencia, se anulan sus movimientos de cuenta; cualquier correccion adicional posterior debe hacerse con ajuste explicito y auditado.
+- Si se anula una diferencia, un contramovimiento revierte su impacto sin borrar asientos. Cada ajuste agrega un ID unico y referencia al ajuste anterior.
+- No se gestionan diferencias con una caja abierta del mismo local; una gestion historica no reescribe cajas posteriores ni sus fondos iniciales.
 - En salarios, el salario pagado no puede superar el salario base, salario pagado + adelantos tampoco puede superar el salario base y salario pagado + adelantos + descuentos tampoco puede superar el salario base.
 - En salarios, `Pagado / Entregado` no resta descuentos porque descuento no es dinero entregado; `Cubierto base` es salario pagado + adelantos + descuentos.
 - `EXTRA` queda como codigo tecnico interno y en la interfaz se muestra como `Premio / Gratificacion`, separado del modulo Regalos de clientes.
@@ -240,7 +242,8 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ```text
 src/App.tsx                    Estado global, lectura/escritura local, acciones y composicion de pantallas
 src/navigation/lazyScreens.ts Carga diferida de pantallas por feature
-src/data/appData.ts            Datos demo, reset operativo, ID visible de caja y normalizacion/migracion
+src/data/appData.ts            Datos demo, reset operativo e ID visible de caja
+src/data/normalizeData.ts      Normalizacion y migracion de datos persistidos
 src/application/ports/         Contratos asincronos y cola ordenada de persistencia
 src/hooks/useAppDataRepository Carga/guardado independiente del adaptador concreto
 src/types.ts                   Tipos principales del sistema
@@ -275,7 +278,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Refactor pendiente
 
-`src/App.tsx` ya es principalmente orquestador. Las proximas prioridades son dividir Locales/Maquinas, Movimientos y Salarios; separar seed de normalizacion; y extraer comandos de dominio con pruebas. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
+`src/App.tsx` ya es principalmente orquestador, el seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia ahora; el siguiente trabajo debe volver a un modulo funcional concreto. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
 
 ## Documentacion viva
 

@@ -65,6 +65,7 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
   - se formatean con punto de miles;
   - si estan en `0`, al enfocar se limpian;
   - si quedan vacios, vuelven a `0`.
+  - excepcion: la correccion de diferencias mantiene vacios los importes obligatorios y muestra su validacion dentro del modal.
 - Donde corresponde numero, validar entrada numerica.
 - Mensajes de error deben aparecer en la misma pantalla o modal donde sucede el error.
 

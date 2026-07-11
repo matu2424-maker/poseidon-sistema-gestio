@@ -266,6 +266,7 @@ export type AccountMovement = {
   userId: string;
   createdAt: string;
   reversalOf?: string;
+  previousAdjustmentId?: string;
 };
 
 export type CapitalMovement = {
@@ -438,6 +439,7 @@ export type AuditEvent = {
   action: string;
   entity: string;
   entityId: string;
+  localId?: string;
   previousValue: string;
   newValue: string;
   reason: string;

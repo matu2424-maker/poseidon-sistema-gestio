@@ -24,7 +24,9 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Encargado solo puede gestionar diferencias de sus locales asignados, validado tambien por el comando.
 - Correcciones exigen importes validos de efectivo y banco.
 - Anular una diferencia conserva el asiento original y agrega contramovimientos activos, dejando impacto neto cero.
-- 58 pruebas automatizadas en 18 archivos.
+- Matriz de transiciones, bloqueo por caja abierta, historico inmutable, IDs/cadena append-only, finitud, periodo operativo y auditoria local quedaron implementados.
+- Auditoria muestra detalle de saldos/movimientos y limita al encargado a sus locales.
+- 90 pruebas automatizadas en 20 archivos.
 
 ## Bloque documental actual
 
@@ -42,13 +44,14 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: ESLint, 58 pruebas, smoke HTTP y smoke manual por los tres roles.
-7. Completado: E2E critico de cajero y carga diferida por pantalla; bundle inicial reducido a 283,65 kB.
+6. Completado: ESLint, 90 pruebas, smoke HTTP y smoke manual por los tres roles.
+7. Completado: E2E critico de cajero, E2E de diferencias/auditoria del encargado y carga diferida por pantalla.
 8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
 9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.
 10. Completado: primer regreso funcional en Diferencias, con permisos por local, validaciones y anulacion contable corregida.
-11. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
-12. Antes del proximo uso de subagentes: comprobar en una tarea nueva que Codex carga los tres perfiles personalizados.
+11. Completado: riesgos priorizados del piloto de Diferencias corregidos e integrados.
+12. Completado: perfiles personalizados validados en una tarea nueva; API sin selector nativo de `agent_type`, pero contratos TOML obedecidos.
+13. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
@@ -59,7 +62,7 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 - Varias operaciones de negocio siguen dentro de componentes React.
 - Los archivos mas grandes restantes son liquidacion salarial, seed demo, historiales y estilos administrativos ya separados.
 - La cobertura automatizada incluye apertura-contadores-cierre, pero no todos los formularios UI ni todos los comandos pendientes.
-- El piloto de subagentes detecto riesgos no corregidos en Diferencias; consultar `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md` y elegir uno por objetivo.
+- Los perfiles personalizados se comprobaron por contrato nominal; la API disponible no permite demostrar seleccion interna nativa por `agent_type`.
 
 ## Validacion esperada al cerrar un bloque
 

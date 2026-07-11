@@ -18,6 +18,13 @@ export const formatCounterInput = (value: string) => counter(parseCounter(value)
 
 export const parseMoneyInput = (value: FormDataEntryValue | null) => Number(String(value ?? "").replace(/\D/g, "") || 0);
 
+export const parseRequiredMoneyInput = (value: FormDataEntryValue | null): number | null => {
+  const raw = String(value ?? "").trim();
+  if (!raw || !/^(?:\d+|\d{1,3}(?:\.\d{3})+)$/.test(raw)) return null;
+  const parsed = Number(raw.replace(/\./g, ""));
+  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : null;
+};
+
 export const formatMoneyInput = (value: string) => {
   const digits = value.replace(/\D/g, "");
   return digits ? counterFormat.format(Number(digits)) : "";
@@ -26,6 +33,11 @@ export const formatMoneyInput = (value: string) => {
 export const moneyInputValue = (value: number | undefined | null) => (Number(value ?? 0) > 0 ? counterFormat.format(Number(value)) : "0");
 
 export const normalizeMoneyInput = (value: string) => formatMoneyInput(value) || "0";
+
+export const normalizeRequiredMoneyInput = (value: string) => {
+  const parsed = parseRequiredMoneyInput(value);
+  return parsed === null ? value : counterFormat.format(parsed);
+};
 
 export const clearZeroMoneyInput = (value: string) => (parseMoneyInput(value) === 0 ? "" : value);
 
@@ -40,4 +52,3 @@ export const handleMoneyFocus = (event: FocusEvent<HTMLInputElement>) => {
 export const handleMoneyBlur = (event: FocusEvent<HTMLInputElement>) => {
   event.currentTarget.value = normalizeMoneyInput(event.currentTarget.value);
 };
-

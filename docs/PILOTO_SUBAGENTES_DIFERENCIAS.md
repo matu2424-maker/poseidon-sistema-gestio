@@ -2,7 +2,7 @@
 
 Fecha: 2026-07-11
 
-Informe de una revision tecnica de solo lectura. No modifica ni redefine reglas funcionales. Los hallazgos son insumos para objetivos futuros y deben validarse antes de cambiar codigo.
+Informe de una revision tecnica de solo lectura y su cierre posterior. Los hallazgos fueron validados e implementados en un objetivo autorizado, sin cambiar la regla de resultado economico.
 
 ## Objetivo
 
@@ -68,6 +68,10 @@ Evaluar si dos subagentes con responsabilidades distintas aportan evidencia util
 - Ajuste aplicado: limites de archivos, palabras, riesgos y pruebas en los tres perfiles personalizados.
 - Conclusion: mantener maximo dos subagentes y convocar ambos solo en tareas contables o transversales de riesgo alto.
 
-## Siguiente uso recomendado
+## Cierre del piloto
 
-Abrir una tarea nueva para comprobar que Codex reconoce los tres nombres personalizados. Despues elegir un solo riesgo de este informe como objetivo funcional; no corregirlos todos en un mismo bloque.
+- Una tarea nueva reconocio los tres perfiles nominales, cargo `max_threads = 3`, maximo operativo de dos subagentes y `max_depth = 1`.
+- Se ejecutaron pruebas de solo lectura con `poseidon_scope_mapper` y `poseidon_accounting_reviewer`; ambos finalizaron sin cambios en Git.
+- Limitacion de la API: no expone un selector nativo `agent_type`; se comprobo presencia, lectura y obediencia del contrato TOML nominal.
+- Los riesgos alto/medio de este informe quedaron cubiertos por reglas, codigo y pruebas: transiciones, caja abierta, historico inmutable, IDs/cadena, finitud, importes vacios, zona operativa, alcance local y detalle contable de auditoria.
+- El protocolo queda habilitado para futuros objetivos, manteniendo perfiles de solo lectura y maximo dos subagentes simultaneos.

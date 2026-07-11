@@ -26,8 +26,9 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 - Diferencias no cambian resultado economico.
 - Diferencias si mueven `Local / Efectivo` o `Local / Banco` para que la siguiente caja abra con saldo real declarado.
 - `CORREGIDA` permite editar efectivo/banco declarado, recalcular diferencias y resincronizar movimientos.
-- `ANULADA` anula movimientos de diferencia, deja la diferencia efectiva en cero y revierte saldos proximos al valor esperado.
+- `ANULADA` anula movimientos de diferencia, deja la diferencia efectiva en cero y ajusta los campos de base de la recaudacion objetivo al valor esperado.
 - Estados canónicos: `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`.
+- Transiciones: `PENDIENTE -> VERIFICADA/CORREGIDA/ANULADA`; `VERIFICADA -> CORREGIDA/ANULADA`; `CORREGIDA -> CORREGIDA/ANULADA`; `ANULADA` es terminal.
 - Estados heredados se migran al cargar: `REVISADA` a `VERIFICADA`, `AJUSTADA` a `CORREGIDA`; `RESUELTA` sin diferencia ni gestion deja de crear un control artificial.
 - La pantalla es historial por periodo: mes anterior, mes actual o consulta historica por mes/ano.
 - Debe incluir resueltas/corregidas aunque la diferencia actual sea cero.
@@ -35,7 +36,11 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 - Tabla principal ordenable por todas sus columnas visibles.
 - El comando valida tambien el alcance por local: un encargado no puede gestionar recaudaciones fuera de `user.localIds`; administrador conserva alcance global.
 - Una correccion exige importes finitos de efectivo y banco. La interfaz pide reconfirmacion antes de verificar, corregir o anular.
+- Un importe obligatorio vacio no se convierte en cero; la validacion queda dentro del modal.
 - Al anular, el libro conserva los asientos originales y agrega contramovimientos activos para que el impacto neto quede en cero.
+- No se gestiona si existe una caja abierta del mismo local. Una gestion historica no reescribe cajas posteriores ni sus fondos iniciales.
+- Los ajustes son append-only, tienen ID unico, fecha de gestion y cadena `previousAdjustmentId`.
+- El periodo usa `operatingDate`; el fallback heredado convierte `closedAt` a `America/Montevideo`.
 - El historial acepta entidades actuales `BalanceDiario`/`DiferenciaCaja` y la entidad heredada `Caja`, para no ocultar cierres antiguos.
 
 ## Asociaciones
@@ -56,4 +61,6 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 7. Verificar que la fila siga apareciendo aunque la diferencia quede en cero.
 8. Abrir historial completo en el modal.
 9. Revisar `Cuentas corrientes` para ver movimiento actualizado.
-10. Ejecutar `pnpm test` para validar estados y sincronizacion contable.
+10. Abrir una caja del mismo local e intentar gestionar: debe mostrar el bloqueo dentro del modal.
+11. Abrir `Auditoria` y comprobar saldos antes/despues, IDs de movimientos y cadena de ajuste.
+12. Ejecutar `pnpm test` para validar estados y sincronizacion contable.

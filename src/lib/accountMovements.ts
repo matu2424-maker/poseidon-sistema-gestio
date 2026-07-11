@@ -179,7 +179,13 @@ export function differenceAccountMovement(
   kind: "EFECTIVO" | "BANCO",
   amount: number,
   userId: string,
-  options: { id?: string; createdAt?: string; detailPrefix?: string; status?: AccountMovement["status"] } = {},
+  options: {
+    id?: string;
+    createdAt?: string;
+    detailPrefix?: string;
+    status?: AccountMovement["status"];
+    previousAdjustmentId?: string;
+  } = {},
 ): AccountMovement | null {
   if (amount === 0) return null;
   const ids = differenceMovementIds(balance.id);
@@ -197,32 +203,67 @@ export function differenceAccountMovement(
     status: options.status ?? (balance.differenceStatus === "ANULADA" ? "ANULADO" : "ACTIVO"),
     userId,
     createdAt: options.createdAt ?? balance.differenceReviewedAt ?? balance.closedAt ?? nowIso(),
+    previousAdjustmentId: options.previousAdjustmentId,
   };
 }
 
-export function syncDifferenceAccountMovements(movements: AccountMovement[], balance: Balance, userId: string) {
+export type SyncDifferenceAccountMovementsOptions = {
+  id?: (prefix: string) => string;
+  createdAt?: string;
+};
+
+function uniqueMovementId(movements: AccountMovement[], candidate: string) {
+  if (!movements.some((movement) => movement.id === candidate)) return candidate;
+  let sequence = 2;
+  while (movements.some((movement) => movement.id === `${candidate}-${sequence}`)) sequence += 1;
+  return `${candidate}-${sequence}`;
+}
+
+function latestDifferenceMovement(movements: AccountMovement[]) {
+  if (!movements.length) return undefined;
+  const referencedIds = new Set(
+    movements.map((movement) => movement.previousAdjustmentId).filter((id): id is string => Boolean(id)),
+  );
+  const chainTips = movements.filter((movement) => !referencedIds.has(movement.id));
+  return (chainTips.length ? chainTips : movements).reduce<AccountMovement | undefined>((latest, movement) => {
+    if (!latest || movement.createdAt > latest.createdAt) return movement;
+    return latest;
+  }, undefined);
+}
+
+export function syncDifferenceAccountMovements(
+  movements: AccountMovement[],
+  balance: Balance,
+  userId: string,
+  options: SyncDifferenceAccountMovementsOptions = {},
+) {
   const ids = differenceMovementIds(balance.id);
   const syncKind = (current: AccountMovement[], kind: "EFECTIVO" | "BANCO", target: number) => {
     const sourceId = `${balance.id}-${kind}`;
-    const related = current.filter(
-      (movement) => movement.sourceType === "DIFERENCIA_CAJA" && movement.sourceId === sourceId && movement.status === "ACTIVO",
-    );
-    const currentAmount = related.reduce(
+    const related = current.filter((movement) => movement.sourceType === "DIFERENCIA_CAJA" && movement.sourceId === sourceId);
+    const currentAmount = related.filter((movement) => movement.status === "ACTIVO").reduce(
       (total, movement) => total + (movement.direction === "ENTRADA" ? movement.amount : -movement.amount),
       0,
     );
     const delta = target - currentAmount;
     if (delta === 0) return current;
     const baseId = kind === "EFECTIVO" ? ids.cash : ids.bank;
-    const revision = (balance.differenceReviewedAt ?? balance.closedAt ?? nowIso()).replace(/[^0-9A-Za-z]/g, "");
-    const id = related.length === 0 && !current.some((movement) => movement.id === baseId) ? baseId : `${baseId}-ajuste-${revision}`;
+    const isOriginal = related.length === 0 && !current.some((movement) => movement.id === baseId);
+    const createdAt = options.createdAt ?? balance.differenceReviewedAt ?? balance.closedAt ?? nowIso();
+    const revision = createdAt.replace(/[^0-9A-Za-z]/g, "");
+    const generatedId = isOriginal
+      ? baseId
+      : options.id?.(`difference-${kind.toLowerCase()}-adjustment`) || `${baseId}-ajuste-${revision}`;
+    const id = isOriginal ? baseId : uniqueMovementId(current, generatedId);
+    const previousAdjustmentId = isOriginal ? undefined : latestDifferenceMovement(related)?.id;
     const adjustment = differenceAccountMovement(balance, kind, delta, userId, {
       id,
-      createdAt: balance.differenceReviewedAt ?? balance.closedAt,
-      detailPrefix: related.length ? "Ajuste diferencia" : "Diferencia",
+      createdAt,
+      detailPrefix: isOriginal ? "Diferencia" : "Ajuste diferencia",
       status: "ACTIVO",
+      previousAdjustmentId,
     });
-    return adjustment ? upsertAccountMovement(current, adjustment) : current;
+    return adjustment ? [adjustment, ...current] : current;
   };
   return syncKind(syncKind(movements, "EFECTIVO", Number(balance.cashDifference ?? 0)), "BANCO", Number(balance.bankDifference ?? 0));
 }

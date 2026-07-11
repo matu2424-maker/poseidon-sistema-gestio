@@ -470,7 +470,7 @@ function App({
         />
       )}
       {screen === "differences" && <Differences data={data} user={user} patchData={patchData} setMessage={setMessage} />}
-      {screen === "audit" && <Audit data={data} />}
+      {screen === "audit" && <Audit data={data} user={user} />}
       {screen === "periodic" && <Periodic data={data} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />}
       {!openBalance && ["counters", "expenses", "transfers", "gifts", "capital-movements", "close-cash"].includes(screen) && (
         <EmptyState title="No hay caja abierta" text="Abri una nueva caja o trabaja sobre una caja en proceso." action={() => goToScreen("open-cash")} />

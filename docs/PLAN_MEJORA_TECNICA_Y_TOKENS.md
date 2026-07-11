@@ -116,7 +116,7 @@ Agregar en este orden:
 - El agente principal integra resultados, controla escritura, valida y documenta.
 - Completado: piloto de Diferencias de caja con mapa de alcance y revision contable, sin cambios funcionales.
 - Ajuste aplicado tras el piloto: limites explicitos de archivos, palabras, riesgos y pruebas por perfil.
-- Pendiente de una tarea nueva: comprobar la carga nominal de los tres perfiles personalizados.
+- Completado 2026-07-11: una tarea nueva comprobo presencia y obediencia nominal de los tres perfiles; la API disponible no expone selector nativo `agent_type`.
 - Fuente canonica: `docs/PROTOCOLO_AGENTES_CODEX.md`.
 - Resultado del piloto: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
 

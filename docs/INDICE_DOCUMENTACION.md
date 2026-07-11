@@ -113,7 +113,7 @@ Todos viven en `docs/contextos/`.
 
 ## Estudios tecnicos
 
-- `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`: primer piloto de delegacion, riesgos detectados y ajustes aplicados a los perfiles. No redefine reglas funcionales.
+- `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`: primer piloto de delegacion, validacion de perfiles y cierre de los riesgos tecnicos priorizados. No redefine la regla de resultado economico.
 
 ## Regla de mantenimiento
 

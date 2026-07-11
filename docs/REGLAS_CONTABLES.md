@@ -54,6 +54,7 @@ No forman parte del resultado economico:
 - Los movimientos contables persistidos no se reescriben durante la normalizacion.
 - Una anulacion posterior genera un contramovimiento activo de direccion opuesta; no borra ni modifica el movimiento original.
 - Una correccion de diferencia agrega solo el delta necesario para alcanzar el nuevo saldo auditado.
+- Los ajustes de una misma diferencia/medio son append-only: cada delta tiene ID propio y enlaza el ajuste anterior mediante `previousAdjustmentId`.
 - Operaciones aun no cerradas pueden quitarse antes de contabilizarse definitivamente cuando la regla funcional lo permite.
 
 ## Cierre de caja
@@ -63,15 +64,20 @@ No forman parte del resultado economico:
 - Si hay diferencia, la observacion del cajero es obligatoria.
 - Al cerrar, las diferencias crean movimientos `DIFERENCIA_CAJA` para que las cuentas del local reflejen el saldo declarado.
 - Esos movimientos no cambian resultado economico.
+- Los importes directos y derivados del cierre deben ser numeros finitos; `NaN` e infinitos se rechazan antes de persistir.
 
 ## Diferencias
 
 - `PENDIENTE`: requiere gestion.
 - `VERIFICADA`: confirma que la diferencia existe y mantiene movimientos activos.
-- `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza saldo proximo y agrega el ajuste contable necesario sin borrar el movimiento anterior.
-- `ANULADA`: conserva el asiento original y agrega un contramovimiento activo por el delta que revierte su impacto; deja la diferencia efectiva en cero y ajusta los saldos proximos al valor esperado de la recaudacion.
+- `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza los campos de base de la recaudacion objetivo y agrega el ajuste contable necesario sin borrar el movimiento anterior.
+- `ANULADA`: conserva el asiento original y agrega un contramovimiento activo por el delta que revierte su impacto; deja la diferencia efectiva en cero y ajusta los campos de base de la recaudacion objetivo al valor esperado.
+- Matriz obligatoria: `PENDIENTE -> VERIFICADA/CORREGIDA/ANULADA`; `VERIFICADA -> CORREGIDA/ANULADA`; `CORREGIDA -> CORREGIDA/ANULADA`; `ANULADA` no admite nuevas acciones.
 - Estos cuatro son los unicos estados vigentes. `REVISADA`, `RESUELTA` y `AJUSTADA` son valores heredados y se normalizan al leer datos antiguos, conservando auditoria.
 - Las diferencias deben conservar observacion original del cajero e historial auditado de gestion.
+- La gestion se bloquea si hay una caja abierta del mismo local. Una caja abierta de otro local no bloquea.
+- Una correccion o anulacion historica no modifica cajas posteriores ni `initialFund`/`initialBankFund`; el delta entra al libro con fecha de gestion.
+- Todo importe de cierre o correccion debe ser finito. Ausencia, `NaN` e infinitos son errores y no equivalen a cero.
 
 ## Salarios
 
