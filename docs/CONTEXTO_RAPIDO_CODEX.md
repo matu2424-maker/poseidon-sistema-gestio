@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a la tarea.
 
@@ -12,7 +12,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Local principal: Poseidon; estructura preparada para multi-local.
 - Archivos guardan metadata local, no contenido persistente real.
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
-- `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos; reglas compartidas viven en `src/lib/`; features viven en `src/features/`.
+- `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
 - Pruebas actuales: 41 casos en 14 archivos, incluidos caja completa, diferencias, salarios, cuentas, migracion y permisos.
 

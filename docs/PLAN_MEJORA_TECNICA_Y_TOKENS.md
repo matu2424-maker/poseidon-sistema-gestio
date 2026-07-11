@@ -85,6 +85,7 @@ Agregar en este orden:
 - Completado: mensajes con ciclo de vida claro para evitar avisos obsoletos.
 - Mover componentes transversales fuera de features propietarias.
 - Completado: CSS dividido por base, layout, features y responsive, preservando exactamente el orden original.
+- Completado: pantallas funcionales cargadas bajo demanda; bundle inicial reducido de 507,03 kB a 283,65 kB sin advertencia de chunk grande.
 
 ## Preparacion online sin implementacion
 

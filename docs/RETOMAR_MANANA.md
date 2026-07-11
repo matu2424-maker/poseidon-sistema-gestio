@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Este archivo registra continuidad inmediata. Las reglas permanentes viven en las fuentes canonicas indicadas por `docs/INDICE_DOCUMENTACION.md`.
 
@@ -42,7 +42,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
 6. Completado: ESLint, 41 pruebas, smoke HTTP y smoke manual por los tres roles.
-7. Siguiente mejora incremental: extraer comandos de movimientos operativos y locales/maquinas; no es bloqueo para continuar funciones.
+7. Completado: E2E critico de cajero y carga diferida por pantalla; bundle inicial reducido a 283,65 kB.
+8. Siguiente mejora incremental: extraer comandos de movimientos operativos y locales/maquinas; no es bloqueo para continuar funciones.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

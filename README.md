@@ -237,6 +237,7 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 
 ```text
 src/App.tsx                    Estado global, lectura/escritura local, acciones y composicion de pantallas
+src/navigation/lazyScreens.ts Carga diferida de pantallas por feature
 src/data/appData.ts            Datos demo, reset operativo, ID visible de caja y normalizacion/migracion
 src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, periodos, referencias de recaudacion, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento

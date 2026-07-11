@@ -33,6 +33,7 @@ main.tsx
 ```text
 src/
   App.tsx                  orquestacion global y composicion
+  navigation/lazyScreens  carga diferida por pantalla/feature
   application/             comandos atomicos, contexto y resultados tipados
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed demo, reset y fachada de normalizacion
@@ -140,7 +141,8 @@ src/
 - `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
 - `SalarySettlements.tsx` ya separa su editor de escritura.
 - `appData.ts` ya delega la normalizacion/migracion en `data/normalizeData.ts`.
-- El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino separar CSS, ampliar validacion estatica y continuar sacando comandos de negocio de React.
+- Las pantallas funcionales se cargan bajo demanda desde `navigation/lazyScreens.ts`; el arranque, login, shell y recuperacion quedan estaticos.
+- El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino continuar sacando comandos de negocio de React.
 
 ## Concentracion de codigo
 
@@ -183,7 +185,7 @@ Completado en navegacion: registro tipado de pantallas, permisos por funcion, re
 
 ### Baja por ahora
 
-- Bundle unico sin lazy loading: tamaño actual aceptable.
+- Carga diferida completada: bundle inicial reducido de 507,03 kB a 283,65 kB; Locales/Maquinas es el chunk funcional mayor con 50,65 kB.
 - `types.ts` grande: dividir solo junto con dominios estables.
 - No incorporar store complejo antes de extraer comandos.
 

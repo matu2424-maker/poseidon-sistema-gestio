@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import type {
   AppData,
   CapitalMovementPerson,
@@ -20,27 +20,10 @@ import {
   createSeedData,
   normalizeData,
 } from "./data/appData";
-import { CloseCash } from "./features/cashier/CloseCash";
-import { Counters } from "./features/cashier/Counters";
-import { OpenCash } from "./features/cashier/OpenCash";
-import { CapitalMovements, CashierClients, CashierSalaryPayments, Expenses, Gifts, Transfers } from "./features/cashier/Movements";
-import { AdminCurrentAccounts } from "./features/accounts/CurrentAccounts";
-import { Panel } from "./features/dashboard/RoleDashboard";
-import { Differences } from "./features/manager/Differences";
-import { ManagerExpenses } from "./features/manager/Expenses";
-import { AdminSalarySettlements } from "./features/salaries/SalarySettlements";
-import { AdminClients } from "./features/admin/Clients";
-import { AdminLocals, AdminMachines } from "./features/admin/LocationsMachines";
-import { AdminStaff, AdminTrash } from "./features/admin/Staff";
-import { AdminExpenseCategories, AdminUsers } from "./features/admin/Settings";
-import { Audit } from "./features/audit/Audit";
 import { CashierWorkspace, Login, Shell, Welcome } from "./features/layout/AppShell";
 import { EmptyState } from "./components/EmptyState";
 import { NoticeBanner } from "./components/NoticeBanner";
-import { Periodic } from "./features/reports/Periodic";
-import { Reports } from "./features/reports/Reports";
 import { StorageRecovery } from "./features/system/StorageRecovery";
-import { LocalDataMaintenance } from "./features/system/LocalDataMaintenance";
 import { downloadFile } from "./lib/export";
 import { localDate } from "./lib/dates";
 import { commandContext } from "./application/command";
@@ -49,6 +32,33 @@ import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveRe
 import { canAccessScreen, screenRequiresOpenCash } from "./navigation/screens";
 import { useNotice } from "./hooks/useNotice";
 import { confirmAction } from "./lib/confirmations";
+import {
+  AdminClients,
+  AdminCurrentAccounts,
+  AdminExpenseCategories,
+  AdminLocals,
+  AdminMachines,
+  AdminSalarySettlements,
+  AdminStaff,
+  AdminTrash,
+  AdminUsers,
+  Audit,
+  CapitalMovements,
+  CashierClients,
+  CashierSalaryPayments,
+  CloseCash,
+  Counters,
+  Differences,
+  Expenses,
+  Gifts,
+  LocalDataMaintenance,
+  ManagerExpenses,
+  OpenCash,
+  Panel,
+  Periodic,
+  Reports,
+  Transfers,
+} from "./navigation/lazyScreens";
 
 type InitialLoad = {
   data: AppData;
@@ -76,6 +86,15 @@ function readData(): InitialLoad {
       },
     };
   }
+}
+
+function ScreenLoader() {
+  return (
+    <div className="empty-state" role="status" aria-live="polite">
+      <h2>Cargando</h2>
+      <p>Preparando la pantalla.</p>
+    </div>
+  );
 }
 
 function App() {
@@ -302,6 +321,7 @@ function App() {
         }
         returnRoleLabel={user.role === "ADMINISTRADOR" ? "administrador" : "encargado"}
       >
+        <Suspense fallback={<ScreenLoader />}>
         {(cashierScreen === "open-cash" || cashierScreen === "cashier-summary") && (
           <OpenCash
             data={data}
@@ -352,6 +372,7 @@ function App() {
             afterCloseScreen="cashier-summary"
           />
         )}
+        </Suspense>
       </CashierWorkspace>
     );
   }
@@ -379,6 +400,7 @@ function App() {
       }}
     >
       <NoticeBanner message={message} />
+      <Suspense fallback={<ScreenLoader />}>
       {screen === "panel" && (
         <Panel
           data={data}
@@ -487,6 +509,7 @@ function App() {
       {!openBalance && ["counters", "expenses", "transfers", "gifts", "capital-movements", "close-cash"].includes(screen) && (
         <EmptyState title="No hay caja abierta" text="Abri una nueva caja o trabaja sobre una caja en proceso." action={() => goToScreen("open-cash")} />
       )}
+      </Suspense>
     </Shell>
   );
 }
