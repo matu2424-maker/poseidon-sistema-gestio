@@ -13,7 +13,7 @@ export type StorageSaveResult =
   | { status: "failed"; error: string };
 
 const stripInlineFiles = (value: string) =>
-  value.replace(/data:[^\"]{500,}/g, "[archivo no persistido en almacenamiento local]");
+  value.replace(/data:[^"]{500,}/g, "[archivo no persistido en almacenamiento local]");
 
 export function appDataForStorage(data: AppData): AppData {
   return {

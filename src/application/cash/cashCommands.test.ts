@@ -124,4 +124,39 @@ describe("comandos de caja", () => {
       ),
     ).toMatchObject({ ok: false, error: "Toda diferencia requiere observacion." });
   });
+
+  it("impide abrir dos cajas en proceso para el mismo local y fecha", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const first = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 0,
+        initialBankFund: 0,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: false,
+      },
+      context,
+    );
+    if (!first.ok) throw new Error(first.error);
+
+    expect(
+      openCashCommand(
+        first.data,
+        {
+          localId: "1",
+          operatingDate: "2026-07-10",
+          initialFund: 0,
+          initialBankFund: 0,
+          initialNote: "",
+          openingCapitalPerson: "MATHIAS",
+          firstOpening: false,
+        },
+        context,
+      ),
+    ).toMatchObject({ ok: false, error: "Ya existe una caja abierta para ese local y fecha." });
+  });
 });

@@ -41,7 +41,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Siguiente: ampliar lint, pruebas y smoke tests por rol.
+6. Completado: ESLint, 41 pruebas, smoke HTTP y smoke manual por los tres roles.
+7. Siguiente mejora incremental: extraer comandos de movimientos operativos y locales/maquinas; no es bloqueo para continuar funciones.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
@@ -50,15 +51,15 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 - `localStorage` no es persistencia multiusuario ni durable.
 - La cuota de `localStorage` puede impedir nuevos guardados; el sistema conserva el snapshot anterior y pide exportar respaldo.
 - Varias operaciones de negocio siguen dentro de componentes React.
-- Los archivos mas grandes son Locales/Maquinas, datos demo/normalizacion, movimientos de cajero y salarios.
-- La cobertura automatizada todavia no incluye ciclos completos de caja.
+- Los archivos mas grandes restantes son liquidacion salarial, seed demo, historiales y estilos administrativos ya separados.
+- La cobertura automatizada incluye apertura-contadores-cierre, pero no todos los formularios UI ni todos los comandos pendientes.
 
 ## Validacion esperada al cerrar un bloque
 
 ```text
-pnpm test
+pnpm run check
 pnpm run build
-http://127.0.0.1:5173/ -> 200
+pnpm run smoke:localhost
 git diff --check
 git status --short
 ```

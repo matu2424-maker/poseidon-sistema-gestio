@@ -39,8 +39,8 @@ Agregar reglas contables, visuales o mapa tecnico solo si aplican. El enrutador 
 - Completado: validacion runtime y `schemaVersion` del snapshot.
 - Completado: recuperacion de snapshot corrupto y exportacion/importacion administrativa.
 - Completado: se elimino el recorte silencioso de auditoria e historiales.
-- `pnpm check` ejecuta typecheck y pruebas; falta incorporar lint.
-- Ampliar fixtures de prueba sin depender de `AppData` completo.
+- Completado: `pnpm check` ejecuta typecheck, ESLint sin advertencias y pruebas.
+- Completado parcialmente: fixtures de migracion, permisos y comandos ampliados; seguir sumando por comando nuevo.
 
 Resultado: datos locales mas previsibles y fallos detectados antes.
 
@@ -53,7 +53,7 @@ Orden ejecutado:
 3. `SalarySettlements.tsx`.
 4. `appData.ts`.
 
-Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. Navegacion, permisos, confirmaciones, avisos y CSS por capas tambien quedaron centralizados. Siguiente corte: ampliar lint y smoke tests.
+Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. Navegacion, permisos, confirmaciones, avisos, CSS por capas, lint y smoke documentado tambien quedaron centralizados.
 
 ## Prioridad 3 - Comandos de dominio
 
@@ -71,17 +71,17 @@ Agregar en este orden:
 - Completado: correccion/anulacion de diferencias y saldos;
 - Completado: alta, correccion y anulacion de pagos/adelantos/descuentos;
 - Pendiente: movimientos operativos y cierre salarial;
-- traslado, reset y eliminacion de maquinas;
-- migracion de snapshots antiguos;
-- permisos por rol/local;
-- pruebas UI de formularios criticos;
-- tres smoke tests por rol en navegador.
+- Pendiente: traslado, reset y eliminacion de maquinas;
+- Completado inicial: migracion de ID historico, limpieza de imagenes y reconstruccion de asientos faltantes;
+- Completado inicial: permisos por rol y requisito de caja abierta;
+- Pendiente: pruebas UI automatizadas de formularios criticos;
+- Completado manual/documentado: smoke de cajero, encargado y administrador en navegador.
 
 ## Prioridad 5 - Navegacion y UI compartida
 
-- Registro unico de pantalla, titulo, menu y roles.
-- Dialogo de confirmacion compartido.
-- Mensajes con ciclo de vida claro para evitar avisos obsoletos.
+- Completado: registro unico de pantalla, titulo, menu y roles.
+- Completado: confirmacion compartida.
+- Completado: mensajes con ciclo de vida claro para evitar avisos obsoletos.
 - Mover componentes transversales fuera de features propietarias.
 - Completado: CSS dividido por base, layout, features y responsive, preservando exactamente el orden original.
 
@@ -103,9 +103,9 @@ Agregar en este orden:
 ## Validacion por bloque
 
 ```text
-pnpm test
+pnpm run check
 pnpm run build
-http://127.0.0.1:5173/ -> 200
+pnpm run smoke:localhost
 git diff --check
 documentacion de la fuente canonica y modulo
 ```

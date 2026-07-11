@@ -44,7 +44,8 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 
 - El sistema esta en etapa de prueba local con persistencia en `localStorage`.
 - Supabase/Auth real y storage real de archivos quedan pendientes para una etapa posterior.
-- Las validaciones minimas antes de cerrar un cambio son `pnpm run build` y comprobar que `http://127.0.0.1:5173/` responda.
+- Las validaciones minimas antes de cerrar un cambio son `pnpm run check`, `pnpm run build` y `pnpm run smoke:localhost` con el servidor activo.
+- Para cambios visuales o de permisos, completar ademas el smoke por rol de `docs/VALIDACION_LOCAL.md`.
 - Para levantar localhost se usa solo `iniciar-poseidon.bat`; si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
 
 ## Roles

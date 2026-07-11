@@ -71,7 +71,15 @@ pnpm run check
 pnpm run build
 ```
 
-Y verificar que responda:
+Con el servidor activo, verificar que responda:
+
+```bash
+pnpm run smoke:localhost
+```
+
+La matriz de smoke por rol esta en `docs/VALIDACION_LOCAL.md`.
+
+URL:
 
 ```text
 http://127.0.0.1:5173/
@@ -86,6 +94,7 @@ http://127.0.0.1:5173/
 - `docs/REGLAS_GENERALES.md`: reglas generales de trabajo, auditoria y documentacion.
 - `docs/REGLAS_CONTABLES.md`: matriz de impactos economicos, financieros y cuentas corrientes.
 - `docs/REGLAS_VISUALES.md`: criterios visuales permanentes.
+- `docs/VALIDACION_LOCAL.md`: comandos y smoke funcional por rol.
 - `docs/MODULARIZACION_REFERENCIAS.md`: plan de refactor modular con referencias cruzadas.
 - `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`: plan para mejorar estructura y reducir consumo de contexto/tokens.
 - `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`: diseno futuro, no implementado.

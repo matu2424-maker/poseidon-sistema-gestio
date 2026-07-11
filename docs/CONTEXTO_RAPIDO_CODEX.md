@@ -12,8 +12,9 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Local principal: Poseidon; estructura preparada para multi-local.
 - Archivos guardan metadata local, no contenido persistente real.
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
-- `src/App.tsx` orquesta estado y pantallas; reglas compartidas viven en `src/lib/`; features viven en `src/features/`.
-- Pruebas actuales: periodos, diferencias, movimientos/cuentas, saldo corrido, referencias de recaudacion y limites salariales.
+- `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos; reglas compartidas viven en `src/lib/`; features viven en `src/features/`.
+- `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
+- Pruebas actuales: 41 casos en 14 archivos, incluidos caja completa, diferencias, salarios, cuentas, migracion y permisos.
 
 ## Usuarios de prueba
 
@@ -59,14 +60,14 @@ No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` comp
 ## Comandos
 
 ```text
-pnpm test
+pnpm run check
 pnpm run build
 iniciar-poseidon.bat
-http://127.0.0.1:5173/
+pnpm run smoke:localhost
 ```
 
 Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Proxima prioridad tecnica
 
-Mantener todo local. Antes de una migracion online: dividir archivos grandes, extraer comandos de dominio, versionar/validar el snapshot local y ampliar pruebas de flujos completos. Ver `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
+Mantener todo local. El siguiente corte tecnico util es extraer comandos de movimientos operativos y locales/maquinas, con pruebas, sin bloquear el desarrollo funcional. Ver `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.

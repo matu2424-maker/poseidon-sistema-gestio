@@ -69,6 +69,7 @@ Agregar:
 | Prioridades tecnicas vigentes | `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` | Historial de cambios |
 | Ultimo punto de continuidad | `docs/RETOMAR_MANANA.md` | Reglas permanentes |
 | Ejecucion local | `README.md` | Documentos funcionales |
+| Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
 

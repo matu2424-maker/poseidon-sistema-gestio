@@ -195,12 +195,11 @@ Completado en navegacion: registro tipado de pantallas, permisos por funcion, re
 ## Validacion
 
 ```text
-pnpm test
-pnpm run typecheck
+pnpm run check
 pnpm run build
 iniciar-poseidon.bat
-http://127.0.0.1:5173/ -> 200
+pnpm run smoke:localhost
 git diff --check
 ```
 
-La prueba manual debe usar el rol y flujo afectados. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
+`pnpm run check` ejecuta typecheck, ESLint y 41 pruebas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
