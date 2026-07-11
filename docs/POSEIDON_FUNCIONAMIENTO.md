@@ -53,6 +53,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Las bajas operativas deben quedar como estado, anulacion o papelera antes de eliminacion definitiva.
 - Personal, clientes o locales con referencias operativas no se eliminan definitivamente; se conservan en papelera o estado cerrado/inactivo.
 - Las acciones sensibles usan confirmacion simple antes de ejecutar.
+- La confirmacion simple se centraliza en `src/lib/confirmations.ts`.
+- La matriz de pantallas, titulos, roles, menus y requisito de caja abierta se centraliza en `src/navigation/screens.ts`.
 - Las tablas principales deben mantener foco en grilla, busqueda, ordenamiento cuando aplique y acciones claras.
 - Todo cambio de datos importante debe crear evento de auditoria.
 - La barra lateral de administrador y encargado se organiza por grupos funcionales, no como lista plana.
@@ -88,6 +90,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - `Cierres y reportes`: Caja diaria, Cierre periodico y Reportes.
   - `Personas`: Personal, Liquidacion salarios y Clientes.
 - No muestra grupo `Caja operativa`; para operar como caja el encargado cambia a funcion `CAJERO`.
+- `Resumen de cajas` es una consulta disponible para encargado y administrador sin cambiar de funcion; no permite operar la caja.
 
 ## Refactor tecnico
 
@@ -283,7 +286,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 
 - Al entrar a una accion, se oculta el resumen superior para dar foco al modulo activo.
 - Debajo del resumen quedan accesos compactos y del mismo tamano a `Clientes`, `Resumen cajas` y `Cerrar caja`.
-- Al cambiar de pantalla desde el panel del cajero se limpian avisos anteriores para evitar mensajes viejos fuera de contexto.
+- Al cambiar de pantalla se limpian avisos anteriores para evitar mensajes viejos fuera de contexto; al cerrar caja se preserva el aviso de exito al llegar al resumen.
 
 ## Contadores
 
@@ -318,7 +321,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 
 ## Retiros y aportes de capital
 
-- Los retiros y aportes se cargan desde el panel del cajero y tambien estan disponibles para usuarios con menu lateral cuando hay caja abierta.
+- Los retiros y aportes se cargan con funcion activa `CAJERO`; encargado/administrador deben usar `Trabajar como cajero` para registrarlos con su usuario real.
 - Campos: tipo (`RETIRO` o `APORTE`), momento (`APERTURA`, `OPERATIVO` o `CIERRE`), medio (`EFECTIVO` o `TRANSFERENCIA`), persona (`RICARDO` o `MATHIAS`), monto y nota opcional.
 - En la pantalla operativa de `Retiros y aportes`, el tipo inicia vacio y es obligatorio seleccionar retiro o aporte.
 - El campo momento no se muestra en esa pantalla; se guarda internamente como `OPERATIVO`.

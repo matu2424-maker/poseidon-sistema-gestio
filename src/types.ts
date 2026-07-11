@@ -67,9 +67,7 @@ export type Screen =
   | "admin-local-data"
   | "admin-machines"
   | "workshop"
-  | "admin-machine-edit"
   | "admin-locals"
-  | "admin-local-edit"
   | "differences"
   | "audit"
   | "periodic";

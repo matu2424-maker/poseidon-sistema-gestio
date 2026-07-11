@@ -29,6 +29,7 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 
 - No opera caja desde la barra lateral.
 - Para operar caja usa Trabajar como cajero.
+- Puede consultar `Resumen de cajas` como encargado porque es una vista de auditoria sin comandos operativos.
 - Al cambiar a cajero conserva usuario real y registra funcion usada.
 - Puede revisar diferencias, gastos, cuentas corrientes, cierres periodicos, personal, salarios, clientes, reportes y auditoria.
 - En Diferencias, el encargado gestiona desde una pantalla de control con filtros y ventana flotante de detalle, no con formularios largos dentro de la tabla.
@@ -51,6 +52,7 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 - Primera fila: diferencias, cuenta efectivo y cuenta banco.
 - Segunda fila: ingreso total del mes, salida total del mes y resultado neto del mes.
 - Debajo hay accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
+- En `Cierres y reportes` aparecen `Resumen de cajas`, `Cierre periodico` y `Reportes`; no aparece apertura de caja.
 - Los accesos rapidos no reemplazan al menu lateral; sirven para entrar rapido a las revisiones mas frecuentes del encargado.
 - La pantalla de Diferencias prioriza pendientes por defecto y permite buscar/filtrar antes de abrir el detalle de cada recaudacion.
 

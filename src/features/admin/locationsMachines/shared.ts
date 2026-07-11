@@ -1,5 +1,6 @@
 import type { AppData, AuditEvent, Local, LocalImage, MachineStatus } from "../../../types";
 import { uid } from "../../../lib/ids";
+export { confirmAction } from "../../../lib/confirmations";
 
 export const POSEIDON_LOCAL_ID = "1";
 export const WORKSHOP_LOCAL_ID = "taller";
@@ -17,8 +18,6 @@ export const localOptionName = (local: Local) => `${local.id} - ${local.name}`;
 
 export const mapsHref = (local: Local) =>
   local.googleMapsUrl.trim() || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local.address || local.name)}`;
-
-export const confirmAction = (message: string) => window.confirm(message);
 
 export const auditUserName = (data: AppData, event: AuditEvent) =>
   event.userName || data.users.find((user) => user.id === event.userId)?.name || "Sistema";

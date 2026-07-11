@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import { commandContext } from "../../application/command";
 import { annulSalarySettlementCommand, saveSalarySettlementCommand } from "../../application/salaries/salarySettlementCommands";
+import { confirmAction } from "../../lib/confirmations";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { staffFullName } from "../../lib/people";
 import {
@@ -13,8 +14,6 @@ import {
 } from "../../lib/salaryRules";
 import type { AppData, Balance, User } from "../../types";
 import { CashierMovementPanel, MovementTable } from "./MovementTable";
-
-const confirmAction = (message: string) => window.confirm(message);
 
 export function CashierSalaryPayments({
   data,

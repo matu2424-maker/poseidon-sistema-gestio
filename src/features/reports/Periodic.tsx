@@ -8,9 +8,9 @@ import { uid } from "../../lib/ids";
 import { money } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard } from "../../components/ui";
+import { confirmAction } from "../../lib/confirmations";
 
 const POSEIDON_LOCAL_ID = "1";
-const confirmAction = (message: string) => window.confirm(message);
 
 type BalanceColumnKey =
   | "id"

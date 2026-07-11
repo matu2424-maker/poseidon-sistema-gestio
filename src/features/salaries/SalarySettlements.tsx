@@ -4,6 +4,7 @@ import { localSalaryAccountMovement, salaryAccountMovement, upsertAccountMovemen
 import { balanceForMovement, balanceReferenceLabel } from "../../lib/balanceReferences";
 import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
 import { formatDateTime, monthRange, nowIso, today } from "../../lib/dates";
+import { confirmAction } from "../../lib/confirmations";
 import { localName, userDisplayName } from "../../lib/display";
 import { exportCsv } from "../../lib/export";
 import { uid } from "../../lib/ids";
@@ -29,7 +30,6 @@ import { annulSalarySettlementCommand } from "../../application/salaries/salaryS
 import { SalarySettlementEditor } from "./SalarySettlementEditor";
 
 const POSEIDON_LOCAL_ID = "1";
-const confirmAction = (message: string) => window.confirm(message);
 export function AdminSalarySettlements({
   data,
   user,

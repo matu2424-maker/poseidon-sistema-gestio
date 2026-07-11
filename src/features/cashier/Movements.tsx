@@ -26,6 +26,7 @@ import { createTransferCurrentAccount, ensureLocalCurrentAccounts, TRANSFER_ACCO
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
 import { formatDateTime, nowIso } from "../../lib/dates";
 import { readUploadFile } from "../../lib/files";
+import { confirmAction } from "../../lib/confirmations";
 import { uid } from "../../lib/ids";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
@@ -36,7 +37,6 @@ export { CashierClients } from "./CashierClients";
 export { CashierSalaryPayments } from "./CashierSalaryPayments";
 
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
-const confirmAction = (message: string) => window.confirm(message);
 const clientNameWithDocument = (data: AppData, clientId: string | undefined) => {
   const client = data.clients.find((item) => item.id === clientId);
   return client ? `${client.name} - ${clientDocumentLabel(client)}` : "";

@@ -40,6 +40,8 @@ src/
   infrastructure/storage/ snapshot, validacion y repositorio local
   lib/                     reglas y helpers compartidos
   components/              UI reutilizable transversal
+  hooks/                   estado UI compartido, como avisos
+  navigation/screens.ts    titulos, menus, permisos y requisitos por pantalla
   features/
     layout/                bienvenida, login, shell y menus
     dashboard/             paneles iniciales por rol
@@ -76,6 +78,8 @@ src/
 | `clients.ts`, `people.ts` | Reglas de clientes y personal |
 | `files.ts`, `export.ts` | Metadata local y exportaciones |
 | `machineHistory.ts` | Eventos de historial de maquinas |
+| `confirmations.ts` | Punto unico de reconfirmacion de interfaz |
+| `navigation/screens.ts` | Registro tipado de pantallas, menus, roles y caja requerida |
 
 ## Comandos de aplicacion
 
@@ -131,7 +135,7 @@ src/
 - `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
 - `SalarySettlements.tsx` ya separa su editor de escritura.
 - `appData.ts` ya delega la normalizacion/migracion en `data/normalizeData.ts`.
-- El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino centralizar navegacion/permisos y continuar sacando comandos de negocio de React.
+- El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino separar CSS, ampliar validacion estatica y continuar sacando comandos de negocio de React.
 
 ## Concentracion de codigo
 
@@ -163,11 +167,11 @@ Completado en integridad local: los movimientos persistidos se conservan, las an
 
 ### Media
 
-- Permisos, confirmaciones y mensajes distribuidos.
-- Navegacion manual por union `Screen`, con estados heredados sin render.
-- Duplicaciones de UI/presentacion restantes.
+- Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - CSS global grande.
 - IDs locales no son adecuados para concurrencia online.
+
+Completado en navegacion: registro tipado de pantallas, permisos por funcion, requisito de caja abierta, menus/titulos centralizados, confirmacion unica y avisos compartidos. Se eliminaron estados de pantalla heredados sin render y `WelcomeScreen.tsx` sin uso.
 
 ### Baja por ahora
 

@@ -11,6 +11,7 @@ import { compareValues, nextSort, sortIndicator, type SortState } from "../../li
 import { Modal } from "../../components/ui";
 import { clientDeletionReferences, referenceMessage, staffDeletionReferences } from "../../lib/entityReferences";
 import { staffAccountId } from "../../lib/currentAccounts";
+import { confirmAction } from "../../lib/confirmations";
 
 const POSEIDON_LOCAL_ID = "1";
 const weekDays: WeekDay[] = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
@@ -21,7 +22,6 @@ const defaultSchedule: StaffSchedule[] = weekDays.map((day) => ({
   rest: day === "DOMINGO",
 }));
 const asNumber = (value: FormDataEntryValue | null) => Number(value || 0);
-const confirmAction = (message: string) => window.confirm(message);
 const localOptionName = (local: { id: string; name: string }) => `${local.id} - ${local.name}`;
 const staffStatusClass = (status: StaffStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
 export function AdminStaff({

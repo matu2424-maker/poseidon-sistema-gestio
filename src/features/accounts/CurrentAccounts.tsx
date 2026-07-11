@@ -11,7 +11,7 @@ import { compareValues, nextSort, sortIndicator, type SortState } from "../../li
 import { Modal } from "../../components/ui";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { ClosedBalanceSummary } from "../cashier/ClosedBalanceSummary";
-import { EmptyState } from "../layout/AppShell";
+import { EmptyState } from "../../components/EmptyState";
 
 type AccountMovementColumn = "createdAt" | "sourceType" | "detail" | "user" | "debit" | "credit" | "balance";
 

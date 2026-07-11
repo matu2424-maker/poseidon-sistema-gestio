@@ -39,8 +39,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 1. Completado: libro contable persistido y proteccion de referencias historicas.
 2. Completado: comandos de caja, contadores, diferencias y salarios con pruebas.
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
-4. Siguiente: centralizar navegacion, permisos, confirmaciones y avisos.
-5. Despues: separar CSS global y ampliar lint/smoke tests.
+4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
+5. Siguiente: separar CSS global y ampliar lint/smoke tests.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

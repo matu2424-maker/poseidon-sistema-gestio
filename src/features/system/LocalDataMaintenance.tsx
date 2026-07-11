@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { Download, FileUp } from "lucide-react";
+import { confirmAction } from "../../lib/confirmations";
 
 export function LocalDataMaintenance({
   onExport,
@@ -21,7 +22,7 @@ export function LocalDataMaintenance({
       setError("Selecciona un respaldo JSON de Poseidon.");
       return;
     }
-    if (!window.confirm("Importar este respaldo? Los datos locales actuales seran reemplazados despues de validar el archivo.")) return;
+    if (!confirmAction("Importar este respaldo? Los datos locales actuales seran reemplazados despues de validar el archivo.")) return;
     const result = onImport(await selectedFile.text());
     setError(result);
   };

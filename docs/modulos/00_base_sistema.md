@@ -8,9 +8,11 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 
 - React + Vite + TypeScript.
 - `src/App.tsx` conserva estado global, sesion, acciones y composicion de pantallas.
-- `src/data/appData.ts` concentra datos demo, limpieza manual, ID visible de caja y normalizacion de datos locales.
+- `src/data/appData.ts` concentra datos demo y limpieza manual; `src/data/normalizeData.ts` normaliza/migra datos locales.
 - `src/infrastructure/storage/` valida, versiona, importa y persiste el snapshot local.
-- `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local, layout lateral, layout de cajero y navegacion base.
+- `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local y layouts.
+- `src/navigation/screens.ts` es la fuente unica de titulos, menus, roles permitidos y requisito de caja abierta.
+- `src/hooks/useNotice.ts` y `src/components/NoticeBanner.tsx` centralizan avisos.
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` contiene estilos globales.
 - Persistencia versionada en `localStorage`.
@@ -39,6 +41,8 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 
 - El rol real del usuario no se pierde cuando trabaja como cajero.
 - La funcion usada se registra en auditoria.
+- Encargado/administrador consultan resumen de cajas, pero deben cambiar a funcion Cajero para abrir, cargar o cerrar caja.
+- Navegar limpia avisos anteriores; el cierre puede preservar su confirmacion al abrir el resumen.
 - No hay Auth real todavia.
 - No hay backend real todavia.
 - El boton `Reiniciar demo` del administrador vuelve a cargar este dataset inicial de prueba.

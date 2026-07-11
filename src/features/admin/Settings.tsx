@@ -5,9 +5,9 @@ import { uid } from "../../lib/ids";
 import { readColumnPreference, writeColumnPreference } from "../../lib/storage";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ColumnChooser, type TableColumn } from "../../components/ui";
+import { confirmAction } from "../../lib/confirmations";
 
 const POSEIDON_LOCAL_ID = "1";
-const confirmAction = (message: string) => window.confirm(message);
 type UserColumnKey = "name" | "username" | "role" | "status" | "locals" | "actions";
 const USER_COLUMNS_STORAGE_KEY = "poseidon-usuarios-columnas-v1";
 const userColumns: TableColumn<UserColumnKey>[] = [

@@ -34,7 +34,9 @@ import { AdminLocals, AdminMachines } from "./features/admin/LocationsMachines";
 import { AdminStaff, AdminTrash } from "./features/admin/Staff";
 import { AdminExpenseCategories, AdminUsers } from "./features/admin/Settings";
 import { Audit } from "./features/audit/Audit";
-import { CashierWorkspace, EmptyState, Login, Shell, Welcome } from "./features/layout/AppShell";
+import { CashierWorkspace, Login, Shell, Welcome } from "./features/layout/AppShell";
+import { EmptyState } from "./components/EmptyState";
+import { NoticeBanner } from "./components/NoticeBanner";
 import { Periodic } from "./features/reports/Periodic";
 import { Reports } from "./features/reports/Reports";
 import { StorageRecovery } from "./features/system/StorageRecovery";
@@ -44,6 +46,9 @@ import { localDate } from "./lib/dates";
 import { commandContext } from "./application/command";
 import { openCashCommand } from "./application/cash/openCash";
 import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
+import { canAccessScreen, screenRequiresOpenCash } from "./navigation/screens";
+import { useNotice } from "./hooks/useNotice";
+import { confirmAction } from "./lib/confirmations";
 
 type InitialLoad = {
   data: AppData;
@@ -80,7 +85,7 @@ function App() {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [user, setUser] = useState<User | null>(null);
   const [actingRole, setActingRole] = useState<Role | null>(null);
-  const [message, setMessage] = useState(initialLoad.message ?? "");
+  const { message, setMessage, clearMessage } = useNotice(initialLoad.message ?? "");
 
   useEffect(() => {
     if (storageIssue) return;
@@ -98,8 +103,18 @@ function App() {
     setData((current) => updater(current));
   };
 
-  const goToScreen = (nextScreen: Screen) => {
-    setMessage("");
+  const goToScreen = (nextScreen: Screen, options: { preserveMessage?: boolean } = {}) => {
+    if (effectiveRole && !canAccessScreen(nextScreen, effectiveRole)) {
+      setMessage("No tenes acceso a esa pantalla con la funcion activa.");
+      setScreen("panel");
+      return;
+    }
+    if (screenRequiresOpenCash(nextScreen) && !openBalance) {
+      setMessage("Necesita abrir una nueva caja para poder operar.");
+      setScreen("panel");
+      return;
+    }
+    if (!options.preserveMessage) clearMessage();
     setScreen(nextScreen);
   };
 
@@ -123,7 +138,7 @@ function App() {
   });
 
   const resetDemo = () => {
-    if (!window.confirm("Reiniciar todos los datos demo? Se reemplazaran las operaciones locales actuales.")) return;
+    if (!confirmAction("Reiniciar todos los datos demo? Se reemplazaran las operaciones locales actuales.")) return;
     const fresh = appendAuditEvent(
       createSeedData(),
       { user, actorRole: effectiveRole },
@@ -180,7 +195,7 @@ function App() {
         error={storageIssue.error}
         raw={storageIssue.raw}
         onStartNew={() => {
-          if (!window.confirm("Iniciar datos nuevos? El respaldo actual debe descargarse antes si queres conservarlo.")) return;
+          if (!confirmAction("Iniciar datos nuevos? El respaldo actual debe descargarse antes si queres conservarlo.")) return;
           clearLocalAppData();
           const fresh = createSeedData();
           setData(fresh);
@@ -333,7 +348,7 @@ function App() {
             actorRole={effectiveRole ?? user.role}
             patchData={patchData}
             setMessage={setMessage}
-            setScreen={setScreen}
+            setScreen={(nextScreen) => goToScreen(nextScreen, { preserveMessage: true })}
             afterCloseScreen="cashier-summary"
           />
         )}
@@ -347,7 +362,7 @@ function App() {
       currentRole={effectiveRole ?? user.role}
       local={activeLocal}
       screen={screen}
-      setScreen={setScreen}
+      setScreen={goToScreen}
       onSwitchToCashier={
         user.role === "ENCARGADO" || user.role === "ADMINISTRADOR"
           ? () => {
@@ -363,7 +378,7 @@ function App() {
         setScreen("login");
       }}
     >
-      {message && <div className="notice">{message}</div>}
+      <NoticeBanner message={message} />
       {screen === "panel" && (
         <Panel
           data={data}
@@ -372,7 +387,7 @@ function App() {
           openBalance={openBalance}
           effectiveRole={effectiveRole ?? user.role}
           modeStatus="Prueba local"
-          setScreen={setScreen}
+          setScreen={goToScreen}
           resetDemo={resetDemo}
         />
       )}
@@ -382,8 +397,19 @@ function App() {
           user={user}
           local={activeLocal}
           openBalance={openBalance}
-          setScreen={setScreen}
+          setScreen={goToScreen}
           save={openCash}
+        />
+      )}
+      {screen === "cashier-summary" && (
+        <OpenCash
+          data={data}
+          user={user}
+          local={activeLocal}
+          openBalance={openBalance}
+          setScreen={goToScreen}
+          save={openCash}
+          summaryOnly
         />
       )}
       {screen === "counters" && openBalance && (
@@ -414,7 +440,7 @@ function App() {
           actorRole={effectiveRole ?? user.role}
           patchData={patchData}
           setMessage={setMessage}
-          setScreen={setScreen}
+          setScreen={goToScreen}
         />
       )}
       {screen === "reports" && <Reports data={data} user={user} />}
@@ -459,7 +485,7 @@ function App() {
       {screen === "audit" && <Audit data={data} />}
       {screen === "periodic" && <Periodic data={data} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />}
       {!openBalance && ["counters", "expenses", "transfers", "gifts", "capital-movements", "close-cash"].includes(screen) && (
-        <EmptyState title="No hay caja abierta" text="Abri una nueva caja o trabaja sobre una caja en proceso." action={() => setScreen("open-cash")} />
+        <EmptyState title="No hay caja abierta" text="Abri una nueva caja o trabaja sobre una caja en proceso." action={() => goToScreen("open-cash")} />
       )}
     </Shell>
   );

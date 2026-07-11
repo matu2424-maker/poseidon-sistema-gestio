@@ -11,6 +11,10 @@ Esta es la fuente canonica de reglas transversales de trabajo, documentacion y a
 - Mantener preparacion multi-local.
 - No borrar historial operativo.
 - Toda accion sensible requiere confirmacion antes de ejecutarse.
+- Las confirmaciones de interfaz usan la unica entrada `src/lib/confirmations.ts`; no se crean wrappers locales por pantalla.
+- Titulo, menu, roles permitidos y requisito de caja abierta de cada pantalla se definen en `src/navigation/screens.ts`.
+- Encargado y administrador pueden consultar `Resumen de cajas`, pero toda apertura, carga o cierre exige cambiar la funcion activa a `CAJERO`.
+- Los avisos se limpian al navegar para no quedar fuera de contexto; un aviso de exito que navega a su resumen puede preservarse de forma explicita.
 - Toda creacion, edicion, anulacion, baja, restauracion, eliminacion o ajuste importante debe registrarse en auditoria.
 - Las bajas operativas deben ser estado, anulacion o papelera antes de eliminacion definitiva.
 - Una entidad con referencias operativas no se elimina fisicamente; queda cerrada, inactiva o en papelera para conservar trazabilidad.

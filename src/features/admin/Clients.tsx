@@ -15,10 +15,10 @@ import { fileMetaLabel, readUploadFile } from "../../lib/files";
 import { nextShortId, uid } from "../../lib/ids";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
+import { confirmAction } from "../../lib/confirmations";
 
 const POSEIDON_LOCAL_ID = "1";
 const clientStatusClass = (status: ClientStatus) => (status === "ACTIVO" ? "status-active" : status === "PAPELERA" ? "status-disused" : "status-inactive");
-const confirmAction = (message: string) => window.confirm(message);
 const localOptionName = (local: { id: string; name: string }) => `${local.id} - ${local.name}`;
 export function AdminClients({
   data,

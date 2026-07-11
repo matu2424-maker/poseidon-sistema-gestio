@@ -57,3 +57,4 @@
 - Persona: RICARDO o MATHIAS.
 - Retiros salen de cuenta corriente del local.
 - Aportes entran a cuenta corriente del local.
+- La carga requiere funcion activa `CAJERO`; encargado/administrador registran el movimiento usando `Trabajar como cajero` y conservan su usuario real en auditoria.

@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
 import { nowIso } from "../../lib/dates";
+import { confirmAction } from "../../lib/confirmations";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import type { AppData, Client, ClientStatus } from "../../types";
 import { ClientEditor } from "../admin/Clients";
 import { clientSortValue, clientStatusClass, type ClientTableColumn } from "../clients/clientTable";
 import { CashierMovementPanel } from "./MovementTable";
-
-const confirmAction = (message: string) => window.confirm(message);
 
 export function CashierClients({
   data,

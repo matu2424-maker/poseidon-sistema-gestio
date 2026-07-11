@@ -6,8 +6,7 @@ import { money } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal, type TableColumn } from "../../components/ui";
 import { reverseSourceAccountMovements } from "../../lib/accountMovements";
-
-const confirmAction = (message: string) => window.confirm(message);
+import { confirmAction } from "../../lib/confirmations";
 
 type ExpenseRow = { expense: Expense; balance: Balance };
 type ExpenseColumnKey =

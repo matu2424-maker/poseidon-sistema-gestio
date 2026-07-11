@@ -83,8 +83,8 @@ Duplicaciones pendientes:
 ### Corte A - Higiene transversal
 
 - Reutilizar UI/presentacion existente.
-- Centralizar confirmacion sin cambiar flujo.
-- Eliminar `WelcomeScreen.tsx` y estados de pantalla heredados solo despues de confirmar ausencia de usos.
+- Completado: confirmacion centralizada sin cambiar flujo.
+- Completado: eliminado `WelcomeScreen.tsx` y estados de pantalla heredados despues de confirmar ausencia de usos.
 - Fecha local y timestamps historicos ya tienen pruebas.
 - `pnpm check` ya ejecuta typecheck y pruebas; queda agregar lint gradual.
 

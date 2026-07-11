@@ -9,6 +9,7 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - Administrador puede gestionar todo.
 - Para operar caja cambia a funcion Cajero.
 - No debe usar menu lateral para abrir/cerrar/cargar caja.
+- Puede consultar `Resumen de cajas` desde `Cierres y reportes` sin cambiar de funcion.
 - Toda accion sensible debe auditarse.
 
 ## Menus principales
@@ -39,11 +40,12 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 ## Codigo actual
 
 - `src/App.tsx`: estado global, acciones principales y composicion de pantallas.
-- `src/data/appData.ts`: datos demo, limpieza operativa y normalizacion/migracion.
-- `src/features/layout/AppShell.tsx`: pantalla inicial, login, layout lateral, menu agrupado y cambio a funcion Cajero.
+- `src/data/appData.ts` y `src/data/normalizeData.ts`: datos demo y normalizacion/migracion separadas.
+- `src/features/layout/AppShell.tsx`: pantalla inicial, login, layout lateral y cambio a funcion Cajero.
+- `src/navigation/screens.ts`: menu agrupado, titulos, permisos y requisito de caja abierta.
 - `src/features/dashboard/RoleDashboard.tsx`: paneles iniciales por rol y accesos rapidos.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
-- `src/features/admin/LocationsMachines.tsx`: locales, maquinas, taller, editores y modales de historial/asociaciones.
+- `src/features/admin/LocationsMachines.tsx` y `src/features/admin/locationsMachines/`: locales, maquinas, taller, editores e historiales separados.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.
 - `src/features/admin/Staff.tsx`: personal, historial salarial y papelera.
 - `src/features/salaries/SalarySettlements.tsx`: liquidacion de salarios.

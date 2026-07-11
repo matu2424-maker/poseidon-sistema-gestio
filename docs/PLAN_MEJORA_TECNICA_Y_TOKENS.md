@@ -53,7 +53,7 @@ Orden ejecutado:
 3. `SalarySettlements.tsx`.
 4. `appData.ts`.
 
-Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. No se cambiaron reglas de negocio. Siguiente corte: navegacion/permisos compartidos y luego comandos pendientes.
+Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. Navegacion, permisos, confirmaciones y avisos tambien quedaron centralizados. Siguiente corte: separar CSS y ampliar lint/smoke tests.
 
 ## Prioridad 3 - Comandos de dominio
 

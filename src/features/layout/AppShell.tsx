@@ -1,10 +1,12 @@
 import { FormEvent, ReactNode, useEffect, useState } from "react";
-import type { AppData, Balance, Local, MenuGroup, MenuItem, Role, Screen, User } from "../../types";
+import type { AppData, Balance, Local, MenuGroup, Role, Screen, User } from "../../types";
 import { localAccountBalances } from "../../lib/currentAccounts";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { balanceVisibleId, roleLabels } from "../../lib/display";
 import { money } from "../../lib/money";
 import { Modal } from "../../components/ui";
+import { NoticeBanner } from "../../components/NoticeBanner";
+import { menuGroupsForRole, titleForScreen } from "../../navigation/screens";
 
 export function Welcome({ onEnter }: { onEnter: () => void }) {
   return (
@@ -95,10 +97,7 @@ export function Shell({
 }) {
   const groups = menuGroupsForRole(currentRole);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const isActive = (item: MenuItem) =>
-    screen === item.screen ||
-    (screen === "admin-local-edit" && item.screen === "admin-locals") ||
-    (screen === "admin-machine-edit" && item.screen === "admin-machines");
+  const isActive = (item: { screen: Screen }) => screen === item.screen;
   const groupHasActiveItem = (group: MenuGroup) => group.items.some(isActive);
 
   useEffect(() => {
@@ -233,7 +232,7 @@ export function CashierWorkspace({
         )}
       </header>
       <main className="cashier-content">
-        {message && <div className="notice cashier-notice">{message}</div>}
+        <NoticeBanner message={message} className="cashier-notice" />
         <section className="cashier-panel">
           <div className="cashier-heading">
             <div>
@@ -355,158 +354,4 @@ export function CashierWorkspace({
       )}
     </div>
   );
-}
-
-export function EmptyState({ title, text, action, actionLabel = "Abrir caja" }: { title: string; text: string; action?: () => void; actionLabel?: string }) {
-  return (
-    <section className="empty-state">
-      <h2>{title}</h2>
-      <p>{text}</p>
-      {action && (
-        <button className="button primary" onClick={action}>
-          {actionLabel}
-        </button>
-      )}
-    </section>
-  );
-}
-
-function menuGroupsForRole(role: Role): MenuGroup[] {
-  if (role === "ADMINISTRADOR") {
-    return [
-      {
-        title: "Inicio",
-        items: [{ label: "Panel general", screen: "panel" }],
-      },
-      {
-        title: "Control y auditoria",
-        items: [
-          { label: "Diferencias", screen: "differences" },
-          { label: "Gastos", screen: "manager-expenses" },
-          { label: "Auditoria", screen: "audit" },
-          { label: "Cuentas corrientes", screen: "admin-current-accounts" },
-        ],
-      },
-      {
-        title: "Cierres y reportes",
-        items: [
-          { label: "Reportes", screen: "reports" },
-          { label: "Cierre periodico", screen: "periodic" },
-        ],
-      },
-      {
-        title: "Gestion",
-        items: [
-          { label: "Locales", screen: "admin-locals" },
-          { label: "Maquinas", screen: "admin-machines" },
-          { label: "Taller", screen: "workshop" },
-          { label: "Categorias gastos", screen: "admin-expense-categories" },
-        ],
-      },
-      {
-        title: "Personas",
-        items: [
-          { label: "Clientes", screen: "admin-clients" },
-          { label: "Personal", screen: "admin-staff" },
-          { label: "Liquidacion salarios", screen: "admin-salary-settlements" },
-          { label: "Usuarios", screen: "admin-users" },
-        ],
-      },
-      {
-        title: "Sistema",
-        items: [
-          { label: "Datos locales", screen: "admin-local-data" },
-          { label: "Papelera", screen: "admin-trash" },
-        ],
-      },
-    ];
-  }
-
-  if (role === "ENCARGADO") {
-    return [
-      {
-        title: "Inicio",
-        items: [{ label: "Panel encargado", screen: "panel" }],
-      },
-      {
-        title: "Control y auditoria",
-        items: [
-          { label: "Diferencias", screen: "differences" },
-          { label: "Gastos", screen: "manager-expenses" },
-          { label: "Auditoria", screen: "audit" },
-          { label: "Cuentas corrientes", screen: "admin-current-accounts" },
-        ],
-      },
-      {
-        title: "Cierres y reportes",
-        items: [
-          { label: "Caja diaria", screen: "open-cash" },
-          { label: "Cierre periodico", screen: "periodic" },
-          { label: "Reportes", screen: "reports" },
-        ],
-      },
-      {
-        title: "Personas",
-        items: [
-          { label: "Personal", screen: "admin-staff" },
-          { label: "Liquidacion salarios", screen: "admin-salary-settlements" },
-          { label: "Clientes", screen: "admin-clients" },
-        ],
-      },
-    ];
-  }
-
-  return [
-    {
-      title: "Caja diaria",
-      items: [
-        { label: "Panel cajero", screen: "panel" },
-        { label: "Caja diaria", screen: "open-cash" },
-        { label: "Contadores", screen: "counters" },
-        { label: "Gastos", screen: "expenses" },
-        { label: "Transferencias", screen: "transfers" },
-        { label: "Regalos", screen: "gifts" },
-        { label: "Retiros / aportes", screen: "capital-movements" },
-        { label: "Cerrar caja", screen: "close-cash" },
-      ],
-    },
-  ];
-}
-
-function titleForScreen(screen: Screen, role: Role) {
-  const titles: Record<Screen, string> = {
-    welcome: "Poseidon",
-    login: "Ingreso al sistema",
-    panel: role === "ADMINISTRADOR" ? "Reportes y administracion" : role === "ENCARGADO" ? "Panel del encargado" : "Panel del cajero",
-    "open-cash": "Caja diaria",
-    counters: "Cargar contadores",
-    expenses: "Cargar gastos",
-    transfers: "Cargar transferencias",
-    gifts: "Cargar regalos",
-    "salary-payments": "Pago de salarios",
-    "capital-movements": "Retiros y aportes",
-    "cashier-clients": "Clientes",
-    "cashier-summary": "Resumen de cajas",
-    "close-cash": "Cerrar caja diaria",
-    reports: role === "ADMINISTRADOR" ? "Reportes y administracion" : "Reportes",
-    "manager-expenses": "Control de gastos",
-    "admin-users": "Usuarios",
-    "admin-staff": "Personal",
-    "admin-salary-settlements": "Liquidacion de salarios",
-    "admin-current-accounts": "Cuentas corrientes",
-    "admin-clients": "Clientes",
-    "admin-trash": "Papelera",
-    "admin-expense-categories": "Categorias de gastos",
-    "admin-local-data": "Datos locales",
-    "admin-machines": "Maquinas",
-    workshop: "Taller",
-    "admin-machine-edit": "Editar maquina",
-    "admin-locals": "Locales",
-    "admin-local-edit": "Editar local",
-    differences: "Diferencias de caja",
-    audit: "Auditoria",
-    periodic: "Cierre periodico",
-  };
-
-  return titles[screen];
 }
