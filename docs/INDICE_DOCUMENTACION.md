@@ -1,6 +1,6 @@
 # Poseidon - Indice de documentacion
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Este archivo es la puerta de entrada a la documentacion. Su objetivo es cargar solo el contexto necesario y evitar que una misma regla quede copiada en varios lugares.
 
@@ -47,6 +47,12 @@ Agregar:
 1. `docs/HANDOFF_TECNICO_POSEIDON.md`.
 2. Seguir desde ahi la lectura minima del modulo.
 
+### Delegar con agentes o subagentes Codex
+
+1. `docs/PROTOCOLO_AGENTES_CODEX.md`.
+2. `AGENTS.md` y contexto corto de la feature afectada.
+3. Agregar reglas contables o visuales solo cuando correspondan al perfil convocado.
+
 ### Preparar futura migracion online
 
 1. `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
@@ -70,6 +76,7 @@ Agregar:
 | Ultimo punto de continuidad | `docs/RETOMAR_MANANA.md` | Reglas permanentes |
 | Ejecucion local | `README.md` | Documentos funcionales |
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
+| Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
 
@@ -103,6 +110,10 @@ Agregar:
 - `CODEX_LAYOUT_BASE`: navegacion, roles y layout.
 
 Todos viven en `docs/contextos/`.
+
+## Estudios tecnicos
+
+- `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`: primer piloto de delegacion, riesgos detectados y ajustes aplicados a los perfiles. No redefine reglas funcionales.
 
 ## Regla de mantenimiento
 

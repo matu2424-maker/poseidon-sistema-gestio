@@ -56,3 +56,7 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 - La ventana flotante muestra el historial completo auditado de cierre, revision, correccion o anulacion de esa recaudacion.
 - Para cierres historicos, el historial reconoce eventos de auditoria con entidad `Caja` ademas de `BalanceDiario` y `DiferenciaCaja`.
 - Al guardar, el estado queda en la recaudacion y se registra auditoria.
+
+## Revision tecnica pendiente
+
+El piloto de subagentes del 2026-07-11 no cambio estas reglas. Registro riesgos y decisiones para futuros objetivos en `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`; deben tratarse de a uno y validarse antes de modificar codigo.

@@ -15,6 +15,8 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
 - Pruebas actuales: 58 casos en 18 archivos, incluidos ciclo financiero completo, diferencias, salarios, cuentas, migracion, activos, repositorio y permisos; ademas un E2E critico de cajero.
+- Infraestructura Codex: `.codex/config.toml` limita concurrencia/profundidad y `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
+- Piloto de Diferencias completado en solo lectura; resultados y riesgos para futuros objetivos en `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
 
 ## Usuarios de prueba
 
@@ -43,6 +45,8 @@ Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs
 3. Contexto corto en `docs/contextos/`.
 4. Modulo afectado en `docs/modulos/`.
 5. Agregar reglas contables, visuales o mapa tecnico solo si la tarea los necesita.
+
+Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples ni superar dos ejecuciones paralelas.
 
 No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` completos.
 

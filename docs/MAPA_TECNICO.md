@@ -14,6 +14,21 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 - Entrada: `src/main.tsx` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 
+## Infraestructura Codex
+
+```text
+.codex/config.toml                         limites globales de subagentes
+.codex/agents/poseidon_scope_mapper.toml        mapa de alcance, solo lectura
+.codex/agents/poseidon_accounting_reviewer.toml revision contable, solo lectura
+.codex/agents/poseidon_ui_reviewer.toml         revision visual, solo lectura
+docs/PROTOCOLO_AGENTES_CODEX.md            fuente canonica de delegacion
+```
+
+- Maximo tecnico de tres hilos abiertos, maximo operativo de dos trabajando en paralelo y profundidad uno.
+- Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
+- El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
+- Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
+
 ## Flujo principal
 
 ```text

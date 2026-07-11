@@ -16,6 +16,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
+- Codex cuenta con tres perfiles personalizados de solo lectura y limites conservadores de concurrencia/profundidad en `.codex/`.
 
 ## Ultimo bloque funcional completado
 
@@ -32,6 +33,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
+- Protocolo de agentes y subagentes integrado con un piloto de solo lectura sobre Diferencias.
 
 ## Proximas prioridades de codigo
 
@@ -46,6 +48,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.
 10. Completado: primer regreso funcional en Diferencias, con permisos por local, validaciones y anulacion contable corregida.
 11. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
+12. Antes del proximo uso de subagentes: comprobar en una tarea nueva que Codex carga los tres perfiles personalizados.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
@@ -56,6 +59,7 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 - Varias operaciones de negocio siguen dentro de componentes React.
 - Los archivos mas grandes restantes son liquidacion salarial, seed demo, historiales y estilos administrativos ya separados.
 - La cobertura automatizada incluye apertura-contadores-cierre, pero no todos los formularios UI ni todos los comandos pendientes.
+- El piloto de subagentes detecto riesgos no corregidos en Diferencias; consultar `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md` y elegir uno por objetivo.
 
 ## Validacion esperada al cerrar un bloque
 

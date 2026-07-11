@@ -106,6 +106,20 @@ Agregar en este orden:
 - Hacer commit local al estabilizar un bloque.
 - Si el diff mezcla temas, dividir antes de validar.
 
+## Agentes y subagentes Codex
+
+- Configuracion controlada en `.codex/config.toml`: tres hilos abiertos como maximo y profundidad uno.
+- Perfiles iniciales de solo lectura: alcance, revision contable y revision visual.
+- Maximo operativo de dos subagentes en paralelo.
+- Delegar solo trabajo independiente que evite contaminar el contexto principal.
+- No usar subagentes para comandos simples, cambios evidentes ni revisiones duplicadas.
+- El agente principal integra resultados, controla escritura, valida y documenta.
+- Completado: piloto de Diferencias de caja con mapa de alcance y revision contable, sin cambios funcionales.
+- Ajuste aplicado tras el piloto: limites explicitos de archivos, palabras, riesgos y pruebas por perfil.
+- Pendiente de una tarea nueva: comprobar la carga nominal de los tres perfiles personalizados.
+- Fuente canonica: `docs/PROTOCOLO_AGENTES_CODEX.md`.
+- Resultado del piloto: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
+
 ## Validacion por bloque
 
 ```text

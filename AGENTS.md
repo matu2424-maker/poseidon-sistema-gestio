@@ -30,6 +30,17 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
 - Hacer commit local cuando un bloque quede estable, validado y sea correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin pedido explicito del usuario.
 
+## Agentes y subagentes Codex
+
+- La fuente canonica para delegacion es `docs/PROTOCOLO_AGENTES_CODEX.md`.
+- Los perfiles personalizados del proyecto viven en `.codex/agents/`; los `AGENTS.md` por carpeta siguen siendo mapas de lectura y reglas, no perfiles ejecutables.
+- Usar subagentes solo cuando existan partes independientes que aporten analisis, revision o ejecucion no superpuesta.
+- Mantener como maximo dos subagentes trabajando en paralelo y profundidad de delegacion uno.
+- Priorizar perfiles personalizados de solo lectura para alcance, contabilidad e interfaz.
+- No usar subagentes para comandos simples, cambios locales evidentes o trabajo cuya respuesta bloquee inmediatamente al agente principal.
+- Ningun subagente hace commit, push, publicacion, despliegue ni conexion externa.
+- La escritura delegada requiere alcance autorizado y propiedad explicita de archivos; el agente principal integra, valida, documenta y cierra el commit.
+
 ## Criterios visuales
 
 - La interfaz debe verse bien en una pantalla 1080p: evitar scroll horizontal innecesario en paneles principales y priorizar grillas compactas.
