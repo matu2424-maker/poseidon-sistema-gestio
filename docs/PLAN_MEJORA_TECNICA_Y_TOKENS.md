@@ -60,7 +60,7 @@ Primera division mecanica completada el 2026-07-10: editores/historiales de loca
 - Completado para apertura, contadores, cierre, diferencias y liquidaciones salariales.
 - Los comandos reciben actor, funcion, reloj e IDs, devuelven resultado tipado y actualizan entidad/cuentas/historial/auditoria en conjunto.
 - Completado: movimientos operativos con validacion de funcion/caja, cuentas, contramovimientos y auditoria.
-- Pendiente: locales/maquinas.
+- Completado: locales/maquinas con validacion de rol, referencias, taller, cuentas, historial y auditoria.
 
 No agregar Redux o un store complejo antes de definir comandos.
 

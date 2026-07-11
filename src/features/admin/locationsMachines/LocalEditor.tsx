@@ -1,19 +1,13 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Modal } from "../../../components/ui";
 import { sanitizeDigits } from "../../../lib/clients";
-import {
-  createLocalBankCurrentAccount,
-  createLocalCashCurrentAccount,
-  ensureLocalCurrentAccounts,
-  localBankAccountId,
-  localCashAccountId,
-} from "../../../lib/currentAccounts";
-import { localDeletionReferences, referenceMessage } from "../../../lib/entityReferences";
-import { nextShortId, shortNumberId } from "../../../lib/ids";
-import { machineHistoryEvent } from "../../../lib/machineHistory";
+import { nextShortId } from "../../../lib/ids";
 import { counter } from "../../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
 import type { AppData, Local, Machine, User } from "../../../types";
+import { commandContext } from "../../../application/command";
+import { deleteLocalCommand, saveLocalCommand } from "../../../application/locations/localCommands";
+import { moveMachineToWorkshopCommand } from "../../../application/machines/machineCommands";
 import {
   POSEIDON_LOCAL_ID,
   WORKSHOP_LABEL,
@@ -29,7 +23,6 @@ export function AdminLocalEditor({
   user,
   localId,
   patchData,
-  audit,
   setMessage,
   onClose,
   onAddMachine,
@@ -38,15 +31,6 @@ export function AdminLocalEditor({
   user: User;
   localId: string | null;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (
-    current: AppData,
-    action: string,
-    entity: string,
-    entityId: string,
-    previousValue: unknown,
-    newValue: unknown,
-    reason?: string,
-  ) => AppData;
   setMessage: (message: string) => void;
   onClose: () => void;
   onAddMachine: (localId: string) => void;
@@ -102,16 +86,6 @@ export function AdminLocalEditor({
 
   const save = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const localNumericId = shortNumberId(draft.id);
-    if (!localNumericId || !draft.name.trim()) {
-      setError("ID numerico corto y nombre son obligatorios.");
-      return;
-    }
-    const duplicate = data.locals.some((local) => local.id !== existing?.id && local.id === localNumericId);
-    if (duplicate) {
-      setError("Ya existe un local con ese ID.");
-      return;
-    }
     const closesLocal = existing?.status !== "CERRADO" && draft.status === "CERRADO";
     const machinesToWorkshop = existing ? data.machines.filter((machine) => machine.localId === existing.id) : [];
     const confirmMessage = closesLocal
@@ -120,134 +94,58 @@ export function AdminLocalEditor({
         ? "Confirmar creacion de este local."
         : "Confirmar cambios de este local.";
     if (!confirmAction(confirmMessage)) return;
-
-    const next: Local = {
-      id: existing?.id ?? localNumericId,
-      name: draft.name.trim(),
-      tenantName: draft.tenantName.trim(),
-      phone: draft.phone.trim(),
-      email: draft.email.trim(),
-      address: draft.address.trim() || "Sin direccion",
-      googleMapsUrl: draft.googleMapsUrl.trim(),
-      images: draft.images,
-      status: draft.status as Local["status"],
-    };
-
-    patchData((current) => {
-      if (isNew) {
-        const selectedMachines = current.machines.filter((machine) => selectedWorkshopMachineIds.includes(machine.id));
-        const machines = current.machines.map((machine) =>
-          selectedWorkshopMachineIds.includes(machine.id)
-            ? { ...machine, localId: next.id, location: next.name }
-            : machine,
-        );
-        const history = selectedMachines.flatMap((machine) => [
-          machineHistoryEvent(machine, next.id, "MOVIDA", `Asignada desde ${WORKSHOP_LABEL}`, user.id),
-          machineHistoryEvent(machine, WORKSHOP_LOCAL_ID, "MOVIDA", `Movida al local ${next.name}`, user.id),
-        ]);
-        return audit(
-          {
-            ...current,
-            currentAccounts: ensureLocalCurrentAccounts({ ...current, locals: [...current.locals, next] }, next.id),
-            locals: [...current.locals, next],
-            machines,
-            machineLocalHistory: [...history, ...current.machineLocalHistory],
-          },
-          "Crear local",
-          "Local",
-          next.id,
-          "",
-          { local: next, machines: selectedMachines.map((machine) => machine.id) },
-          "Autorizado",
-        );
-      }
-      const closingMachines = closesLocal ? current.machines.filter((machine) => machine.localId === next.id) : [];
-      const machines = closesLocal
-        ? current.machines.map((machine) =>
-            machine.localId === next.id
-              ? { ...machine, localId: WORKSHOP_LOCAL_ID, location: WORKSHOP_LABEL }
-              : machine,
-          )
-        : current.machines;
-      const history = closingMachines.flatMap((machine) => [
-        machineHistoryEvent(machine, next.id, "MOVIDA", `Enviada a ${WORKSHOP_LABEL} por cierre de local`, user.id),
-        machineHistoryEvent(machine, WORKSHOP_LOCAL_ID, "MOVIDA", `Recibida por cierre de ${next.name}`, user.id),
-      ]);
-      const locals = current.locals.map((local) => (local.id === next.id ? next : local));
-      const currentAccounts = ensureLocalCurrentAccounts({ ...current, locals }, next.id).map((account) => {
-        if (account.id === localCashAccountId(next.id)) return createLocalCashCurrentAccount(next, account);
-        if (account.id === localBankAccountId(next.id)) return createLocalBankCurrentAccount(next, account);
-        return account;
-      });
-      return audit(
-        { ...current, currentAccounts, locals, machines, machineLocalHistory: [...history, ...current.machineLocalHistory] },
-        closesLocal ? "Cerrar local" : "Modificar local",
-        "Local",
-        next.id,
-        existing,
-        { local: next, machinesMovedToWorkshop: closingMachines.map((machine) => machine.id) },
-        "Autorizado",
-      );
-    });
+    const result = saveLocalCommand(
+      data,
+      {
+        localId: existing?.id,
+        id: draft.id,
+        name: draft.name,
+        tenantName: draft.tenantName,
+        phone: draft.phone,
+        email: draft.email,
+        address: draft.address,
+        googleMapsUrl: draft.googleMapsUrl,
+        images: draft.images,
+        status: draft.status as Local["status"],
+        selectedWorkshopMachineIds,
+      },
+      commandContext(user, "ADMINISTRADOR"),
+    );
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    patchData(() => result.data);
     setMessage(closesLocal ? "Local cerrado y maquinas enviadas al taller." : isNew ? "Local creado." : "Local modificado.");
     onClose();
   };
 
   const remove = () => {
     if (!existing || protectedLocal) return;
-    const references = localDeletionReferences(data, existing.id);
-    if (references.length) {
-      setError(`No se puede quitar definitivamente: conserva ${referenceMessage(references)}. Usa el estado CERRADO.`);
+    if (!confirmAction(`Confirmar baja del local ${existing.name}. Las maquinas volveran al Taller.`)) return;
+    const result = deleteLocalCommand(data, existing.id, commandContext(user, "ADMINISTRADOR"));
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
-    if (!confirmAction(`Confirmar baja del local ${existing.name}. Las maquinas volveran al Taller.`)) return;
-
-    patchData((current) => {
-      const removedMachines = current.machines.filter((machine) => machine.localId === existing.id);
-      const locals = current.locals.filter((local) => local.id !== existing.id);
-      const machines = current.machines.map((machine) =>
-        machine.localId === existing.id
-          ? { ...machine, localId: WORKSHOP_LOCAL_ID, location: WORKSHOP_LABEL }
-          : machine,
-      );
-      const history = removedMachines.flatMap((machine) => [
-        machineHistoryEvent(machine, existing.id, "MOVIDA", `Devuelta a ${WORKSHOP_LABEL} por baja de local`, user.id),
-        machineHistoryEvent(machine, WORKSHOP_LOCAL_ID, "MOVIDA", `Recibida desde local ${existing.name}`, user.id),
-      ]);
-      return audit(
-        { ...current, locals, machines, machineLocalHistory: [...history, ...current.machineLocalHistory] },
-        "Quitar local",
-        "Local",
-        existing.id,
-        existing,
-        "",
-        "Autorizado",
-      );
-    });
+    patchData(() => result.data);
     setMessage("Local quitado.");
     onClose();
   };
 
   const sendMachineToWorkshop = (machine: Machine) => {
     if (!existing || !confirmAction(`Confirmar envio de ${machine.name} al Taller.`)) return;
-    patchData((current) => {
-      const previous = current.machines.find((item) => item.id === machine.id);
-      const nextMachine = { ...machine, localId: WORKSHOP_LOCAL_ID, location: WORKSHOP_LABEL };
-      const machines = current.machines.map((item) => (item.id === machine.id ? nextMachine : item));
-      const history = [
-        machineHistoryEvent(machine, existing.id, "MOVIDA", `Enviada a ${WORKSHOP_LABEL} desde edicion de local`, user.id),
-        machineHistoryEvent(nextMachine, WORKSHOP_LOCAL_ID, "MOVIDA", `Recibida desde local ${existing.name}`, user.id),
-      ];
-      return audit(
-        { ...current, machines, machineLocalHistory: [...history, ...current.machineLocalHistory] },
-        "Enviar maquina al taller",
-        "Maquina",
-        machine.id,
-        previous,
-        nextMachine,
-        "Autorizado",
-      );
-    });
+    const result = moveMachineToWorkshopCommand(
+      data,
+      machine.id,
+      commandContext(user, "ADMINISTRADOR"),
+      `Enviada a ${WORKSHOP_LABEL} desde edicion de local`,
+    );
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    patchData(() => result.data);
     setMessage("Maquina enviada al taller.");
   };
 

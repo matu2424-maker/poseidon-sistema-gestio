@@ -480,7 +480,6 @@ function App() {
           data={data}
           user={user}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
         />
       )}
@@ -489,7 +488,6 @@ function App() {
           data={data}
           user={user}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           onlyWorkshop
         />
@@ -499,7 +497,6 @@ function App() {
           data={data}
           user={user}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
         />
       )}

@@ -104,7 +104,7 @@ features/admin/machines/MachineHistoryModal.tsx
 features/admin/workshop/WorkshopMachinePicker.tsx
 ```
 
-Estado: primera etapa realizada en `features/admin/locationsMachines/` con `LocalEditor`, `MachineEditor`, `HistoryModals` y `shared`. Las tablas y los modales de asociacion permanecen en la fachada actual. Segunda etapa pendiente: extraer comandos con pruebas.
+Estado: editores, historiales y helpers estan separados en `features/admin/locationsMachines/`. Las tablas y modales de asociacion permanecen en la fachada; alta/edicion/cierre/baja, reset, traslado y asignacion delegan en comandos probados de `application/locations/` y `application/machines/`.
 
 Riesgo: alto por caja, taller, historial y contadores.
 
@@ -146,7 +146,7 @@ Completados con contexto inyectable y pruebas:
 Pendientes de extraer uno por vez:
 
 - completado: movimientos operativos;
-- locales/maquinas.
+- completado: locales/maquinas.
 
 Cada comando debe ser puro o recibir explícitamente reloj/ID, devolver error tipado y aplicar auditoria/movimientos de manera consistente.
 

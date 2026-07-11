@@ -15,7 +15,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Datos locales permite exportar/importar respaldo y recuperar almacenamiento corrupto sin sobrescribirlo.
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
-- Apertura, contadores, cierre, diferencias y salarios criticos ya usan comandos de aplicacion probados.
+- Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
 
 ## Ultimo bloque funcional completado
 
@@ -43,7 +43,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 5. Completado: CSS global separado sin alterar la cascada.
 6. Completado: ESLint, 41 pruebas, smoke HTTP y smoke manual por los tres roles.
 7. Completado: E2E critico de cajero y carga diferida por pantalla; bundle inicial reducido a 283,65 kB.
-8. Siguiente mejora incremental: extraer comandos de movimientos operativos y locales/maquinas; no es bloqueo para continuar funciones.
+8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
+9. Siguiente mejora incremental: integracion contable transversal y puerto de persistencia local/online.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

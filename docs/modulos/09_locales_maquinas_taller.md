@@ -2,7 +2,8 @@
 
 ## Codigo actual
 
-- La pantalla de Locales, la pantalla de Maquinas/Taller, los editores flotantes y los modales de historial viven en `src/features/admin/LocationsMachines.tsx`.
+- Las tablas y modales de asociacion viven en `src/features/admin/LocationsMachines.tsx`; editores e historiales viven en `src/features/admin/locationsMachines/`.
+- Las operaciones atomicas viven en `src/application/locations/localCommands.ts` y `src/application/machines/machineCommands.ts`.
 - `src/App.tsx` solo enruta hacia `AdminLocals` y `AdminMachines`.
 - Las reglas de contadores y totales se comparten con `src/lib/cashTotals.ts`, `src/lib/machineHistory.ts`, `src/lib/currentAccounts.ts` y `src/lib/accountMovements.ts`.
 
@@ -21,6 +22,7 @@
 - El historial de maquinas dentro de esa ventana permite ordenar por fecha, ID, maquina, movimiento y detalle.
 - Agregar/editar abre ventana flotante.
 - Desde agregar/editar se pueden asociar maquinas del Taller.
+- Alta, edicion, cierre y baja validan rol administrador y actualizan local, cuentas, maquinas, historial y auditoria en un unico comando.
 
 ## Cierre de local
 
@@ -31,6 +33,7 @@
 ## Maquinas
 
 - Nacen por defecto en Taller.
+- Alta, edicion, reset, traslado, asignacion y baja se validan fuera de React mediante comandos tipados.
 - ID corto visible.
 - Estados: ACTIVA, INACTIVA, MANTENIMIENTO, DESUSO.
 - DESUSO solo puede estar en Taller.

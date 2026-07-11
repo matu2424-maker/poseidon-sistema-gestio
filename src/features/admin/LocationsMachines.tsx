@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import type { AppData, Local, Machine, MachineLocalHistory, User } from "../../types";
 import { formatDateTime } from "../../lib/dates";
 import { localName } from "../../lib/display";
-import { machineHistoryEvent } from "../../lib/machineHistory";
 import { counter } from "../../lib/money";
 import { readColumnPreference, writeColumnPreference } from "../../lib/storage";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ColumnChooser, Modal, type TableColumn } from "../../components/ui";
 import {
-  WORKSHOP_LABEL,
   WORKSHOP_LOCAL_ID,
   confirmAction,
   localStatusClass,
@@ -18,6 +16,11 @@ import {
 import { AdminMachineEditor } from "./locationsMachines/MachineEditor";
 import { AdminLocalEditor } from "./locationsMachines/LocalEditor";
 import { LocalHistoryModal, MachineHistoryModal } from "./locationsMachines/HistoryModals";
+import { commandContext } from "../../application/command";
+import {
+  assignMachinesToLocalCommand,
+  moveMachineToWorkshopCommand,
+} from "../../application/machines/machineCommands";
 
 type MachineModalState = {
   machineId: string | null;
@@ -74,14 +77,12 @@ export function AdminMachines({
   data,
   user,
   patchData,
-  audit,
   setMessage,
   onlyWorkshop = false,
 }: {
   data: AppData;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onlyWorkshop?: boolean;
 }) {
@@ -275,7 +276,6 @@ export function AdminMachines({
           machineId={editor.machineId}
           initialLocalId={editor.localId}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           onClose={() => setEditor(null)}
         />
@@ -287,13 +287,11 @@ export function AdminLocals({
   data,
   user,
   patchData,
-  audit,
   setMessage,
 }: {
   data: AppData;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
 }) {
   const [localEditorId, setLocalEditorId] = useState<string | null | undefined>(undefined);
@@ -437,7 +435,6 @@ export function AdminLocals({
           user={user}
           localId={localEditorId}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           onClose={() => setLocalEditorId(undefined)}
           onAddMachine={(localId) => setMachinePickerLocalId(localId)}
@@ -449,7 +446,6 @@ export function AdminLocals({
           user={user}
           local={machinesLocal}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           onClose={() => setMachinesLocalId(null)}
           onAddMachine={() => setMachinePickerLocalId(machinesLocal.id)}
@@ -463,7 +459,6 @@ export function AdminLocals({
           user={user}
           local={pickerLocal}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           onClose={() => setMachinePickerLocalId(null)}
         />
@@ -475,7 +470,6 @@ export function AdminLocals({
           machineId={machineEditor.machineId}
           initialLocalId={machineEditor.localId}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           onClose={() => setMachineEditor(null)}
         />
@@ -489,7 +483,6 @@ function LocalMachinesModal({
   user,
   local,
   patchData,
-  audit,
   setMessage,
   onClose,
   onAddMachine,
@@ -499,7 +492,6 @@ function LocalMachinesModal({
   user: User;
   local: Local;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onClose: () => void;
   onAddMachine: () => void;
@@ -555,24 +547,12 @@ function LocalMachinesModal({
   });
   const sendToWorkshop = (machine: Machine) => {
     if (!confirmAction(`Confirmar envio de ${machine.name} al Taller.`)) return;
-    patchData((current) => {
-      const previous = current.machines.find((item) => item.id === machine.id);
-      const nextMachine = { ...machine, localId: WORKSHOP_LOCAL_ID, location: WORKSHOP_LABEL };
-      const machinesNext = current.machines.map((item) => (item.id === machine.id ? nextMachine : item));
-      const historyNext = [
-        machineHistoryEvent(machine, local.id, "MOVIDA", `Enviada a ${WORKSHOP_LABEL}`, user.id),
-        machineHistoryEvent(nextMachine, WORKSHOP_LOCAL_ID, "MOVIDA", `Recibida desde ${local.name}`, user.id),
-      ];
-      return audit(
-        { ...current, machines: machinesNext, machineLocalHistory: [...historyNext, ...current.machineLocalHistory] },
-        "Enviar maquina al taller",
-        "Maquina",
-        machine.id,
-        previous,
-        nextMachine,
-        "Autorizado",
-      );
-    });
+    const result = moveMachineToWorkshopCommand(data, machine.id, commandContext(user, "ADMINISTRADOR"));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
     setMessage("Maquina enviada al taller.");
   };
 
@@ -694,7 +674,6 @@ function WorkshopMachinePicker({
   user,
   local,
   patchData,
-  audit,
   setMessage,
   onClose,
 }: {
@@ -702,7 +681,6 @@ function WorkshopMachinePicker({
   user: User;
   local: Local;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onClose: () => void;
 }) {
@@ -735,25 +713,17 @@ function WorkshopMachinePicker({
     }
     if (!confirmAction(`Confirmar asignacion de ${selectedIds.length} maquina(s) a ${local.name}.`)) return;
 
-    patchData((current) => {
-      const selectedMachines = current.machines.filter((machine) => selectedIds.includes(machine.id));
-      const machines = current.machines.map((machine) =>
-        selectedIds.includes(machine.id) ? { ...machine, localId: local.id, location: local.name } : machine,
-      );
-      const history = selectedMachines.flatMap((machine) => [
-        machineHistoryEvent(machine, local.id, "MOVIDA", `Asignada desde ${WORKSHOP_LABEL}`, user.id),
-        machineHistoryEvent(machine, WORKSHOP_LOCAL_ID, "MOVIDA", `Movida al local ${local.name}`, user.id),
-      ]);
-      return audit(
-        { ...current, machines, machineLocalHistory: [...history, ...current.machineLocalHistory] },
-        "Asignar maquinas a local",
-        "Local",
-        local.id,
-        "",
-        { localId: local.id, machineIds: selectedIds },
-        "Autorizado",
-      );
-    });
+    const result = assignMachinesToLocalCommand(
+      data,
+      local.id,
+      selectedIds,
+      commandContext(user, "ADMINISTRADOR"),
+    );
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    patchData(() => result.data);
     setMessage(`${selectedIds.length} maquina(s) asignada(s) a ${local.name}.`);
     onClose();
   };

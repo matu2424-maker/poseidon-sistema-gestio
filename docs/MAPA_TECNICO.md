@@ -94,6 +94,8 @@ src/
 | `application/cash/openCash.ts` | Apertura, aportes iniciales, lecturas, cuentas y auditoria |
 | `application/cash/saveReading.ts` | Validacion/guardado de contador, resultado, cuenta y auditoria |
 | `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con cuenta y auditoria |
+| `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
+| `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
 | `application/cash/closeCash.ts` | Cierre, retiros, maquinas, diferencias, cuentas, historial y auditoria |
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
 | `application/salaries/salarySettlementCommands.ts` | Alta, correccion y anulacion salarial con cuentas y auditoria |
@@ -151,7 +153,7 @@ Medicion de referencia 2026-07-10:
 
 | Archivo | Lineas aproximadas | Riesgo |
 | --- | ---: | --- |
-| `features/admin/LocationsMachines.tsx` | 828 | Medio: tablas y modales de asociacion; editores/historiales ya separados |
+| `features/admin/LocationsMachines.tsx` | 795 | Bajo/medio: tablas y modales; mutaciones delegadas a comandos |
 | `features/admin/locationsMachines/HistoryModals.tsx` | 759 | Medio: dos historiales complejos, sin mutaciones |
 | `data/appData.ts` | 834 | Medio: seed demo; normalizacion ya separada |
 | `data/normalizeData.ts` | 508 | Alto por impacto: migracion central, aunque aislada |
@@ -170,7 +172,7 @@ Las cifras son orientativas; volver a medir antes de planificar un corte.
 
 ### Alta
 
-- Movimientos operativos, locales/maquinas, cierres periodicos y maestros todavia conservan algunas mutaciones en handlers React.
+- Cierres periodicos y algunos maestros todavia conservan mutaciones en handlers React.
 - Cobertura automatizada insuficiente para ciclos completos.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
 

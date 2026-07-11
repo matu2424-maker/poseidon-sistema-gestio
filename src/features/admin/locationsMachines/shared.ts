@@ -1,10 +1,7 @@
 import type { AppData, AuditEvent, Local, LocalImage, MachineStatus } from "../../../types";
 import { uid } from "../../../lib/ids";
 export { confirmAction } from "../../../lib/confirmations";
-
-export const POSEIDON_LOCAL_ID = "1";
-export const WORKSHOP_LOCAL_ID = "taller";
-export const WORKSHOP_LABEL = "Taller";
+export { POSEIDON_LOCAL_ID, WORKSHOP_LABEL, WORKSHOP_LOCAL_ID } from "../../../data/appDataIds";
 
 export const sanitizeNumberId = (value: string) => value.replace(/\D/g, "").slice(0, 4);
 

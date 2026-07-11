@@ -2,11 +2,17 @@ import { useState, type FormEvent } from "react";
 import { Modal } from "../../../components/ui";
 import { formatDateTime } from "../../../lib/dates";
 import { localName } from "../../../lib/display";
-import { nextShortId, shortNumberId, uid } from "../../../lib/ids";
-import { machineHistoryEvent } from "../../../lib/machineHistory";
+import { nextShortId } from "../../../lib/ids";
 import { counter, formatCounterInput, parseCounter } from "../../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
-import type { AppData, Machine, MachineLocalHistory, MachineStatus, User } from "../../../types";
+import type { AppData, MachineLocalHistory, MachineStatus, User } from "../../../types";
+import { commandContext } from "../../../application/command";
+import {
+  deleteMachineCommand,
+  moveMachineToWorkshopCommand,
+  resetMachineCountersCommand,
+  saveMachineCommand,
+} from "../../../application/machines/machineCommands";
 import {
   WORKSHOP_LABEL,
   WORKSHOP_LOCAL_ID,
@@ -21,7 +27,6 @@ export function AdminMachineEditor({
   machineId,
   initialLocalId,
   patchData,
-  audit,
   setMessage,
   onClose,
 }: {
@@ -30,15 +35,6 @@ export function AdminMachineEditor({
   machineId: string | null;
   initialLocalId?: string;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (
-    current: AppData,
-    action: string,
-    entity: string,
-    entityId: string,
-    previousValue: unknown,
-    newValue: unknown,
-    reason?: string,
-  ) => AppData;
   setMessage: (message: string) => void;
   onClose: () => void;
 }) {
@@ -84,180 +80,63 @@ export function AdminMachineEditor({
 
   const save = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const visibleId = shortNumberId(draft.visibleId);
-    if (!visibleId || !draft.name.trim()) {
-      setError("ID numerico corto y nombre son obligatorios.");
-      return;
-    }
-    const duplicate = data.machines.some(
-      (machine) => machine.id !== existing?.id && shortNumberId(machine.visibleId) === visibleId,
-    );
-    if (duplicate) {
-      setError("Ya existe una maquina con ese ID.");
-      return;
-    }
-    if (draft.status === "DESUSO" && draft.localId !== WORKSHOP_LOCAL_ID) {
-      setError("El estado Desuso solo se puede aplicar a maquinas que estan en Taller.");
-      return;
-    }
     if (!confirmAction(isNew ? "Confirmar creacion de esta maquina." : "Confirmar cambios de esta maquina.")) return;
-
-    const next: Machine = {
-      id: existing?.id ?? uid("machine"),
-      visibleId,
-      name: draft.name.trim(),
-      localId: draft.localId,
-      location: draft.location.trim() || (draft.localId === WORKSHOP_LOCAL_ID ? WORKSHOP_LABEL : "Salon"),
-      status: draft.status as MachineStatus,
-      lastIn: isNew ? 0 : parseCounter(draft.lastIn),
-      lastOut: isNew ? 0 : parseCounter(draft.lastOut),
-      notes: draft.notes.trim(),
-    };
-
-    patchData((current) => {
-      if (isNew) {
-        const history = machineHistoryEvent(next, WORKSHOP_LOCAL_ID, "AGREGADA", "Alta de maquina en taller", user.id);
-        return audit(
-          { ...current, machines: [...current.machines, next], machineLocalHistory: [history, ...current.machineLocalHistory] },
-          "Crear maquina",
-          "Maquina",
-          next.id,
-          "",
-          next,
-          "Autorizado",
-        );
-      }
-
-      const machines = current.machines.map((machine) => (machine.id === next.id ? next : machine));
-      const history: MachineLocalHistory[] = [];
-      if (existing.localId !== next.localId) {
-        history.push(
-          machineHistoryEvent(next, next.localId, "MOVIDA", `Recibida desde ${localName(current, existing.localId)}`, user.id),
-          machineHistoryEvent(existing, existing.localId, "MOVIDA", `Movida a ${localName(current, next.localId)}`, user.id),
-        );
-      }
-      if (existing.lastIn !== next.lastIn || existing.lastOut !== next.lastOut) {
-        history.push(
-          machineHistoryEvent(
-            next,
-            next.localId,
-            "CONTADORES",
-            `Ajuste admin: IN ${counter(existing.lastIn)} -> ${counter(next.lastIn)}, OUT ${counter(existing.lastOut)} -> ${counter(next.lastOut)}`,
-            user.id,
-          ),
-        );
-      }
-      if (
-        !history.length ||
-        existing.status !== next.status ||
-        existing.name !== next.name ||
-        existing.location !== next.location ||
-        existing.notes !== next.notes
-      ) {
-        history.push(machineHistoryEvent(next, next.localId, "MODIFICADA", "Edicion administrativa", user.id));
-      }
-      return audit(
-        { ...current, machines, machineLocalHistory: [...history, ...current.machineLocalHistory] },
-        "Modificar maquina",
-        "Maquina",
-        next.id,
-        existing,
-        next,
-        "Autorizado",
-      );
-    });
+    const result = saveMachineCommand(
+      data,
+      {
+        machineId: existing?.id,
+        visibleId: draft.visibleId,
+        name: draft.name,
+        localId: draft.localId,
+        location: draft.location,
+        status: draft.status as MachineStatus,
+        lastIn: parseCounter(draft.lastIn),
+        lastOut: parseCounter(draft.lastOut),
+        notes: draft.notes,
+      },
+      commandContext(user, "ADMINISTRADOR"),
+    );
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    patchData(() => result.data);
     setMessage(isNew ? "Maquina creada." : "Maquina modificada.");
     onClose();
   };
 
   const resetCounters = () => {
-    if (!existing) return;
-    if (blockingBalance) {
-      setMessage(
-        `No se puede resetear ${existing.name}: hay una caja abierta del ${blockingBalance.operatingDate}. Primero hay que cerrar esa caja.`,
-      );
+    if (!existing || !confirmAction(`Confirmar reset de contadores de ${existing.name}.`)) return;
+    const result = resetMachineCountersCommand(data, existing.id, commandContext(user, "ADMINISTRADOR"));
+    if (!result.ok) {
+      setMessage(result.error);
       return;
     }
-    if (!confirmAction(`Confirmar reset de contadores de ${existing.name}.`)) return;
-    patchData((current) => {
-      const previous = current.machines.find((machine) => machine.id === existing.id);
-      const nextMachine = { ...existing, lastIn: 0, lastOut: 0 };
-      const machines = current.machines.map((machine) => (machine.id === existing.id ? nextMachine : machine));
-      const history = machineHistoryEvent(
-        existing,
-        existing.localId,
-        "RESET",
-        `Reset admin: IN ${counter(existing.lastIn)} -> 0, OUT ${counter(existing.lastOut)} -> 0`,
-        user.id,
-      );
-      return audit(
-        { ...current, machines, machineLocalHistory: [history, ...current.machineLocalHistory] },
-        "Reset contadores",
-        "Maquina",
-        existing.id,
-        previous,
-        nextMachine,
-        "Autorizado",
-      );
-    });
+    patchData(() => result.data);
     setMessage("Contadores reiniciados.");
     onClose();
   };
 
   const sendToWorkshop = () => {
     if (!existing || existing.localId === WORKSHOP_LOCAL_ID || !confirmAction(`Confirmar envio de ${existing.name} al Taller.`)) return;
-    patchData((current) => {
-      const previous = current.machines.find((machine) => machine.id === existing.id);
-      const nextMachine = { ...existing, localId: WORKSHOP_LOCAL_ID, location: WORKSHOP_LABEL };
-      const machines = current.machines.map((machine) => (machine.id === existing.id ? nextMachine : machine));
-      const history = [
-        machineHistoryEvent(existing, existing.localId, "MOVIDA", `Enviada a ${WORKSHOP_LABEL}`, user.id),
-        machineHistoryEvent(
-          nextMachine,
-          WORKSHOP_LOCAL_ID,
-          "MOVIDA",
-          `Recibida desde ${localName(current, existing.localId)}`,
-          user.id,
-        ),
-      ];
-      return audit(
-        { ...current, machines, machineLocalHistory: [...history, ...current.machineLocalHistory] },
-        "Enviar maquina al taller",
-        "Maquina",
-        existing.id,
-        previous,
-        nextMachine,
-        "Autorizado",
-      );
-    });
+    const result = moveMachineToWorkshopCommand(data, existing.id, commandContext(user, "ADMINISTRADOR"));
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    patchData(() => result.data);
     setMessage("Maquina enviada al taller.");
     onClose();
   };
 
   const remove = () => {
-    if (!existing) return;
-    if (!isInWorkshop) {
-      setError("Para eliminar una maquina primero hay que enviarla al taller.");
+    if (!existing || !confirmAction(`Confirmar eliminacion definitiva de la maquina ${existing.name}.`)) return;
+    const result = deleteMachineCommand(data, existing.id, commandContext(user, "ADMINISTRADOR"));
+    if (!result.ok) {
+      setError(result.error);
       return;
     }
-    if (hasReadings) {
-      setError("No se puede eliminar una maquina que tenga recaudaciones.");
-      return;
-    }
-    if (!confirmAction(`Confirmar eliminacion definitiva de la maquina ${existing.name}.`)) return;
-    patchData((current) => {
-      const machines = current.machines.filter((machine) => machine.id !== existing.id);
-      const history = machineHistoryEvent(existing, existing.localId, "QUITADA", "Baja definitiva desde taller", user.id);
-      return audit(
-        { ...current, machines, machineLocalHistory: [history, ...current.machineLocalHistory] },
-        "Eliminar maquina",
-        "Maquina",
-        existing.id,
-        existing,
-        "",
-        "Autorizado",
-      );
-    });
+    patchData(() => result.data);
     setMessage("Maquina eliminada.");
     onClose();
   };

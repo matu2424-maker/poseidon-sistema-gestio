@@ -70,4 +70,4 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Proxima prioridad tecnica
 
-Mantener todo local. Los movimientos operativos ya usan comandos probados; el siguiente corte tecnico es locales/maquinas. Ver `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
+Mantener todo local. Movimientos operativos y locales/maquinas ya usan comandos probados. El siguiente corte es reforzar integracion contable y el puerto de persistencia, sin cambiar de `localStorage`.
