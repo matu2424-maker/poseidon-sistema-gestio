@@ -46,14 +46,14 @@ Resultado: datos locales mas previsibles y fallos detectados antes.
 
 ## Prioridad 2 - Reducir archivos grandes
 
-Orden:
+Orden ejecutado:
 
 1. `LocationsMachines.tsx`.
 2. `Movements.tsx`.
 3. `SalarySettlements.tsx`.
 4. `appData.ts`.
 
-Primero mover codigo sin comportamiento; despues extraer reglas. Seguir `docs/MODULARIZACION_REFERENCIAS.md`.
+Primera division mecanica completada el 2026-07-10: editores/historiales de locales y maquinas, clientes/salarios/tabla de movimientos, editor salarial y normalizador de datos. No se cambiaron reglas de negocio. Siguiente corte: navegacion/permisos compartidos y luego comandos pendientes.
 
 ## Prioridad 3 - Comandos de dominio
 

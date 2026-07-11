@@ -36,11 +36,11 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Proximas prioridades de codigo
 
-1. Definir libro contable persistido e inmutable y proteger referencias historicas.
-2. Extraer comandos de dominio con pruebas, comenzando por caja y diferencias.
-3. Dividir `src/features/admin/LocationsMachines.tsx` sin cambiar comportamiento.
-4. Dividir movimientos de cajero, liquidacion salarial y datos demo/normalizacion.
-5. Centralizar navegacion, permisos, confirmaciones y avisos; luego separar CSS.
+1. Completado: libro contable persistido y proteccion de referencias historicas.
+2. Completado: comandos de caja, contadores, diferencias y salarios con pruebas.
+3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
+4. Siguiente: centralizar navegacion, permisos, confirmaciones y avisos.
+5. Despues: separar CSS global y ampliar lint/smoke tests.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

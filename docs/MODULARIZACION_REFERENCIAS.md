@@ -104,19 +104,19 @@ features/admin/machines/MachineHistoryModal.tsx
 features/admin/workshop/WorkshopMachinePicker.tsx
 ```
 
-Primera etapa: mover UI y tipos locales sin alterar handlers. Segunda: extraer comandos con pruebas.
+Estado: primera etapa realizada en `features/admin/locationsMachines/` con `LocalEditor`, `MachineEditor`, `HistoryModals` y `shared`. Las tablas y los modales de asociacion permanecen en la fachada actual. Segunda etapa pendiente: extraer comandos con pruebas.
 
 Riesgo: alto por caja, taller, historial y contadores.
 
 ### Corte C - Movimientos del cajero
 
-Separar gastos, transferencias, regalos, salarios, capital y clientes. Mantener panel/tabla/selectores compartidos dentro de `features/cashier/movements/`.
+Estado parcial: `CashierClients`, `CashierSalaryPayments` y `MovementTable` ya estan separados. Permanecen juntos gastos, transferencias, regalos y capital hasta extraer sus comandos contables.
 
 Riesgo: alto por impactos contables y anulaciones.
 
 ### Corte D - Liquidacion salarial
 
-Separar pantalla, detalle de empleado, editor, cierres y totales puros. Mantener periodo trabajado, `balanceId`, cuenta personal y limites en pruebas.
+Estado parcial: `SalarySettlementEditor.tsx` ya separa la escritura. Permanecen juntos pantalla, detalle, cuentas y cierres para evitar duplicar el estado del periodo seleccionado.
 
 Riesgo: alto.
 
@@ -129,7 +129,7 @@ data/migrations/
 infrastructure/storage/localAppDataRepository.ts
 ```
 
-El snapshot versionado y el repositorio local ya existen. Falta dividir seed/normalizadores y agregar migraciones incrementales cuando cambie el esquema.
+El snapshot versionado y el repositorio local ya existen. `data/normalizeData.ts` separa normalizacion/migracion de `appData.ts`; falta dividir el seed demo y agregar migraciones incrementales cuando cambie el esquema.
 
 Riesgo: muy alto; puede afectar datos existentes.
 

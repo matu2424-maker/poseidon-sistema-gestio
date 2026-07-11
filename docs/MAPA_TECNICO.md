@@ -34,7 +34,9 @@ src/
   App.tsx                  orquestacion global y composicion
   application/             comandos atomicos, contexto y resultados tipados
   types.ts                 tipos de dominio actuales
-  data/appData.ts          seed, reset y normalizacion local
+  data/appData.ts          seed demo, reset y fachada de normalizacion
+  data/normalizeData.ts    migracion y normalizacion del snapshot actual
+  data/appDataIds.ts       IDs tecnicos compartidos de local/taller
   infrastructure/storage/ snapshot, validacion y repositorio local
   lib/                     reglas y helpers compartidos
   components/              UI reutilizable transversal
@@ -90,6 +92,8 @@ src/
 - `components/ui.tsx`: `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser`.
 - `components/MonthlyPeriodSelector.tsx`: selector mensual comun.
 - `components/WelcomeScreen.tsx`: heredado y sin uso; candidato a eliminar.
+- `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
+- `features/clients/clientTable.ts`: orden y estados compartidos de clientes.
 
 ## Dependencias criticas
 
@@ -115,7 +119,7 @@ src/
 ## Cruces actuales entre features
 
 - Cuentas y Salarios reutilizan `ClosedBalanceSummary` desde `features/cashier`.
-- Movimientos del cajero reutiliza `ClientEditor` desde `features/admin`.
+- `CashierClients` reutiliza `ClientEditor` desde `features/admin`; es el cruce pendiente mas claro para el siguiente corte.
 - Estos cruces funcionan, pero los componentes realmente transversales deberian migrar a `components/` o una feature compartida cuando se refactoricen.
 
 ## Estado de modularizacion
@@ -123,7 +127,11 @@ src/
 - `App.tsx` ya no contiene las pantallas completas; conserva estado global, login, apertura de caja, navegacion y composicion.
 - Las reglas puras principales estan en `src/lib`.
 - Features cuentan con `AGENTS.md` cortos de referencia.
-- El siguiente foco no es seguir reduciendo `App.tsx` por tamaño, sino dividir features grandes y sacar comandos de negocio de React.
+- `LocationsMachines.tsx` ya separa editores, historiales y helpers en `features/admin/locationsMachines/`.
+- `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
+- `SalarySettlements.tsx` ya separa su editor de escritura.
+- `appData.ts` ya delega la normalizacion/migracion en `data/normalizeData.ts`.
+- El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino centralizar navegacion/permisos y continuar sacando comandos de negocio de React.
 
 ## Concentracion de codigo
 
@@ -131,10 +139,12 @@ Medicion de referencia 2026-07-10:
 
 | Archivo | Lineas aproximadas | Riesgo |
 | --- | ---: | --- |
-| `features/admin/LocationsMachines.tsx` | 2260 | Muy alto: locales, maquinas, taller, editores e historiales |
-| `data/appData.ts` | 1300 | Alto: seed y migracion/normalizacion mezclados |
-| `features/cashier/Movements.tsx` | 1218 | Alto: seis movimientos operativos y clientes |
-| `features/salaries/SalarySettlements.tsx` | 1139 | Alto: listado, detalle, editor, cuentas y cierres |
+| `features/admin/LocationsMachines.tsx` | 828 | Medio: tablas y modales de asociacion; editores/historiales ya separados |
+| `features/admin/locationsMachines/HistoryModals.tsx` | 759 | Medio: dos historiales complejos, sin mutaciones |
+| `data/appData.ts` | 834 | Medio: seed demo; normalizacion ya separada |
+| `data/normalizeData.ts` | 508 | Alto por impacto: migracion central, aunque aislada |
+| `features/cashier/Movements.tsx` | 754 | Medio: gastos, transferencias, regalos y capital |
+| `features/salaries/SalarySettlements.tsx` | 965 | Medio/alto: listado, detalle, cuentas y cierres; editor separado |
 | `features/admin/Staff.tsx` | 696 | Medio: personal, editor y papelera |
 | `App.tsx` | 531 | Medio: orquestacion y algunos comandos |
 | `styles/global.css` | 3232 | Medio: alcance global |
@@ -145,7 +155,7 @@ Las cifras son orientativas; volver a medir antes de planificar un corte.
 
 ### Alta
 
-- Movimientos operativos, locales/maquinas, cierres periodicos y maestros todavia conservan mutaciones en handlers React.
+- Movimientos operativos, locales/maquinas, cierres periodicos y maestros todavia conservan algunas mutaciones en handlers React.
 - Cobertura automatizada insuficiente para ciclos completos.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
 
