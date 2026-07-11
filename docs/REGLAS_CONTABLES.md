@@ -31,7 +31,7 @@ No forman parte del resultado economico:
 | Salario pagado desde caja | Resta | Salida | No | Salida | No | Caja, salarios, cuentas |
 | Adelanto desde caja | No suma al total salarial | Salida | No | Salida | No | Caja, salarios, cuentas |
 | Descuento salarial | No es salida de caja | No | No | Ajusta pendiente | No | Salarios |
-| Transferencia recibida | No | No | Entrada | No | Entrada | Caja, transferencias, cuentas |
+| Transferencia registrada | No | Salida | Entrada | No | Entrada | Caja, transferencias, cuentas |
 | Retiro efectivo | No | Salida | No | No | No | Capital, cuentas |
 | Retiro banco | No | No | Salida | No | No | Capital, cuentas |
 | Aporte efectivo | No | Entrada | No | No | No | Capital, cuentas |
@@ -44,6 +44,7 @@ No forman parte del resultado economico:
 ## Caja diaria
 
 - La caja abre con el saldo activo de `Local / Efectivo` y `Local / Banco`.
+- Una transferencia mueve el importe de `Local / Efectivo` a `Local / Banco`; no cambia el resultado economico y tambien queda reflejada en la cuenta de transferencias.
 - La primera caja de un local exige declarar aporte inicial efectivo y banco.
 - El saldo final declarado por el cajero define el saldo real para la siguiente apertura.
 - El cierre registra usuario real y funcion usada.

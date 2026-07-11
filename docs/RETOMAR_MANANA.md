@@ -41,7 +41,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: ESLint, 41 pruebas, smoke HTTP y smoke manual por los tres roles.
+6. Completado: ESLint, 51 pruebas, smoke HTTP y smoke manual por los tres roles.
 7. Completado: E2E critico de cajero y carga diferida por pantalla; bundle inicial reducido a 283,65 kB.
 8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
 9. Siguiente mejora incremental: integracion contable transversal y puerto de persistencia local/online.

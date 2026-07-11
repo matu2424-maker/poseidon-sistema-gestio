@@ -124,6 +124,7 @@ describe("comandos de movimientos operativos", () => {
     );
     expect(transferResult.ok).toBe(true);
     if (!transferResult.ok) return;
+    expect(localAccountBalances(transferResult.data, POSEIDON_LOCAL_ID).cash).toBe(8_000);
     expect(localAccountBalances(transferResult.data, POSEIDON_LOCAL_ID).bank).toBe(7_000);
     expect(accountTotals(transferResult.data, TRANSFER_ACCOUNT_ID).balance).toBe(2_000);
 
@@ -135,9 +136,10 @@ describe("comandos de movimientos operativos", () => {
     );
     expect(annulled.ok).toBe(true);
     if (!annulled.ok) return;
+    expect(localAccountBalances(annulled.data, POSEIDON_LOCAL_ID).cash).toBe(10_000);
     expect(localAccountBalances(annulled.data, POSEIDON_LOCAL_ID).bank).toBe(5_000);
     expect(accountTotals(annulled.data, TRANSFER_ACCOUNT_ID).balance).toBe(0);
-    expect(annulled.data.accountMovements.filter((item) => item.reversalOf)).toHaveLength(2);
+    expect(annulled.data.accountMovements.filter((item) => item.reversalOf)).toHaveLength(3);
   });
 
   it("registra aportes/retiros y anula mediante reverso sin borrar historial", () => {

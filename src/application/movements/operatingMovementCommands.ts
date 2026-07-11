@@ -13,6 +13,7 @@ import {
   capitalAccountMovement,
   localExpenseAccountMovement,
   localGiftAccountMovement,
+  localTransferCashAccountMovement,
   localTransferAccountMovement,
   reverseSourceAccountMovements,
   transferAccountMovement,
@@ -167,8 +168,11 @@ export function createTransferCommand(
     : [createTransferCurrentAccount(), ...data.currentAccounts];
   const currentAccounts = ensureLocalCurrentAccounts({ ...data, currentAccounts: transferAccounts }, balance.localId);
   const accountMovements = upsertAccountMovement(
-    upsertAccountMovement(data.accountMovements, transferAccountMovement(transfer)),
-    localTransferAccountMovement(transfer, balance.localId),
+    upsertAccountMovement(
+      upsertAccountMovement(data.accountMovements, transferAccountMovement(transfer)),
+      localTransferAccountMovement(transfer, balance.localId),
+    ),
+    localTransferCashAccountMovement(transfer, balance.localId),
   );
   return commandSuccess(
     auditCommand(

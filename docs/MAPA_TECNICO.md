@@ -208,4 +208,4 @@ pnpm run smoke:localhost
 git diff --check
 ```
 
-`pnpm run check` ejecuta typecheck, ESLint y 41 pruebas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
+`pnpm run check` ejecuta typecheck, ESLint y 51 pruebas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.

@@ -19,7 +19,7 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - Se cargan con comprobante, nombre/cliente, monto y cuenta.
 - La tabla operativa es ordenable por cliente, nombre, comprobante, cuenta, monto y estado; `Accion` no se ordena.
 - Pueden asociarse a cliente.
-- Impactan en cuenta Local / Banco y cuenta Transferencias.
+- Salen de `Local / Efectivo`, entran en `Local / Banco` y se registran en la cuenta Transferencias.
 - Se pueden anular con auditoria.
 
 ## Regalos

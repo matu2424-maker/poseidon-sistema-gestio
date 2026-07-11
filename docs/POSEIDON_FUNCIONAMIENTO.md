@@ -311,6 +311,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - El encargado puede marcar un gasto como revisado u observado; si lo observa debe escribir observacion.
 - El encargado puede anular un gasto con motivo obligatorio; no se borra el registro y se anula el movimiento de cuenta asociado.
 - Transferencias se pueden anular.
+- Cada transferencia genera salida en `Local / Efectivo`, entrada en `Local / Banco` y entrada en la cuenta de transferencias; no modifica el resultado economico.
 - Gastos usan categorias y subcategorias definidas por administrador.
 - Transferencias y regalos pueden asociarse a clientes existentes.
 - Regalos usan selector de clientes en ventana aparte, con buscador y seleccion multiple.
@@ -474,12 +475,12 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Al hacer clic en un movimiento se muestra detalle completo, recaudacion asociada y acceso al resumen completo de esa recaudacion cuando exista.
 - En empleados, los pagos y adelantos se registran como salidas.
 - `Liquidacion de salarios` muestra la cuenta corriente dentro del detalle de cada empleado, no como seccion general de la pantalla.
-- En transferencias, cada transferencia se registra como entrada en la cuenta de transferencias.
+- En transferencias, cada transferencia se registra como entrada en la cuenta de transferencias y como traslado de efectivo a banco en las dos cuentas del local.
 - En locales:
   - resultado de maquinas positivo entra en `Local / Efectivo`;
   - resultado de maquinas negativo sale de `Local / Efectivo`;
   - gastos, regalos y salarios salen de `Local / Efectivo`;
-  - transferencias entran en `Local / Banco`;
+  - transferencias salen de `Local / Efectivo` y entran en `Local / Banco`;
   - retiros salen de `Local / Efectivo` o `Local / Banco` segun medio;
   - aportes entran en `Local / Efectivo` o `Local / Banco` segun medio;
   - diferencias de caja entran o salen de `Local / Efectivo` y/o `Local / Banco` para reflejar el saldo declarado al cierre.

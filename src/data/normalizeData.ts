@@ -5,6 +5,7 @@ import {
   localExpenseAccountMovement,
   localGiftAccountMovement,
   localSalaryAccountMovement,
+  localTransferCashAccountMovement,
   localTransferAccountMovement,
   machineResultAccountMovement,
   salaryAccountMovement,
@@ -451,6 +452,7 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
     addDerivedMovement(transferAccountMovement(transfer));
     const localId = balanceLocalId(transfer.balanceId);
     if (accountIds.has(localBankAccountId(localId))) addDerivedMovement(localTransferAccountMovement(transfer, localId));
+    if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localTransferCashAccountMovement(transfer, localId));
   });
   gifts.forEach((gift) => {
     const localId = balanceLocalId(gift.balanceId);

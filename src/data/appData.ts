@@ -30,6 +30,7 @@ import {
   localExpenseAccountMovement,
   localGiftAccountMovement,
   localSalaryAccountMovement,
+  localTransferCashAccountMovement,
   localTransferAccountMovement,
   machineResultAccountMovement,
   salaryAccountMovement,
@@ -690,7 +691,11 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
       localSalaryAccountMovement(settlement, settlement.approvedBy ?? settlement.createdBy ?? "system"),
     ]),
     ...expenses.map((expense) => localExpenseAccountMovement(expense, local.id)),
-    ...transfers.flatMap((transfer) => [transferAccountMovement(transfer), localTransferAccountMovement(transfer, local.id)]),
+    ...transfers.flatMap((transfer) => [
+      transferAccountMovement(transfer),
+      localTransferAccountMovement(transfer, local.id),
+      localTransferCashAccountMovement(transfer, local.id),
+    ]),
     ...gifts.map((gift) => localGiftAccountMovement(gift, local.id)),
     ...capitalMovements.map(capitalAccountMovement),
     ...balances

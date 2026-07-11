@@ -81,6 +81,23 @@ export function localTransferAccountMovement(transfer: Transfer, localId: string
   };
 }
 
+export function localTransferCashAccountMovement(transfer: Transfer, localId: string): AccountMovement {
+  return {
+    id: `account-movement-local-transfer-cash-${transfer.id}`,
+    accountId: localCashAccountId(localId),
+    balanceId: transfer.balanceId,
+    sourceType: "TRANSFERENCIA",
+    sourceId: transfer.id,
+    direction: "SALIDA",
+    concept: "TRANSFERENCIA",
+    amount: transfer.amount,
+    detail: `${transfer.name} - ${transfer.receipt} - salida a banco`,
+    status: transfer.status,
+    userId: transfer.userId,
+    createdAt: transfer.createdAt,
+  };
+}
+
 export function localExpenseAccountMovement(expense: Expense, localId: string): AccountMovement {
   return {
     id: `account-movement-local-expense-${expense.id}`,

@@ -75,6 +75,7 @@ Agregar en este orden:
 - Pendiente: cierre salarial;
 - Pendiente: traslado, reset y eliminacion de maquinas;
 - Completado inicial: migracion de ID historico, limpieza de imagenes y reconstruccion de asientos faltantes;
+- Completado: ciclo integrado de caja, saldos, liquidacion, diferencias y roundtrip de snapshot; la migracion reconstruye la salida de efectivo faltante en transferencias.
 - Completado inicial: permisos por rol y requisito de caja abierta;
 - Completado inicial: E2E Playwright de apertura, carga de las tres maquinas, cierre y persistencia despues de recargar;
 - Pendiente: pruebas UI automatizadas de formularios administrativos y flujos completos del encargado;

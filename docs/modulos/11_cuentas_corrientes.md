@@ -56,7 +56,7 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 - Regalos -> salida Local / Efectivo.
 - Salarios -> salida Local / Efectivo por caja/balanceId y movimiento en cuenta personal por periodo trabajado.
 - Descuentos de salarios -> movimiento de cuenta personal que reduce pendiente/base cubierta, pero no genera salida Local / Efectivo ni cuenta como dinero entregado.
-- Transferencias -> entrada Local / Banco y cuenta Transferencias.
+- Transferencias -> salida Local / Efectivo, entrada Local / Banco y entrada en cuenta Transferencias.
 - Retiros -> salida Local / Efectivo o Local / Banco.
 - Aportes -> entrada Local / Efectivo o Local / Banco.
 - Diferencias de caja -> entrada o salida Local / Efectivo y/o Local / Banco, segun diferencia positiva o negativa, para reflejar el saldo real declarado.

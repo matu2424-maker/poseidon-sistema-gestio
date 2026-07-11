@@ -156,6 +156,7 @@ La auditoria registra usuario real y funcion usada.
 
 - Resultado economico = `resultado de maquinas - gastos - salarios - regalos`.
 - Transferencias, aportes, retiros, efectivo inicial y banco inicial son movimientos financieros o de caja; no cambian el resultado economico.
+- Cada transferencia sale de la cuenta de efectivo del local y entra en banco, conservando ademas su cuenta de transferencias.
 - Las diferencias de efectivo o banco no modifican el resultado economico.
 - Las diferencias si mueven la cuenta corriente del local al cerrar caja, para que la siguiente apertura use el saldo real declarado.
 - Las diferencias quedan pendientes, visibles y auditadas hasta que un encargado o administrador las verifique, corrija o anule con observacion.
