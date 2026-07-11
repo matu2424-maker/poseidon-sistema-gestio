@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import type {
   AppData,
   CapitalMovementPerson,
@@ -9,12 +9,10 @@ import type {
 import { appendAuditEvent } from "./lib/audit";
 import { roleLabels } from "./lib/display";
 import {
-  clearLocalAppData,
-  importLocalAppData,
-  loadLocalAppData,
-  saveLocalAppData,
-  serializeAppData,
+  localAppDataBackupCodec,
+  localAppDataRepository,
 } from "./infrastructure/storage/localAppDataRepository";
+import type { AppDataBackupCodec, AppDataRepository } from "./application/ports/AppDataRepository";
 import {
   POSEIDON_LOCAL_ID,
   createSeedData,
@@ -31,6 +29,7 @@ import { openCashCommand } from "./application/cash/openCash";
 import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
 import { canAccessScreen, screenRequiresOpenCash } from "./navigation/screens";
 import { useNotice } from "./hooks/useNotice";
+import { useAppDataRepository } from "./hooks/useAppDataRepository";
 import { confirmAction } from "./lib/confirmations";
 import {
   AdminClients,
@@ -60,34 +59,6 @@ import {
   Transfers,
 } from "./navigation/lazyScreens";
 
-type InitialLoad = {
-  data: AppData;
-  storageIssue?: { raw: string; error: string };
-  message?: string;
-};
-
-function readData(): InitialLoad {
-  const stored = loadLocalAppData();
-  if (stored.status === "empty") return { data: createSeedData() };
-  if (stored.status === "corrupt") {
-    return { data: createSeedData(), storageIssue: { raw: stored.raw, error: stored.error } };
-  }
-  try {
-    return {
-      data: normalizeData(stored.data),
-      message: stored.needsRewrite ? "Los datos locales se actualizaron al formato versionado." : undefined,
-    };
-  } catch (error) {
-    return {
-      data: createSeedData(),
-      storageIssue: {
-        raw: stored.raw,
-        error: error instanceof Error ? error.message : "No se pudo normalizar el almacenamiento local.",
-      },
-    };
-  }
-}
-
 function ScreenLoader() {
   return (
     <div className="empty-state" role="status" aria-live="polite">
@@ -97,22 +68,25 @@ function ScreenLoader() {
   );
 }
 
-function App() {
-  const [initialLoad] = useState<InitialLoad>(() => readData());
-  const [data, setData] = useState<AppData>(initialLoad.data);
-  const [storageIssue, setStorageIssue] = useState(initialLoad.storageIssue);
+type AppProps = {
+  repository?: AppDataRepository;
+  backupCodec?: AppDataBackupCodec;
+};
+
+function App({
+  repository = localAppDataRepository,
+  backupCodec = localAppDataBackupCodec,
+}: AppProps) {
   const [screen, setScreen] = useState<Screen>("welcome");
   const [user, setUser] = useState<User | null>(null);
   const [actingRole, setActingRole] = useState<Role | null>(null);
-  const { message, setMessage, clearMessage } = useNotice(initialLoad.message ?? "");
+  const { message, setMessage, clearMessage } = useNotice();
+  const { data, setData, storageIssue, storageReady, persistNow, startFresh } = useAppDataRepository(
+    repository,
+    setMessage,
+  );
 
-  useEffect(() => {
-    if (storageIssue) return;
-    const saveResult = saveLocalAppData(data);
-    if (saveResult.status === "failed") {
-      setMessage("No se pudo guardar localmente. Exporta un respaldo antes de continuar cargando datos.");
-    }
-  }, [data, storageIssue]);
+  if (!storageReady) return <ScreenLoader />;
 
   const activeLocal = data.locals.find((local) => local.id === POSEIDON_LOCAL_ID) ?? data.locals[0];
   const openBalance = data.balances.find((balance) => balance.localId === activeLocal.id && balance.status === "EN_PROCESO");
@@ -169,7 +143,6 @@ function App() {
       "Reinicio manual confirmado",
     );
     setData(fresh);
-    saveLocalAppData(fresh);
     setMessage("Datos demo reiniciados.");
     setScreen("panel");
   };
@@ -177,12 +150,12 @@ function App() {
   const exportLocalBackup = () => {
     const audited = audit(data, "Exportar respaldo local", "Sistema", "storage", "", dataSummary(data));
     setData(audited);
-    downloadFile(`poseidon-respaldo-${localDate()}.json`, serializeAppData(audited), "application/json;charset=utf-8");
+    downloadFile(`poseidon-respaldo-${localDate()}.json`, backupCodec.serialize(audited), "application/json;charset=utf-8");
     setMessage("Respaldo local exportado.");
   };
 
-  const importLocalBackup = (raw: string) => {
-    const imported = importLocalAppData(raw);
+  const importLocalBackup = async (raw: string) => {
+    const imported = backupCodec.deserialize(raw);
     if (imported.status !== "ready") return imported.status === "corrupt" ? imported.error : "El respaldo esta vacio.";
     try {
       const normalized = normalizeData(imported.data);
@@ -195,7 +168,7 @@ function App() {
         dataSummary(normalized),
         "Importacion manual validada",
       );
-      const saveResult = saveLocalAppData(audited);
+      const saveResult = await persistNow(audited);
       if (saveResult.status === "failed") return `El respaldo es valido pero no pudo guardarse: ${saveResult.error}`;
       setData(audited);
       setUser(null);
@@ -213,13 +186,9 @@ function App() {
       <StorageRecovery
         error={storageIssue.error}
         raw={storageIssue.raw}
-        onStartNew={() => {
+        onStartNew={async () => {
           if (!confirmAction("Iniciar datos nuevos? El respaldo actual debe descargarse antes si queres conservarlo.")) return;
-          clearLocalAppData();
-          const fresh = createSeedData();
-          setData(fresh);
-          setStorageIssue(undefined);
-          setMessage("Se inicio un almacenamiento local nuevo.");
+          await startFresh();
         }}
       />
     );

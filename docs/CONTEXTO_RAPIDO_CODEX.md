@@ -14,7 +14,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
 - `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
-- Pruebas actuales: 51 casos en 17 archivos, incluidos ciclo financiero completo, diferencias, salarios, cuentas, migracion, activos y permisos; ademas un E2E critico de cajero.
+- Pruebas actuales: 54 casos en 18 archivos, incluidos ciclo financiero completo, diferencias, salarios, cuentas, migracion, activos, repositorio y permisos; ademas un E2E critico de cajero.
 
 ## Usuarios de prueba
 
@@ -70,4 +70,4 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Proxima prioridad tecnica
 
-Mantener todo local. Movimientos operativos y locales/maquinas ya usan comandos probados. El siguiente corte es reforzar integracion contable y el puerto de persistencia, sin cambiar de `localStorage`.
+Mantener todo local. Comandos criticos, integracion contable y puerto de persistencia ya estan probados. El proximo trabajo debe volver a un modulo funcional concreto; no hace falta otra refactorizacion transversal amplia.

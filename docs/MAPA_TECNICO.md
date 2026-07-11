@@ -35,11 +35,12 @@ src/
   App.tsx                  orquestacion global y composicion
   navigation/lazyScreens  carga diferida por pantalla/feature
   application/             comandos atomicos, contexto y resultados tipados
+    ports/                  contrato de repositorio y cola asincrona ordenada
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed demo, reset y fachada de normalizacion
   data/normalizeData.ts    migracion y normalizacion del snapshot actual
   data/appDataIds.ts       IDs tecnicos compartidos de local/taller
-  infrastructure/storage/ snapshot, validacion y repositorio local
+  infrastructure/storage/ snapshot, validacion y adaptador local
   lib/                     reglas y helpers compartidos
   components/              UI reutilizable transversal
   hooks/                   estado UI compartido, como avisos
@@ -73,7 +74,10 @@ src/
 | `audit.ts` | Construccion de eventos de auditoria |
 | `lib/storage.ts` | Preferencias locales de columnas |
 | `infrastructure/storage/snapshot.ts` | Formato y validacion runtime del snapshot |
-| `infrastructure/storage/localAppDataRepository.ts` | Lectura, escritura, importacion y exportacion local |
+| `application/ports/AppDataRepository.ts` | Puerto asincrono de datos y codec de respaldo |
+| `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
+| `hooks/useAppDataRepository.ts` | Hidratacion, recuperacion y persistencia sin acoplar App al adaptador |
+| `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, importacion y exportacion local |
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
 | `accountMovements.ts` | Movimientos derivados, sincronizacion y saldo corrido |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
@@ -208,4 +212,4 @@ pnpm run smoke:localhost
 git diff --check
 ```
 
-`pnpm run check` ejecuta typecheck, ESLint y 51 pruebas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
+`pnpm run check` ejecuta typecheck, ESLint y 54 pruebas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.

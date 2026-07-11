@@ -1,6 +1,6 @@
 # Poseidon - Plan de migracion local a online
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Estado: plan futuro. No autoriza conexiones, despliegues ni cambios de persistencia.
 
@@ -60,10 +60,11 @@ Salida: snapshot local versionado, validable y exportable.
 
 ## Fase 1 - Separar dominio y persistencia
 
-- Extraer comandos de negocio de componentes React.
-- Crear interfaces de repositorios.
-- Implementar adaptador `localStorage` con esas interfaces.
-- Mantener comportamiento y datos actuales.
+- Completado en flujos criticos: extraer comandos de negocio de componentes React.
+- Completado como contrato transversal: crear `AppDataRepository` asincrono y codec de respaldo.
+- Completado: implementar adaptador `localStorage` con ese contrato y cola ordenada de escrituras.
+- Completado: mantener comportamiento y datos actuales con pruebas y E2E.
+- Pendiente futuro: decidir si el backend necesita repositorios por dominio o un gateway transaccional sobre `AppDataRepository`.
 
 Salida: la aplicacion sigue local, pero la UI deja de depender del almacenamiento concreto.
 

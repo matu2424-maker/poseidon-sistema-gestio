@@ -1,16 +1,18 @@
 import type { AppData } from "../../types";
+import type {
+  AppDataBackupCodec,
+  AppDataLoadResult,
+  AppDataRepository,
+  AppDataSaveResult,
+} from "../../application/ports/AppDataRepository";
 import { createSnapshot, decodeSnapshot } from "./snapshot";
 
 export const STORAGE_KEY = "poseidon-sistema-gestion-v2";
 
-export type StorageLoadResult =
-  | { status: "empty" }
-  | { status: "ready"; data: AppData; sourceVersion: number; needsRewrite: boolean; raw: string }
-  | { status: "corrupt"; raw: string; error: string };
+export type StorageLoadResult = AppDataLoadResult;
+export type StorageSaveResult = AppDataSaveResult;
 
-export type StorageSaveResult =
-  | { status: "ok"; bytes: number }
-  | { status: "failed"; error: string };
+export type KeyValueStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
 const stripInlineFiles = (value: string) =>
   value.replace(/data:[^"]{500,}/g, "[archivo no persistido en almacenamiento local]");
@@ -35,18 +37,18 @@ export function serializeAppData(data: AppData) {
   return JSON.stringify(createSnapshot(appDataForStorage(data)), null, 2);
 }
 
-export function loadLocalAppData(): StorageLoadResult {
-  const raw = localStorage.getItem(STORAGE_KEY);
+export function loadLocalAppData(storage: KeyValueStorage = localStorage): StorageLoadResult {
+  const raw = storage.getItem(STORAGE_KEY);
   if (!raw) return { status: "empty" };
   const decoded = decodeSnapshot(raw);
   if (!decoded.ok) return { status: "corrupt", raw, error: decoded.error };
   return { status: "ready", ...decoded.value, raw };
 }
 
-export function saveLocalAppData(data: AppData): StorageSaveResult {
+export function saveLocalAppData(data: AppData, storage: KeyValueStorage = localStorage): StorageSaveResult {
   const serialized = serializeAppData(data);
   try {
-    localStorage.setItem(STORAGE_KEY, serialized);
+    storage.setItem(STORAGE_KEY, serialized);
     return { status: "ok", bytes: new Blob([serialized]).size };
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo escribir el almacenamiento local.";
@@ -60,6 +62,27 @@ export function importLocalAppData(raw: string): StorageLoadResult {
   return { status: "ready", ...decoded.value, raw };
 }
 
-export function clearLocalAppData() {
-  localStorage.removeItem(STORAGE_KEY);
+export function clearLocalAppData(storage: KeyValueStorage = localStorage) {
+  storage.removeItem(STORAGE_KEY);
 }
+
+export function createLocalAppDataRepository(storage: KeyValueStorage): AppDataRepository {
+  return {
+    load: async () => loadLocalAppData(storage),
+    save: async (data) => saveLocalAppData(data, storage),
+    clear: async () => clearLocalAppData(storage),
+  };
+}
+
+const browserStorage: KeyValueStorage = {
+  getItem: (key) => localStorage.getItem(key),
+  setItem: (key, value) => localStorage.setItem(key, value),
+  removeItem: (key) => localStorage.removeItem(key),
+};
+
+export const localAppDataRepository = createLocalAppDataRepository(browserStorage);
+
+export const localAppDataBackupCodec: AppDataBackupCodec = {
+  serialize: serializeAppData,
+  deserialize: importLocalAppData,
+};

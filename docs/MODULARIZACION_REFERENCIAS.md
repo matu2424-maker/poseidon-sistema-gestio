@@ -129,7 +129,7 @@ data/migrations/
 infrastructure/storage/localAppDataRepository.ts
 ```
 
-El snapshot versionado y el repositorio local ya existen. `data/normalizeData.ts` separa normalizacion/migracion de `appData.ts`; falta dividir el seed demo y agregar migraciones incrementales cuando cambie el esquema.
+El snapshot versionado y el repositorio local ya existen. `application/ports/AppDataRepository.ts` define el contrato asincrono; `hooks/useAppDataRepository.ts` hidrata y serializa escrituras; `infrastructure/storage/localAppDataRepository.ts` es el adaptador activo. `data/normalizeData.ts` separa normalizacion/migracion de `appData.ts`; falta dividir el seed demo y agregar migraciones incrementales cuando cambie el esquema.
 
 Riesgo: muy alto; puede afectar datos existentes.
 

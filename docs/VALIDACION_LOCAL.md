@@ -63,7 +63,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Evidencia del bloque 2026-07-10
 
-- 17 archivos de pruebas y 51 casos aprobados, incluido ciclo financiero transversal y migracion de transferencias.
+- 18 archivos de pruebas y 54 casos aprobados, incluido ciclo financiero transversal, migracion de transferencias, contrato de repositorio y orden de escrituras.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.

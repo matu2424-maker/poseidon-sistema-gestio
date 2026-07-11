@@ -9,7 +9,7 @@ export function StorageRecovery({
 }: {
   error: string;
   raw: string;
-  onStartNew: () => void;
+  onStartNew: () => void | Promise<void>;
 }) {
   const downloadCorruptBackup = () => {
     downloadFile(`poseidon-respaldo-recuperacion-${localDate()}.json`, raw, "application/json;charset=utf-8");

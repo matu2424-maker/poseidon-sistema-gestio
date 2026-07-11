@@ -94,6 +94,7 @@ Agregar en este orden:
 
 - Arquitectura objetivo: `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
 - Plan reversible: `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`.
+- Completado en local: puerto `AppDataRepository`, codec de respaldo, adaptador `localStorage` y cola asincrona de escrituras.
 - Mientras no se autorice: mantener adaptador local y no crear conexiones/credenciales.
 
 ## Reglas para ahorrar tokens

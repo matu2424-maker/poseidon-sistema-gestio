@@ -16,6 +16,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 ## Estado actual
 
 - Persistencia: snapshot JSON versionado en `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- La UI usa el puerto asincrono `AppDataRepository`; el adaptador activo sigue siendo `localStorage` y serializa escrituras para conservar su orden.
 - El administrador puede exportar e importar respaldos desde `Sistema > Datos locales`.
 - Si el snapshot esta corrupto, la aplicacion no lo reemplaza: ofrece descargarlo antes de iniciar datos nuevos.
 - Login local: se selecciona un usuario activo desde una lista, sin contrasena.
@@ -240,6 +241,8 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 src/App.tsx                    Estado global, lectura/escritura local, acciones y composicion de pantallas
 src/navigation/lazyScreens.ts Carga diferida de pantallas por feature
 src/data/appData.ts            Datos demo, reset operativo, ID visible de caja y normalizacion/migracion
+src/application/ports/         Contratos asincronos y cola ordenada de persistencia
+src/hooks/useAppDataRepository Carga/guardado independiente del adaptador concreto
 src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, periodos, referencias de recaudacion, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
 src/components/                Componentes compartidos: tarjetas, modales, botones, selector de columnas y selector mensual

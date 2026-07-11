@@ -1,8 +1,10 @@
 # Poseidon - Arquitectura objetivo online
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Estado: diseno futuro. Nada de este documento esta conectado o desplegado actualmente.
+
+Base local ya implementada: `AppDataRepository` asincrono, codec de respaldo, adaptador `localStorage` y cola de escrituras ordenadas. No existe adaptador online ni conexion externa.
 
 ## Objetivo
 
@@ -69,6 +71,8 @@ Cada comando recibe actor, local, fecha/ID y datos de entrada; devuelve resultad
 - Exportacion, respaldo y restauracion.
 
 ## Repositorios objetivo
+
+El contrato transversal actual vive en `src/application/ports/AppDataRepository.ts` y permite cambiar el adaptador sin acoplar `App` a `localStorage`. Durante el diseno online se evaluara dividirlo en repositorios de dominio sin perder transacciones atomicas.
 
 Interfaces iniciales sugeridas:
 

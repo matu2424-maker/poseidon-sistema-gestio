@@ -7,7 +7,7 @@ export function LocalDataMaintenance({
   onImport,
 }: {
   onExport: () => void;
-  onImport: (raw: string) => string;
+  onImport: (raw: string) => Promise<string>;
 }) {
   const [selectedFile, setSelectedFile] = useState<File>();
   const [error, setError] = useState("");
@@ -23,7 +23,7 @@ export function LocalDataMaintenance({
       return;
     }
     if (!confirmAction("Importar este respaldo? Los datos locales actuales seran reemplazados despues de validar el archivo.")) return;
-    const result = onImport(await selectedFile.text());
+    const result = await onImport(await selectedFile.text());
     setError(result);
   };
 
