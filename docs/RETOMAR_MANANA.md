@@ -15,6 +15,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Datos locales permite exportar/importar respaldo y recuperar almacenamiento corrupto sin sobrescribirlo.
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
+- Apertura, contadores, cierre, diferencias y salarios criticos ya usan comandos de aplicacion probados.
 
 ## Ultimo bloque funcional completado
 
@@ -23,7 +24,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Referencias de recaudacion por `balanceId` compartidas entre Cuentas y Salarios.
 - Estados heredados de diferencias normalizados sin perder auditoria.
 - `accountLedgerRows()` centraliza saldo corrido.
-- 24 pruebas automatizadas en ocho archivos.
+- 34 pruebas automatizadas en trece archivos.
 
 ## Bloque documental actual
 

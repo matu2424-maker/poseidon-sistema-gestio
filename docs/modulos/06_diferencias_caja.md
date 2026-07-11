@@ -1,5 +1,7 @@
 # Modulo 06 - Diferencias de caja
 
+La gestion atomica vive en `src/application/differences/manageDifference.ts`; valida rol/observacion y aplica declarados, delta contable y auditoria.
+
 ## Objetivo
 
 Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el resultado economico.

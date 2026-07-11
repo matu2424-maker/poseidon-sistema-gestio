@@ -8,14 +8,15 @@ export const machineHistoryEvent = (
   action: MachineLocalHistory["action"],
   detail: string,
   userId: string,
+  options: { id?: string; createdAt?: string } = {},
 ): MachineLocalHistory => ({
-  id: uid("machine-history"),
+  id: options.id ?? uid("machine-history"),
   machineId: machine.id,
   machineVisibleId: machine.visibleId,
   machineName: machine.name,
   localId,
   action,
   detail,
-  createdAt: nowIso(),
+  createdAt: options.createdAt ?? nowIso(),
   userId,
 });

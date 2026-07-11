@@ -1,13 +1,13 @@
 import { ReactNode, useState } from "react";
 import type { AppData, Balance, DifferenceStatus, User } from "../../types";
-import { syncDifferenceAccountMovements } from "../../lib/accountMovements";
-import { ensureLocalCurrentAccounts } from "../../lib/currentAccounts";
-import { formatDateTime, monthRange, nowIso } from "../../lib/dates";
+import { formatDateTime, monthRange } from "../../lib/dates";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceActionImpact, differenceIsPending } from "../../lib/differences";
 import { formatMoneyInput, money, moneyInputValue, normalizeMoneyInput, parseMoneyInput } from "../../lib/money";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
+import { commandContext } from "../../application/command";
+import { manageDifferenceCommand } from "../../application/differences/manageDifference";
 
 type DifferenceDraft = { status: DifferenceStatus | ""; note: string; correctedCash?: string; correctedBank?: string };
 type DifferenceStatusFilter = DifferenceStatus | "TODAS" | "GESTIONADAS";
@@ -17,7 +17,6 @@ type DifferencesProps = {
   data: AppData;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
 };
 
@@ -86,7 +85,7 @@ function Modal({
   );
 }
 
-export function Differences({ data, user, patchData, audit, setMessage }: DifferencesProps) {
+export function Differences({ data, user, patchData, setMessage }: DifferencesProps) {
   const [drafts, setDrafts] = useState<Record<string, DifferenceDraft>>({});
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<DifferenceStatusFilter>("TODAS");
@@ -192,89 +191,35 @@ export function Differences({ data, user, patchData, audit, setMessage }: Differ
     });
   };
   const update = (id: string) => {
-    if (!canManage) {
-      setError("Solo administrador o encargado pueden gestionar diferencias.");
-      return;
-    }
     const draft = drafts[id] ?? { status: "", note: "" };
     const status = draft.status;
     const reviewNote = draft.note.trim();
-    if (!status) {
+    if (!status || status === "PENDIENTE") {
       setError("Selecciona una accion de gestion para la diferencia.");
       return;
     }
-    if (!reviewNote) {
-      setError("La observacion del encargado/admin es obligatoria.");
-      return;
-    }
-    const reviewedAt = nowIso();
     patchData((current) => {
-      const previous = current.balances.find((balance) => balance.id === id);
-      if (!previous) return current;
-      const previousCashDifference = cashDifferenceForBalance(current, previous);
-      const previousBankDifference = bankDifferenceForBalance(previous);
-      const previousDeclaredCash = previous.declaredCash ?? 0;
-      const previousDeclaredBank = previous.declaredBank ?? previous.nextBankBase ?? 0;
-      const expectedCash = previousDeclaredCash - previousCashDifference;
-      const expectedBank = previousDeclaredBank - previousBankDifference;
-      const correctedCash = status === "CORREGIDA" ? parseMoneyInput(draft.correctedCash ?? "") : previousDeclaredCash;
-      const correctedBank = status === "CORREGIDA" ? parseMoneyInput(draft.correctedBank ?? "") : previousDeclaredBank;
-      if (status === "CORREGIDA" && (correctedCash < 0 || correctedBank < 0)) return current;
-      const nextDeclaredCash = status === "CORREGIDA" ? correctedCash : status === "ANULADA" ? expectedCash : previousDeclaredCash;
-      const nextDeclaredBank = status === "CORREGIDA" ? correctedBank : status === "ANULADA" ? expectedBank : previousDeclaredBank;
-      const nextCashDifference = status === "CORREGIDA" ? correctedCash - expectedCash : status === "ANULADA" ? 0 : previousCashDifference;
-      const nextBankDifference = status === "CORREGIDA" ? correctedBank - expectedBank : status === "ANULADA" ? 0 : previousBankDifference;
-      const next = {
-        ...previous,
-        declaredCash: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredCash : previous.declaredCash,
-        declaredBank: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredBank : previous.declaredBank,
-        nextBase: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredCash : previous.nextBase,
-        nextBankBase: status === "CORREGIDA" || status === "ANULADA" ? nextDeclaredBank : previous.nextBankBase,
-        cashDifference: status === "CORREGIDA" || status === "ANULADA" ? nextCashDifference : previous.cashDifference,
-        bankDifference: status === "CORREGIDA" || status === "ANULADA" ? nextBankDifference : previous.bankDifference,
-        differenceStatus: status,
-        differenceReviewedBy: user.id,
-        differenceReviewedAt: reviewedAt,
-        differenceReviewNote: reviewNote,
-      };
-      const balancesNext = current.balances.map((balance) => (balance.id === id ? next : balance));
-      const accountMovementsNext = syncDifferenceAccountMovements(current.accountMovements, next, user.id);
-      return audit(
+      const result = manageDifferenceCommand(
+        current,
         {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(current, next.localId),
-          accountMovements: accountMovementsNext,
-          balances: balancesNext,
-        },
-        "Gestionar diferencia de caja",
-        "DiferenciaCaja",
-        id,
-        previous,
-        {
+          balanceId: id,
           status,
           reviewNote,
-          reviewedBy: user.name,
-          reviewedAt,
-          ...(status === "CORREGIDA" || status === "ANULADA"
-            ? {
-                declaredCashBefore: previousDeclaredCash,
-                declaredCashAfter: nextDeclaredCash,
-                declaredBankBefore: previousDeclaredBank,
-                declaredBankAfter: nextDeclaredBank,
-                cashDifferenceBefore: previousCashDifference,
-                cashDifferenceAfter: nextCashDifference,
-                bankDifferenceBefore: previousBankDifference,
-                bankDifferenceAfter: nextBankDifference,
-              }
-            : {}),
+          correctedCash: status === "CORREGIDA" ? parseMoneyInput(draft.correctedCash ?? "") : undefined,
+          correctedBank: status === "CORREGIDA" ? parseMoneyInput(draft.correctedBank ?? "") : undefined,
         },
-        reviewNote,
+        commandContext(user, user.role),
       );
+      if (!result.ok) {
+        setError(result.error);
+        return current;
+      }
+      setDrafts((draftsCurrent) => ({ ...draftsCurrent, [id]: { status: "", note: "" } }));
+      setMessage("Diferencia gestionada y auditada.");
+      setSelectedBalanceId(null);
+      setError("");
+      return result.data;
     });
-    setDrafts((current) => ({ ...current, [id]: { status: "", note: "" } }));
-    setMessage("Diferencia gestionada y auditada.");
-    setSelectedBalanceId(null);
-    setError("");
   };
   const rowClass = (balance: Balance) => {
     const status = balance.differenceStatus ?? "PENDIENTE";

@@ -2,6 +2,8 @@
 
 Codigo actual: `src/features/cashier/Counters.tsx`.
 
+El guardado validado vive en `src/application/cash/saveReading.ts`; React captura/visualiza datos y presenta el resultado del comando.
+
 ## Objetivo
 
 Cargar IN/OUT de maquinas para calcular resultado de recaudacion.

@@ -22,6 +22,7 @@ Mover codigo no autoriza cambiar comportamiento.
 
 ```text
 src/App.tsx              orquestacion
+src/application/         comandos multi-entidad probables
 src/types.ts             tipos compartidos
 src/data/                seed y normalizacion
 src/infrastructure/      adaptadores de persistencia local
@@ -134,14 +135,17 @@ Riesgo: muy alto; puede afectar datos existentes.
 
 ### Corte F - Comandos de dominio
 
-Extraer uno por vez, comenzando por caja:
+Completados con contexto inyectable y pruebas:
 
 - apertura;
 - contadores;
 - cierre;
 - diferencias;
+- alta/correccion/anulacion salarial.
+
+Pendientes de extraer uno por vez:
+
 - movimientos;
-- salarios;
 - locales/maquinas.
 
 Cada comando debe ser puro o recibir explícitamente reloj/ID, devolver error tipado y aplicar auditoria/movimientos de manera consistente.

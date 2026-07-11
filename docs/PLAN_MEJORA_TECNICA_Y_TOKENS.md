@@ -57,11 +57,9 @@ Primero mover codigo sin comportamiento; despues extraer reglas. Seguir `docs/MO
 
 ## Prioridad 3 - Comandos de dominio
 
-- Sacar operaciones multi-entidad de componentes React.
-- Recibir actor, reloj e IDs explicitamente.
-- Devolver `Result` con error tipado.
-- Mantener entidad, cuenta y auditoria en una operacion coherente.
-- Empezar por apertura/cierre de caja y diferencias.
+- Completado para apertura, contadores, cierre, diferencias y liquidaciones salariales.
+- Los comandos reciben actor, funcion, reloj e IDs, devuelven resultado tipado y actualizan entidad/cuentas/historial/auditoria en conjunto.
+- Pendiente: movimientos operativos y locales/maquinas.
 
 No agregar Redux o un store complejo antes de definir comandos.
 
@@ -69,9 +67,10 @@ No agregar Redux o un store complejo antes de definir comandos.
 
 Agregar en este orden:
 
-- apertura -> contadores -> movimientos -> cierre;
-- correccion/anulacion de diferencias y saldos;
-- pagos/adelantos/descuentos y cierre salarial;
+- Completado: apertura -> contadores -> cierre;
+- Completado: correccion/anulacion de diferencias y saldos;
+- Completado: alta, correccion y anulacion de pagos/adelantos/descuentos;
+- Pendiente: movimientos operativos y cierre salarial;
 - traslado, reset y eliminacion de maquinas;
 - migracion de snapshots antiguos;
 - permisos por rol/local;

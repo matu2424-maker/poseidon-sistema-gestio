@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import type { AccountMovement, AppData, SalaryClosure, SalarySettlement, SalarySettlementStatus, SalaryType, StaffMember, User } from "../../types";
-import { localSalaryAccountMovement, reverseSourceAccountMovements, salaryAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
+import { localSalaryAccountMovement, salaryAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
 import { balanceForMovement, balanceReferenceLabel } from "../../lib/balanceReferences";
 import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
 import { formatDateTime, monthRange, nowIso, today } from "../../lib/dates";
@@ -15,19 +15,19 @@ import {
   movementConceptLabel,
   normalizeSalaryConcept,
   salaryBaseForPeriod,
-  salaryConceptBreakdown,
   salaryConceptLabel,
   salaryConceptOptions,
   salarySettlementAmount,
   salarySettlementDisplayAmount,
   salarySettlementTotalDelta,
   suggestedSalaryPeriodModeFromDate,
-  validateSalarySettlementLimit,
 } from "../../lib/salaryRules";
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal } from "../../components/ui";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { ClosedBalanceSummary } from "../cashier/ClosedBalanceSummary";
+import { commandContext } from "../../application/command";
+import { annulSalarySettlementCommand, saveSalarySettlementCommand } from "../../application/salaries/salarySettlementCommands";
 
 const POSEIDON_LOCAL_ID = "1";
 const confirmAction = (message: string) => window.confirm(message);
@@ -395,6 +395,15 @@ export function AdminSalarySettlements({
   const changeStatus = (settlement: SalarySettlement, status: SalarySettlementStatus) => {
     if (status === "ANULADA" && !confirmAction(`Eliminar liquidacion de ${settlement.staffName}? Queda registrada en auditoria y no impacta los totales.`)) return;
     patchData((current) => {
+      if (status === "ANULADA") {
+        const result = annulSalarySettlementCommand(current, settlement.id, commandContext(user, user.role));
+        if (!result.ok) {
+          setClosureMessage(result.error);
+          return current;
+        }
+        setClosureMessage("Liquidacion anulada y compensada en cuentas.");
+        return result.data;
+      }
       const previous = current.salarySettlements.find((item) => item.id === settlement.id);
       const updatedAt = nowIso();
       const salarySettlements = current.salarySettlements.map((item) =>
@@ -405,9 +414,6 @@ export function AdminSalarySettlements({
               approvedBy: status === "CONFIRMADA" ? user.id : item.approvedBy,
               approvedByName: status === "CONFIRMADA" ? user.name : item.approvedByName,
               approvedAt: status === "CONFIRMADA" ? updatedAt : item.approvedAt,
-              annulledBy: status === "ANULADA" ? user.id : item.annulledBy,
-              annulledByName: status === "ANULADA" ? user.name : item.annulledByName,
-              annulledAt: status === "ANULADA" ? updatedAt : item.annulledAt,
               updatedAt,
             }
           : item,
@@ -418,19 +424,16 @@ export function AdminSalarySettlements({
         ? [createStaffCurrentAccount(staffMember), ...current.currentAccounts]
         : current.currentAccounts;
       const withLocalAccounts = ensureLocalCurrentAccounts({ ...current, currentAccounts }, settlement.localId);
-      const accountMovements = status === "ANULADA"
-        ? reverseSourceAccountMovements(current.accountMovements, ["SUELDO"], settlement.id, user.id, "Anulacion de liquidacion", updatedAt)
-        : next
-          ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
-          : current.accountMovements;
+      const accountMovements = next
+        ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
+        : current.accountMovements;
       const activeAdvanceBalance = salarySettlements
         .filter((item) => item.staffId === settlement.staffId && item.status !== "ANULADA" && item.concept === "ADELANTO")
         .reduce((total, item) => total + Number(item.advances ?? 0), 0);
       const staff = current.staff.map((item) =>
         item.id === settlement.staffId ? { ...item, salaryAdvanceBalance: activeAdvanceBalance, updatedAt: nowIso() } : item,
       );
-      const action = status === "ANULADA" ? "Eliminar liquidacion salario" : "Cambiar estado liquidacion salario";
-      return audit({ ...current, currentAccounts: withLocalAccounts, accountMovements, salarySettlements, staff }, action, "LiquidacionSalario", settlement.id, previous, next);
+      return audit({ ...current, currentAccounts: withLocalAccounts, accountMovements, salarySettlements, staff }, "Cambiar estado liquidacion salario", "LiquidacionSalario", settlement.id, previous, next);
     });
   };
   const exportSalaryExcel = () => {
@@ -955,7 +958,6 @@ export function AdminSalarySettlements({
             setEditorStaffId(null);
           }}
           patchData={patchData}
-          audit={audit}
         />
       )}
     </section>
@@ -971,7 +973,6 @@ export function SalarySettlementEditor({
   fixedStaffId,
   onClose,
   patchData,
-  audit,
 }: {
   data: AppData;
   user: User;
@@ -980,7 +981,6 @@ export function SalarySettlementEditor({
   fixedStaffId?: string;
   onClose: () => void;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
 }) {
   const existing = settlementId ? data.salarySettlements.find((settlement) => settlement.id === settlementId) : undefined;
   const activeStaff = data.staff.filter((staff) => staff.status === "ACTIVO");
@@ -1003,72 +1003,29 @@ export function SalarySettlementEditor({
       return;
     }
     const period = String(form.get("period") || defaultPeriod);
-    const salaryValidationError = validateSalarySettlementLimit(data, staff, period, concept, amount, existing?.id);
-    if (salaryValidationError) {
-      setFormError(salaryValidationError);
-      return;
-    }
-    setFormError("");
-    const { baseSalary, advances, extraAmount, extraConcept, aguinaldo, vacationSalary, otherDeductions, totalToPay } = salaryConceptBreakdown(concept, amount);
-    const timestamp = nowIso();
-    const next: SalarySettlement = {
-      id: existing?.id ?? uid("salary-settlement"),
-      period,
-      staffId: staff.id,
-      staffName: staffFullName(staff),
-      localId: staff.localId,
-      baseSalary,
-      advances,
-      extraAmount,
-      extraConcept,
-      aguinaldo,
-      vacationSalary,
-      otherDeductions,
-      totalToPay,
-      concept,
-      notes: String(form.get("notes") ?? ""),
-      status: existing?.status === "ANULADA" ? "ANULADA" : "CONFIRMADA",
-      origin: existing?.origin ?? "LIQUIDACION",
-      createdBy: existing?.createdBy ?? user.id,
-      createdByName: existing?.createdByName ?? user.name,
-      approvedBy: existing?.status === "ANULADA" ? existing.approvedBy : user.id,
-      approvedByName: existing?.status === "ANULADA" ? existing.approvedByName : user.name,
-      approvedAt: existing?.status === "ANULADA" ? existing.approvedAt : timestamp,
-      annulledBy: existing?.annulledBy,
-      annulledByName: existing?.annulledByName,
-      annulledAt: existing?.annulledAt,
-      createdAt: existing?.createdAt ?? timestamp,
-      updatedAt: timestamp,
-    };
     patchData((current) => {
-      const previous = current.salarySettlements.find((settlement) => settlement.id === next.id);
-      const salarySettlements = isNew
-        ? [next, ...current.salarySettlements]
-        : current.salarySettlements.map((settlement) => (settlement.id === next.id ? next : settlement));
-      const activeAdvanceBalance = salarySettlements
-        .filter((settlement) => settlement.staffId === next.staffId && settlement.status !== "ANULADA" && settlement.concept === "ADELANTO")
-        .reduce((total, settlement) => total + Number(settlement.advances ?? 0), 0);
-      const staffUpdated = current.staff.map((staffItem) =>
-        staffItem.id === next.staffId ? { ...staffItem, salaryAdvanceBalance: activeAdvanceBalance, updatedAt: nowIso() } : staffItem,
+      const result = saveSalarySettlementCommand(
+        current,
+        {
+          settlementId: existing?.id,
+          staffId: staff.id,
+          period,
+          concept,
+          amount,
+          notes: String(form.get("notes") ?? ""),
+          origin: existing?.origin ?? "LIQUIDACION",
+          balanceId: existing?.balanceId,
+        },
+        commandContext(user, user.role),
       );
-      const currentAccounts = current.currentAccounts.some((account) => account.id === staffAccountId(staff.id))
-        ? current.currentAccounts
-        : [createStaffCurrentAccount(staff), ...current.currentAccounts];
-      const withLocalAccounts = ensureLocalCurrentAccounts({ ...current, currentAccounts }, next.localId);
-      const accountMovements = upsertAccountMovement(
-        upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)),
-        localSalaryAccountMovement(next, user.id),
-      );
-      return audit(
-        { ...current, currentAccounts: withLocalAccounts, accountMovements, salarySettlements, staff: staffUpdated },
-        isNew ? "Crear liquidacion salario" : "Editar liquidacion salario",
-        "LiquidacionSalario",
-        next.id,
-        previous ?? "",
-        next,
-      );
+      if (!result.ok) {
+        setFormError(result.error);
+        return current;
+      }
+      setFormError("");
+      onClose();
+      return result.data;
     });
-    onClose();
   };
 
   return (

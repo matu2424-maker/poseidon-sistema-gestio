@@ -20,6 +20,7 @@ main.tsx
   -> App.tsx (estado AppData, usuario, rol efectivo, pantalla)
      -> layout y panel por rol
      -> feature activa
+        -> comandos de src/application para operaciones multi-entidad
         -> helpers puros de src/lib
         -> patchData(AppData)
         -> auditoria
@@ -31,6 +32,7 @@ main.tsx
 ```text
 src/
   App.tsx                  orquestacion global y composicion
+  application/             comandos atomicos, contexto y resultados tipados
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed, reset y normalizacion local
   infrastructure/storage/ snapshot, validacion y repositorio local
@@ -72,6 +74,16 @@ src/
 | `clients.ts`, `people.ts` | Reglas de clientes y personal |
 | `files.ts`, `export.ts` | Metadata local y exportaciones |
 | `machineHistory.ts` | Eventos de historial de maquinas |
+
+## Comandos de aplicacion
+
+| Archivo | Operacion atomica |
+| --- | --- |
+| `application/cash/openCash.ts` | Apertura, aportes iniciales, lecturas, cuentas y auditoria |
+| `application/cash/saveReading.ts` | Validacion/guardado de contador, resultado, cuenta y auditoria |
+| `application/cash/closeCash.ts` | Cierre, retiros, maquinas, diferencias, cuentas, historial y auditoria |
+| `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
+| `application/salaries/salarySettlementCommands.ts` | Alta, correccion y anulacion salarial con cuentas y auditoria |
 
 ## Componentes compartidos
 
@@ -133,7 +145,7 @@ Las cifras son orientativas; volver a medir antes de planificar un corte.
 
 ### Alta
 
-- Reglas/mutaciones todavia viven en handlers React.
+- Movimientos operativos, locales/maquinas, cierres periodicos y maestros todavia conservan mutaciones en handlers React.
 - Cobertura automatizada insuficiente para ciclos completos.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
 

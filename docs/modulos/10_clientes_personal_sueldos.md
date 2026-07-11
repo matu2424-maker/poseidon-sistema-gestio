@@ -1,5 +1,7 @@
 # Modulo 10 - Clientes, personal y salarios
 
+Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries/salarySettlementCommands.ts` y actualizan cuenta personal/local, adelantos y auditoria en conjunto.
+
 ## Clientes
 
 - Identificador principal: documento.

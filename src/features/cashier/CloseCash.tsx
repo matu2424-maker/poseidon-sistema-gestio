@@ -2,32 +2,16 @@
 import type {
   AppData,
   Balance,
-  BalanceStatus,
-  CapitalMovement,
-  CapitalMovementMedium,
   CapitalMovementPerson,
-  CapitalMovementTiming,
-  CapitalMovementType,
-  DifferenceStatus,
-  MachineLocalHistory,
-  MovementStatus,
   Role,
   Screen,
   User,
 } from "../../types";
-import {
-  capitalAccountMovement,
-  syncDifferenceAccountMovements,
-  syncMachineResultAccountMovement,
-  upsertAccountMovement,
-} from "../../lib/accountMovements";
 import { totalsForBalance } from "../../lib/cashTotals";
-import { ensureLocalCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
-import { nowIso } from "../../lib/dates";
-import { balanceVisibleId } from "../../lib/display";
-import { uid } from "../../lib/ids";
-import { machineHistoryEvent } from "../../lib/machineHistory";
-import { clearZeroMoneyInput, counter, formatMoneyInput, money, normalizeMoneyInput, parseMoneyInput } from "../../lib/money";
+import { localAccountBalances } from "../../lib/currentAccounts";
+import { clearZeroMoneyInput, formatMoneyInput, money, normalizeMoneyInput, parseMoneyInput } from "../../lib/money";
+import { commandContext } from "../../application/command";
+import { closeCashCommand } from "../../application/cash/closeCash";
 
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 export function CloseCash({
@@ -36,7 +20,6 @@ export function CloseCash({
   user,
   actorRole,
   patchData,
-  audit,
   setMessage,
   setScreen,
   afterCloseScreen = "panel",
@@ -46,7 +29,6 @@ export function CloseCash({
   user: User;
   actorRole: Role;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   setScreen: (screen: Screen) => void;
   afterCloseScreen?: Screen;
@@ -87,149 +69,30 @@ export function CloseCash({
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setCloseError("");
-    if (pendingInvalid.length > 0) {
-      setCloseError("No se puede cerrar: hay maquinas activas pendientes sin observacion.");
-      return;
-    }
     const form = new FormData(event.currentTarget);
-    const declaredCash = parseMoneyInput(form.get("declaredCash"));
-    const declaredBank = parseMoneyInput(form.get("declaredBank"));
-    const finalWithdrawalCash = parseMoneyInput(form.get("finalWithdrawalCash"));
-    const finalWithdrawalBank = parseMoneyInput(form.get("finalWithdrawalBank"));
-    const withdrawalCashPerson = String(form.get("finalWithdrawalCashPerson") ?? "MATHIAS") as CapitalMovementPerson;
-    const withdrawalBankPerson = String(form.get("finalWithdrawalBankPerson") ?? "MATHIAS") as CapitalMovementPerson;
-    if (finalWithdrawalCash < 0 || finalWithdrawalBank < 0) {
-      setCloseError("Los retiros finales no pueden ser negativos.");
-      return;
-    }
-    if (finalWithdrawalCash > totals.expectedCash) {
-      setCloseError("El retiro final en efectivo no puede superar el efectivo esperado antes del retiro.");
-      return;
-    }
-    if (finalWithdrawalBank > localBalances.bank) {
-      setCloseError("El retiro final por transferencia no puede superar el saldo banco del local.");
-      return;
-    }
-    const nextBase = declaredCash;
-    const expectedBankAfterWithdrawal = localBalances.bank - finalWithdrawalBank;
-    const nextBankBase = declaredBank;
-    const withdrawal = finalWithdrawalCash;
-    const difference = declaredCash - (totals.expectedCash - finalWithdrawalCash);
-    const bankDifference = declaredBank - expectedBankAfterWithdrawal;
-    const differenceNote = String(form.get("differenceNote") ?? "").trim();
-    if ((difference !== 0 || bankDifference !== 0) && !differenceNote.trim()) {
-      setCloseError("Toda diferencia requiere observacion.");
-      return;
-    }
-
     patchData((current) => {
-      const previous = current.balances.find((item) => item.id === balance.id);
-      const closingCapitalMovements: CapitalMovement[] = [
-        finalWithdrawalCash > 0
-          ? {
-              id: uid("capital-close-cash"),
-              balanceId: balance.id,
-              localId: balance.localId,
-              type: "RETIRO" as CapitalMovementType,
-              medium: "EFECTIVO" as CapitalMovementMedium,
-              timing: "CIERRE" as CapitalMovementTiming,
-              person: withdrawalCashPerson,
-              amount: finalWithdrawalCash,
-              note: `Retiro final caja ${balanceVisibleId(current, balance)}`,
-              status: "ACTIVO" as MovementStatus,
-              userId: user.id,
-              createdAt: nowIso(),
-            }
-          : null,
-        finalWithdrawalBank > 0
-          ? {
-              id: uid("capital-close-bank"),
-              balanceId: balance.id,
-              localId: balance.localId,
-              type: "RETIRO" as CapitalMovementType,
-              medium: "TRANSFERENCIA" as CapitalMovementMedium,
-              timing: "CIERRE" as CapitalMovementTiming,
-              person: withdrawalBankPerson,
-              amount: finalWithdrawalBank,
-              note: `Retiro final banco caja ${balanceVisibleId(current, balance)}`,
-              status: "ACTIVO" as MovementStatus,
-              userId: user.id,
-              createdAt: nowIso(),
-            }
-          : null,
-      ].filter((movement): movement is CapitalMovement => Boolean(movement));
-      const accountMovements = closingCapitalMovements.reduce(
-        (movements, movement) => upsertAccountMovement(movements, capitalAccountMovement(movement)),
-        current.accountMovements,
-      );
-      const balances = current.balances.map((item) =>
-        item.id === balance.id
-          ? {
-              ...item,
-              status: "CERRADO" as BalanceStatus,
-              closedBy: user.id,
-              closedByRole: actorRole,
-              closedAt: nowIso(),
-              declaredCash,
-              declaredBank,
-              nextBase,
-              nextBankBase,
-              withdrawal,
-              finalWithdrawalCash,
-              finalWithdrawalBank,
-              cashDifference: difference,
-              bankDifference,
-              differenceNote,
-              differenceStatus: difference === 0 && bankDifference === 0 ? undefined : ("PENDIENTE" as DifferenceStatus),
-            }
-          : item,
-      );
-      const machines = current.machines.map((machine) => {
-        const reading = current.readings.find((item) => item.balanceId === balance.id && item.machineId === machine.id && item.status === "CARGADA");
-        return reading ? { ...machine, lastIn: reading.inActual ?? machine.lastIn, lastOut: reading.outActual ?? machine.lastOut } : machine;
-      });
-      const machineLocalHistory = [
-        ...current.readings
-          .filter((item) => item.balanceId === balance.id && item.status === "CARGADA")
-          .map((reading) => {
-            const machine = current.machines.find((item) => item.id === reading.machineId);
-            return machine
-              ? machineHistoryEvent(
-                  machine,
-                  machine.localId,
-                  "CONTADORES",
-                  `Cierre ${balance.operatingDate}: IN ${counter(reading.inPrevious)} -> ${counter(reading.inActual)}, OUT ${counter(reading.outPrevious)} -> ${counter(reading.outActual)}`,
-                  user.id,
-                )
-              : null;
-          })
-          .filter((event): event is MachineLocalHistory => Boolean(event)),
-        ...current.machineLocalHistory,
-      ];
-      const next = balances.find((item) => item.id === balance.id);
-      let synced = syncMachineResultAccountMovement(
+      const result = closeCashCommand(
+        current,
         {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(current, balance.localId),
-          accountMovements,
-          capitalMovements: [...closingCapitalMovements, ...current.capitalMovements],
-          balances,
-          machines,
-          machineLocalHistory,
+          balanceId: balance.id,
+          declaredCash: parseMoneyInput(form.get("declaredCash")),
+          declaredBank: parseMoneyInput(form.get("declaredBank")),
+          finalWithdrawalCash: parseMoneyInput(form.get("finalWithdrawalCash")),
+          finalWithdrawalBank: parseMoneyInput(form.get("finalWithdrawalBank")),
+          withdrawalCashPerson: String(form.get("finalWithdrawalCashPerson") ?? "MATHIAS") as CapitalMovementPerson,
+          withdrawalBankPerson: String(form.get("finalWithdrawalBankPerson") ?? "MATHIAS") as CapitalMovementPerson,
+          differenceNote: String(form.get("differenceNote") ?? ""),
         },
-        balance.id,
-        user.id,
+        commandContext(user, actorRole),
       );
-      if (next) {
-        synced = {
-          ...synced,
-          accountMovements: syncDifferenceAccountMovements(synced.accountMovements, next, user.id),
-        };
+      if (!result.ok) {
+        setCloseError(result.error);
+        return current;
       }
-      return audit(synced, "Cerrar caja", "BalanceDiario", balance.id, previous, next, differenceNote);
+      setMessage("Caja cerrada correctamente.");
+      setScreen(afterCloseScreen);
+      return result.data;
     });
-    setMessage("Caja cerrada correctamente.");
-    setScreen(afterCloseScreen);
   };
 
   return (

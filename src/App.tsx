@@ -1,29 +1,13 @@
 import { useEffect, useState } from "react";
 import type {
   AppData,
-  Balance,
-  CapitalMovement,
-  CapitalMovementMedium,
   CapitalMovementPerson,
-  CapitalMovementTiming,
-  CapitalMovementType,
-  MovementStatus,
-  Reading,
   Role,
   Screen,
   User,
 } from "./types";
-import { ensureLocalCurrentAccounts } from "./lib/currentAccounts";
-import {
-  capitalAccountMovement,
-  syncMachineResultAccountMovement,
-  upsertAccountMovement,
-} from "./lib/accountMovements";
 import { appendAuditEvent } from "./lib/audit";
-import { calcReading } from "./lib/cashTotals";
-import { nowIso } from "./lib/dates";
 import { roleLabels } from "./lib/display";
-import { uid } from "./lib/ids";
 import {
   clearLocalAppData,
   importLocalAppData,
@@ -34,7 +18,6 @@ import {
 import {
   POSEIDON_LOCAL_ID,
   createSeedData,
-  nextBalanceVisibleId,
   normalizeData,
 } from "./data/appData";
 import { CloseCash } from "./features/cashier/CloseCash";
@@ -58,6 +41,9 @@ import { StorageRecovery } from "./features/system/StorageRecovery";
 import { LocalDataMaintenance } from "./features/system/LocalDataMaintenance";
 import { downloadFile } from "./lib/export";
 import { localDate } from "./lib/dates";
+import { commandContext } from "./application/command";
+import { openCashCommand } from "./application/cash/openCash";
+import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
 
 type InitialLoad = {
   data: AppData;
@@ -228,103 +214,40 @@ function App() {
     firstOpening: boolean,
   ) => {
     patchData((current) => {
-      const duplicate = current.balances.find(
-        (balance) =>
-          balance.localId === activeLocal.id &&
-          balance.operatingDate === operatingDate &&
-          balance.status === "EN_PROCESO",
+      if (!user || !effectiveRole) return current;
+      const result = openCashCommand(
+        current,
+        {
+          localId: activeLocal.id,
+          operatingDate,
+          initialFund,
+          initialBankFund,
+          initialNote,
+          openingCapitalPerson,
+          firstOpening,
+        },
+        commandContext(user, effectiveRole),
       );
-      if (duplicate) {
-        setMessage("Ya existe una caja abierta para ese local y fecha.");
+      if (!result.ok) {
+        setMessage(result.error);
         return current;
       }
-
-      const balance: Balance = {
-        id: uid("balance"),
-        visibleId: nextBalanceVisibleId(current, activeLocal.id),
-        localId: activeLocal.id,
-        operatingDate,
-        status: "EN_PROCESO",
-        initialFund,
-        initialBankFund,
-        initialNote,
-        openedBy: user?.id ?? "system",
-        openedByRole: effectiveRole ?? user?.role,
-        openedAt: nowIso(),
-      };
-      const openingCapitalMovements: CapitalMovement[] = firstOpening
-        ? [
-            initialFund > 0
-              ? {
-                  id: uid("capital-opening-cash"),
-                  balanceId: balance.id,
-                  localId: activeLocal.id,
-                  type: "APORTE" as CapitalMovementType,
-                  medium: "EFECTIVO" as CapitalMovementMedium,
-                  timing: "APERTURA" as CapitalMovementTiming,
-                  person: openingCapitalPerson,
-                  amount: initialFund,
-                  note: `Aporte inicial caja ${balance.visibleId}`,
-                  status: "ACTIVO" as MovementStatus,
-                  userId: user?.id ?? "system",
-                  createdAt: nowIso(),
-                }
-              : null,
-            initialBankFund > 0
-              ? {
-                  id: uid("capital-opening-bank"),
-                  balanceId: balance.id,
-                  localId: activeLocal.id,
-                  type: "APORTE" as CapitalMovementType,
-                  medium: "TRANSFERENCIA" as CapitalMovementMedium,
-                  timing: "APERTURA" as CapitalMovementTiming,
-                  person: openingCapitalPerson,
-                  amount: initialBankFund,
-                  note: `Aporte inicial banco caja ${balance.visibleId}`,
-                  status: "ACTIVO" as MovementStatus,
-                  userId: user?.id ?? "system",
-                  createdAt: nowIso(),
-                }
-              : null,
-          ].filter((movement): movement is CapitalMovement => Boolean(movement))
-        : [];
-      const accountMovements = openingCapitalMovements.reduce(
-        (movements, movement) => upsertAccountMovement(movements, capitalAccountMovement(movement)),
-        current.accountMovements,
-      );
-      const readings: Reading[] = current.machines
-        .filter((machine) => machine.localId === activeLocal.id && machine.status !== "INACTIVA" && machine.status !== "DESUSO")
-        .map((machine) => ({
-          id: uid("reading"),
-          balanceId: balance.id,
-          machineId: machine.id,
-          inPrevious: machine.lastIn,
-          inActual: machine.lastIn,
-          outPrevious: machine.lastOut,
-          outActual: machine.lastOut,
-          result: 0,
-          status: machine.status === "ACTIVA" ? "PENDIENTE" : "FUERA_DE_SERVICIO",
-          observation: machine.status === "ACTIVA" ? "" : "Maquina en mantenimiento",
-          updatedBy: user?.id ?? "system",
-          updatedAt: nowIso(),
-        }));
       setMessage("Caja abierta correctamente.");
       setScreen("panel");
-      return audit(
-        {
-          ...current,
-          currentAccounts: ensureLocalCurrentAccounts(current, activeLocal.id),
-          accountMovements,
-          capitalMovements: [...openingCapitalMovements, ...current.capitalMovements],
-          balances: [balance, ...current.balances],
-          readings: [...readings, ...current.readings],
-        },
-        "Abrir caja",
-        "BalanceDiario",
-        balance.id,
-        "",
-        { balance, openingCapitalMovements },
-      );
+      return result.data;
+    });
+  };
+
+  const updateReading = (readingId: string, patch: ReadingPatch) => {
+    if (!user || !effectiveRole || !openBalance) return;
+    patchData((current) => {
+      const result = saveReadingCommand(current, openBalance.id, readingId, patch, commandContext(user, effectiveRole));
+      if (!result.ok) {
+        setMessage(result.error);
+        return current;
+      }
+      setMessage("Contador guardado.");
+      return result.data;
     });
   };
 
@@ -381,28 +304,7 @@ function App() {
             user={user}
             balance={openBalance}
             onBack={() => goToScreen("panel")}
-            updateReading={(readingId, patch) => {
-              patchData((current) => {
-                const previous = current.readings.find((reading) => reading.id === readingId);
-                if (!previous) return current;
-                if (patch.inActual !== undefined && patch.inActual !== null && patch.inActual < previous.inPrevious) {
-                  setMessage("El IN actual debe ser igual o mayor al IN anterior.");
-                  return current;
-                }
-                if (patch.outActual !== undefined && patch.outActual !== null && patch.outActual < previous.outPrevious) {
-                  setMessage("El OUT actual debe ser igual o mayor al OUT anterior.");
-                  return current;
-                }
-                const readings = current.readings.map((reading) => {
-                  if (reading.id !== readingId) return reading;
-                  const next = { ...reading, ...patch, updatedBy: user.id, updatedAt: nowIso() };
-                  return { ...next, result: calcReading(next) };
-                });
-                const next = readings.find((reading) => reading.id === readingId);
-                const synced = syncMachineResultAccountMovement({ ...current, readings }, openBalance.id, user.id);
-                return audit(synced, "Guardar contador", "Recaudacion", readingId, previous, next);
-              });
-            }}
+            updateReading={updateReading}
           />
         )}
         {cashierScreen === "expenses" && openBalance && (
@@ -415,7 +317,7 @@ function App() {
           <Gifts data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "salary-payments" && openBalance && (
-          <CashierSalaryPayments data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
+          <CashierSalaryPayments data={data} balance={openBalance} user={user} patchData={patchData} setMessage={setMessage} onBack={() => goToScreen("panel")} />
         )}
         {cashierScreen === "capital-movements" && openBalance && (
           <CapitalMovements data={data} balance={openBalance} user={user} patchData={patchData} audit={audit} setMessage={setMessage} onBack={() => goToScreen("panel")} />
@@ -430,7 +332,6 @@ function App() {
             user={user}
             actorRole={effectiveRole ?? user.role}
             patchData={patchData}
-            audit={audit}
             setMessage={setMessage}
             setScreen={setScreen}
             afterCloseScreen="cashier-summary"
@@ -490,28 +391,7 @@ function App() {
           data={data}
           user={user}
           balance={openBalance}
-          updateReading={(readingId, patch) => {
-            patchData((current) => {
-              const previous = current.readings.find((reading) => reading.id === readingId);
-              if (!previous) return current;
-              if (patch.inActual !== undefined && patch.inActual !== null && patch.inActual < previous.inPrevious) {
-                setMessage("El IN actual debe ser igual o mayor al IN anterior.");
-                return current;
-              }
-              if (patch.outActual !== undefined && patch.outActual !== null && patch.outActual < previous.outPrevious) {
-                setMessage("El OUT actual debe ser igual o mayor al OUT anterior.");
-                return current;
-              }
-              const readings = current.readings.map((reading) => {
-                if (reading.id !== readingId) return reading;
-                const next = { ...reading, ...patch, updatedBy: user.id, updatedAt: nowIso() };
-                return { ...next, result: calcReading(next) };
-              });
-              const next = readings.find((reading) => reading.id === readingId);
-              const synced = syncMachineResultAccountMovement({ ...current, readings }, openBalance.id, user.id);
-                return audit(synced, "Guardar contador", "Recaudacion", readingId, previous, next);
-            });
-          }}
+          updateReading={updateReading}
         />
       )}
       {screen === "expenses" && openBalance && (
@@ -533,7 +413,6 @@ function App() {
           user={user}
           actorRole={effectiveRole ?? user.role}
           patchData={patchData}
-          audit={audit}
           setMessage={setMessage}
           setScreen={setScreen}
         />
@@ -576,7 +455,7 @@ function App() {
           setMessage={setMessage}
         />
       )}
-      {screen === "differences" && <Differences data={data} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />}
+      {screen === "differences" && <Differences data={data} user={user} patchData={patchData} setMessage={setMessage} />}
       {screen === "audit" && <Audit data={data} />}
       {screen === "periodic" && <Periodic data={data} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />}
       {!openBalance && ["counters", "expenses", "transfers", "gifts", "capital-movements", "close-cash"].includes(screen) && (

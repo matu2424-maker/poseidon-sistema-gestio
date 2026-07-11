@@ -1,5 +1,7 @@
 # Modulo 02 - Caja diaria y apertura
 
+La apertura atomica vive en `src/application/cash/openCash.ts` y coordina balance, aportes iniciales, lecturas, cuentas y auditoria.
+
 ## Objetivo
 
 Abrir una caja diaria por local y fecha, con saldos iniciales correctos.

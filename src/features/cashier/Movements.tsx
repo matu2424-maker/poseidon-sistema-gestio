@@ -11,7 +11,6 @@ import type {
   Expense,
   Gift,
   MovementStatus,
-  SalarySettlement,
   Transfer,
   User,
 } from "../../types";
@@ -19,14 +18,12 @@ import {
   capitalAccountMovement,
   localExpenseAccountMovement,
   localGiftAccountMovement,
-  localSalaryAccountMovement,
   localTransferAccountMovement,
-  salaryAccountMovement,
   transferAccountMovement,
   reverseSourceAccountMovements,
   upsertAccountMovement,
 } from "../../lib/accountMovements";
-import { createStaffCurrentAccount, createTransferCurrentAccount, ensureLocalCurrentAccounts, staffAccountId, TRANSFER_ACCOUNT_ID } from "../../lib/currentAccounts";
+import { createTransferCurrentAccount, ensureLocalCurrentAccounts, TRANSFER_ACCOUNT_ID } from "../../lib/currentAccounts";
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
 import { formatDateTime, nowIso } from "../../lib/dates";
 import { readUploadFile } from "../../lib/files";
@@ -38,14 +35,14 @@ import {
   cashierSalaryConceptOptions,
   isValidSalaryPeriod,
   normalizeSalaryConcept,
-  salaryConceptBreakdown,
   salaryConceptLabel,
   salarySettlementDisplayAmount,
   suggestedWorkedPeriodFromOperatingDate,
-  validateSalarySettlementLimit,
 } from "../../lib/salaryRules";
 import { ClientEditor } from "../admin/Clients";
 import { Modal } from "../../components/ui";
+import { commandContext } from "../../application/command";
+import { annulSalarySettlementCommand, saveSalarySettlementCommand } from "../../application/salaries/salarySettlementCommands";
 
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 const confirmAction = (message: string) => window.confirm(message);
@@ -553,7 +550,6 @@ export function CashierSalaryPayments({
   balance,
   user,
   patchData,
-  audit,
   setMessage,
   onBack,
 }: {
@@ -561,7 +557,6 @@ export function CashierSalaryPayments({
   balance: Balance;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
@@ -596,71 +591,27 @@ export function CashierSalaryPayments({
       setMessage("Ingresa un monto.");
       return;
     }
-    const salaryValidationError = validateSalarySettlementLimit(data, staff, period, concept, amount);
-    if (salaryValidationError) {
-      setMessage(salaryValidationError);
-      return;
-    }
-    const { baseSalary, advances, extraAmount, extraConcept, aguinaldo, vacationSalary, otherDeductions, totalToPay } = salaryConceptBreakdown(concept, amount);
-    const settlement: SalarySettlement = {
-      id: uid("salary-settlement"),
-      period,
-      balanceId: balance.id,
-      staffId: staff.id,
-      staffName: staffFullName(staff),
-      localId: staff.localId,
-      baseSalary,
-      advances,
-      extraAmount,
-      extraConcept,
-      aguinaldo,
-      vacationSalary,
-      otherDeductions,
-      totalToPay,
-      concept,
-      notes: `Pago desde caja ${balance.visibleId ?? balance.id}. Periodo trabajado ${period}.`,
-      status: "CONFIRMADA",
-      origin: "CAJA",
-      createdBy: user.id,
-      createdByName: user.name,
-      approvedBy: user.id,
-      approvedByName: user.name,
-      approvedAt: nowIso(),
-      createdAt: nowIso(),
-      updatedAt: nowIso(),
-    };
     patchData((current) => {
-      const staffUpdated = current.staff.map((staffItem) => {
-        if (staffItem.id !== staff.id) return staffItem;
-        const nextAdvance =
-          concept === "ADELANTO"
-            ? staffItem.salaryAdvanceBalance + amount
-            : staffItem.salaryAdvanceBalance;
-        return { ...staffItem, salaryAdvanceBalance: nextAdvance, updatedAt: nowIso() };
-      });
-      const currentAccounts = current.currentAccounts.some((account) => account.id === staffAccountId(staff.id))
-        ? current.currentAccounts
-        : [createStaffCurrentAccount(staff), ...current.currentAccounts];
-      const withLocalAccounts = ensureLocalCurrentAccounts({ ...current, currentAccounts }, balance.localId);
-      return audit(
+      const result = saveSalarySettlementCommand(
+        current,
         {
-          ...current,
-          currentAccounts: withLocalAccounts,
-          accountMovements: upsertAccountMovement(
-            upsertAccountMovement(current.accountMovements, salaryAccountMovement(settlement, user.id)),
-            localSalaryAccountMovement(settlement, user.id),
-          ),
-          staff: staffUpdated,
-          salarySettlements: [settlement, ...current.salarySettlements],
+          staffId: staff.id,
+          period,
+          concept,
+          amount,
+          notes: `Pago desde caja ${balance.visibleId ?? balance.id}. Periodo trabajado ${period}.`,
+          origin: "CAJA",
+          balanceId: balance.id,
         },
-        "Cargar pago salario cajero",
-        "LiquidacionSalario",
-        settlement.id,
-        "",
-        settlement,
+        commandContext(user, "CAJERO"),
       );
+      if (!result.ok) {
+        setMessage(result.error);
+        return current;
+      }
+      setMessage("Pago de salario registrado.");
+      return result.data;
     });
-    setMessage("Pago de salario registrado.");
     event.currentTarget.reset();
   };
   const deleteSalaryPayment = (id: string) => {
@@ -670,52 +621,17 @@ export function CashierSalaryPayments({
     }
     if (!confirmAction("Eliminar este pago de salario de la caja abierta?")) return;
     patchData((current) => {
-      const previous = current.salarySettlements.find((item) => item.id === id);
-      if (!previous) return current;
-      const updatedAt = nowIso();
-      const salarySettlements = current.salarySettlements.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: "ANULADA" as const,
-              annulledBy: user.id,
-              annulledByName: user.name,
-              annulledAt: updatedAt,
-              updatedAt,
-            }
-          : item,
-      );
-      const next = salarySettlements.find((item) => item.id === id);
-      const activeAdvanceBalance = salarySettlements
-        .filter((item) => item.staffId === previous.staffId && item.status !== "ANULADA" && normalizeSalaryConcept(item.concept) === "ADELANTO")
-        .reduce((total, item) => total + Number(item.advances ?? 0), 0);
-      const staffUpdated = current.staff.map((staffItem) =>
-        staffItem.id === previous.staffId ? { ...staffItem, salaryAdvanceBalance: activeAdvanceBalance, updatedAt } : staffItem,
-      );
-      const accountMovements = reverseSourceAccountMovements(
-        current.accountMovements,
-        ["SUELDO"],
-        id,
-        user.id,
-        "Anulacion de pago en caja abierta",
-        updatedAt,
-      );
-      return audit(
-        {
-          ...current,
-          staff: staffUpdated,
-          accountMovements,
-          salarySettlements,
-        },
-        "Anular pago salario antes de cierre",
-        "LiquidacionSalario",
-        id,
-        previous,
-        next,
-        "Caja abierta",
-      );
+      const result = annulSalarySettlementCommand(current, id, commandContext(user, "CAJERO"), {
+        requireOpenBalance: true,
+        reason: "Caja abierta",
+      });
+      if (!result.ok) {
+        setMessage(result.error);
+        return current;
+      }
+      setMessage("Pago de salario anulado.");
+      return result.data;
     });
-    setMessage("Pago de salario anulado.");
   };
 
   return (

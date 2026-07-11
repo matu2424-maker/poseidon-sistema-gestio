@@ -2,6 +2,8 @@
 
 Codigo actual: `src/features/cashier/CloseCash.tsx`.
 
+El cierre atomico vive en `src/application/cash/closeCash.ts` y coordina retiros, balance, maquinas, historial, cuentas, diferencias y auditoria.
+
 ## Objetivo
 
 Cerrar una caja diaria con control de efectivo, banco, maquinas y movimientos.
