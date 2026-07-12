@@ -30,7 +30,7 @@ docs/SKILLS_POSEIDON.md                     fuente canonica de skills
 docs/REGISTRO_DELEGACIONES_AGENTES.md      medicion acumulada
 docs/plantillas/REPORTE_DELEGACION_AGENTES.md contrato de cada registro
 docs/SISTEMA_VISUAL_POSEIDON.md             patrones y referencias de diseno
-docs/PILOTOS_DISENO_POSEIDON.md             evidencia de tres revisiones UI
+docs/REVISIONES_DE_DISENO_POSEIDON.md       evidencia de tres revisiones UI
 scripts/validate-agent-config.mjs           validador ejecutable
 scripts/agent-config-validation.mjs         reglas puras del validador
 scripts/validate-skills.mjs                 validador ejecutable de skills

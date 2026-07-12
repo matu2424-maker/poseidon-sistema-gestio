@@ -88,7 +88,7 @@ Agregar:
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
 | Skills reutilizables de Codex | `docs/SKILLS_POSEIDON.md` | Perfiles TOML, contextos funcionales |
 | Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
-| Evidencia de pilotos de diseno | `docs/PILOTOS_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
+| Revisiones de diseno | `docs/REVISIONES_DE_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
 
@@ -125,11 +125,11 @@ Todos viven en `docs/contextos/`.
 
 ## Estudios tecnicos
 
-- `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`: primer piloto de delegacion, validacion de perfiles y cierre de los riesgos tecnicos priorizados. No redefine la regla de resultado economico.
-- `docs/PILOTOS_DISENO_POSEIDON.md`: tres revisiones funcionales que justifican el custodio de diseno y delimitan patrones aprobados o pendientes.
+- `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`: validacion inicial de delegacion, perfiles y riesgos tecnicos priorizados. No redefine la regla de resultado economico.
+- `docs/REVISIONES_DE_DISENO_POSEIDON.md`: tres revisiones funcionales que justifican el custodio de diseno y delimitan patrones aprobados o pendientes.
 - `docs/REGISTRO_DELEGACIONES_AGENTES.md`: resultado y eficiencia de cada delegacion real.
 - `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`: campos obligatorios para nuevas entradas.
-- `docs/PILOTO_SKILLS_POSEIDON.md`: evidencia de uso, validacion y ahorro de contexto de las skills del repositorio.
+- `docs/VALIDACION_SKILLS_Y_PRECOMMIT.md`: evidencia de uso, validacion y eficiencia de las skills y el control previo al commit.
 
 ## Regla de mantenimiento
 

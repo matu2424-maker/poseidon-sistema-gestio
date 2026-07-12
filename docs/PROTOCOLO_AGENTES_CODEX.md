@@ -72,7 +72,7 @@ El custodio de diseno trabaja en dos modos:
 - `PROPUESTA`: antes de editar, recomienda patron, jerarquia, estados, archivos y validacion;
 - `VERIFICACION`: despues de editar, compara implementacion, reglas, referencias aprobadas y viewports.
 
-Su conocimiento estable vive en `docs/REGLAS_VISUALES.md` y `docs/SISTEMA_VISUAL_POSEIDON.md`, no duplicado dentro del TOML. Las tres revisiones funcionales que justifican este alcance estan consolidadas en `docs/PILOTOS_DISENO_POSEIDON.md`.
+Su conocimiento estable vive en `docs/REGLAS_VISUALES.md` y `docs/SISTEMA_VISUAL_POSEIDON.md`, no duplicado dentro del TOML. Las tres revisiones funcionales que justifican este alcance estan consolidadas en `docs/REVISIONES_DE_DISENO_POSEIDON.md`.
 
 No delegar para:
 
@@ -183,7 +183,7 @@ prueba manual del rol afectado
 git diff --check
 ```
 
-## Piloto inicial
+## Validacion inicial
 
 Modulo: Diferencias de caja.
 
@@ -202,14 +202,14 @@ El resultado del piloto debe registrar:
 - utilidad frente al consumo y al tiempo;
 - ajustes necesarios en los perfiles.
 
-Resultado documentado: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
+Resultado documentado: `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`.
 Delegaciones registradas: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 
-## Pilotos de diseno
+## Revisiones de diseno
 
 Los pilotos de Diferencias, Liquidacion de salarios y Panel del encargado produjeron tres delegaciones `UTIL` de la misma especialidad. La decision fue fortalecer `poseidon_ui_reviewer`, no crear otro perfil superpuesto. Diferencias es el patron implementado; Salarios y Encargado conservan hallazgos pendientes de futuros bloques autorizados.
 
-Resultado consolidado: `docs/PILOTOS_DISENO_POSEIDON.md`.
+Resultado consolidado: `docs/REVISIONES_DE_DISENO_POSEIDON.md`.
 
 ## Criterio de exito
 

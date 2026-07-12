@@ -14,7 +14,7 @@ export function buildCheckPlan(files) {
   const plan = [];
   if (normalizedFiles.some((file) => file.startsWith(".agents/skills/") || file === "docs/SKILLS_POSEIDON.md")) plan.push("check:skills");
   if (normalizedFiles.some((file) => file.startsWith(".codex/") || /docs\/(PROTOCOLO_AGENTES_CODEX|REGISTRO_DELEGACIONES_AGENTES)\.md/.test(file))) plan.push("check:agents");
-  if (normalizedFiles.some((file) => /docs\/(REGLAS_VISUALES|SISTEMA_VISUAL_POSEIDON|PILOTOS_DISENO_POSEIDON)\.md/.test(file) || file.startsWith("docs/referencias-visuales/"))) plan.push("check:design");
+  if (normalizedFiles.some((file) => /docs\/(REGLAS_VISUALES|SISTEMA_VISUAL_POSEIDON|REVISIONES_DE_DISENO_POSEIDON)\.md/.test(file) || file.startsWith("docs/referencias-visuales/"))) plan.push("check:design");
   return [...new Set(plan)];
 }
 

@@ -1,4 +1,4 @@
-# Poseidon - Piloto de subagentes en Diferencias de caja
+# Poseidon - Validacion de subagentes en Diferencias de caja
 
 Fecha: 2026-07-11
 
@@ -12,7 +12,7 @@ Evaluar si dos subagentes con responsabilidades distintas aportan evidencia util
 
 - Mapeador de alcance: aplico el contrato de `poseidon_scope_mapper`.
 - Revisor contable: aplico el contrato de `poseidon_accounting_reviewer`.
-- La tarea actual no recargo los nombres personalizados creados durante su ejecucion; ambos pilotos usaron el agente integrado `explorer` con las mismas instrucciones.
+- La tarea actual no recargo los nombres personalizados creados durante su ejecucion; ambas revisiones usaron el agente integrado `explorer` con las mismas instrucciones.
 - No se ejecutaron pruebas, servidores ni comandos mutables.
 - No se modifico ningun archivo funcional de `src/`.
 
@@ -64,16 +64,16 @@ Evaluar si dos subagentes con responsabilidades distintas aportan evidencia util
 
 - Utilidad: alta. El mapeador encontro conexiones temporales, permisos y persistencia; el revisor encontro colisiones de ID, validaciones numericas y huecos contables.
 - Duplicacion: moderada y aceptable en transiciones y trazabilidad de auditoria.
-- Consumo: no existe medicion confiable por subagente en este piloto. La espera del mapeador fue demasiado larga para una revision de alcance.
+- Consumo: no existe medicion confiable por subagente en esta validacion. La espera del mapeador fue demasiado larga para una revision de alcance.
 - Ajuste aplicado: limites de archivos, palabras, riesgos y pruebas en los tres perfiles personalizados.
-- Conclusion original del piloto: mantener dos subagentes. Esta recomendacion numerica quedo reemplazada el 2026-07-12 por la decision de no fijar limites propios; se conserva como evidencia historica.
+- Conclusion original de la validacion: mantener dos subagentes. Esta recomendacion numerica quedo reemplazada el 2026-07-12 por la decision de no fijar limites propios; se conserva como evidencia historica.
 
-## Cierre del piloto
+## Cierre de la validacion
 
-- Una tarea nueva reconocio los tres perfiles nominales y la configuracion limitada vigente durante aquel piloto. Esos valores fueron retirados el 2026-07-12.
+- Una tarea nueva reconocio los tres perfiles nominales y la configuracion limitada vigente durante aquella validacion. Esos valores fueron retirados el 2026-07-12.
 - Se ejecutaron pruebas de solo lectura con `poseidon_scope_mapper` y `poseidon_accounting_reviewer`; ambos finalizaron sin cambios en Git.
 - Limitacion de la API: no expone un selector nativo `agent_type`; se comprobo presencia, lectura y obediencia del contrato TOML nominal.
 - Los riesgos alto/medio de este informe quedaron cubiertos por reglas, codigo y pruebas: transiciones, caja abierta, historico inmutable, IDs/cadena, finitud, importes vacios, zona operativa, alcance local y detalle contable de auditoria.
 - El protocolo queda habilitado para futuros objetivos, manteniendo perfiles de solo lectura y delegacion no superpuesta; ya no impone una cantidad simultanea fija.
 - `pnpm run check:agents` valida automaticamente la infraestructura y sus referencias.
-- Las delegaciones del piloto y la validacion nominal quedaron consolidadas en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
+- Las delegaciones y la validacion nominal quedaron consolidadas en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.

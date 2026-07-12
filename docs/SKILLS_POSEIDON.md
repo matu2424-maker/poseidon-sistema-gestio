@@ -73,4 +73,4 @@ El validador oficial `quick_validate.py` de Skill Creator requiere PyYAML. El ru
 3. No agregar `README`, changelog ni copias de documentacion dentro de una skill.
 4. Actualizar metadata si cambia el alcance o el disparador.
 5. Ejecutar `pnpm run check:skills`, `pnpm run check` y el piloto correspondiente.
-6. Registrar resultados relevantes en `docs/PILOTO_SKILLS_POSEIDON.md`.
+6. Registrar resultados relevantes en `docs/VALIDACION_SKILLS_Y_PRECOMMIT.md`.

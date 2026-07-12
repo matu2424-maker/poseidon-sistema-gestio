@@ -21,8 +21,8 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - `pnpm run check:design` valida gobierno visual y referencias sin mezclarlo con reglas funcionales.
 - Cuatro skills versionadas en `.agents/skills/` cubren cambio modular, QA visual, regresion contable y diagnostico de localhost.
 - `pnpm run check:skills` valida sus contratos; `pnpm run check:commit` es la entrada unica previa al commit.
-- Piloto de Diferencias cerrado: perfiles validados en tarea nueva y riesgos priorizados implementados con pruebas. Evidencia en `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
-- Piloto de skills cerrado: cambio modular y control previo al commit validados sin modificar funcionalidad. Evidencia en `docs/PILOTO_SKILLS_POSEIDON.md`.
+- Validacion de subagentes cerrada: perfiles comprobados en tarea nueva y riesgos priorizados implementados con pruebas. Evidencia en `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`.
+- Validacion de skills cerrada: cambio modular y control previo al commit comprobados sin modificar funcionalidad. Evidencia en `docs/VALIDACION_SKILLS_Y_PRECOMMIT.md`.
 
 ## Usuarios de prueba
 
@@ -53,7 +53,7 @@ Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs
 4. Modulo afectado en `docs/modulos/`.
 5. Agregar reglas contables, visuales o mapa tecnico solo si la tarea los necesita.
 
-Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples; usar la capacidad disponible solo con trabajos independientes. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo. Los tres pilotos de diseno estan consolidados en `docs/PILOTOS_DISENO_POSEIDON.md`.
+Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples; usar la capacidad disponible solo con trabajos independientes. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo. Las tres revisiones de diseno estan consolidadas en `docs/REVISIONES_DE_DISENO_POSEIDON.md`.
 
 Para un procedimiento repetible, leer `docs/SKILLS_POSEIDON.md` y usar solo la skill aplicable. No confundir una skill con permiso para editar ni con un perfil permanente.
 

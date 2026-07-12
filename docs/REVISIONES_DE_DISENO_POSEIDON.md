@@ -1,8 +1,8 @@
-# Poseidon - Pilotos del custodio de diseno
+# Poseidon - Revisiones del custodio de diseno
 
 Fecha: 2026-07-11
 
-Consolidacion de las tres revisiones funcionales que justifican fortalecer `poseidon_ui_reviewer` como custodio permanente del sistema visual. Los pilotos fueron de solo lectura; no modificaron comportamiento por si mismos.
+Consolidacion de las tres revisiones funcionales que justifican fortalecer `poseidon_ui_reviewer` como custodio permanente del sistema visual. Las revisiones fueron de solo lectura; no modificaron comportamiento por si mismas.
 
 ## Criterio
 
@@ -13,7 +13,7 @@ Una revision cuenta como `UTIL` cuando:
 - aporta al menos un hallazgo adoptado en reglas, patrones o validacion;
 - no obliga al agente principal a repetir toda la investigacion.
 
-## Piloto 1 - Diferencias de caja
+## Revision 1 - Diferencias de caja
 
 Registro: `2026-07-11-DIF-UI-01`.
 
@@ -27,7 +27,7 @@ Hallazgos adoptados:
 
 Resultado: implementado y aprobado como primera referencia visual.
 
-## Piloto 2 - Liquidacion de salarios
+## Revision 2 - Liquidacion de salarios
 
 Registro: `2026-07-11-SAL-UI-01`.
 
@@ -42,7 +42,7 @@ Hallazgos adoptados como criterio de diseno:
 
 Resultado: patron y riesgos documentados. No se modifico Salarios; su rediseno requiere un bloque funcional autorizado.
 
-## Piloto 3 - Panel del encargado
+## Revision 3 - Panel del encargado
 
 Registro: `2026-07-11-ENC-UI-01`.
 
@@ -65,16 +65,16 @@ Resultado: patron y riesgos documentados. No se modifico el Panel del encargado.
 | Resultado | UTIL | UTIL | UTIL |
 | Hallazgo adoptado | Si | Si | Si |
 | Duplicacion | Baja | Baja | Baja |
-| Cambio funcional durante piloto | No | No | No |
+| Cambio funcional durante revision | No | No | No |
 
-Los tres pilotos cubren una misma especialidad estable: jerarquia, densidad, tablas, responsive, acciones y coherencia por rol. No justifican un cuarto perfil. Justifican ampliar el perfil existente y mantener su permiso de solo lectura.
+Las tres revisiones cubren una misma especialidad estable: jerarquia, densidad, tablas, responsive, acciones y coherencia por rol. No justifican un cuarto perfil. Justifican ampliar el perfil existente y mantener su permiso de solo lectura.
 
 ## Decisiones cerradas
 
 - `poseidon_ui_reviewer` pasa a ser custodio de diseno en modos `PROPUESTA` y `VERIFICACION`.
 - `docs/SISTEMA_VISUAL_POSEIDON.md` contiene los patrones; el TOML no duplica todo el conocimiento.
 - Diferencias es la unica referencia visual aprobada para replicar como patron en esta etapa.
-- Salarios y Encargado son pilotos de diagnostico, no disenos aprobados.
+- Salarios y Encargado son revisiones de diagnostico, no disenos aprobados.
 - El agente principal y los workers conservan la implementacion.
 
 ## Proxima medicion

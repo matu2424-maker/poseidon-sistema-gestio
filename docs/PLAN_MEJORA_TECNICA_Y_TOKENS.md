@@ -123,8 +123,8 @@ Agregar en este orden:
 - Cada delegacion usa plantilla y registro acumulado; no se crea un perfil nuevo sin tres usos utiles documentados de la misma especialidad.
 - El agente principal conserva responsabilidad exclusiva sobre integracion, validacion, documentacion y Git.
 - Fuente canonica: `docs/PROTOCOLO_AGENTES_CODEX.md`.
-- Resultado del piloto: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
-- Resultado de pilotos visuales: `docs/PILOTOS_DISENO_POSEIDON.md`.
+- Validacion de subagentes: `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`.
+- Revisiones visuales: `docs/REVISIONES_DE_DISENO_POSEIDON.md`.
 - Registro: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 
 ## Skills y control previo al commit
@@ -133,7 +133,7 @@ Agregar en este orden:
 - Las skills viven en `.agents/skills/` y referencian fuentes canonicas sin copiar reglas de producto.
 - `pnpm run check:skills` valida estructura, disparadores, metadata y referencias.
 - `pnpm run check:commit` selecciona controles segun las rutas preparadas; `.githooks/pre-commit` lo ejecuta automaticamente en este repositorio.
-- Piloto real aprobado: 17 rutas, `check` y `build`, 102 pruebas, sin cambios funcionales. Evidencia en `docs/PILOTO_SKILLS_POSEIDON.md`.
+- Validacion real aprobada: 17 rutas, `check` y `build`, 102 pruebas, sin cambios funcionales. Evidencia en `docs/VALIDACION_SKILLS_Y_PRECOMMIT.md`.
 - GitHub queda diferido hasta decidir trabajo remoto. Supabase y Vercel siguen fuera del flujo local.
 
 ## Validacion por bloque

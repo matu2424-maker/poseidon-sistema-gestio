@@ -1,4 +1,4 @@
-# Poseidon - Piloto de skills Codex
+# Poseidon - Validacion de skills y pre-commit
 
 Ultima actualizacion: 2026-07-12
 
@@ -21,7 +21,7 @@ Comprobar que una skill del repositorio puede guiar un bloque real, cargar conte
 3. Una primera revision detecto reglas duplicadas dentro de las skills; se sustituyeron por referencias canonicas.
 4. `check:skills` detecto dos defectos iniciales: una referencia ausente y un falso positivo de `TODO`; ambos se corrigieron.
 5. `check:commit` inspecciono el worktree y selecciono automaticamente la validacion completa por existir cambios en `scripts/`.
-6. El primer piloto completo revelo una advertencia de Node por `shell: true`; se corrigio sin cambiar la seleccion de controles.
+6. La primera validacion completa revelo una advertencia de Node por `shell: true`; se corrigio sin cambiar la seleccion de controles.
 7. La prueba real de localhost detecto que el argumento correcto es `--check`, no `status`; la skill se corrigio contra el script existente.
 8. El primer commit fue bloqueado porque el hook encontraba `pnpm` pero no `node`; se agrego el runtime bundled al `PATH` del hook y se repitio la validacion.
 
@@ -55,7 +55,7 @@ El pase final, despues de corregir la advertencia, detecto 22 rutas y completo e
 - Ahorro de tokens: no cuantificable todavia. La mejora comprobable es la reduccion de decisiones manuales y la seleccion automatica de validaciones.
 - Riesgo residual: una tarea Codex ya abierta puede no descubrir implicitamente skills nuevas; debe comprobarse la invocacion nominal en una tarea posterior.
 
-## Proximos pilotos
+## Proximas validaciones
 
 1. Usar `poseidon-visual-qa` en el siguiente cambio de interfaz autorizado.
 2. Usar `poseidon-accounting-regression` en el siguiente cambio contable autorizado.

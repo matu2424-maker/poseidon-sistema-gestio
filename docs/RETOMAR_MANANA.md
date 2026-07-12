@@ -44,7 +44,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
 - Protocolo de agentes y subagentes integrado con un piloto de solo lectura sobre Diferencias.
 - Validacion automatica, medicion obligatoria, regla de tres usos y responsabilidad exclusiva del agente principal documentadas.
-- Skills, validador, hook proporcional y piloto real documentados en `docs/SKILLS_POSEIDON.md` y `docs/PILOTO_SKILLS_POSEIDON.md`.
+- Skills, validador, hook proporcional y validacion real documentados en `docs/SKILLS_POSEIDON.md` y `docs/VALIDACION_SKILLS_Y_PRECOMMIT.md`.
 
 ## Proximas prioridades de codigo
 

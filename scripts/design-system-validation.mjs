@@ -2,7 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 export const VISUAL_SYSTEM_PATH = "docs/SISTEMA_VISUAL_POSEIDON.md";
-export const VISUAL_PILOTS_PATH = "docs/PILOTOS_DISENO_POSEIDON.md";
+export const VISUAL_REVIEWS_PATH = "docs/REVISIONES_DE_DISENO_POSEIDON.md";
 export const VISUAL_REFERENCES = [
   "docs/referencias-visuales/diferencias-desktop-1920x1080.png",
   "docs/referencias-visuales/diferencias-mobile-390x844.png",
@@ -52,9 +52,9 @@ export async function validateDesignSystem({ rootDir }) {
   const rules = await readRequired(rootDir, "docs/REGLAS_VISUALES.md", errors);
   pass(rules.includes(`\`${VISUAL_SYSTEM_PATH}\``), "reglas referencia sistema visual", `docs/REGLAS_VISUALES.md debe referenciar ${VISUAL_SYSTEM_PATH}.`);
 
-  const pilots = await readRequired(rootDir, VISUAL_PILOTS_PATH, errors);
+  const reviews = await readRequired(rootDir, VISUAL_REVIEWS_PATH, errors);
   ["2026-07-11-DIF-UI-01", "2026-07-11-SAL-UI-01", "2026-07-11-ENC-UI-01"].forEach((id) => {
-    pass(pilots.includes(id), `pilotos incluye ${id}`, `${VISUAL_PILOTS_PATH} no referencia ${id}.`);
+    pass(reviews.includes(id), `revisiones incluye ${id}`, `${VISUAL_REVIEWS_PATH} no referencia ${id}.`);
   });
 
   const profilePath = ".codex/agents/poseidon_ui_reviewer.toml";
@@ -66,11 +66,11 @@ export async function validateDesignSystem({ rootDir }) {
 
   const protocol = await readRequired(rootDir, "docs/PROTOCOLO_AGENTES_CODEX.md", errors);
   pass(normalized(protocol).includes("custodio de diseno"), "protocolo declara custodio", "docs/PROTOCOLO_AGENTES_CODEX.md debe declarar el custodio de diseno.");
-  pass(protocol.includes(VISUAL_PILOTS_PATH), "protocolo referencia pilotos visuales", `docs/PROTOCOLO_AGENTES_CODEX.md debe referenciar ${VISUAL_PILOTS_PATH}.`);
+  pass(protocol.includes(VISUAL_REVIEWS_PATH), "protocolo referencia revisiones visuales", `docs/PROTOCOLO_AGENTES_CODEX.md debe referenciar ${VISUAL_REVIEWS_PATH}.`);
 
   const index = await readRequired(rootDir, "docs/INDICE_DOCUMENTACION.md", errors);
   pass(index.includes(VISUAL_SYSTEM_PATH), "indice referencia sistema visual", `docs/INDICE_DOCUMENTACION.md debe referenciar ${VISUAL_SYSTEM_PATH}.`);
-  pass(index.includes(VISUAL_PILOTS_PATH), "indice referencia pilotos visuales", `docs/INDICE_DOCUMENTACION.md debe referenciar ${VISUAL_PILOTS_PATH}.`);
+  pass(index.includes(VISUAL_REVIEWS_PATH), "indice referencia revisiones visuales", `docs/INDICE_DOCUMENTACION.md debe referenciar ${VISUAL_REVIEWS_PATH}.`);
 
   const agents = await readRequired(rootDir, "AGENTS.md", errors);
   pass(agents.includes(VISUAL_SYSTEM_PATH), "AGENTS referencia sistema visual", `AGENTS.md debe referenciar ${VISUAL_SYSTEM_PATH}.`);
