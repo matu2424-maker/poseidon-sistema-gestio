@@ -40,6 +40,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
+- Metricas reconciliadas al 2026-07-12: aproximadamente 17.900 lineas fisicas TypeScript/React, 3.700 lineas fisicas CSS, 102 pruebas en 24 archivos y dos E2E.
+- Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
 - Protocolo de agentes y subagentes integrado con un piloto de solo lectura sobre Diferencias.
@@ -48,21 +50,11 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Proximas prioridades de codigo
 
-1. Completado: libro contable persistido y proteccion de referencias historicas.
-2. Completado: comandos de caja, contadores, diferencias y salarios con pruebas.
-3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
-4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
-5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: validacion de agentes/skills/diseno, ESLint, 102 pruebas, smoke HTTP y smoke manual por los tres roles.
-7. Completado: E2E critico de cajero, E2E de diferencias/auditoria del encargado y carga diferida por pantalla.
-8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
-9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.
-10. Completado: primer regreso funcional en Diferencias, con permisos por local, validaciones y anulacion contable corregida.
-11. Completado: riesgos priorizados del piloto de Diferencias corregidos e integrados.
-12. Completado: perfiles personalizados validados en una tarea nueva; API sin selector nativo de `agent_type`, pero contratos TOML obedecidos.
-13. Completado: `check:agents`, pruebas, plantilla, registro y regla para perfiles nuevos.
-14. Completado: cuatro skills, `check:skills`, `check:commit`, hook local y piloto medido.
-15. Siguiente paso: continuar con un modulo funcional elegido por el usuario, usando la skill correspondiente.
+1. Reforzar autorizacion de rol, funcion activa y local asignado dentro de los comandos existentes.
+2. Crear un contexto real de local activo y blindar una sola caja abierta por local.
+3. Extraer cierres salariales, cierres periodicos y control administrativo de gastos desde handlers React.
+4. Agregar pruebas de permisos negativos, cierre salarial, cierre periodico y ciclo completo de maquinas.
+5. Profundizar la validacion runtime del snapshot antes de trabajar en un adaptador online.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
@@ -70,9 +62,12 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
 - `localStorage` no es persistencia multiusuario ni durable.
 - La cuota de `localStorage` puede impedir nuevos guardados; el sistema conserva el snapshot anterior y pide exportar respaldo.
-- Varias operaciones de negocio siguen dentro de componentes React.
+- El local operativo sigue fijado a Poseidon/primer local aunque la estructura de datos sea multi-local.
+- Parte de la autorizacion de caja y salarios depende de navegacion/UI en vez de quedar blindada dentro del comando.
+- Varias operaciones sensibles siguen dentro de componentes React.
 - Los archivos mas grandes restantes son liquidacion salarial, seed demo, historiales y estilos administrativos ya separados.
-- La cobertura automatizada incluye apertura-contadores-cierre, pero no todos los formularios UI ni todos los comandos pendientes.
+- La cobertura automatizada incluye apertura-contadores-cierre, pero no todos los formularios UI, cierres salariales/periodicos ni el ciclo completo de maquinas.
+- La validacion inicial del snapshot comprueba colecciones principales y depende de la normalizacion posterior para completar compatibilidad.
 - Los perfiles personalizados se comprobaron por contrato nominal; la API disponible no permite demostrar seleccion interna nativa por `agent_type`.
 
 ## Validacion esperada al cerrar un bloque

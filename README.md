@@ -9,7 +9,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - React
 - Vite
 - TypeScript
-- CSS global simple
+- CSS modular por capas: base, layout, features y responsive
 - Persistencia local versionada con `localStorage`
 - Usuarios simulados en frontend
 
@@ -26,6 +26,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
+- Validacion automatizada actual: 102 casos en 24 archivos, mas dos flujos E2E.
 
 ## Ejecutar el proyecto
 
@@ -252,7 +253,7 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 ## Estructura del proyecto
 
 ```text
-src/App.tsx                    Estado global, lectura/escritura local, acciones y composicion de pantallas
+src/App.tsx                    Orquestacion global, usuario/funcion, navegacion y composicion de pantallas
 src/navigation/lazyScreens.ts Carga diferida de pantallas por feature
 src/data/appData.ts            Datos demo, reset operativo e ID visible de caja
 src/data/normalizeData.ts      Normalizacion y migracion de datos persistidos
@@ -270,13 +271,16 @@ src/features/salaries/         Liquidacion de salarios y detalle de empleado
 src/features/admin/            Clientes, personal, papelera, usuarios y categorias extraidos
 src/features/audit/            Bitacora general de auditoria
 src/features/reports/          Reportes iniciales, exportaciones y cierres periodicos
-src/styles/global.css          Estilos globales
+src/styles/global.css          Manifiesto ordenado de imports CSS
+src/styles/base.css            Tokens, reset y controles base
+src/styles/layout.css          Shell y estructuras generales
+src/styles/features/          Estilos propietarios de cada grupo funcional
+src/styles/responsive.css      Breakpoints al final de la cascada
 scripts/validate-agent-config.mjs Validacion ejecutable de infraestructura Codex
 scripts/validate-skills.mjs      Validacion ejecutable de skills Codex
 scripts/precommit-check.mjs      Control proporcional previo al commit
 scripts/validate-design-system.mjs Validacion de gobierno visual
 scripts/capture-visual-references.mjs Captura reproducible de referencias aprobadas
-src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
 docs/INDICE_DOCUMENTACION.md   Indice, rutas de lectura y fuentes canonicas
 docs/HANDOFF_TECNICO_POSEIDON.md Handoff tecnico compacto
@@ -297,9 +301,9 @@ iniciar-poseidon.bat           Camino oficial para levantar localhost
 detener-poseidon.bat           Libera el puerto local 5173
 ```
 
-## Refactor pendiente
+## Prioridad tecnica actual
 
-`src/App.tsx` ya es principalmente orquestador, el seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia ahora; el siguiente trabajo debe volver a un modulo funcional concreto. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
+`src/App.tsx` ya es principalmente orquestador, el seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia. La prioridad tecnica es reforzar autorizacion y alcance por local dentro de los comandos, definir un contexto real de local activo y extraer las operaciones sensibles que aun viven en handlers React. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
 
 ## Documentacion viva
 

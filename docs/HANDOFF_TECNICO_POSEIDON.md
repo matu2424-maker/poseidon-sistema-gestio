@@ -1,6 +1,6 @@
 # Poseidon - Handoff tecnico
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Este documento permite continuar el proyecto desde otra cuenta o agente sin leer el chat. Las reglas completas viven en las fuentes canonicas enlazadas; no deben reconstruirse desde este resumen.
 
@@ -40,8 +40,11 @@ No cargar todos los documentos grandes por defecto.
 
 ```text
 pnpm run check:agents
+pnpm run check:skills
+pnpm run check:design
 pnpm run check
 pnpm run build
+pnpm run check:commit
 iniciar-poseidon.bat
 http://127.0.0.1:5173/
 detener-poseidon.bat
@@ -51,13 +54,16 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 
 ## Arquitectura actual
 
-- `src/App.tsx`: estado global, usuario/funcion, navegacion, apertura y composicion.
+- `src/App.tsx`: orquestacion global, usuario/funcion, local activo, navegacion, apertura y composicion.
 - `src/types.ts`: contrato de datos actual.
-- `src/data/appData.ts`: seed, reset y normalizacion local.
+- `src/data/appData.ts`: seed, reset y fachada de datos iniciales.
+- `src/data/normalizeData.ts`: migracion y normalizacion del snapshot.
+- `src/application/`: comandos de negocio y contratos de persistencia.
+- `src/infrastructure/storage/`: snapshot versionado y adaptador `localStorage`.
 - `src/lib/`: reglas y helpers compartidos.
 - `src/components/`: UI transversal.
 - `src/features/`: pantallas por dominio/rol.
-- `src/styles/global.css`: estilos globales.
+- `src/styles/global.css`: manifiesto de capas CSS; estilos reales en `base`, `layout`, `features` y `responsive`.
 - `docs/MAPA_TECNICO.md`: propiedad, dependencias y deuda vigente.
 - `.codex/` y `scripts/validate-agent-config.mjs`: perfiles y validacion automatica de infraestructura Codex.
 - `docs/REGISTRO_DELEGACIONES_AGENTES.md`: medicion real de subagentes, sin inventar tokens ni tiempos.
@@ -92,27 +98,33 @@ Toda accion sensible debe registrar cuando corresponda:
 
 - TypeScript estricto.
 - Features principales extraidas de `App.tsx`.
+- Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
+- Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- Pruebas unitarias para periodos, referencias de caja, diferencias, movimientos/saldo corrido y limites salariales.
+- 102 pruebas aprobadas en 24 archivos, mas dos flujos E2E para cajero y diferencias/auditoria del encargado.
+- Tres perfiles Codex de solo lectura, cuatro skills versionadas y validadores de agentes, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 
 ## Riesgos conocidos
 
 - `localStorage` no es multiusuario ni persistencia durable.
-- La compaccion puede recortar historial por cuota.
-- Componentes grandes mezclan UI y operaciones de negocio.
-- Pruebas de flujos completos todavia pendientes.
-- Manejo de fecha local requiere endurecimiento.
+- La cuota de `localStorage` puede impedir un guardado; el sistema no recorta historial y exige recuperar o exportar.
+- El local operativo sigue fijado a Poseidon/primer local; el modelo multi-local existe, pero falta contexto de local activo.
+- Apertura, contadores, cierre y salarios no verifican aun de forma uniforme rol, funcion activa y local asignado dentro de cada comando.
+- La apertura solo bloquea otra caja abierta para el mismo local y fecha; la unicidad por local depende tambien del flujo visual.
+- Cierres salariales, cierres periodicos, control administrativo de gastos y algunos maestros mantienen mutaciones en handlers React.
+- Faltan E2E y pruebas completas para formularios administrativos, cierres salariales/periodicos y ciclo de maquinas.
+- La validacion inicial del snapshot es estructuralmente superficial antes de la normalizacion.
 - Permisos de frontend no sustituyen seguridad de backend.
 
 ## Prioridad recomendada
 
-1. Higiene tecnica pequeña y pruebas de fecha/persistencia.
-2. Dividir `LocationsMachines.tsx` conservando comportamiento.
-3. Dividir Movimientos y Salarios.
-4. Extraer comandos puros de dominio.
-5. Versionar/validar snapshot local.
-6. Preparar repositorios manteniendo adaptador local.
+1. Aplicar autorizacion uniforme dentro de comandos: usuario real, funcion activa y locales permitidos.
+2. Introducir un contexto real de local activo y blindar una sola caja abierta por local.
+3. Extraer cierres salariales, cierres periodicos y anulaciones administrativas sensibles a comandos.
+4. Ampliar pruebas negativas de permisos y ciclos completos de salarios y maquinas.
+5. Profundizar validacion runtime del snapshot y separar tipos canonicos de compatibilidad heredada.
+6. Mantener el adaptador local hasta que el usuario autorice diseño SQL, Auth/RLS y Storage de prueba.
 
 Plan vigente: `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
 

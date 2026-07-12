@@ -14,11 +14,12 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 
 ## Linea base
 
-- Aproximadamente 13.800 lineas TypeScript/React.
+- Aproximadamente 17.900 lineas fisicas TypeScript/React en 99 archivos de `src/`.
+- Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Ocho archivos de pruebas, 24 casos.
-- Archivos de mayor concentracion: Locales/Maquinas, datos/normalizacion, Movimientos y Salarios.
+- Veinticuatro archivos de pruebas, 102 casos, mas dos flujos E2E.
+- Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
 ## Lectura eficiente
@@ -61,6 +62,8 @@ Primera division mecanica completada el 2026-07-10: editores/historiales de loca
 - Los comandos reciben actor, funcion, reloj e IDs, devuelven resultado tipado y actualizan entidad/cuentas/historial/auditoria en conjunto.
 - Completado: movimientos operativos con validacion de funcion/caja, cuentas, contramovimientos y auditoria.
 - Completado: locales/maquinas con validacion de rol, referencias, taller, cuentas, historial y auditoria.
+- Pendiente: aplicar autorizacion de rol, funcion activa y local asignado de forma uniforme dentro de apertura, contadores, cierre y salarios.
+- Pendiente: extraer cierres salariales, cierres periodicos y revision/anulacion administrativa de gastos que aun se resuelven en handlers React.
 
 No agregar Redux o un store complejo antes de definir comandos.
 
@@ -88,7 +91,16 @@ Agregar en este orden:
 - Completado: mensajes con ciclo de vida claro para evitar avisos obsoletos.
 - Mover componentes transversales fuera de features propietarias.
 - Completado: CSS dividido por base, layout, features y responsive, preservando exactamente el orden original.
-- Completado: pantallas funcionales cargadas bajo demanda; bundle inicial reducido de 507,03 kB a 283,65 kB sin advertencia de chunk grande.
+- Completado: pantallas funcionales cargadas bajo demanda; la medicion del corte original redujo el bundle inicial de 507,03 kB a 283,65 kB sin advertencia de chunk grande.
+
+## Prioridad tecnica vigente
+
+1. Reforzar autorizacion dentro de comandos y separar usuario real, funcion activa y locales permitidos.
+2. Reemplazar el local operativo fijo por un contexto de local activo compatible con usuarios asignados a uno o varios locales.
+3. Blindar en dominio la regla de una sola caja abierta por local, no solo por local y fecha.
+4. Extraer a comandos las operaciones sensibles que todavia modifican varias colecciones desde React.
+5. Ampliar pruebas de cierre salarial, cierre periodico, ciclo de maquinas y permisos negativos.
+6. Profundizar la validacion runtime del snapshot antes de iniciar cualquier adaptador online.
 
 ## Preparacion online sin implementacion
 

@@ -142,7 +142,6 @@ src/
 
 - `components/ui.tsx`: `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser`.
 - `components/MonthlyPeriodSelector.tsx`: selector mensual comun.
-- `components/WelcomeScreen.tsx`: heredado y sin uso; candidato a eliminar.
 - `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
 - `features/clients/clientTable.ts`: orden y estados compartidos de clientes.
 
@@ -188,37 +187,41 @@ src/
 
 ## Concentracion de codigo
 
-Medicion de referencia 2026-07-10:
+Medicion de referencia 2026-07-12:
 
 | Archivo | Lineas aproximadas | Riesgo |
 | --- | ---: | --- |
 | `features/admin/LocationsMachines.tsx` | 795 | Bajo/medio: tablas y modales; mutaciones delegadas a comandos |
 | `features/admin/locationsMachines/HistoryModals.tsx` | 759 | Medio: dos historiales complejos, sin mutaciones |
-| `data/appData.ts` | 834 | Medio: seed demo; normalizacion ya separada |
-| `data/normalizeData.ts` | 508 | Alto por impacto: migracion central, aunque aislada |
+| `data/appData.ts` | 839 | Medio: seed demo; normalizacion ya separada |
+| `data/normalizeData.ts` | 511 | Alto por impacto: migracion central, aunque aislada |
 | `features/cashier/Movements.tsx` | 580 | Bajo/medio: formularios y tablas; negocio operativo delegado a comandos |
 | `features/salaries/SalarySettlements.tsx` | 965 | Medio/alto: listado, detalle, cuentas y cierres; editor separado |
-| `features/admin/Staff.tsx` | 696 | Medio: personal, editor y papelera |
-| `App.tsx` | 531 | Medio: orquestacion y algunos comandos |
-| `styles/features/admin.css` | 921 | Medio: tablas, modales y administracion |
+| `features/admin/Staff.tsx` | 716 | Medio: personal, editor y papelera |
+| `App.tsx` | 488 | Medio: orquestacion, local activo y algunos comandos |
+| `styles/features/admin.css` | 1.286 | Medio: tablas, modales y administracion |
 | `styles/features/cash.css` | 821 | Medio: caja, cierre y resumen |
 | `styles/features/dashboards.css` | 579 | Bajo/medio: paneles por rol |
 | `styles/global.css` | 7 | Bajo: manifiesto de imports |
 
-Las cifras son orientativas; volver a medir antes de planificar un corte.
+Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de planificar un corte.
 
 ## Deuda tecnica priorizada
 
 ### Alta
 
-- Cierres periodicos y algunos maestros todavia conservan mutaciones en handlers React.
-- Cobertura automatizada insuficiente para ciclos completos.
+- Apertura, contadores, cierre y salarios no aplican todavia una politica uniforme de rol, funcion activa y local asignado dentro de cada comando; parte del control depende de navegacion/UI.
+- El local operativo de `App.tsx` sigue resolviendose como Poseidon o el primer local; la estructura de datos es multi-local, pero el contexto operativo multi-local aun no esta completo.
+- La regla de una sola caja abierta por local esta protegida por el flujo visual, pero el comando de apertura solo rechaza otra caja abierta del mismo local y fecha.
+- Cierres salariales, cierres periodicos, revision/anulacion administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
+- Cobertura automatizada insuficiente para cierre salarial, ciclo completo de maquinas, formularios administrativos y flujos completos del encargado.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
 
 Completado en integridad local: los movimientos persistidos se conservan, las anulaciones usan contramovimientos y las bajas definitivas validan referencias.
 
 ### Media
 
+- La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales; la normalizacion posterior es amplia, pero falta validacion profunda de campos y relaciones.
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.
 - IDs locales no son adecuados para concurrencia online.
@@ -227,7 +230,7 @@ Completado en navegacion: registro tipado de pantallas, permisos por funcion, re
 
 ### Baja por ahora
 
-- Carga diferida completada: bundle inicial reducido de 507,03 kB a 283,65 kB; Locales/Maquinas es el chunk funcional mayor con 50,65 kB.
+- Carga diferida completada: en la medicion del corte original el bundle inicial bajo de 507,03 kB a 283,65 kB y Locales/Maquinas quedo como chunk funcional mayor con 50,65 kB. Volver a medir solo cuando cambie el empaquetado.
 - `types.ts` grande: dividir solo junto con dominios estables.
 - No incorporar store complejo antes de extraer comandos.
 

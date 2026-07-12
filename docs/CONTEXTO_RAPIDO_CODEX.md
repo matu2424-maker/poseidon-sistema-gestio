@@ -87,4 +87,4 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Proxima prioridad tecnica
 
-Mantener todo local. Comandos criticos, integracion contable y puerto de persistencia ya estan probados. El proximo trabajo debe volver a un modulo funcional concreto; no hace falta otra refactorizacion transversal amplia.
+Mantener todo local y evitar otra refactorizacion transversal amplia. La prioridad es reforzar autorizacion y alcance por local dentro de comandos, reemplazar el local operativo fijo por un contexto de local activo, blindar una sola caja abierta por local y extraer las operaciones sensibles que aun viven en handlers React. El detalle vigente esta en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MAPA_TECNICO.md`.

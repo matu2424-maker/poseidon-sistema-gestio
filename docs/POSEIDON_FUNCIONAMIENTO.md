@@ -103,7 +103,6 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Los siguientes refactors deben decidirse por bloque chico y con beneficio claro; no queda pendiente conocido de datos demo/normalizacion.
 - `docs/MAPA_TECNICO.md` documenta el mapa de pantallas, clases CSS principales, calculos y deuda tecnica actual.
 - `src/styles/global.css` solo importa capas; nuevos estilos deben ubicarse segun `docs/REGLAS_VISUALES.md`.
-- `src/components/WelcomeScreen.tsx` existe como componente heredado/no conectado al flujo principal actual.
 
 ## Locales
 

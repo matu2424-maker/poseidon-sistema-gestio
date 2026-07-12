@@ -53,8 +53,11 @@ Build:
 
 ```bash
 pnpm run check:agents
+pnpm run check:skills
+pnpm run check:design
 pnpm run check
 pnpm run build
+pnpm run check:commit
 ```
 
 ## Estado resumido
@@ -70,7 +73,9 @@ pnpm run build
 - `src/data/normalizeData.ts`: normalizacion y migracion.
 - Pantallas principales viven en `src/features/`.
 - Reglas compartidas viven en `src/lib/`.
+- Pruebas actuales: 102 casos en 24 archivos, mas dos flujos E2E.
 - Tres perfiles Codex read-only viven en `.codex/agents/`; `check:agents` valida su contrato.
+- Cuatro skills versionadas viven en `.agents/skills/`; `check:skills` valida sus contratos.
 
 ## Tarea recomendada al retomar
 

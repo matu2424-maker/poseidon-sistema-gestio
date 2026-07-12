@@ -1,6 +1,6 @@
 # Poseidon - Modularizacion y referencias cruzadas
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-12
 
 Fuente canonica del metodo para dividir o mover codigo sin romper asociaciones funcionales, contables, visuales o de auditoria. Git conserva los cortes ya completados; este documento describe el estado y los proximos cortes.
 
@@ -71,12 +71,10 @@ Evitar archivos `index.ts` generales que oculten ciclos. Preferir imports explic
 - `sorting.ts`: ordenamiento.
 - `display.ts`: nombres e IDs visibles.
 
-Duplicaciones pendientes:
+Cruces o duplicaciones pendientes:
 
-- `Differences.tsx` conserva presentacion/nombres locales ya disponibles en helpers compartidos.
-- `Counters.tsx` conserva una tarjeta informativa local.
-- Confirmacion con `window.confirm` se repite en varias features.
-- `ClosedBalanceSummary` y `ClientEditor` son usados entre features y deberian evaluarse como UI compartida.
+- `ClosedBalanceSummary` y `ClientEditor` son usados entre features y deberian evaluarse como UI compartida cuando se modifiquen esos flujos.
+- Liquidacion salarial conserva listado, detalle, cuentas y cierres en una misma pantalla para compartir el periodo activo; dividirla exige primero extraer el cierre salarial a un comando.
 
 ## Proximos cortes recomendados
 
@@ -86,7 +84,7 @@ Duplicaciones pendientes:
 - Completado: confirmacion centralizada sin cambiar flujo.
 - Completado: eliminado `WelcomeScreen.tsx` y estados de pantalla heredados despues de confirmar ausencia de usos.
 - Fecha local y timestamps historicos ya tienen pruebas.
-- `pnpm check` ya ejecuta typecheck y pruebas; queda agregar lint gradual.
+- `pnpm run check` ya ejecuta validadores de agentes/skills/diseno, typecheck, ESLint sin advertencias y pruebas.
 
 Riesgo: bajo/medio.
 
@@ -145,8 +143,12 @@ Completados con contexto inyectable y pruebas:
 
 Pendientes de extraer uno por vez:
 
-- completado: movimientos operativos;
-- completado: locales/maquinas.
+- cierre y anulacion de periodos salariales;
+- cierre y anulacion de periodos operativos;
+- revision y anulacion administrativa de gastos;
+- maestros que todavia coordinan entidad, referencias y auditoria directamente desde React.
+
+Antes de seguir dividiendo componentes grandes, reforzar autorizacion y alcance por local dentro de los comandos existentes. El tamano de `App.tsx` ya no justifica por si solo otro corte transversal.
 
 Cada comando debe ser puro o recibir explícitamente reloj/ID, devolver error tipado y aplicar auditoria/movimientos de manera consistente.
 
