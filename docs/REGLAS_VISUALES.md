@@ -2,7 +2,7 @@
 
 Ultima actualizacion: 2026-07-11
 
-Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo y el contexto del modulo afectado.
+Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo, `docs/SISTEMA_VISUAL_POSEIDON.md` y el contexto del modulo afectado.
 
 ## Propiedad de estilos
 

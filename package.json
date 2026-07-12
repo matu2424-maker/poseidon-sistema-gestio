@@ -11,9 +11,11 @@
     "test:e2e": "playwright test",
     "lint": "eslint src e2e scripts playwright.config.ts --max-warnings 0",
     "check:agents": "node scripts/validate-agent-config.mjs",
+    "check:design": "node scripts/validate-design-system.mjs",
+    "capture:visual": "node scripts/capture-visual-references.mjs",
     "smoke:localhost": "node scripts/smoke-localhost.mjs",
     "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
-    "check": "pnpm run check:agents && pnpm run typecheck && pnpm run lint && pnpm test"
+    "check": "pnpm run check:agents && pnpm run check:design && pnpm run typecheck && pnpm run lint && pnpm test"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

@@ -69,11 +69,18 @@ Antes de cerrar cambios:
 
 ```bash
 pnpm run check:agents
+pnpm run check:design
 pnpm run check
 pnpm run build
 ```
 
-`pnpm run check:agents` valida limites, perfiles read-only, protocolo, plantilla y registro. Tambien forma parte de `pnpm run check`.
+`pnpm run check:agents` valida limites, perfiles read-only, protocolo, plantilla y registro. `pnpm run check:design` valida el sistema visual, los tres pilotos y las referencias aprobadas. Ambos forman parte de `pnpm run check`.
+
+Para actualizar deliberadamente las capturas aprobadas de Diferencias con el servidor activo:
+
+```bash
+pnpm run capture:visual
+```
 
 Con el servidor activo, verificar que responda:
 
@@ -263,6 +270,8 @@ src/features/audit/            Bitacora general de auditoria
 src/features/reports/          Reportes iniciales, exportaciones y cierres periodicos
 src/styles/global.css          Estilos globales
 scripts/validate-agent-config.mjs Validacion ejecutable de infraestructura Codex
+scripts/validate-design-system.mjs Validacion de gobierno visual
+scripts/capture-visual-references.mjs Captura reproducible de referencias aprobadas
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
 docs/INDICE_DOCUMENTACION.md   Indice, rutas de lectura y fuentes canonicas
@@ -270,6 +279,7 @@ docs/HANDOFF_TECNICO_POSEIDON.md Handoff tecnico compacto
 docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md Prompt corto para iniciar nueva cuenta
 docs/RETOMAR_MANANA.md         Resumen para retomar trabajo
 docs/MAPA_TECNICO.md           Propiedad, dependencias y deuda tecnica
+docs/SISTEMA_VISUAL_POSEIDON.md Patrones, jerarquia y referencias de diseno
 docs/CONTEXTO_RAPIDO_CODEX.md  Contexto corto para cargar rapido el proyecto
 docs/REGLAS_GENERALES.md       Reglas transversales de trabajo y auditoria
 docs/PROTOCOLO_AGENTES_CODEX.md Reglas de delegacion y perfiles Codex

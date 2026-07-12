@@ -24,7 +24,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Cada modificacion de codigo debe dejar documentado el cambio donde corresponda antes de cerrar el trabajo: reglas generales, documento funcional vivo, mapa tecnico y/o modulo afectado.
 - Al retomar trabajo en otra sesion, leer primero `docs/CONTEXTO_RAPIDO_CODEX.md`, `docs/REGLAS_GENERALES.md`, `docs/RETOMAR_MANANA.md`, `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/MAPA_TECNICO.md`.
 - Para cambios contables, leer tambien `docs/REGLAS_CONTABLES.md`.
-- Para cambios visuales, leer tambien `docs/REGLAS_VISUALES.md`.
+- Para cambios visuales, leer tambien `docs/REGLAS_VISUALES.md` y `docs/SISTEMA_VISUAL_POSEIDON.md`.
 - Para modularizar o mover codigo entre archivos, leer `docs/MODULARIZACION_REFERENCIAS.md` y el contexto corto del modulo en `docs/contextos/`.
 - Al dividir `AGENTS.md` por carpetas en el futuro, cada AGENTS anidado debe referenciar documentos compartidos en vez de duplicar reglas completas, porque muchos modulos estan asociados.
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
@@ -60,6 +60,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - El sistema esta en etapa de prueba local con persistencia en `localStorage`.
 - Supabase/Auth real y storage real de archivos quedan pendientes para una etapa posterior.
 - Las validaciones minimas antes de cerrar un cambio son `pnpm run check`, `pnpm run build` y `pnpm run smoke:localhost` con el servidor activo.
+- Cuando cambien perfiles, reglas o referencias de diseno, ejecutar ademas `pnpm run check:design`; `pnpm run check` ya lo incluye.
 - Para cambios visuales o de permisos, completar ademas el smoke por rol de `docs/VALIDACION_LOCAL.md`.
 - Para levantar localhost se usa solo `iniciar-poseidon.bat`; si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
 

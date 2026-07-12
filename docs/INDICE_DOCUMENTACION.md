@@ -33,6 +33,7 @@ Agregar:
 Agregar:
 
 - `docs/REGLAS_VISUALES.md`.
+- `docs/SISTEMA_VISUAL_POSEIDON.md` para patrones, jerarquia y referencias aprobadas.
 
 ### Mover o dividir codigo
 
@@ -68,6 +69,7 @@ Agregar:
 | Forma de trabajo, documentacion y auditoria transversal | `docs/REGLAS_GENERALES.md` | Contextos, handoff, retomar |
 | Calculos e impactos economicos/financieros | `docs/REGLAS_CONTABLES.md` | Mapa tecnico, plan, handoff |
 | Criterios visuales y tablas | `docs/REGLAS_VISUALES.md` | Modulos no visuales, handoff |
+| Patrones y referencias de diseno | `docs/SISTEMA_VISUAL_POSEIDON.md` | TOML de agentes, contextos funcionales |
 | Comportamiento funcional completo | `docs/POSEIDON_FUNCIONAMIENTO.md` | Mapa tecnico, contexto rapido |
 | Reglas de una pantalla o modulo | `docs/modulos/` | Retomar, plan tecnico |
 | Contexto corto de trabajo | `docs/contextos/` | Documentos funcionales largos |
@@ -79,6 +81,7 @@ Agregar:
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
 | Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
+| Evidencia de pilotos de diseno | `docs/PILOTOS_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
 
@@ -116,6 +119,7 @@ Todos viven en `docs/contextos/`.
 ## Estudios tecnicos
 
 - `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`: primer piloto de delegacion, validacion de perfiles y cierre de los riesgos tecnicos priorizados. No redefine la regla de resultado economico.
+- `docs/PILOTOS_DISENO_POSEIDON.md`: tres revisiones funcionales que justifican el custodio de diseno y delimitan patrones aprobados o pendientes.
 - `docs/REGISTRO_DELEGACIONES_AGENTES.md`: resultado y eficiencia de cada delegacion real.
 - `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`: campos obligatorios para nuevas entradas.
 

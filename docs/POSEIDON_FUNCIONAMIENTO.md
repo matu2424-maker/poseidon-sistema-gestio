@@ -532,7 +532,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Estado actual al 2026-07-11
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida infraestructura Codex, TypeScript, ESLint y 95 pruebas en 21 archivos; el build y smoke se vuelven a ejecutar al cerrar cada bloque.
+- `pnpm run check` valida infraestructura Codex, sistema visual, TypeScript, ESLint y 96 pruebas en 22 archivos; el build y smoke se vuelven a ejecutar al cerrar cada bloque.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

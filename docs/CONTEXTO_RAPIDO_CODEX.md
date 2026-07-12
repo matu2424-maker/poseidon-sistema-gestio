@@ -14,9 +14,11 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
 - `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
-- Pruebas actuales: 95 casos en 21 archivos, mas dos E2E: ciclo critico de cajero y gestion/auditoria de diferencias del encargado.
+- Pruebas actuales: 96 casos en 22 archivos, mas dos E2E: ciclo critico de cajero y gestion/auditoria de diferencias del encargado.
 - Infraestructura Codex: `.codex/config.toml` limita concurrencia/profundidad y `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
+- `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.
+- `pnpm run check:design` valida gobierno visual y referencias sin mezclarlo con reglas funcionales.
 - Piloto de Diferencias cerrado: perfiles validados en tarea nueva y riesgos priorizados implementados con pruebas. Evidencia en `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
 
 ## Usuarios de prueba
@@ -48,7 +50,7 @@ Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs
 4. Modulo afectado en `docs/modulos/`.
 5. Agregar reglas contables, visuales o mapa tecnico solo si la tarea los necesita.
 
-Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples ni superar dos ejecuciones paralelas. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo.
+Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples ni superar dos ejecuciones paralelas. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo. Los tres pilotos de diseno estan consolidados en `docs/PILOTOS_DISENO_POSEIDON.md`.
 
 No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` completos.
 
@@ -67,6 +69,7 @@ No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` comp
 
 ```text
 pnpm run check:agents
+pnpm run check:design
 pnpm run check
 pnpm run build
 iniciar-poseidon.bat

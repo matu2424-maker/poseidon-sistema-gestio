@@ -18,9 +18,11 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
 - Codex cuenta con tres perfiles personalizados de solo lectura y limites conservadores de concurrencia/profundidad en `.codex/`.
 - `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
+- El perfil UI actua como custodio de diseno; tres pilotos, sistema visual, referencias y `check:design` quedan versionados.
 
 ## Ultimo bloque funcional completado
 
+- Infraestructura visual completada sin cambiar pantallas adicionales: custodio en modos propuesta/verificacion, tres pilotos y referencias reproducibles.
 - `Diferencias` adopto el primer piloto visual renovado: resumen compacto, filtros rotulados, tabla clara, acciones jerarquizadas y modal plano, sin cambios contables.
 - Sus estilos quedaron bajo `features/admin.css` y la pantalla reutiliza el `Modal` compartido.
 - Diferencias reconfirma toda gestion sensible y limpia errores al cerrar o cambiar de recaudacion.
@@ -29,7 +31,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Anular una diferencia conserva el asiento original y agrega contramovimientos activos, dejando impacto neto cero.
 - Matriz de transiciones, bloqueo por caja abierta, historico inmutable, IDs/cadena append-only, finitud, periodo operativo y auditoria local quedaron implementados.
 - Auditoria muestra detalle de saldos/movimientos y limita al encargado a sus locales.
-- 95 pruebas automatizadas en 21 archivos.
+- 96 pruebas automatizadas en 22 archivos.
 
 ## Bloque documental actual
 
@@ -48,7 +50,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: validacion de agentes, ESLint, 95 pruebas, smoke HTTP y smoke manual por los tres roles.
+6. Completado: validacion de agentes/diseno, ESLint, 96 pruebas, smoke HTTP y smoke manual por los tres roles.
 7. Completado: E2E critico de cajero, E2E de diferencias/auditoria del encargado y carga diferida por pantalla.
 8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
 9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.

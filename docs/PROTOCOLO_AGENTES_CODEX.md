@@ -30,7 +30,7 @@ Los perfiles no fijan modelo inicialmente. Heredan el modelo de la tarea para ev
 | --- | --- | --- |
 | `poseidon_scope_mapper` | Delimitar archivos, dependencias, reglas, pruebas y documentos | Solo lectura |
 | `poseidon_accounting_reviewer` | Revisar impactos economicos, financieros, cuentas y auditoria | Solo lectura |
-| `poseidon_ui_reviewer` | Revisar interfaz, tablas, permisos visibles y reglas visuales | Solo lectura |
+| `poseidon_ui_reviewer` | Custodiar el sistema visual y revisar propuestas o implementaciones de interfaz | Solo lectura |
 | `worker` integrado de Codex | Implementar un alcance ya aprobado | Escritura controlada por tarea |
 
 No crear un perfil por modulo. Los contextos y `AGENTS.md` de cada feature ya aportan especializacion sin duplicar instrucciones.
@@ -59,6 +59,13 @@ Usar `poseidon_ui_reviewer` cuando cambien:
 - tablas, columnas, ordenamiento o filtros;
 - navegacion, permisos visibles o cambio de funcion;
 - layout responsive o composicion para 1080p.
+
+El custodio de diseno trabaja en dos modos:
+
+- `PROPUESTA`: antes de editar, recomienda patron, jerarquia, estados, archivos y validacion;
+- `VERIFICACION`: despues de editar, compara implementacion, reglas, referencias aprobadas y viewports.
+
+Su conocimiento estable vive en `docs/REGLAS_VISUALES.md` y `docs/SISTEMA_VISUAL_POSEIDON.md`, no duplicado dentro del TOML. Las tres revisiones funcionales que justifican este alcance estan consolidadas en `docs/PILOTOS_DISENO_POSEIDON.md`.
 
 No delegar para:
 
@@ -144,6 +151,7 @@ Para cambios de configuracion o perfiles:
 
 ```text
 pnpm run check:agents
+pnpm run check:design
 verificar carga de los perfiles en una nueva tarea Codex
 ejecutar un piloto de solo lectura
 comprobar que el piloto no modifica el worktree
@@ -186,6 +194,12 @@ El resultado del piloto debe registrar:
 
 Resultado documentado: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
 Delegaciones registradas: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
+
+## Pilotos de diseno
+
+Los pilotos de Diferencias, Liquidacion de salarios y Panel del encargado produjeron tres delegaciones `UTIL` de la misma especialidad. La decision fue fortalecer `poseidon_ui_reviewer`, no crear otro perfil superpuesto. Diferencias es el patron implementado; Salarios y Encargado conservan hallazgos pendientes de futuros bloques autorizados.
+
+Resultado consolidado: `docs/PILOTOS_DISENO_POSEIDON.md`.
 
 ## Criterio de exito
 

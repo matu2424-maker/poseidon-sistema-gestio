@@ -10,6 +10,7 @@ Con el runtime del proyecto disponible:
 
 ```bash
 pnpm run check:agents
+pnpm run check:design
 pnpm run check
 pnpm run build
 ```
@@ -17,11 +18,12 @@ pnpm run build
 `pnpm run check` ejecuta, en orden:
 
 1. Validacion de 28 controles de agentes Codex.
-2. TypeScript sin emitir archivos.
-3. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
-4. Vitest sobre `src/` y `scripts/`.
+2. Validacion de 33 controles de gobierno visual, pilotos y referencias.
+3. TypeScript sin emitir archivos.
+4. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
+5. Vitest sobre `src/` y `scripts/`.
 
-`pnpm run check:agents` tambien puede ejecutarse solo cuando cambien `.codex/`, protocolo, plantilla o registro.
+`pnpm run check:agents` tambien puede ejecutarse solo cuando cambien `.codex/`, protocolo, plantilla o registro. `pnpm run check:design` se ejecuta cuando cambian el custodio, reglas, patrones, pilotos o capturas aprobadas.
 
 Con `iniciar-poseidon.bat` activo:
 
@@ -67,7 +69,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Evidencia del bloque 2026-07-11
 
-- 21 archivos de pruebas y 95 casos aprobados, incluidos contratos positivos/negativos de agentes, ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
+- 22 archivos de pruebas y 96 casos aprobados, incluidos contratos de agentes, gobierno visual, ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
+- `check:design` aprobado con 33 controles y dos referencias visuales reproducibles.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.

@@ -109,7 +109,7 @@ Agregar en este orden:
 ## Agentes y subagentes Codex
 
 - Configuracion controlada en `.codex/config.toml`: tres hilos abiertos como maximo y profundidad uno.
-- Perfiles iniciales de solo lectura: alcance, revision contable y revision visual.
+- Perfiles de solo lectura: alcance, revision contable y custodio de diseno.
 - Maximo operativo de dos subagentes en paralelo.
 - Delegar solo trabajo independiente que evite contaminar el contexto principal.
 - No usar subagentes para comandos simples, cambios evidentes ni revisiones duplicadas.
@@ -118,10 +118,13 @@ Agregar en este orden:
 - Ajuste aplicado tras el piloto: limites explicitos de archivos, palabras, riesgos y pruebas por perfil.
 - Completado 2026-07-11: una tarea nueva comprobo presencia y obediencia nominal de los tres perfiles; la API disponible no expone selector nativo `agent_type`.
 - Completado 2026-07-11: `pnpm run check:agents` valida 28 controles y forma parte de `pnpm run check`.
+- Completado 2026-07-11: tres pilotos UI utiles justifican fortalecer el perfil visual existente, sin crear un cuarto agente.
+- Completado 2026-07-11: patrones, referencias y control automatico viven en `docs/SISTEMA_VISUAL_POSEIDON.md`, `docs/referencias-visuales/` y `pnpm run check:design`.
 - Cada delegacion usa plantilla y registro acumulado; no se crea un perfil nuevo sin tres usos utiles documentados de la misma especialidad.
 - El agente principal conserva responsabilidad exclusiva sobre integracion, validacion, documentacion y Git.
 - Fuente canonica: `docs/PROTOCOLO_AGENTES_CODEX.md`.
 - Resultado del piloto: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
+- Resultado de pilotos visuales: `docs/PILOTOS_DISENO_POSEIDON.md`.
 - Registro: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 
 ## Validacion por bloque
