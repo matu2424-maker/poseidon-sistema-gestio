@@ -80,6 +80,7 @@ Agregar:
 | Reglas de una pantalla o modulo | `docs/modulos/` | Retomar, plan tecnico |
 | Contexto corto de trabajo | `docs/contextos/` | Documentos funcionales largos |
 | Propiedad de archivos y dependencias | `docs/MAPA_TECNICO.md` | Funcionamiento, reglas visuales |
+| URLs, permisos de navegacion y rutas | `docs/MAPA_RUTAS.md` | Modulos funcionales |
 | Estrategia de extraccion/refactor | `docs/MODULARIZACION_REFERENCIAS.md` | Handoff, retomar |
 | Prioridades tecnicas vigentes | `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` | Historial de cambios |
 | Ultimo punto de continuidad | `docs/RETOMAR_MANANA.md` | Reglas permanentes |

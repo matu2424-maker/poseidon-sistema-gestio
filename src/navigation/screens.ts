@@ -1,15 +1,17 @@
 import type { MenuGroup, Role, Screen } from "../types";
 
 type ScreenDefinition = {
+  path: `/${string}` | "/";
   title: string | Partial<Record<Role, string>>;
   roles: Role[];
   requiresOpenCash?: boolean;
 };
 
 export const screenDefinitions: Record<Screen, ScreenDefinition> = {
-  welcome: { title: "Poseidon", roles: [] },
-  login: { title: "Ingreso al sistema", roles: [] },
+  welcome: { path: "/", title: "Poseidon", roles: [] },
+  login: { path: "/ingresar", title: "Ingreso al sistema", roles: [] },
   panel: {
+    path: "/panel",
     title: {
       ADMINISTRADOR: "Reportes y administracion",
       ENCARGADO: "Panel del encargado",
@@ -17,36 +19,50 @@ export const screenDefinitions: Record<Screen, ScreenDefinition> = {
     },
     roles: ["CAJERO", "ENCARGADO", "ADMINISTRADOR"],
   },
-  "open-cash": { title: "Caja diaria", roles: ["CAJERO"] },
-  counters: { title: "Cargar contadores", roles: ["CAJERO"], requiresOpenCash: true },
-  expenses: { title: "Cargar gastos", roles: ["CAJERO"], requiresOpenCash: true },
-  transfers: { title: "Cargar transferencias", roles: ["CAJERO"], requiresOpenCash: true },
-  gifts: { title: "Cargar regalos", roles: ["CAJERO"], requiresOpenCash: true },
-  "salary-payments": { title: "Pago de salarios", roles: ["CAJERO"], requiresOpenCash: true },
-  "capital-movements": { title: "Retiros y aportes", roles: ["CAJERO"], requiresOpenCash: true },
-  "cashier-clients": { title: "Clientes", roles: ["CAJERO"] },
-  "cashier-summary": { title: "Resumen de cajas", roles: ["CAJERO", "ENCARGADO", "ADMINISTRADOR"] },
-  "close-cash": { title: "Cerrar caja diaria", roles: ["CAJERO"], requiresOpenCash: true },
+  "open-cash": { path: "/caja/abrir", title: "Caja diaria", roles: ["CAJERO"] },
+  counters: { path: "/caja/contadores", title: "Cargar contadores", roles: ["CAJERO"], requiresOpenCash: true },
+  expenses: { path: "/caja/gastos", title: "Cargar gastos", roles: ["CAJERO"], requiresOpenCash: true },
+  transfers: { path: "/caja/transferencias", title: "Cargar transferencias", roles: ["CAJERO"], requiresOpenCash: true },
+  gifts: { path: "/caja/regalos", title: "Cargar regalos", roles: ["CAJERO"], requiresOpenCash: true },
+  "salary-payments": { path: "/caja/salarios", title: "Pago de salarios", roles: ["CAJERO"], requiresOpenCash: true },
+  "capital-movements": { path: "/caja/capital", title: "Retiros y aportes", roles: ["CAJERO"], requiresOpenCash: true },
+  "cashier-clients": { path: "/caja/clientes", title: "Clientes", roles: ["CAJERO"] },
+  "cashier-summary": { path: "/recaudaciones", title: "Resumen de cajas", roles: ["CAJERO", "ENCARGADO", "ADMINISTRADOR"] },
+  "close-cash": { path: "/caja/cerrar", title: "Cerrar caja diaria", roles: ["CAJERO"], requiresOpenCash: true },
   reports: {
+    path: "/reportes",
     title: { ADMINISTRADOR: "Reportes y administracion", ENCARGADO: "Reportes" },
     roles: ["ENCARGADO", "ADMINISTRADOR"],
   },
-  "manager-expenses": { title: "Control de gastos", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  "admin-users": { title: "Usuarios", roles: ["ADMINISTRADOR"] },
-  "admin-staff": { title: "Personal", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  "admin-salary-settlements": { title: "Liquidacion de salarios", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  "admin-clients": { title: "Clientes", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  "admin-current-accounts": { title: "Cuentas corrientes", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  "admin-trash": { title: "Papelera", roles: ["ADMINISTRADOR"] },
-  "admin-expense-categories": { title: "Categorias de gastos", roles: ["ADMINISTRADOR"] },
-  "admin-local-data": { title: "Datos locales", roles: ["ADMINISTRADOR"] },
-  "admin-machines": { title: "Maquinas", roles: ["ADMINISTRADOR"] },
-  workshop: { title: "Taller", roles: ["ADMINISTRADOR"] },
-  "admin-locals": { title: "Locales", roles: ["ADMINISTRADOR"] },
-  differences: { title: "Diferencias de caja", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  audit: { title: "Auditoria", roles: ["ENCARGADO", "ADMINISTRADOR"] },
-  periodic: { title: "Cierre periodico", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  "manager-expenses": { path: "/control/gastos", title: "Control de gastos", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  "admin-users": { path: "/administracion/usuarios", title: "Usuarios", roles: ["ADMINISTRADOR"] },
+  "admin-staff": { path: "/personal", title: "Personal", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  "admin-salary-settlements": { path: "/liquidacion-salarios", title: "Liquidacion de salarios", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  "admin-clients": { path: "/clientes", title: "Clientes", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  "admin-current-accounts": { path: "/cuentas-corrientes", title: "Cuentas corrientes", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  "admin-trash": { path: "/administracion/papelera", title: "Papelera", roles: ["ADMINISTRADOR"] },
+  "admin-expense-categories": { path: "/administracion/categorias-gastos", title: "Categorias de gastos", roles: ["ADMINISTRADOR"] },
+  "admin-local-data": { path: "/administracion/datos-locales", title: "Datos locales", roles: ["ADMINISTRADOR"] },
+  "admin-machines": { path: "/maquinas", title: "Maquinas", roles: ["ADMINISTRADOR"] },
+  workshop: { path: "/taller", title: "Taller", roles: ["ADMINISTRADOR"] },
+  "admin-locals": { path: "/locales", title: "Locales", roles: ["ADMINISTRADOR"] },
+  differences: { path: "/diferencias", title: "Diferencias de caja", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  audit: { path: "/auditoria", title: "Auditoria", roles: ["ENCARGADO", "ADMINISTRADOR"] },
+  periodic: { path: "/cierres-periodicos", title: "Cierre periodico", roles: ["ENCARGADO", "ADMINISTRADOR"] },
 };
+
+const screenByPath = new Map<string, Screen>(
+  Object.entries(screenDefinitions).map(([screen, definition]) => [definition.path, screen as Screen]),
+);
+
+const normalizePath = (pathname: string) => {
+  if (!pathname || pathname === "/") return "/";
+  return `/${pathname.split("?")[0].split("#")[0].replace(/^\/+|\/+$/g, "")}`;
+};
+
+export const pathForScreen = (screen: Screen) => screenDefinitions[screen].path;
+
+export const screenForPath = (pathname: string): Screen | null => screenByPath.get(normalizePath(pathname)) ?? null;
 
 const adminMenu: MenuGroup[] = [
   { title: "Inicio", items: [{ label: "Panel general", screen: "panel" }] },

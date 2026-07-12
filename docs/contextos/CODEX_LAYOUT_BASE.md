@@ -13,11 +13,13 @@ Referencias asociadas:
 - `docs/modulos/07_panel_encargado.md`
 - `docs/modulos/08_panel_administrador.md`
 - `docs/MODULARIZACION_REFERENCIAS.md`
+- `docs/MAPA_RUTAS.md`
 
 ## Codigo actual
 
 - Pantalla inicial, login, layout lateral de encargado/admin, layout del cajero y estado vacio operativo viven en `src/features/layout/AppShell.tsx`.
 - `src/App.tsx` conserva estado global, sesion, acciones y composicion de pantallas.
+- `src/navigation/screens.ts` define tambien la URL estable de cada pantalla; `docs/MAPA_RUTAS.md` documenta el contrato completo.
 - Recuperacion y mantenimiento local viven en `src/features/system/`; el repositorio versionado vive en `src/infrastructure/storage/`.
 - `Panel` vive en `src/features/dashboard/RoleDashboard.tsx` porque cruza datos de caja, diferencias, cuentas y accesos por rol.
 

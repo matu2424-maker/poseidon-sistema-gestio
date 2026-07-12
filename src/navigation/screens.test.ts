@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Role } from "../types";
-import { canAccessScreen, menuGroupsForRole, screenRequiresOpenCash, titleForScreen } from "./screens";
+import {
+  canAccessScreen,
+  menuGroupsForRole,
+  pathForScreen,
+  screenDefinitions,
+  screenForPath,
+  screenRequiresOpenCash,
+  titleForScreen,
+} from "./screens";
 
 const roles: Role[] = ["CAJERO", "ENCARGADO", "ADMINISTRADOR"];
 
@@ -30,5 +38,17 @@ describe("screen registry", () => {
   it("resuelve titulos dependientes del rol", () => {
     expect(titleForScreen("panel", "ENCARGADO")).toBe("Panel del encargado");
     expect(titleForScreen("panel", "ADMINISTRADOR")).toBe("Reportes y administracion");
+  });
+
+  it("define una ruta unica para cada pantalla", () => {
+    const paths = Object.values(screenDefinitions).map((definition) => definition.path);
+    expect(new Set(paths).size).toBe(paths.length);
+  });
+
+  it("resuelve pantalla y ruta en ambos sentidos", () => {
+    expect(pathForScreen("differences")).toBe("/diferencias");
+    expect(screenForPath("/diferencias")).toBe("differences");
+    expect(screenForPath("/caja/contadores/")).toBe("counters");
+    expect(screenForPath("/ruta-inexistente")).toBeNull();
   });
 });
