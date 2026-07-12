@@ -22,12 +22,18 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 .codex/agents/poseidon_accounting_reviewer.toml revision contable, solo lectura
 .codex/agents/poseidon_ui_reviewer.toml         revision visual, solo lectura
 docs/PROTOCOLO_AGENTES_CODEX.md            fuente canonica de delegacion
+docs/REGISTRO_DELEGACIONES_AGENTES.md      medicion acumulada
+docs/plantillas/REPORTE_DELEGACION_AGENTES.md contrato de cada registro
+scripts/validate-agent-config.mjs           validador ejecutable
+scripts/agent-config-validation.mjs         reglas puras del validador
 ```
 
 - Maximo tecnico de tres hilos abiertos, maximo operativo de dos trabajando en paralelo y profundidad uno.
 - Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
 - El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
+- `pnpm run check:agents` valida configuracion, perfiles, referencias, medicion y scripts; `pnpm run check` lo ejecuta primero.
+- Todo subagente terminado se registra; no se considera un perfil nuevo sin tres delegaciones utiles de la misma especialidad.
 
 ## Flujo principal
 
@@ -227,4 +233,4 @@ pnpm run smoke:localhost
 git diff --check
 ```
 
-`pnpm run check` ejecuta typecheck, ESLint y 90 pruebas en 20 archivos. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
+`pnpm run check` ejecuta `check:agents`, typecheck, ESLint y 95 pruebas en 21 archivos. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.

@@ -78,10 +78,11 @@ No delegar para:
 5. Continua trabajo local no superpuesto mientras los subagentes avanzan.
 6. Espera resultados solo cuando sean necesarios para continuar.
 7. Cierra los hilos terminados cuando ya no se necesiten.
-8. Integra los resultados y elimina duplicaciones o contradicciones.
-9. Presenta al usuario una unica propuesta antes de modificar, salvo objetivo activo ya autorizado.
-10. Si hay escritura autorizada, asigna un unico `worker` o varios con archivos totalmente disjuntos.
-11. El agente principal revisa cada diff, ejecuta validaciones, actualiza documentacion y decide si el bloque esta estable para commit.
+8. Registra cada delegacion con la plantilla canonica, incluso si falla o no se adopta.
+9. Integra los resultados y elimina duplicaciones o contradicciones.
+10. Presenta al usuario una unica propuesta antes de modificar, salvo objetivo activo ya autorizado.
+11. Si hay escritura autorizada, asigna un unico `worker` o varios con archivos totalmente disjuntos.
+12. El agente principal revisa cada diff, ejecuta validaciones, actualiza documentacion y decide si el bloque esta estable para commit.
 
 ## Reglas de escritura
 
@@ -91,6 +92,7 @@ No delegar para:
 - Dos agentes no editan el mismo archivo ni reglas estrechamente asociadas en paralelo.
 - Los subagentes no revierten cambios ajenos y deben asumir que no trabajan solos.
 - El agente principal conserva la integracion y es el unico responsable de cerrar el punto de control Git.
+- El agente principal es el unico responsable de integrar resultados, resolver contradicciones, validar el sistema, actualizar documentacion y ejecutar stage/commit.
 - Un objetivo activo autoriza autonomia solo dentro de su alcance y no elimina las restricciones de `AGENTS.md`.
 
 ## Contrato de prompts
@@ -119,11 +121,29 @@ Evitar copiar el historial completo del chat. Dar al subagente referencias concr
 - Cerrar agentes terminados para no ocupar capacidad.
 - Comparar utilidad, duplicacion, tiempo y consumo despues de cada piloto relevante.
 
+## Medicion obligatoria
+
+- Plantilla: `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
+- Registro acumulado: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
+- Cada subagente genera una entrada, tambien cuando termina con error, se interrumpe o no aporta valor.
+- Registrar duracion y tokens solo cuando exista una medicion real. Usar `No disponible` cuando la API no los exponga.
+- Clasificar resultado como `UTIL`, `PARCIAL` o `NO_UTIL` usando el criterio de la plantilla.
+- Registrar hallazgos adoptados, duplicacion, respeto del alcance, cierre del agente y estado Git para perfiles de solo lectura.
+
+## Regla para perfiles nuevos
+
+- No crear un perfil permanente por una necesidad aislada.
+- Antes de considerar un perfil nuevo deben existir tres delegaciones utiles documentadas que evidencien la misma especialidad faltante.
+- Las tres delegaciones deben figurar como `UTIL`, respetar alcance y tener al menos un hallazgo adoptado.
+- Si un perfil existente, un contexto corto o instrucciones puntuales cubren la necesidad, no se crea otro perfil.
+- La decision final pertenece al agente principal y requiere autorizacion explicita del usuario porque modifica infraestructura versionada.
+
 ## Validacion de infraestructura
 
 Para cambios de configuracion o perfiles:
 
 ```text
+pnpm run check:agents
 verificar carga de los perfiles en una nueva tarea Codex
 ejecutar un piloto de solo lectura
 comprobar que el piloto no modifica el worktree
@@ -165,6 +185,7 @@ El resultado del piloto debe registrar:
 - ajustes necesarios en los perfiles.
 
 Resultado documentado: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
+Delegaciones registradas: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 
 ## Criterio de exito
 

@@ -117,8 +117,12 @@ Agregar en este orden:
 - Completado: piloto de Diferencias de caja con mapa de alcance y revision contable, sin cambios funcionales.
 - Ajuste aplicado tras el piloto: limites explicitos de archivos, palabras, riesgos y pruebas por perfil.
 - Completado 2026-07-11: una tarea nueva comprobo presencia y obediencia nominal de los tres perfiles; la API disponible no expone selector nativo `agent_type`.
+- Completado 2026-07-11: `pnpm run check:agents` valida 28 controles y forma parte de `pnpm run check`.
+- Cada delegacion usa plantilla y registro acumulado; no se crea un perfil nuevo sin tres usos utiles documentados de la misma especialidad.
+- El agente principal conserva responsabilidad exclusiva sobre integracion, validacion, documentacion y Git.
 - Fuente canonica: `docs/PROTOCOLO_AGENTES_CODEX.md`.
 - Resultado del piloto: `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
+- Registro: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 
 ## Validacion por bloque
 

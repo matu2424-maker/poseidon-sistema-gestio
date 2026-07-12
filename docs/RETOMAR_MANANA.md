@@ -17,6 +17,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
 - Codex cuenta con tres perfiles personalizados de solo lectura y limites conservadores de concurrencia/profundidad en `.codex/`.
+- `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
 
 ## Ultimo bloque funcional completado
 
@@ -26,7 +27,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Anular una diferencia conserva el asiento original y agrega contramovimientos activos, dejando impacto neto cero.
 - Matriz de transiciones, bloqueo por caja abierta, historico inmutable, IDs/cadena append-only, finitud, periodo operativo y auditoria local quedaron implementados.
 - Auditoria muestra detalle de saldos/movimientos y limita al encargado a sus locales.
-- 90 pruebas automatizadas en 20 archivos.
+- 95 pruebas automatizadas en 21 archivos.
 
 ## Bloque documental actual
 
@@ -36,6 +37,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
 - Protocolo de agentes y subagentes integrado con un piloto de solo lectura sobre Diferencias.
+- Validacion automatica, medicion obligatoria, regla de tres usos y responsabilidad exclusiva del agente principal documentadas.
 
 ## Proximas prioridades de codigo
 
@@ -44,14 +46,15 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: ESLint, 90 pruebas, smoke HTTP y smoke manual por los tres roles.
+6. Completado: validacion de agentes, ESLint, 95 pruebas, smoke HTTP y smoke manual por los tres roles.
 7. Completado: E2E critico de cajero, E2E de diferencias/auditoria del encargado y carga diferida por pantalla.
 8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
 9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.
 10. Completado: primer regreso funcional en Diferencias, con permisos por local, validaciones y anulacion contable corregida.
 11. Completado: riesgos priorizados del piloto de Diferencias corregidos e integrados.
 12. Completado: perfiles personalizados validados en una tarea nueva; API sin selector nativo de `agent_type`, pero contratos TOML obedecidos.
-13. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
+13. Completado: `check:agents`, pruebas, plantilla, registro y regla para perfiles nuevos.
+14. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 

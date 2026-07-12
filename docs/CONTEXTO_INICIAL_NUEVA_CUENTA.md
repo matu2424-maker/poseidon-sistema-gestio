@@ -32,7 +32,8 @@ Haz commits locales cuando un bloque quede estable y validado. No hagas push, pu
 - No borrar historial operativo: usar anulacion, papelera, estado o ajuste auditado.
 - Toda tabla nueva o modificada debe ordenar por cada columna visible de datos, salvo columnas de accion.
 - Cada cambio de codigo debe actualizar documentacion relacionada.
-- Validar con `pnpm run build` y verificar `http://127.0.0.1:5173/`.
+- Para delegar, seguir `docs/PROTOCOLO_AGENTES_CODEX.md`, registrar resultados y mantener integracion/Git en el agente principal.
+- Validar con `pnpm run check`, `pnpm run build` y verificar `http://127.0.0.1:5173/`.
 
 ## Comandos
 
@@ -51,6 +52,8 @@ detener-poseidon.bat
 Build:
 
 ```bash
+pnpm run check:agents
+pnpm run check
 pnpm run build
 ```
 
@@ -63,14 +66,16 @@ pnpm run build
 - Supabase/Auth/Storage real: pendiente.
 - Archivos subidos: se guardan como metadatos, no contenido completo.
 - `src/App.tsx`: orquestador de estado y acciones.
-- `src/data/appData.ts`: datos demo y normalizacion.
+- `src/data/appData.ts`: datos demo.
+- `src/data/normalizeData.ts`: normalizacion y migracion.
 - Pantallas principales viven en `src/features/`.
 - Reglas compartidas viven en `src/lib/`.
+- Tres perfiles Codex read-only viven en `.codex/agents/`; `check:agents` valida su contrato.
 
 ## Tarea recomendada al retomar
 
 1. Ejecutar `git status --short`.
 2. Revisar si hay cambios pendientes sin commit.
-3. Ejecutar `pnpm run build`.
+3. Ejecutar `pnpm run check` y `pnpm run build`.
 4. Verificar localhost.
 5. Continuar solo con el modulo que el usuario pida.

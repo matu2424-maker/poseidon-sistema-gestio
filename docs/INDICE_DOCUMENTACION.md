@@ -52,6 +52,7 @@ Agregar:
 1. `docs/PROTOCOLO_AGENTES_CODEX.md`.
 2. `AGENTS.md` y contexto corto de la feature afectada.
 3. Agregar reglas contables o visuales solo cuando correspondan al perfil convocado.
+4. Al terminar, registrar el subagente en `docs/REGISTRO_DELEGACIONES_AGENTES.md` con `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
 
 ### Preparar futura migracion online
 
@@ -77,6 +78,7 @@ Agregar:
 | Ejecucion local | `README.md` | Documentos funcionales |
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
+| Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
 
@@ -114,6 +116,8 @@ Todos viven en `docs/contextos/`.
 ## Estudios tecnicos
 
 - `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`: primer piloto de delegacion, validacion de perfiles y cierre de los riesgos tecnicos priorizados. No redefine la regla de resultado economico.
+- `docs/REGISTRO_DELEGACIONES_AGENTES.md`: resultado y eficiencia de cada delegacion real.
+- `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`: campos obligatorios para nuevas entradas.
 
 ## Regla de mantenimiento
 

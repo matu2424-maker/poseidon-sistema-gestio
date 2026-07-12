@@ -68,9 +68,12 @@ pnpm install
 Antes de cerrar cambios:
 
 ```bash
+pnpm run check:agents
 pnpm run check
 pnpm run build
 ```
+
+`pnpm run check:agents` valida limites, perfiles read-only, protocolo, plantilla y registro. Tambien forma parte de `pnpm run check`.
 
 Con el servidor activo, verificar que responda:
 
@@ -259,6 +262,7 @@ src/features/admin/            Clientes, personal, papelera, usuarios y categori
 src/features/audit/            Bitacora general de auditoria
 src/features/reports/          Reportes iniciales, exportaciones y cierres periodicos
 src/styles/global.css          Estilos globales
+scripts/validate-agent-config.mjs Validacion ejecutable de infraestructura Codex
 src/components/WelcomeScreen.tsx Componente heredado/no conectado al flujo actual
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
 docs/INDICE_DOCUMENTACION.md   Indice, rutas de lectura y fuentes canonicas
@@ -268,6 +272,8 @@ docs/RETOMAR_MANANA.md         Resumen para retomar trabajo
 docs/MAPA_TECNICO.md           Propiedad, dependencias y deuda tecnica
 docs/CONTEXTO_RAPIDO_CODEX.md  Contexto corto para cargar rapido el proyecto
 docs/REGLAS_GENERALES.md       Reglas transversales de trabajo y auditoria
+docs/PROTOCOLO_AGENTES_CODEX.md Reglas de delegacion y perfiles Codex
+docs/REGISTRO_DELEGACIONES_AGENTES.md Medicion acumulada de subagentes
 docs/ARQUITECTURA_OBJETIVO_ONLINE.md Diseno futuro sin implementar
 docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md Plan futuro reversible
 docs/modulos/                  Reglas detalladas por panel o modulo
@@ -288,6 +294,8 @@ detener-poseidon.bat           Libera el puerto local 5173
 - Mapa tecnico: `docs/MAPA_TECNICO.md`
 - Contexto rapido: `docs/CONTEXTO_RAPIDO_CODEX.md`
 - Reglas generales: `docs/REGLAS_GENERALES.md`
+- Protocolo de agentes: `docs/PROTOCOLO_AGENTES_CODEX.md`
+- Registro de delegaciones: `docs/REGISTRO_DELEGACIONES_AGENTES.md`
 - Modulos: `docs/modulos/`
 - Instrucciones de trabajo: `AGENTS.md`
 - Arquitectura futura: `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`

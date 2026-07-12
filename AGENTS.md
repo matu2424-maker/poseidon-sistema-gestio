@@ -29,6 +29,10 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Al dividir `AGENTS.md` por carpetas en el futuro, cada AGENTS anidado debe referenciar documentos compartidos en vez de duplicar reglas completas, porque muchos modulos estan asociados.
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
 - Hacer commit local cuando un bloque quede estable, validado y sea correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin pedido explicito del usuario.
+- Para crear, modificar o validar perfiles/agentes Codex, leer `docs/PROTOCOLO_AGENTES_CODEX.md` y ejecutar `pnpm run check:agents`.
+- Registrar cada delegacion terminada en `docs/REGISTRO_DELEGACIONES_AGENTES.md` usando la plantilla canonica, sin inventar duracion ni consumo.
+- No crear un perfil permanente nuevo sin tres delegaciones utiles documentadas de la misma especialidad y autorizacion explicita del usuario.
+- El agente principal es el unico responsable de integrar resultados, validar, documentar, resolver contradicciones y cerrar commits locales.
 
 ## Agentes y subagentes Codex
 

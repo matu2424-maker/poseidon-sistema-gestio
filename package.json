@@ -7,12 +7,13 @@
     "dev": "vite --config vite.config.mjs --configLoader native",
     "build": "tsc -b && vite build --config vite.config.mjs --configLoader native",
     "preview": "vite preview --config vite.config.mjs --configLoader native",
-    "test": "vitest run src --configLoader native",
+    "test": "vitest run src scripts --configLoader native",
     "test:e2e": "playwright test",
-    "lint": "eslint src e2e playwright.config.ts --max-warnings 0",
+    "lint": "eslint src e2e scripts playwright.config.ts --max-warnings 0",
+    "check:agents": "node scripts/validate-agent-config.mjs",
     "smoke:localhost": "node scripts/smoke-localhost.mjs",
     "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
-    "check": "pnpm run typecheck && pnpm run lint && pnpm test"
+    "check": "pnpm run check:agents && pnpm run typecheck && pnpm run lint && pnpm test"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

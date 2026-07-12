@@ -1,6 +1,6 @@
 # Poseidon - Handoff tecnico
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Este documento permite continuar el proyecto desde otra cuenta o agente sin leer el chat. Las reglas completas viven en las fuentes canonicas enlazadas; no deben reconstruirse desde este resumen.
 
@@ -13,6 +13,7 @@ Este documento permite continuar el proyecto desde otra cuenta o agente sin leer
 5. Toda tabla de datos debe ordenar sus columnas visibles, salvo acciones/seleccion o excepcion aprobada.
 6. Documenta cada cambio en su fuente canonica y modulo.
 7. Valida, y crea commit local cuando el bloque quede estable; no hagas push sin pedido.
+8. Para subagentes, sigue `docs/PROTOCOLO_AGENTES_CODEX.md`, registra cada delegacion y conserva la integracion/Git en el agente principal.
 
 ## Inicio rapido
 
@@ -38,7 +39,8 @@ No cargar todos los documentos grandes por defecto.
 ## Entorno
 
 ```text
-pnpm test
+pnpm run check:agents
+pnpm run check
 pnpm run build
 iniciar-poseidon.bat
 http://127.0.0.1:5173/
@@ -57,6 +59,8 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - `src/features/`: pantallas por dominio/rol.
 - `src/styles/global.css`: estilos globales.
 - `docs/MAPA_TECNICO.md`: propiedad, dependencias y deuda vigente.
+- `.codex/` y `scripts/validate-agent-config.mjs`: perfiles y validacion automatica de infraestructura Codex.
+- `docs/REGISTRO_DELEGACIONES_AGENTES.md`: medicion real de subagentes, sin inventar tokens ni tiempos.
 
 ## Reglas funcionales criticas
 

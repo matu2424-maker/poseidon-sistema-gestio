@@ -9,15 +9,19 @@ Este documento define la validacion tecnica y funcional minima. No reemplaza las
 Con el runtime del proyecto disponible:
 
 ```bash
+pnpm run check:agents
 pnpm run check
 pnpm run build
 ```
 
 `pnpm run check` ejecuta, en orden:
 
-1. TypeScript sin emitir archivos.
-2. ESLint sobre `src/`, sin aceptar advertencias.
-3. Vitest.
+1. Validacion de 28 controles de agentes Codex.
+2. TypeScript sin emitir archivos.
+3. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
+4. Vitest sobre `src/` y `scripts/`.
+
+`pnpm run check:agents` tambien puede ejecutarse solo cuando cambien `.codex/`, protocolo, plantilla o registro.
 
 Con `iniciar-poseidon.bat` activo:
 
@@ -63,7 +67,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Evidencia del bloque 2026-07-11
 
-- 20 archivos de pruebas y 90 casos aprobados, incluidos ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion de transferencias, snapshot, contrato de repositorio y orden de escrituras.
+- 21 archivos de pruebas y 95 casos aprobados, incluidos contratos positivos/negativos de agentes, ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.

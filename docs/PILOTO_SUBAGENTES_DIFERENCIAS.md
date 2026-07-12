@@ -75,3 +75,5 @@ Evaluar si dos subagentes con responsabilidades distintas aportan evidencia util
 - Limitacion de la API: no expone un selector nativo `agent_type`; se comprobo presencia, lectura y obediencia del contrato TOML nominal.
 - Los riesgos alto/medio de este informe quedaron cubiertos por reglas, codigo y pruebas: transiciones, caja abierta, historico inmutable, IDs/cadena, finitud, importes vacios, zona operativa, alcance local y detalle contable de auditoria.
 - El protocolo queda habilitado para futuros objetivos, manteniendo perfiles de solo lectura y maximo dos subagentes simultaneos.
+- `pnpm run check:agents` valida automaticamente la infraestructura y sus referencias.
+- Las delegaciones del piloto y la validacion nominal quedaron consolidadas en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
