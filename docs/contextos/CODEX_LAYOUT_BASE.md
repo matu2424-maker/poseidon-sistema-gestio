@@ -1,6 +1,6 @@
 # Contexto Codex - Layout base y navegacion
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-12
 
 Leer este contexto antes de modificar pantalla inicial, login local, barra superior, menu lateral, layout de cajero o navegacion base.
 
@@ -18,8 +18,9 @@ Referencias asociadas:
 ## Codigo actual
 
 - Pantalla inicial, login, layout lateral de encargado/admin, layout del cajero y estado vacio operativo viven en `src/features/layout/AppShell.tsx`.
-- `src/App.tsx` conserva estado global, sesion, acciones y composicion de pantallas.
-- `src/navigation/screens.ts` define tambien la URL estable de cada pantalla; `docs/MAPA_RUTAS.md` documenta el contrato completo.
+- `src/App.tsx` conserva estado global, sesion, acciones y composicion; la pantalla se deriva de React Router.
+- `src/navigation/screens.ts` define la URL estable de cada pantalla; `docs/MAPA_RUTAS.md` documenta el contrato completo.
+- `src/infrastructure/session/localSession.ts` conserva `userId` y funcion activa durante la pestaña para soportar recarga.
 - Recuperacion y mantenimiento local viven en `src/features/system/`; el repositorio versionado vive en `src/infrastructure/storage/`.
 - `Panel` vive en `src/features/dashboard/RoleDashboard.tsx` porque cruza datos de caja, diferencias, cuentas y accesos por rol.
 
@@ -32,6 +33,7 @@ Referencias asociadas:
 - Evitar repetir titulo/datos que ya aparecen en barra superior.
 - Botones deben quedar alineados y verse bien en 1080p.
 - No cambiar permisos ni menu sin revisar modulos 07 y 08.
+- Rutas directas y recargas deben respetar los mismos permisos que los botones de navegacion.
 
 ## Asociaciones
 

@@ -7,6 +7,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 ## Stack tecnico
 
 - React
+- React Router 8 en modo declarativo
 - Vite
 - TypeScript
 - CSS modular por capas: base, layout, features y responsive
@@ -20,13 +21,14 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - El administrador puede exportar e importar respaldos desde `Sistema > Datos locales`.
 - Si el snapshot esta corrupto, la aplicacion no lo reemplaza: ofrece descargarlo antes de iniciar datos nuevos.
 - Login local: se selecciona un usuario activo desde una lista, sin contrasena.
+- La URL identifica el modulo activo; usuario y funcion se conservan durante la pestaña en `sessionStorage`, sin guardar contraseñas.
 - Local principal: `Poseidon`.
 - La demo inicial trae datos para probar: 3 maquinas activas, 3 cajas cerradas de julio 2026, una diferencia pendiente, gastos, salarios, regalos, transferencias, aportes, retiros, cuentas corrientes y auditoria.
 - El sistema mantiene preparacion multi-local, aunque hoy se trabaja con Poseidon.
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 102 casos en 24 archivos, mas dos flujos E2E.
+- Validacion automatizada actual: 107 casos en 25 archivos, mas 6 casos E2E en 3 archivos.
 
 ## Ejecutar el proyecto
 
@@ -92,7 +94,7 @@ pnpm run smoke:localhost
 pnpm run test:e2e
 ```
 
-La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, cierre y persistencia; ademas valida correccion de diferencias, importe obligatorio y detalle contable de Auditoria como encargado.
+La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, cierre y persistencia; valida diferencias/auditoria y comprueba rutas directas, recarga, Atrás/Adelante, permisos y funcion activa para los tres roles.
 
 La matriz de smoke por rol esta en `docs/VALIDACION_LOCAL.md`.
 
@@ -254,10 +256,12 @@ Para operar caja, administrador y encargado cambian a funcion `CAJERO`.
 
 ```text
 src/App.tsx                    Orquestacion global, usuario/funcion, navegacion y composicion de pantallas
+src/navigation/screens.ts     Rutas, titulos, roles, menus y requisito de caja abierta
 src/navigation/lazyScreens.ts Carga diferida de pantallas por feature
 src/data/appData.ts            Datos demo, reset operativo e ID visible de caja
 src/data/normalizeData.ts      Normalizacion y migracion de datos persistidos
 src/application/ports/         Contratos asincronos y cola ordenada de persistencia
+src/infrastructure/session/    Sesion local de pestaña para usuario y funcion activa
 src/hooks/useAppDataRepository Carga/guardado independiente del adaptador concreto
 src/types.ts                   Tipos principales del sistema
 src/lib/                       Reglas compartidas: dinero, fechas, periodos, referencias de recaudacion, auditoria, clientes, archivos, exportacion, storage, presentacion, IDs, personal, historial de maquinas, cuentas, movimientos, caja, diferencias, salarios y ordenamiento
@@ -282,6 +286,7 @@ scripts/precommit-check.mjs      Control proporcional previo al commit
 scripts/validate-design-system.mjs Validacion de gobierno visual
 scripts/capture-visual-references.mjs Captura reproducible de referencias aprobadas
 docs/POSEIDON_FUNCIONAMIENTO.md Reglas funcionales vivas
+docs/MAPA_RUTAS.md             URLs y protecciones de navegacion
 docs/INDICE_DOCUMENTACION.md   Indice, rutas de lectura y fuentes canonicas
 docs/HANDOFF_TECNICO_POSEIDON.md Handoff tecnico compacto
 docs/CONTEXTO_INICIAL_NUEVA_CUENTA.md Prompt corto para iniciar nueva cuenta
@@ -303,7 +308,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Prioridad tecnica actual
 
-`src/App.tsx` ya es principalmente orquestador, el seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia. La prioridad tecnica es reforzar autorizacion y alcance por local dentro de los comandos, definir un contexto real de local activo y extraer las operaciones sensibles que aun viven en handlers React. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
+`src/App.tsx` ya es principalmente orquestador, React Router controla la URL y `screenDefinitions` conserva permisos/titulos. El seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia. La prioridad tecnica es reforzar autorizacion y alcance por local dentro de los comandos, definir un contexto real de local activo y extraer las operaciones sensibles que aun viven en handlers React. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
 
 ## Documentacion viva
 
@@ -311,6 +316,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - Reglas funcionales: `docs/POSEIDON_FUNCIONAMIENTO.md`
 - Resumen para retomar: `docs/RETOMAR_MANANA.md`
 - Mapa tecnico: `docs/MAPA_TECNICO.md`
+- Mapa de rutas: `docs/MAPA_RUTAS.md`
 - Contexto rapido: `docs/CONTEXTO_RAPIDO_CODEX.md`
 - Reglas generales: `docs/REGLAS_GENERALES.md`
 - Protocolo de agentes: `docs/PROTOCOLO_AGENTES_CODEX.md`

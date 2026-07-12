@@ -9,6 +9,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Sistema local React/Vite/TypeScript con `localStorage`.
 - Sin Supabase, Auth, Storage remoto ni despliegue activo.
 - Login local por usuario de prueba.
+- React Router mantiene una URL estable por modulo y `sessionStorage` conserva usuario/funcion durante la pestaña.
 - Datos demo: Poseidon, tres maquinas y operaciones para probar roles.
 - El servidor oficial se inicia con `iniciar-poseidon.bat`.
 - El snapshot local esta versionado y validado; no se recorta historial para forzar guardados.
@@ -24,23 +25,20 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Ultimo bloque funcional completado
 
-- Infraestructura visual completada sin cambiar pantallas adicionales: custodio en modos propuesta/verificacion, tres pilotos y referencias reproducibles.
-- `Diferencias` adopto el primer piloto visual renovado: resumen compacto, filtros rotulados, tabla clara, acciones jerarquizadas y modal plano, sin cambios contables.
-- Sus estilos quedaron bajo `features/admin.css` y la pantalla reutiliza el `Modal` compartido.
-- Diferencias reconfirma toda gestion sensible y limpia errores al cerrar o cambiar de recaudacion.
-- Encargado solo puede gestionar diferencias de sus locales asignados, validado tambien por el comando.
-- Correcciones exigen importes validos de efectivo y banco.
-- Anular una diferencia conserva el asiento original y agrega contramovimientos activos, dejando impacto neto cero.
-- Matriz de transiciones, bloqueo por caja abierta, historico inmutable, IDs/cadena append-only, finitud, periodo operativo y auditoria local quedaron implementados.
-- Auditoria muestra detalle de saldos/movimientos y limita al encargado a sus locales.
-- 102 pruebas automatizadas en 24 archivos.
+- Migracion progresiva a React Router completada sin modificar reglas contables ni pantallas funcionales.
+- `screenDefinitions` concentra URL, titulo, roles, menu y requisito de caja abierta.
+- La pantalla se deriva de `location.pathname`; botones y acciones usan historial real del navegador.
+- Ruta directa, recarga, Atrás/Adelante, ruta desconocida, permisos y caja requerida quedaron probados.
+- La sesion de pestaña conserva solo usuario y funcion activa; Administrador/Encargado mantienen el modo Cajero al recargar.
+- Cerrar caja navega a `/recaudaciones` y conserva el aviso de exito.
+- 107 pruebas automatizadas en 25 archivos y 6 casos E2E en 3 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas reconciliadas al 2026-07-12: aproximadamente 17.900 lineas fisicas TypeScript/React, 3.700 lineas fisicas CSS, 102 pruebas en 24 archivos y dos E2E.
+- Metricas de validacion al 2026-07-12: 107 pruebas en 25 archivos y 6 casos E2E en 3 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.

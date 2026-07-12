@@ -33,6 +33,7 @@ No cargar todos los documentos grandes por defecto.
 - Encargado/Administrador pueden trabajar con funcion Cajero manteniendo identidad real en auditoria.
 - Persistencia actual: `localStorage`.
 - Login actual: selector de usuario, sin contrasena.
+- Navegacion actual: React Router con URL estable por modulo y sesion de pestaña en `sessionStorage`.
 - Archivos actuales: metadata, no storage real.
 - Backend/Auth/Storage/publicacion: pendientes y fuera de alcance sin autorizacion.
 
@@ -55,6 +56,8 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 ## Arquitectura actual
 
 - `src/App.tsx`: orquestacion global, usuario/funcion, local activo, navegacion, apertura y composicion.
+- `src/navigation/screens.ts`: matriz tipada de ruta, titulo, rol, menu y requisito de caja.
+- `src/infrastructure/session/`: persistencia local de `userId` y funcion activa durante la pestaña.
 - `src/types.ts`: contrato de datos actual.
 - `src/data/appData.ts`: seed, reset y fachada de datos iniciales.
 - `src/data/normalizeData.ts`: migracion y normalizacion del snapshot.
@@ -101,7 +104,7 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 102 pruebas aprobadas en 24 archivos, mas dos flujos E2E para cajero y diferencias/auditoria del encargado.
+- 107 pruebas aprobadas en 25 archivos, mas 6 casos E2E en 3 archivos para caja, diferencias/auditoria y rutas de los tres roles.
 - Tres perfiles Codex de solo lectura, cuatro skills versionadas y validadores de agentes, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 

@@ -1,4 +1,5 @@
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { Navigate, useLocation, useNavigate, useNavigationType } from "react-router";
 import type {
   AppData,
   CapitalMovementPerson,
@@ -27,10 +28,16 @@ import { localDate } from "./lib/dates";
 import { commandContext } from "./application/command";
 import { openCashCommand } from "./application/cash/openCash";
 import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
-import { canAccessScreen, screenRequiresOpenCash } from "./navigation/screens";
+import { canAccessScreen, pathForScreen, screenForPath, screenRequiresOpenCash } from "./navigation/screens";
 import { useNotice } from "./hooks/useNotice";
 import { useAppDataRepository } from "./hooks/useAppDataRepository";
 import { confirmAction } from "./lib/confirmations";
+import {
+  allowedActingRole,
+  clearLocalSession,
+  readLocalSession,
+  writeLocalSession,
+} from "./infrastructure/session/localSession";
 import {
   AdminClients,
   AdminCurrentAccounts,
@@ -77,20 +84,64 @@ function App({
   repository = localAppDataRepository,
   backupCodec = localAppDataBackupCodec,
 }: AppProps) {
-  const [screen, setScreen] = useState<Screen>("welcome");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const navigationType = useNavigationType();
+  const screen = screenForPath(location.pathname);
   const [user, setUser] = useState<User | null>(null);
   const [actingRole, setActingRole] = useState<Role | null>(null);
+  const [sessionRestored, setSessionRestored] = useState(false);
   const { message, setMessage, clearMessage } = useNotice();
   const { data, setData, storageIssue, storageReady, persistNow, startFresh } = useAppDataRepository(
     repository,
     setMessage,
   );
 
-  if (!storageReady) return <ScreenLoader />;
-
   const activeLocal = data.locals.find((local) => local.id === POSEIDON_LOCAL_ID) ?? data.locals[0];
   const openBalance = data.balances.find((balance) => balance.localId === activeLocal.id && balance.status === "EN_PROCESO");
+  const previousOpenBalanceRef = useRef(openBalance);
   const effectiveRole = user ? actingRole ?? user.role : null;
+  const isPublicScreen = screen === "welcome" || screen === "login";
+  const accessDenied = Boolean(user && effectiveRole && screen && !isPublicScreen && !canAccessScreen(screen, effectiveRole));
+
+  useEffect(() => {
+    if (!storageReady || sessionRestored) return;
+    const restored = readLocalSession();
+    if (restored) {
+      const restoredUser = data.users.find((item) => item.id === restored.userId && item.status === "ACTIVO");
+      if (restoredUser) {
+        setUser(restoredUser);
+        setActingRole(allowedActingRole(restoredUser.role, restored.actingRole));
+      } else {
+        clearLocalSession();
+      }
+    }
+    setSessionRestored(true);
+  }, [data.users, sessionRestored, storageReady]);
+
+  useEffect(() => {
+    if (navigationType === "POP") clearMessage();
+  }, [clearMessage, location.key, navigationType]);
+
+  useEffect(() => {
+    const justClosedCash = screen === "close-cash" && Boolean(previousOpenBalanceRef.current) && !openBalance;
+    previousOpenBalanceRef.current = openBalance;
+    if (!storageReady || !sessionRestored || !screen || !user || !effectiveRole || isPublicScreen) return;
+    if (justClosedCash) return;
+    if (!canAccessScreen(screen, effectiveRole)) {
+      setMessage("No tenes acceso a esa pantalla con la funcion activa.");
+      navigate(pathForScreen("panel"), { replace: true });
+      return;
+    }
+    if (screenRequiresOpenCash(screen) && !openBalance) {
+      setMessage("Necesita abrir una nueva caja para poder operar.");
+      navigate(pathForScreen("panel"), { replace: true });
+    }
+  }, [effectiveRole, isPublicScreen, navigate, openBalance, screen, sessionRestored, setMessage, storageReady, user]);
+
+  if (!storageReady || !sessionRestored) return <ScreenLoader />;
+  if (!screen) return <Navigate to={pathForScreen("welcome")} replace />;
+  if (accessDenied) return <ScreenLoader />;
 
   const patchData = (updater: (current: AppData) => AppData) => {
     setData((current) => updater(current));
@@ -99,16 +150,16 @@ function App({
   const goToScreen = (nextScreen: Screen, options: { preserveMessage?: boolean } = {}) => {
     if (effectiveRole && !canAccessScreen(nextScreen, effectiveRole)) {
       setMessage("No tenes acceso a esa pantalla con la funcion activa.");
-      setScreen("panel");
+      navigate(pathForScreen("panel"));
       return;
     }
     if (screenRequiresOpenCash(nextScreen) && !openBalance) {
       setMessage("Necesita abrir una nueva caja para poder operar.");
-      setScreen("panel");
+      navigate(pathForScreen("panel"));
       return;
     }
     if (!options.preserveMessage) clearMessage();
-    setScreen(nextScreen);
+    navigate(pathForScreen(nextScreen));
   };
 
   const audit = (
@@ -144,7 +195,7 @@ function App({
     );
     setData(fresh);
     setMessage("Datos demo reiniciados.");
-    setScreen("panel");
+    navigate(pathForScreen("panel"));
   };
 
   const exportLocalBackup = () => {
@@ -173,8 +224,9 @@ function App({
       setData(audited);
       setUser(null);
       setActingRole(null);
+      clearLocalSession();
       setMessage("Respaldo local importado y validado.");
-      setScreen("login");
+      navigate(pathForScreen("login"), { replace: true });
       return "";
     } catch (error) {
       return error instanceof Error ? error.message : "El respaldo no pudo normalizarse.";
@@ -202,10 +254,27 @@ function App({
       return;
     }
 
+    const nextRole = nextUser.role;
     setUser(nextUser);
-    setActingRole(nextUser.role);
+    setActingRole(nextRole);
+    writeLocalSession({ userId: nextUser.id, actingRole: nextRole });
+
+    if (screen === "welcome" || screen === "login") {
+      setMessage("");
+      navigate(pathForScreen("panel"), { replace: true });
+      return;
+    }
+    if (!canAccessScreen(screen, nextRole)) {
+      setMessage("No tenes acceso a la ruta solicitada con ese usuario.");
+      navigate(pathForScreen("panel"), { replace: true });
+      return;
+    }
+    if (screenRequiresOpenCash(screen) && !openBalance) {
+      setMessage("Necesita abrir una nueva caja para poder operar.");
+      navigate(pathForScreen("panel"), { replace: true });
+      return;
+    }
     setMessage("");
-    setScreen("panel");
   };
 
   const openCash = (
@@ -236,7 +305,7 @@ function App({
         return current;
       }
       setMessage("Caja abierta correctamente.");
-      setScreen("panel");
+      navigate(pathForScreen("panel"));
       return result.data;
     });
   };
@@ -255,12 +324,20 @@ function App({
   };
 
   if (screen === "welcome") {
-    return <Welcome onEnter={() => setScreen("login")} />;
+    return <Welcome onEnter={() => navigate(pathForScreen("login"))} />;
   }
 
   if (screen === "login" || !user) {
-    return <Login users={data.users} onBack={() => setScreen("welcome")} onLogin={login} message={message} />;
+    return <Login users={data.users} onBack={() => navigate(pathForScreen("welcome"))} onLogin={login} message={message} />;
   }
+
+  const logout = () => {
+    clearLocalSession();
+    setUser(null);
+    setActingRole(null);
+    setMessage("");
+    navigate(pathForScreen("login"), { replace: true });
+  };
 
   if (effectiveRole === "CAJERO") {
     const cashierScreen = screen;
@@ -273,18 +350,14 @@ function App({
         screen={cashierScreen}
         setScreen={goToScreen}
         message={message}
-        onLogout={() => {
-          setUser(null);
-          setActingRole(null);
-          setMessage("");
-          setScreen("login");
-        }}
+        onLogout={logout}
         onSwitchToManager={
           user.role === "ENCARGADO" || user.role === "ADMINISTRADOR"
             ? () => {
                 setActingRole(user.role);
+                writeLocalSession({ userId: user.id, actingRole: user.role });
                 setMessage(`Modo ${roleLabels[user.role].toLowerCase()} activo.`);
-                setScreen("panel");
+                navigate(pathForScreen("panel"));
               }
             : undefined
         }
@@ -357,16 +430,13 @@ function App({
         user.role === "ENCARGADO" || user.role === "ADMINISTRADOR"
           ? () => {
               setActingRole("CAJERO");
+              writeLocalSession({ userId: user.id, actingRole: "CAJERO" });
               setMessage(`Modo cajero activo. Estas operando con el usuario real de ${user.name}.`);
-              setScreen("panel");
+              navigate(pathForScreen("panel"));
             }
           : undefined
       }
-      onLogout={() => {
-        setUser(null);
-        setActingRole(null);
-        setScreen("login");
-      }}
+      onLogout={logout}
     >
       <NoticeBanner message={message} />
       <Suspense fallback={<ScreenLoader />}>

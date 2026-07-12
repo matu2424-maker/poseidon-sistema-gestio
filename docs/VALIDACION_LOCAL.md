@@ -45,7 +45,7 @@ pnpm run test:e2e
 
 El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http://127.0.0.1:5173/`.
 
-La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina solamente la clave local de Poseidon y carga el dataset demo. Un caso prueba apertura, tres lecturas, cierre y persistencia; el segundo prueba importe obligatorio, correccion de diferencia, auditoria contable y ausencia de overflow a 1920x1080. Las trazas y capturas se conservan solo cuando falla.
+La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia la clave local de Poseidon y la sesion de pestaña, y carga el dataset demo. Los casos cubren apertura, tres lecturas, cierre y persistencia; diferencias/auditoria; y rutas directas, recarga, Atrás/Adelante, permisos, caja requerida y funcion activa para los tres roles. Las trazas y capturas se conservan solo cuando falla.
 
 ## Smoke de interfaz por rol
 
@@ -80,7 +80,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Evidencia vigente al 2026-07-12
 
-- 24 archivos de pruebas y 102 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
+- 25 archivos de pruebas y 107 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero transversal, rutas/sesion, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
+- 6 casos E2E en 3 archivos aprobados para caja, diferencias/auditoria y navegacion de Cajero, Encargado y Administrador.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 33 controles y dos referencias visuales reproducibles.
 - TypeScript aprobado.
@@ -88,6 +89,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 - Build de produccion aprobado.
 - Smoke HTTP aprobado.
 - Browser: Administrador > Locales > Editar local aprobado.
+- Browser: `/panel` -> `/locales`, recarga y Atrás/Adelante aprobados sin errores de consola.
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Viewports 1920 x 1080 y 390 x 844 sin overflow horizontal en panel administrativo.
@@ -95,4 +97,4 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 
 ## Cobertura pendiente
 
-Los flujos criticos de cajero y de diferencias/auditoria del encargado tienen E2E. Los demas formularios administrativos todavia se validan con pruebas de integracion y smoke manual por rol.
+Los flujos criticos de cajero, diferencias/auditoria y navegacion por los tres roles tienen E2E. Los demas formularios administrativos todavia se validan con pruebas de integracion y smoke manual por rol.

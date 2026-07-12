@@ -6,13 +6,14 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 
 ## Estado actual
 
-- React + Vite + TypeScript.
-- `src/App.tsx` conserva estado global, sesion, acciones y composicion de pantallas.
+- React + React Router + Vite + TypeScript.
+- `src/App.tsx` conserva estado global, sesion, acciones y composicion; la pantalla activa se deriva de la URL.
 - `src/data/appData.ts` concentra datos demo y limpieza manual; `src/data/normalizeData.ts` normaliza/migra datos locales.
 - `src/infrastructure/storage/` valida, versiona, importa y persiste el snapshot local.
 - `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local y layouts.
 - `src/navigation/screens.ts` es la fuente unica de titulos, menus, roles permitidos y requisito de caja abierta.
-- Cada pantalla tiene una URL estable documentada en `docs/MAPA_RUTAS.md`; la migracion al router conserva `screenDefinitions` como matriz central.
+- Cada pantalla tiene una URL estable documentada en `docs/MAPA_RUTAS.md`; `screenDefinitions` sigue siendo la matriz central.
+- `src/infrastructure/session/localSession.ts` conserva durante la pestaña solo usuario y funcion activa, nunca contraseñas.
 - `src/hooks/useNotice.ts` y `src/components/NoticeBanner.tsx` centralizan avisos.
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` es un manifiesto; los estilos se dividen en `base.css`, `layout.css`, `features/` y `responsive.css` conservando el orden de cascada.
@@ -44,6 +45,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - La funcion usada se registra en auditoria.
 - Encargado/administrador consultan resumen de cajas, pero deben cambiar a funcion Cajero para abrir, cargar o cerrar caja.
 - Navegar limpia avisos anteriores; el cierre puede preservar su confirmacion al abrir el resumen.
+- Recargar conserva usuario, funcion activa y modulo; cerrar sesion vuelve a `/ingresar` y limpia la sesion de pestaña.
 - No hay Auth real todavia.
 - No hay backend real todavia.
 - El boton `Reiniciar demo` del administrador vuelve a cargar este dataset inicial de prueba.

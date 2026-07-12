@@ -21,14 +21,17 @@ test.beforeEach(async ({ page }) => {
 
 test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }) => {
   await loginAsCashier(page);
+  await expect(page).toHaveURL(/\/panel$/);
 
   await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
+  await expect(page).toHaveURL(/\/caja\/abrir$/);
   await expect(page.getByRole("heading", { name: "Nueva caja diaria" })).toBeVisible();
   await page.getByLabel("Fecha operativa").fill(OPERATING_DATE);
   await page.locator("form.open-cash-form").getByRole("button", { name: "Abrir caja", exact: true }).click();
   await expect(page.getByText("Caja abierta correctamente.")).toBeVisible();
 
   await page.getByRole("button", { name: /Resultado de maquinas/i }).click();
+  await expect(page).toHaveURL(/\/caja\/contadores$/);
   await expect(page.getByRole("heading", { name: "Cargar contadores" })).toBeVisible();
   const counterRows = page.locator(".counters-page tbody tr");
   await expect(counterRows).toHaveCount(3);
@@ -46,6 +49,7 @@ test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }
   await expect(page.getByText("Contadores guardados.").first()).toBeVisible();
   await page.getByRole("button", { name: "Volver al panel" }).click();
   await page.getByRole("main").getByRole("button", { name: "Cerrar caja", exact: true }).click();
+  await expect(page).toHaveURL(/\/caja\/cerrar$/);
   await expect(page.getByRole("heading", { name: "Control de cierre" })).toBeVisible();
 
   const expectedCash = await page.getByLabel("Efectivo esperado final").inputValue();
@@ -56,10 +60,11 @@ test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }
 
   await expect(page.getByText("Caja cerrada correctamente.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Resumen de cajas" })).toBeVisible();
+  await expect(page).toHaveURL(/\/recaudaciones$/);
   await expect(page.locator(".recent-cash-table tbody")).toContainText(OPERATING_DATE);
 
   await page.reload();
-  await loginAsCashier(page);
-  await page.getByRole("button", { name: "Resumen cajas", exact: true }).click();
+  await expect(page).toHaveURL(/\/recaudaciones$/);
+  await expect(page.getByRole("heading", { name: "Resumen de cajas" })).toBeVisible();
   await expect(page.locator(".recent-cash-table tbody")).toContainText(OPERATING_DATE);
 });

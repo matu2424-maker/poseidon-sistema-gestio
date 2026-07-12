@@ -18,7 +18,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Veinticuatro archivos de pruebas, 102 casos, mas dos flujos E2E.
+- Veinticinco archivos de pruebas, 107 casos, mas 6 casos E2E en 3 archivos.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -87,11 +87,13 @@ Agregar en este orden:
 ## Prioridad 5 - Navegacion y UI compartida
 
 - Completado: registro unico de pantalla, titulo, menu y roles.
+- Completado: React Router en modo declarativo, URL estable por pantalla, rutas directas, recarga, Atrás/Adelante y sesion local de pestaña.
+- Completado: protecciones de ruta por funcion activa y caja abierta conservando `screenDefinitions` como matriz central.
 - Completado: confirmacion compartida.
 - Completado: mensajes con ciclo de vida claro para evitar avisos obsoletos.
 - Mover componentes transversales fuera de features propietarias.
 - Completado: CSS dividido por base, layout, features y responsive, preservando exactamente el orden original.
-- Completado: pantallas funcionales cargadas bajo demanda; la medicion del corte original redujo el bundle inicial de 507,03 kB a 283,65 kB sin advertencia de chunk grande.
+- Completado: pantallas funcionales cargadas bajo demanda; despues de incorporar React Router el bundle inicial mide 328,76 kB, sin advertencia de chunk grande y por debajo del historico de 507,03 kB.
 
 ## Prioridad tecnica vigente
 

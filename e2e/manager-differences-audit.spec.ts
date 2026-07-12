@@ -27,6 +27,7 @@ test("valida, corrige y audita una diferencia con detalle contable", async ({ pa
   const differenceCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "Diferencias", exact: true }) });
   await differenceCard.getByRole("button", { name: "Ver diferencias", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Diferencias de caja" })).toBeVisible();
+  await expect(page).toHaveURL(/\/diferencias$/);
   await expect(page.locator(".difference-table thead button")).toHaveCount(7);
 
   await page.getByRole("button", { name: "Gestionar", exact: true }).click();
@@ -60,6 +61,7 @@ test("valida, corrige y audita una diferencia con detalle contable", async ({ pa
   await expect(page.getByText("Diferencia gestionada y auditada.")).toBeVisible();
 
   await page.getByRole("button", { name: "Auditoria", exact: true }).click();
+  await expect(page).toHaveURL(/\/auditoria$/);
   await expect(page.getByText("Se muestran solamente los locales asignados.")).toBeVisible();
   await expect(page.locator(".audit-table thead button")).toHaveCount(6);
   const auditRow = page.getByRole("row").filter({ hasText: "Gestionar diferencia de caja" });

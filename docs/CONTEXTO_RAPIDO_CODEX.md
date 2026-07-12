@@ -6,15 +6,16 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 
 ## Estado actual
 
-- Aplicacion React + Vite + TypeScript.
+- Aplicacion React + React Router + Vite + TypeScript.
 - Persistencia local en `localStorage`, clave `poseidon-sistema-gestion-v2`.
 - Login de prueba por seleccion de usuario, sin contrasena.
 - Local principal: Poseidon; estructura preparada para multi-local.
 - Archivos guardan metadata local, no contenido persistente real.
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
-- `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
+- `src/App.tsx` orquesta estado y sesion; `src/navigation/screens.ts` define ruta/pantalla/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
+- La URL conserva el modulo; `sessionStorage` conserva solo `userId` y funcion activa durante la pestaña. No reemplaza Auth real.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
-- Pruebas actuales: 102 casos en 24 archivos, mas dos E2E: ciclo critico de cajero y gestion/auditoria de diferencias del encargado.
+- Pruebas actuales: 107 casos en 25 archivos, mas 6 E2E en 3 archivos: ciclo critico de cajero, diferencias/auditoria y rutas por rol.
 - Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.

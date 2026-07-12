@@ -9,6 +9,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Base tecnica
 
 - Aplicacion web React + Vite + TypeScript.
+- React Router asigna una URL estable a cada pantalla; `screenDefinitions` conserva ruta, titulo, roles y requisito de caja abierta.
 - Mapa tecnico complementario: `docs/MAPA_TECNICO.md`.
 - Contexto rapido para retomar: `docs/CONTEXTO_RAPIDO_CODEX.md`.
 - Reglas generales globales: `docs/REGLAS_GENERALES.md`.
@@ -27,6 +28,9 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - En `localStorage` no se persisten archivos pesados/base64; comprobantes e imagenes guardan metadatos para evitar superar la cuota del navegador.
 - El almacenamiento real de archivos queda pendiente para Supabase Storage u otro storage externo.
 - Inicio de sesion local de prueba: se selecciona un usuario activo desde una lista y no se pide contrasena.
+- La pestaña guarda en `sessionStorage` solo el ID del usuario y la funcion activa para conservar sesion y modulo al recargar; cerrar sesion elimina ese dato.
+- Una URL directa protegida muestra el login y retoma el modulo cuando el usuario seleccionado tiene permiso.
+- Una ruta sin permiso o una operacion de caja sin caja abierta redirige al panel con aviso; una ruta desconocida vuelve al inicio.
 - Usuarios de prueba disponibles:
   - `admin`
   - `cajero1`
@@ -531,7 +535,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Estado actual al 2026-07-12
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, skills, sistema visual, TypeScript, ESLint y 102 pruebas en 24 archivos; el build y smoke se vuelven a ejecutar al cerrar cada bloque.
+- `pnpm run check` valida agentes, skills, sistema visual, TypeScript, ESLint y 107 pruebas en 25 archivos; existen ademas 6 casos E2E en 3 archivos para caja, diferencias/auditoria y rutas por rol.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

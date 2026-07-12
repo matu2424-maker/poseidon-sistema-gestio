@@ -73,7 +73,8 @@ pnpm run check:commit
 - `src/data/normalizeData.ts`: normalizacion y migracion.
 - Pantallas principales viven en `src/features/`.
 - Reglas compartidas viven en `src/lib/`.
-- Pruebas actuales: 102 casos en 24 archivos, mas dos flujos E2E.
+- React Router conserva una URL por modulo; la sesion local de pestaña guarda solo usuario y funcion activa.
+- Pruebas actuales: 107 casos en 25 archivos, mas 6 casos E2E en 3 archivos.
 - Tres perfiles Codex read-only viven en `.codex/agents/`; `check:agents` valida su contrato.
 - Cuatro skills versionadas viven en `.agents/skills/`; `check:skills` valida sus contratos.
 

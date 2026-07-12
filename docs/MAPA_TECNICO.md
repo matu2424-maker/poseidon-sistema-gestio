@@ -6,12 +6,12 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 
 ## Stack y ejecucion
 
-- React 19, TypeScript estricto y Vite.
-- CSS global.
+- React 19, React Router 8 en modo declarativo, TypeScript estricto y Vite.
+- CSS por capas con manifiesto global.
 - Persistencia local con snapshot versionado en `localStorage`.
 - Vitest para pruebas puras e integracion de comandos.
-- Playwright con Chrome para los flujos E2E criticos de cajero y diferencias/auditoria del encargado.
-- Entrada: `src/main.tsx` -> `src/App.tsx`.
+- Playwright con Chrome para caja, diferencias/auditoria y navegacion por rol.
+- Entrada: `src/main.tsx` -> `BrowserRouter` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 
 ## Infraestructura Codex
@@ -52,7 +52,10 @@ scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
 
 ```text
 main.tsx
-  -> App.tsx (estado AppData, usuario, rol efectivo, pantalla)
+  -> BrowserRouter
+  -> App.tsx (estado AppData, usuario, rol efectivo, pantalla derivada de URL)
+     -> navigation/screens.ts (ruta, titulo, rol, menu, requisito de caja)
+     -> infrastructure/session (usuario y funcion de la pestaña)
      -> layout y panel por rol
      -> feature activa
         -> comandos de src/application para operaciones multi-entidad
@@ -75,10 +78,11 @@ src/
   data/normalizeData.ts    migracion y normalizacion del snapshot actual
   data/appDataIds.ts       IDs tecnicos compartidos de local/taller
   infrastructure/storage/ snapshot, validacion y adaptador local
+  infrastructure/session/ sesion local de pestaña para usuario y funcion
   lib/                     reglas y helpers compartidos
   components/              UI reutilizable transversal
   hooks/                   estado UI compartido, como avisos
-  navigation/screens.ts    titulos, menus, permisos y requisitos por pantalla
+  navigation/screens.ts    rutas, titulos, menus, permisos y requisitos por pantalla
   features/
     layout/                bienvenida, login, shell y menus
     dashboard/             paneles iniciales por rol
@@ -175,6 +179,8 @@ src/
 ## Estado de modularizacion
 
 - `App.tsx` ya no contiene las pantallas completas; conserva estado global, login, apertura de caja, navegacion y composicion.
+- La pantalla activa ya no vive en `useState`: se deriva de `location.pathname`; `navigate` actualiza el historial del navegador.
+- `sessionStorage` conserva usuario y funcion activa al recargar la pestaña; cerrar sesion elimina ese dato local.
 - Las reglas puras principales estan en `src/lib`.
 - Features cuentan con `AGENTS.md` cortos de referencia.
 - `LocationsMachines.tsx` ya separa editores, historiales y helpers en `features/admin/locationsMachines/`.
@@ -198,7 +204,7 @@ Medicion de referencia 2026-07-12:
 | `features/cashier/Movements.tsx` | 580 | Bajo/medio: formularios y tablas; negocio operativo delegado a comandos |
 | `features/salaries/SalarySettlements.tsx` | 965 | Medio/alto: listado, detalle, cuentas y cierres; editor separado |
 | `features/admin/Staff.tsx` | 716 | Medio: personal, editor y papelera |
-| `App.tsx` | 488 | Medio: orquestacion, local activo y algunos comandos |
+| `App.tsx` | 558 | Medio: orquestacion, rutas, sesion, local activo y algunos comandos |
 | `styles/features/admin.css` | 1.286 | Medio: tablas, modales y administracion |
 | `styles/features/cash.css` | 821 | Medio: caja, cierre y resumen |
 | `styles/features/dashboards.css` | 579 | Bajo/medio: paneles por rol |
@@ -226,11 +232,11 @@ Completado en integridad local: los movimientos persistidos se conservan, las an
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.
 - IDs locales no son adecuados para concurrencia online.
 
-Completado en navegacion: registro tipado de pantallas, permisos por funcion, requisito de caja abierta, menus/titulos centralizados, confirmacion unica y avisos compartidos. Se eliminaron estados de pantalla heredados sin render y `WelcomeScreen.tsx` sin uso.
+Completado en navegacion: React Router, URL estable por pantalla, ruta directa, recarga, Atrás/Adelante, sesion de pestaña, permisos por funcion, requisito de caja abierta, menus/titulos centralizados, confirmacion unica y avisos compartidos. Se eliminaron estados de pantalla heredados sin render y `WelcomeScreen.tsx` sin uso.
 
 ### Baja por ahora
 
-- Carga diferida completada: en la medicion del corte original el bundle inicial bajo de 507,03 kB a 283,65 kB y Locales/Maquinas quedo como chunk funcional mayor con 50,65 kB. Volver a medir solo cuando cambie el empaquetado.
+- Carga diferida completada. Tras incorporar React Router, la medicion del 2026-07-12 deja el bundle inicial en 328,76 kB y Locales/Maquinas en 53,78 kB, ambos sin advertencia de chunk grande y por debajo del bundle historico de 507,03 kB.
 - `types.ts` grande: dividir solo junto con dominios estables.
 - No incorporar store complejo antes de extraer comandos.
 

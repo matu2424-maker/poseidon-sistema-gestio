@@ -87,3 +87,12 @@ Las rutas operativas de caja solo admiten funcion activa `CAJERO`. `/recaudacion
 - URL de caja rechazada sin caja abierta.
 - Navegacion Atrás/Adelante entre panel y modulo.
 - Cierre de caja navega a `/recaudaciones` y conserva el aviso.
+
+## Evidencia vigente
+
+- Conversión `Screen` <-> URL y unicidad cubiertas por Vitest.
+- Ruta directa antes del login retoma el modulo autorizado.
+- Cajero bloqueado al abrir contadores sin caja.
+- Encargado validado con recarga, Atrás/Adelante y rechazo de Locales.
+- Administrador validado en Locales con recarga y cambio persistente a funcion Cajero.
+- Cierre completo de caja validado con destino `/recaudaciones` y aviso preservado.
