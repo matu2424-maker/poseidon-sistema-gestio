@@ -15,7 +15,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
 - Pruebas actuales: 102 casos en 24 archivos, mas dos E2E: ciclo critico de cajero y gestion/auditoria de diferencias del encargado.
-- Infraestructura Codex: `.codex/config.toml` limita concurrencia/profundidad y `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
+- Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.
 - `pnpm run check:design` valida gobierno visual y referencias sin mezclarlo con reglas funcionales.
@@ -53,7 +53,7 @@ Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs
 4. Modulo afectado en `docs/modulos/`.
 5. Agregar reglas contables, visuales o mapa tecnico solo si la tarea los necesita.
 
-Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples ni superar dos ejecuciones paralelas. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo. Los tres pilotos de diseno estan consolidados en `docs/PILOTOS_DISENO_POSEIDON.md`.
+Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples; usar la capacidad disponible solo con trabajos independientes. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo. Los tres pilotos de diseno estan consolidados en `docs/PILOTOS_DISENO_POSEIDON.md`.
 
 Para un procedimiento repetible, leer `docs/SKILLS_POSEIDON.md` y usar solo la skill aplicable. No confundir una skill con permiso para editar ni con un perfil permanente.
 

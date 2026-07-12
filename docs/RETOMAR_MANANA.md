@@ -16,7 +16,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
-- Codex cuenta con tres perfiles personalizados de solo lectura y limites conservadores de concurrencia/profundidad en `.codex/`.
+- Codex cuenta con tres perfiles personalizados de solo lectura; `.codex/` no fija cantidad de hilos ni profundidad.
 - `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
 - El perfil UI actua como custodio de diseno; tres pilotos, sistema visual, referencias y `check:design` quedan versionados.
 - Cuatro skills reutilizables y `check:skills` quedan versionados; `check:commit` es el control unico previo al commit.

@@ -25,10 +25,9 @@ La carpeta correcta para perfiles del proyecto es `.codex/agents/`. Las skills d
 
 `.codex/config.toml` establece:
 
-- `max_threads = 3`: limite tecnico conservador de hilos abiertos;
-- maximo operativo de dos subagentes trabajando en paralelo;
-- `max_depth = 1`: solo el agente principal puede delegar; un subagente no crea descendientes;
 - `interrupt_message = true`: una interrupcion queda visible para el agente principal.
+
+Poseidon no fija `max_threads` ni `max_depth`. La concurrencia y profundidad disponibles dependen de los limites de capacidad de la plataforma Codex. El agente principal sigue obligado a delegar solo trabajo independiente y a evitar duplicacion, aunque exista capacidad adicional.
 
 Los perfiles no fijan modelo inicialmente. Heredan el modelo de la tarea para evitar incompatibilidades y permitir medir calidad y consumo antes de optimizar ese punto.
 
@@ -89,7 +88,7 @@ No delegar para:
 1. El agente principal interpreta el pedido y lee el contexto minimo.
 2. Decide si la delegacion aporta una perspectiva independiente real.
 3. Define una tarea acotada, archivos o dominio, permiso y formato de salida.
-4. Crea como maximo dos subagentes paralelos con responsabilidades diferentes.
+4. Crea los subagentes independientes que aporten valor y que admita la capacidad disponible.
 5. Continua trabajo local no superpuesto mientras los subagentes avanzan.
 6. Espera resultados solo cuando sean necesarios para continuar.
 7. Cierra los hilos terminados cuando ya no se necesiten.
@@ -127,8 +126,8 @@ Evitar copiar el historial completo del chat. Dar al subagente referencias concr
 
 ## Control de consumo
 
-- Maximo habitual: dos subagentes por tarea.
-- Profundidad fija: uno.
+- No imponer un numero fijo de subagentes ni una profundidad propia del proyecto.
+- Usar concurrencia adicional solo cuando existan tareas independientes y no superpuestas.
 - Priorizar exploracion, revision, pruebas y resumen; evitar escritura paralela amplia.
 - No usar subagentes por costumbre ni para confirmar una conclusion obvia.
 - Leer simbolos y rangos dirigidos; no releer documentos completos sin necesidad.

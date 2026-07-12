@@ -18,10 +18,10 @@ y no ejecutes comandos que alteren datos o el repositorio.
 `;
 
 describe("infraestructura de agentes Codex", () => {
-  it("interpreta los limites globales controlados", () => {
-    expect(parseAgentConfigSource("[agents]\nmax_threads = 3\nmax_depth = 1\ninterrupt_message = true\n")).toEqual({
-      maxThreads: 3,
-      maxDepth: 1,
+  it("interpreta una configuracion sin limites propios", () => {
+    expect(parseAgentConfigSource("[agents]\ninterrupt_message = true\n")).toEqual({
+      maxThreads: undefined,
+      maxDepth: undefined,
       interruptMessage: true,
     });
   });

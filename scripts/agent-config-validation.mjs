@@ -32,9 +32,10 @@ const stringField = (source, key) => {
   return match[1];
 };
 
-const integerField = (source, key) => {
+const optionalIntegerField = (source, key) => {
   const raw = scalarMatch(source, key);
-  if (!raw || !/^-?\d+$/.test(raw)) throw new Error(`El campo ${key} debe ser un entero TOML.`);
+  if (raw === undefined) return undefined;
+  if (!/^-?\d+$/.test(raw)) throw new Error(`El campo ${key} debe ser un entero TOML.`);
   return Number(raw);
 };
 
@@ -47,8 +48,8 @@ const booleanField = (source, key) => {
 export function parseAgentConfigSource(source) {
   if (!/^\s*\[agents\]\s*$/m.test(source)) throw new Error("Falta la seccion [agents].");
   return {
-    maxThreads: integerField(source, "max_threads"),
-    maxDepth: integerField(source, "max_depth"),
+    maxThreads: optionalIntegerField(source, "max_threads"),
+    maxDepth: optionalIntegerField(source, "max_depth"),
     interruptMessage: booleanField(source, "interrupt_message"),
   };
 }
@@ -99,9 +100,8 @@ export async function validateAgentInfrastructure({ rootDir }) {
   if (configSource) {
     try {
       const config = parseAgentConfigSource(configSource);
-      pass(config.maxThreads === 3, "max_threads=3", "max_threads debe ser 3: principal mas dos subagentes.");
-      pass(config.maxThreads - 1 === 2, "concurrencia operativa=2", "La configuracion debe permitir exactamente dos subagentes ademas del principal.");
-      pass(config.maxDepth === 1, "max_depth=1", "max_depth debe ser 1.");
+      pass(config.maxThreads === undefined, "max_threads no fijado", "El proyecto no debe fijar max_threads.");
+      pass(config.maxDepth === undefined, "max_depth no fijado", "El proyecto no debe fijar max_depth.");
       pass(config.interruptMessage, "interrupt_message=true", "interrupt_message debe ser true.");
     } catch (error) {
       errors.push(error instanceof Error ? error.message : String(error));
@@ -149,7 +149,8 @@ export async function validateAgentInfrastructure({ rootDir }) {
   pass(protocol.includes("`.codex/agents/`"), "protocolo referencia perfiles", `${protocolPath} no referencia .codex/agents/.`);
   pass(protocol.includes(`\`${templatePath}\``), "protocolo referencia plantilla", `${protocolPath} no referencia ${templatePath}.`);
   pass(protocol.includes(`\`${registryPath}\``), "protocolo referencia registro", `${protocolPath} no referencia ${registryPath}.`);
-  pass(protocolText.includes("maximo operativo de dos subagentes"), "protocolo limita concurrencia", `${protocolPath} debe declarar un maximo operativo de dos subagentes.`);
+  pass(protocolText.includes("no fija max_threads ni max_depth"), "protocolo no fija limites", `${protocolPath} debe declarar que no fija max_threads ni max_depth.`);
+  pass(protocolText.includes("limites de capacidad de la plataforma"), "protocolo reconoce capacidad externa", `${protocolPath} debe reconocer los limites de capacidad de la plataforma.`);
   pass(protocolText.includes("tres delegaciones utiles documentadas"), "regla de tres usos documentada", `${protocolPath} debe exigir tres delegaciones utiles documentadas antes de un perfil nuevo.`);
   pass(protocolText.includes("agente principal es el unico responsable"), "responsabilidad principal documentada", `${protocolPath} debe declarar que el agente principal es el unico responsable de integrar y cerrar.`);
 

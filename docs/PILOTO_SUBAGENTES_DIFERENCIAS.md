@@ -66,14 +66,14 @@ Evaluar si dos subagentes con responsabilidades distintas aportan evidencia util
 - Duplicacion: moderada y aceptable en transiciones y trazabilidad de auditoria.
 - Consumo: no existe medicion confiable por subagente en este piloto. La espera del mapeador fue demasiado larga para una revision de alcance.
 - Ajuste aplicado: limites de archivos, palabras, riesgos y pruebas en los tres perfiles personalizados.
-- Conclusion: mantener maximo dos subagentes y convocar ambos solo en tareas contables o transversales de riesgo alto.
+- Conclusion original del piloto: mantener dos subagentes. Esta recomendacion numerica quedo reemplazada el 2026-07-12 por la decision de no fijar limites propios; se conserva como evidencia historica.
 
 ## Cierre del piloto
 
-- Una tarea nueva reconocio los tres perfiles nominales, cargo `max_threads = 3`, maximo operativo de dos subagentes y `max_depth = 1`.
+- Una tarea nueva reconocio los tres perfiles nominales y la configuracion limitada vigente durante aquel piloto. Esos valores fueron retirados el 2026-07-12.
 - Se ejecutaron pruebas de solo lectura con `poseidon_scope_mapper` y `poseidon_accounting_reviewer`; ambos finalizaron sin cambios en Git.
 - Limitacion de la API: no expone un selector nativo `agent_type`; se comprobo presencia, lectura y obediencia del contrato TOML nominal.
 - Los riesgos alto/medio de este informe quedaron cubiertos por reglas, codigo y pruebas: transiciones, caja abierta, historico inmutable, IDs/cadena, finitud, importes vacios, zona operativa, alcance local y detalle contable de auditoria.
-- El protocolo queda habilitado para futuros objetivos, manteniendo perfiles de solo lectura y maximo dos subagentes simultaneos.
+- El protocolo queda habilitado para futuros objetivos, manteniendo perfiles de solo lectura y delegacion no superpuesta; ya no impone una cantidad simultanea fija.
 - `pnpm run check:agents` valida automaticamente la infraestructura y sus referencias.
 - Las delegaciones del piloto y la validacion nominal quedaron consolidadas en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.

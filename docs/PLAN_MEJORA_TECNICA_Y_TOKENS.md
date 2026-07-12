@@ -108,9 +108,9 @@ Agregar en este orden:
 
 ## Agentes y subagentes Codex
 
-- Configuracion controlada en `.codex/config.toml`: tres hilos abiertos como maximo y profundidad uno.
+- Configuracion en `.codex/config.toml` sin limites propios de hilos o profundidad; se conserva `interrupt_message`.
 - Perfiles de solo lectura: alcance, revision contable y custodio de diseno.
-- Maximo operativo de dos subagentes en paralelo.
+- La concurrencia se decide por independencia y utilidad dentro de la capacidad disponible de Codex.
 - Delegar solo trabajo independiente que evite contaminar el contexto principal.
 - No usar subagentes para comandos simples, cambios evidentes ni revisiones duplicadas.
 - El agente principal integra resultados, controla escritura, valida y documenta.

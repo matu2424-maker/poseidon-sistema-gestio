@@ -17,7 +17,7 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 ## Infraestructura Codex
 
 ```text
-.codex/config.toml                         limites globales de subagentes
+.codex/config.toml                         interrupciones visibles, sin limites propios
 .codex/agents/poseidon_scope_mapper.toml        mapa de alcance, solo lectura
 .codex/agents/poseidon_accounting_reviewer.toml revision contable, solo lectura
 .codex/agents/poseidon_ui_reviewer.toml         custodio de diseno, solo lectura
@@ -40,7 +40,7 @@ scripts/validate-design-system.mjs          validador de gobierno visual
 scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
 ```
 
-- Maximo tecnico de tres hilos abiertos, maximo operativo de dos trabajando en paralelo y profundidad uno.
+- El proyecto no fija cantidad de hilos ni profundidad; aplica la capacidad disponible de Codex y el protocolo de no superposicion.
 - Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
 - El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
