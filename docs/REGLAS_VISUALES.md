@@ -1,6 +1,6 @@
 # Poseidon - Reglas visuales
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo, `docs/SISTEMA_VISUAL_POSEIDON.md` y el contexto del modulo afectado.
 
@@ -23,6 +23,14 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - Mantener diseno simple, profesional, sobrio y compacto.
 - No repetir el mismo titulo o dato arriba y abajo.
 - Si la barra superior ya muestra pantalla/local/usuario/funcion, el contenido no debe duplicarlo.
+
+## Tipografia
+
+- La interfaz usa la pila local `Segoe UI`, `Aptos`, `system-ui`, sin depender de descargas externas.
+- Importes, contadores e identificadores que necesiten alineacion usan `Cascadia Mono`, `Consolas`, `monospace` mediante `--font-data` o una clase de dato equivalente.
+- Los numeros usan cifras tabulares para conservar la alineacion entre filas y metricas.
+- Evitar pesos `900` generalizados: usar `600` o `700` para controles y etiquetas, y reservar pesos altos para marca o valores realmente prioritarios.
+- La tipografia de datos no se aplica a parrafos ni a columnas textuales completas.
 
 ## Botones
 

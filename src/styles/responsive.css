@@ -285,6 +285,15 @@
     grid-template-columns: 1fr;
   }
 
+  .manager-metric-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-metric-strip .info-card + .info-card {
+    border-top: 1px solid #e3e8ed;
+    border-left: 0;
+  }
+
   .admin-header-actions {
     align-items: flex-start;
     flex-direction: column;

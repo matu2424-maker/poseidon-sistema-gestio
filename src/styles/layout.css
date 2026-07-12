@@ -1,7 +1,7 @@
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 244px minmax(0, 1fr);
   background: var(--bg);
 }
 
@@ -9,8 +9,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 34px;
-  padding: 28px 16px;
+  gap: 26px;
+  padding: 24px 14px;
   background: var(--navy);
   color: #ffffff;
 }
@@ -22,17 +22,18 @@
 }
 
 .side-brand strong {
-  font-size: 1.9rem;
-  font-weight: 900;
+  font-size: 1.68rem;
+  font-weight: 750;
 }
 
 .side-brand span {
   color: #c2cfdd;
+  font-size: 0.92rem;
 }
 
 .side nav {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .side-nav {
@@ -60,7 +61,7 @@
   color: #8fa7bd;
   cursor: pointer;
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0;
   list-style: none;
   padding: 0 8px;
@@ -99,8 +100,8 @@
   background: transparent;
   color: #d8e2ed;
   padding: 0 12px;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.94rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -108,7 +109,7 @@
 .side-link:hover {
   background: var(--blue);
   color: #ffffff;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .side-link.logout {
@@ -121,19 +122,20 @@
 }
 
 .top {
-  min-height: 84px;
+  min-height: 76px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
   border-bottom: 1px solid var(--line);
   background: #ffffff;
-  padding: 0 34px;
+  padding: 0 28px;
 }
 
 .top h1 {
   margin: 0;
-  font-size: clamp(1.6rem, 3vw, 2rem);
+  font-size: 1.65rem;
+  font-weight: 750;
 }
 
 .top-meta {
@@ -142,7 +144,7 @@
   justify-content: flex-end;
   gap: 12px;
   color: #334155;
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   line-height: 1.2;
 }
 
@@ -168,7 +170,7 @@
 .top-meta-items small {
   color: #667487;
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
@@ -177,7 +179,7 @@
 .top-meta-items strong {
   color: #172434;
   font-size: 0.92rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -189,11 +191,12 @@
 }
 
 .content {
-  padding: 34px 50px 70px;
+  padding: 28px 34px 56px;
 }
 
 .content h2 {
   margin-bottom: 18px;
-  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-size: 1.45rem;
+  font-weight: 750;
 }
 

@@ -1,6 +1,6 @@
 # Poseidon - Sistema visual
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Guia de aplicacion de la identidad visual de Poseidon. `docs/REGLAS_VISUALES.md` conserva las reglas obligatorias; este documento explica patrones, jerarquia, referencias y validacion para implementarlas sin depender de la memoria de un chat.
 
@@ -35,6 +35,10 @@ Variables vigentes en `src/styles/base.css`:
 | `--red` | Error, peligro o diferencia que requiere atencion |
 | `--bg`, `--card`, `--soft` | Fondo, superficie y apoyo neutro |
 | `--line`, `--text`, `--muted` | Bordes, texto principal y texto secundario |
+| `--font-ui` | Interfaz local con Segoe UI/Aptos y reemplazos de sistema |
+| `--font-data` | Importes, contadores e identificadores alineados |
+| `--radius-control`, `--radius-surface` | Radios compartidos para controles y superficies |
+| `--shadow-surface` | Separacion leve de superficies principales |
 
 No agregar un color global por una sola pantalla. Primero comprobar si una variable existente expresa la funcion requerida.
 
@@ -86,6 +90,8 @@ Agrupa campos de una misma accion. Campos obligatorios, error y botones pertenec
 
 ## Tipografia y densidad
 
+- La interfaz usa `--font-ui`; los datos numericos que requieren alineacion usan `--font-data`.
+- Las cifras tabulares se activan globalmente para evitar desplazamientos visuales entre importes.
 - Titulo principal: solo en barra superior.
 - Titulo de seccion: compacto y proporcional al panel.
 - Etiqueta: pequena, clara y sin espaciado negativo.
@@ -184,9 +190,13 @@ Conservar selector mensual, accion `Detalle`, tablas ordenables y carga dentro d
 
 ### Panel del encargado
 
-Estado: piloto revisado, rediseno no implementado.
+Estado: primera base visual implementada.
 
-Conservar cabecera unica, reglas contables y cambio a Cajero. Antes de cambiar debe resolverse agrupacion financiera/economica, alcance temporal de Diferencias, accesos duplicados y navegacion movil.
+- La cabecera permanece unica y el cambio a Cajero conserva su ubicacion en el shell.
+- `Control financiero` agrupa diferencias, efectivo y banco en una superficie compacta de tres celdas.
+- `Resultado economico` agrupa ingresos, salidas y resultado neto del mes sin repetir el periodo en cada celda.
+- Las metricas son informativas y no duplican acciones; los destinos frecuentes viven en una unica fila de botones con tamano estable.
+- En movil las bandas se convierten en una columna y separan sus celdas con lineas.
 
 ## Antipatrones
 

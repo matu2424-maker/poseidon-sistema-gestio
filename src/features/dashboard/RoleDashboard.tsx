@@ -91,67 +91,74 @@ export function Panel({
 
   if (effectiveRole === "ENCARGADO") {
     return (
-      <section className="manager-dashboard manager-dashboard-minimal detail-card-surface">
-        <div className="card-grid three manager-kpis manager-minimal-grid">
-          <InfoCard
-            tone={localPendingDifferences > 0 ? "red" : "green"}
-            title="Diferencias"
-            variant="cash"
-            lines={[
-              `*Pendientes: ${localPendingDifferences}`,
-              `Total con diferencia: ${localDifferenceBalances.length}`,
-              `Efectivo: ${money(localCashDifferenceTotal)}`,
-              `Banco: ${money(localBankDifferenceTotal)}`,
-            ]}
-            action={{ label: "Ver diferencias", onClick: () => setScreen("differences") }}
-          />
-          <InfoCard
-            tone={localBalances.cash < 0 ? "red" : "green"}
-            title="Cuenta efectivo"
-            variant="cash"
-            lines={[`*Saldo actual: ${money(localBalances.cash)}`, "Cuenta corriente de efectivo"]}
-            action={{ label: "Ver cuentas", onClick: () => setScreen("admin-current-accounts") }}
-          />
-          <InfoCard
-            tone={localBalances.bank < 0 ? "red" : "blue"}
-            title="Cuenta banco"
-            variant="cash"
-            lines={[`*Saldo actual: ${money(localBalances.bank)}`, "Cuenta corriente de banco"]}
-            action={{ label: "Ver cuentas", onClick: () => setScreen("admin-current-accounts") }}
-          />
-        </div>
+      <section className="manager-dashboard manager-dashboard-minimal">
+        <section className="manager-overview-section" aria-labelledby="manager-financial-title">
+          <div className="manager-section-heading">
+            <h2 id="manager-financial-title">Control financiero</h2>
+          </div>
+          <div className="manager-metric-strip">
+            <InfoCard
+              tone={localPendingDifferences > 0 ? "red" : "green"}
+              title="Diferencias"
+              variant="cash"
+              lines={[
+                `*Pendientes: ${localPendingDifferences}`,
+                `Total con diferencia: ${localDifferenceBalances.length}`,
+                `Efectivo: ${money(localCashDifferenceTotal)}`,
+                `Banco: ${money(localBankDifferenceTotal)}`,
+              ]}
+            />
+            <InfoCard
+              tone={localBalances.cash < 0 ? "red" : "green"}
+              title="Cuenta efectivo"
+              variant="cash"
+              lines={[`*Saldo actual: ${money(localBalances.cash)}`, "Cuenta corriente de efectivo"]}
+            />
+            <InfoCard
+              tone={localBalances.bank < 0 ? "red" : "blue"}
+              title="Cuenta banco"
+              variant="cash"
+              lines={[`*Saldo actual: ${money(localBalances.bank)}`, "Cuenta corriente de banco"]}
+            />
+          </div>
+        </section>
 
-        <div className="card-grid three manager-kpis manager-minimal-grid">
-          <InfoCard
-            tone="green"
-            title={`Ingreso total - ${currentMonthName}`}
-            variant="cash"
-            lines={[`*Total: ${money(monthlyEconomicTotals.income)}`, `Hasta hoy: ${currentDate}`, `Cajas cerradas: ${monthlyClosedBalances.length}`]}
-          />
-          <InfoCard
-            tone="red"
-            title={`Salida total - ${currentMonthName}`}
-            variant="cash"
-            lines={[
-              `*Total: ${money(monthlyEconomicTotals.outcome)}`,
-              "Incluye gastos, salarios, regalos",
-              "y resultado negativo de maquinas",
-            ]}
-          />
-          <InfoCard
-            tone={monthlyNetResult < 0 ? "red" : "green"}
-            title={`Resultado neto - ${currentMonthName}`}
-            variant="cash"
-            lines={[
-              `*Total: ${money(monthlyNetResult)}`,
-              `Ingresos: ${money(monthlyEconomicTotals.income)}`,
-              `Salidas: ${money(monthlyEconomicTotals.outcome)}`,
-              "Resultado economico mensual",
-            ]}
-          />
-        </div>
+        <section className="manager-overview-section" aria-labelledby="manager-economic-title">
+          <div className="manager-section-heading">
+            <h2 id="manager-economic-title">Resultado economico de {currentMonthName}</h2>
+          </div>
+          <div className="manager-metric-strip">
+            <InfoCard
+              tone="green"
+              title="Ingresos"
+              variant="cash"
+              lines={[`*Total: ${money(monthlyEconomicTotals.income)}`, `Hasta hoy: ${currentDate}`, `Cajas cerradas: ${monthlyClosedBalances.length}`]}
+            />
+            <InfoCard
+              tone="red"
+              title="Salidas"
+              variant="cash"
+              lines={[
+                `*Total: ${money(monthlyEconomicTotals.outcome)}`,
+                "Incluye gastos, salarios, regalos",
+                "y resultado negativo de maquinas",
+              ]}
+            />
+            <InfoCard
+              tone={monthlyNetResult < 0 ? "red" : "green"}
+              title="Resultado neto"
+              variant="cash"
+              lines={[
+                `*Total: ${money(monthlyNetResult)}`,
+                `Ingresos: ${money(monthlyEconomicTotals.income)}`,
+                `Salidas: ${money(monthlyEconomicTotals.outcome)}`,
+                "Resultado economico mensual",
+              ]}
+            />
+          </div>
+        </section>
 
-        <div className="manager-shortcuts" aria-label="Accesos de revision del encargado">
+        <nav className="manager-shortcuts" aria-label="Accesos de revision del encargado">
           <button className="button primary compact" type="button" onClick={() => setScreen("differences")}>
             Ver diferencias
           </button>
@@ -167,7 +174,7 @@ export function Panel({
           <button className="button primary compact" type="button" onClick={() => setScreen("cashier-summary")}>
             Resumen de cajas
           </button>
-        </div>
+        </nav>
       </section>
     );
   }

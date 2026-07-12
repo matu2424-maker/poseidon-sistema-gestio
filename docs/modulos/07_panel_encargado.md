@@ -49,16 +49,17 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 
 ## Estructura visual actual
 
-- Primera fila: diferencias, cuenta efectivo y cuenta banco.
-- Segunda fila: ingreso total del mes, salida total del mes y resultado neto del mes.
-- Debajo hay accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
+- `Control financiero`: una banda compacta con diferencias, cuenta efectivo y cuenta banco.
+- `Resultado economico`: una banda compacta con ingreso total, salida total y resultado neto del mes.
+- Debajo hay una unica fila de accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
 - En `Cierres y reportes` aparecen `Resumen de cajas`, `Cierre periodico` y `Reportes`; no aparece apertura de caja.
-- Los accesos rapidos no reemplazan al menu lateral; sirven para entrar rapido a las revisiones mas frecuentes del encargado.
+- Las metricas no contienen botones para evitar duplicar destinos; los accesos rapidos no reemplazan al menu lateral.
 - La pantalla de Diferencias prioriza pendientes por defecto y permite buscar/filtrar antes de abrir el detalle de cada recaudacion.
 
 ## Estetica
 
 - Tarjetas estilo Datos de caja.
 - No repetir datos de barra superior.
-- Botones alineados abajo a la derecha.
-- Accesos rapidos alineados en una grilla compacta, con mismo ancho y altura estable.
+- Tipografia de interfaz Segoe UI/Aptos y tipografia monoespaciada solo para importes e identificadores.
+- Metricas en superficies neutras separadas por lineas, sin colores laterales.
+- Accesos rapidos con color lateral, alineados en una grilla compacta y con el mismo ancho y altura estable.

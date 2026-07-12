@@ -54,8 +54,7 @@ test("cajero conserva la ruta y bloquea una operacion sin caja", async ({ page }
 test("encargado usa URL directa, recarga y navegacion historica", async ({ page }) => {
   await login(page, "user-encargado");
 
-  const differenceCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "Diferencias", exact: true }) });
-  await differenceCard.getByRole("button", { name: "Ver diferencias", exact: true }).click();
+  await page.getByRole("button", { name: "Ver diferencias", exact: true }).click();
   await expect(page).toHaveURL(/\/diferencias$/);
   await page.reload();
   await expect(page.getByRole("heading", { name: "Diferencias de caja" })).toBeVisible();

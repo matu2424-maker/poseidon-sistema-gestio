@@ -24,8 +24,7 @@ test("valida, corrige y audita una diferencia con detalle contable", async ({ pa
   page.on("pageerror", (error) => runtimeErrors.push(error.message));
   await loginAsManager(page);
 
-  const differenceCard = page.locator("article").filter({ has: page.getByRole("heading", { name: "Diferencias", exact: true }) });
-  await differenceCard.getByRole("button", { name: "Ver diferencias", exact: true }).click();
+  await page.getByRole("button", { name: "Ver diferencias", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Diferencias de caja" })).toBeVisible();
   await expect(page).toHaveURL(/\/diferencias$/);
   await expect(page.locator(".difference-table thead button")).toHaveCount(7);
