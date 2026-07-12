@@ -228,11 +228,12 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - En la pantalla y en el comando de `Diferencias`, el encargado solo puede gestionar recaudaciones de sus locales asignados; administrador ve y gestiona todos los locales.
 - La pantalla `Diferencias` abre como historial del mes actual y permite consultar mes anterior o consulta historica por mes/ano.
 - El filtro mensual usa `operatingDate`; solo para datos heredados sin esa fecha convierte `closedAt` a la zona `America/Montevideo`.
-- Visualmente usa el mismo criterio minimalista de `Liquidacion de salarios`: selector de periodo compacto, resumen superior de cuatro metricas, tabla principal como centro y detalle en ventana flotante.
+- Visualmente es el primer piloto de la estetica operativa renovada: selector de periodo compacto, una superficie unica con cuatro metricas, tabla principal como centro y detalle en ventana flotante plana.
+- Las metricas consideran todo el periodo seleccionado; buscador y estado modifican solamente los `resultados visibles` de la tabla.
 - La tabla muestra todas las recaudaciones con historial real de diferencia/control en el periodo, incluidas verificadas, corregidas y anuladas aunque la diferencia actual haya quedado en cero. Una caja sin diferencia ni gestion no crea un control artificial.
-- Tiene buscador por ID/local/fecha/observacion y filtro por estado.
-- La tabla de diferencias es compacta y muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion. La observacion original se consulta dentro del detalle para no cargar la grilla principal.
-- La gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion.
+- Tiene buscador por ID/local/fecha/observacion y filtro por estado con etiquetas visibles.
+- La tabla de diferencias es compacta, usa encabezado claro y muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion. La observacion original se consulta dentro del detalle para no cargar la grilla principal.
+- La gestion se hace en una ventana flotante con detalle de efectivo, banco, observacion original y ultima gestion; sus secciones se separan sin recuadros anidados.
 - Para guardar una gestion se debe elegir accion y escribir observacion obligatoria.
 - Una correccion exige efectivo declarado y banco declarado validos; el comando rechaza valores ausentes, no numericos o negativos.
 - En correccion, un campo vacio permanece vacio y muestra error; nunca se convierte automaticamente en cero.

@@ -21,6 +21,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Ultimo bloque funcional completado
 
+- `Diferencias` adopto el primer piloto visual renovado: resumen compacto, filtros rotulados, tabla clara, acciones jerarquizadas y modal plano, sin cambios contables.
+- Sus estilos quedaron bajo `features/admin.css` y la pantalla reutiliza el `Modal` compartido.
 - Diferencias reconfirma toda gestion sensible y limpia errores al cerrar o cambiar de recaudacion.
 - Encargado solo puede gestionar diferencias de sus locales asignados, validado tambien por el comando.
 - Correcciones exigen importes validos de efectivo y banco.

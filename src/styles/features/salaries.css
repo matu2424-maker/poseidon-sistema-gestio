@@ -15,34 +15,6 @@
   min-height: 128px;
 }
 
-.difference-summary-grid {
-  gap: 14px;
-  margin-bottom: 8px;
-}
-
-.difference-summary-grid .info-card {
-  min-height: 128px;
-}
-
-.differences-period-bar {
-  margin-bottom: 6px;
-}
-
-.differences-date-range select {
-  min-height: 38px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #ffffff;
-  padding: 7px 10px;
-  color: var(--text);
-  font-weight: 900;
-}
-
-.difference-impact-helper {
-  margin: -2px 0 2px;
-  font-size: 0.9rem;
-}
-
 .salary-detail-compact {
   display: grid;
   gap: 10px;

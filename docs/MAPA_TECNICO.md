@@ -171,6 +171,7 @@ src/
 - `appData.ts` ya delega la normalizacion/migracion en `data/normalizeData.ts`.
 - Las pantallas funcionales se cargan bajo demanda desde `navigation/lazyScreens.ts`; el arranque, login, shell y recuperacion quedan estaticos.
 - El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino continuar sacando comandos de negocio de React.
+- `Diferencias` reutiliza el `Modal` compartido de `components/ui.tsx`; sus estilos dejaron de depender de `features/salaries.css` y pertenecen a `features/admin.css` con breakpoints en `responsive.css`.
 
 ## Concentracion de codigo
 

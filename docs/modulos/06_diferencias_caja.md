@@ -35,19 +35,20 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 
 ## Flujo de pantalla
 
-- La pantalla usa una estetica minimalista similar a `Liquidacion de salarios`: selector de periodo compacto, resumen chico, tabla principal como foco y modal de gestion.
+- La pantalla usa el piloto visual minimalista de Poseidon: selector de periodo compacto, una superficie unica de resumen, tabla principal como foco y modal de gestion plano.
 - La pantalla funciona como historial por periodo: boton del mes anterior, boton del mes actual o consulta historica por mes/ano.
 - El periodo usa primero `operatingDate`; solo para datos heredados sin fecha operativa usa la fecha de cierre convertida a `America/Montevideo`.
 - Debe mostrar todas las recaudaciones con historial real de diferencia o control en el periodo, incluidas verificadas, corregidas y anuladas. Una caja sin diferencia ni gestion no aparece como control artificial.
-- El resumen superior muestra pendientes, diferencia efectivo, diferencia banco y gestionadas.
+- El resumen superior muestra pendientes, diferencia efectivo, diferencia banco y gestionadas dentro de una sola superficie compacta.
+- Las cuatro metricas consideran todo el periodo seleccionado. El buscador y el filtro de estado cambian solo la cantidad y filas de `resultados visibles`.
 - La regla de impacto contable aparece como ayuda breve: mueve efectivo/banco del local para que la proxima caja abra con saldo real y no cambia resultado economico.
-- Arriba de la tabla hay buscador por ID, local, fecha u observacion y filtro de estado.
+- Arriba de la tabla hay buscador por ID, local, fecha u observacion y filtro de estado, ambos con etiqueta visible.
 - Se puede filtrar por pendientes, gestionadas, todas o por estado especifico.
-- La tabla es compacta y no muestra formularios largos por fila.
+- La tabla es compacta, usa encabezado claro y no muestra formularios largos por fila.
 - La tabla permite ordenar por todas sus columnas visibles de datos.
 - La tabla principal muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion.
 - La observacion de cierre no se muestra como columna principal para mantener la tabla limpia; se ve dentro del detalle.
-- Clic en una fila abre una ventana flotante con el detalle de efectivo/banco, observacion original y ultima gestion. La accion dice `Gestionar` si hay transiciones disponibles y `Ver detalle` si esta anulada.
+- Clic en una fila abre una ventana flotante con el detalle de efectivo/banco, observacion original y ultima gestion. `Gestionar` mantiene enfasis primario y `Ver detalle` aparece como accion secundaria.
 - La gestion se guarda desde la ventana flotante con accion y observacion obligatoria.
 - Antes de guardar, la interfaz reconfirma la accion y explica si mantiene, corrige o revierte el impacto contable.
 - El error de observacion obligatoria se muestra dentro de la ventana flotante donde se esta gestionando la diferencia.
@@ -59,7 +60,7 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 - Si la recaudacion es historica, no se reescribe ninguna caja posterior ni sus fondos iniciales. El ajuste entra al libro con fecha de gestion.
 - Cada delta crea un movimiento nuevo con ID unico y `previousAdjustmentId`; ajustes anteriores no se reemplazan.
 - Al guardar una anulacion, se conservan los datos auditados del antes/despues, pero la diferencia efectiva queda en cero y los movimientos de cuenta quedan sin impacto activo.
-- La ventana flotante muestra el historial completo auditado de cierre, revision, correccion o anulacion de esa recaudacion.
+- La ventana flotante muestra el historial completo auditado de cierre, revision, correccion o anulacion de esa recaudacion mediante secciones separadas por lineas y espacio, sin tarjetas anidadas.
 - Para cierres historicos, el historial reconoce eventos de auditoria con entidad `Caja` ademas de `BalanceDiario` y `DiferenciaCaja`.
 - Al guardar, el estado queda en la recaudacion y se registra auditoria.
 - El evento auditado contiene local, recaudacion, saldos de efectivo/banco antes y despues, e IDs y datos de todos los movimientos nuevos.

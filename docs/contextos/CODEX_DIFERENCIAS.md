@@ -19,7 +19,7 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 - Helpers de estado/impacto: `cashDifferenceForBalance`, `bankDifferenceForBalance`, `balanceHasDifference`, `differenceIsPending`, `differenceActionImpact` y `normalizeDifferenceStatus` viven en `src/lib/differences.ts`.
 - Periodo mensual compartido: `src/lib/periods.ts` y `src/components/MonthlyPeriodSelector.tsx`.
 - Movimientos de diferencia: `differenceAccountMovement` y `syncDifferenceAccountMovements` viven en `src/lib/accountMovements.ts`.
-- Estilos: `.differences-page`, `.difference-summary-grid`, `.differences-period-bar`, `.difference-table`, `.difference-toolbar`, `.difference-detail-compact`, `.difference-detail-modal`, `.difference-correction-grid`, `.difference-history-*` en `src/styles/global.css`.
+- Estilos propietarios: `.differences-page`, `.difference-summary-surface`, `.difference-summary-grid`, `.difference-list-surface`, `.differences-period-bar`, `.difference-table`, `.difference-toolbar`, `.difference-detail-compact`, `.difference-detail-modal`, `.difference-correction-grid`, `.difference-history-*` en `src/styles/features/admin.css`; breakpoints en `src/styles/responsive.css`.
 
 ## Reglas criticas
 
@@ -34,6 +34,8 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 - Debe incluir resueltas/corregidas aunque la diferencia actual sea cero.
 - Error de observacion obligatoria aparece dentro del modal.
 - Tabla principal ordenable por todas sus columnas visibles.
+- El resumen superior representa todo el periodo; buscador y estado modifican solamente los resultados visibles de la tabla.
+- El piloto visual usa una superficie compacta de cuatro metricas, tabla con encabezado claro y modal sin recuadros anidados.
 - El comando valida tambien el alcance por local: un encargado no puede gestionar recaudaciones fuera de `user.localIds`; administrador conserva alcance global.
 - Una correccion exige importes finitos de efectivo y banco. La interfaz pide reconfirmacion antes de verificar, corregir o anular.
 - Un importe obligatorio vacio no se convierte en cero; la validacion queda dentro del modal.

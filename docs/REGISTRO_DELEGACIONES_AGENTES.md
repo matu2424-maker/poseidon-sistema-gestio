@@ -20,7 +20,8 @@ Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica v
 | `2026-07-11-PERFIL-ALCANCE-01` | `poseidon_scope_mapper` nominal | Validar carga y obediencia del perfil | `UTIL` | No medida por perfil | No disponible | Evidencia de lectura TOML, read-only y Git limpio | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-11-PERFIL-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Validar carga y obediencia del perfil | `UTIL` | No medida por perfil | No disponible | Evidencia de lectura TOML, read-only y Git limpio | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-11-DIF-WORKER-01` | `worker` integrado | Implementar el nucleo autorizado de Diferencias | `UTIL` | No medida por perfil | No disponible | Matriz, bloqueo, append-only, schema 2 y 50 pruebas focalizadas | BAJA | Completado, cerrado, escritura controlada |
+| `2026-07-11-DIF-UI-01` | `poseidon_ui_reviewer` aplicado por explorer integrado | Revisar el piloto visual de Diferencias | `UTIL` | No medida por perfil | No disponible | Metricas por periodo, resumen compacto, responsive 2x2, jerarquia de acciones, modal plano y propiedad CSS | BAJA | Completado, cerrado, solo lectura |
 
 ## Evaluacion de perfiles nuevos
 
-No existe una especialidad nueva con tres delegaciones utiles documentadas. No corresponde crear otro perfil permanente en esta etapa.
+No existe una especialidad nueva con tres delegaciones utiles documentadas. El perfil UI ya tiene una delegacion funcional util; no corresponde crear otro perfil permanente en esta etapa.

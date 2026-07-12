@@ -1,6 +1,6 @@
 # Poseidon - Reglas visuales
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-11
 
 Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo y el contexto del modulo afectado.
 
@@ -56,6 +56,16 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - Recuadros con colores laterales se reservan principalmente para botones o tarjetas de accion.
 - Los recuadros informativos deben seguir estilo tipo `Datos de caja`: etiqueta chica, valor fuerte y filas compactas.
 - No usar decoracion innecesaria.
+
+## Piloto visual de Diferencias
+
+- `Diferencias de caja` es el primer piloto de una estetica mas tranquila y coherente, sin copiar la identidad de otro producto.
+- El resumen del periodo usa una unica superficie compacta con celdas separadas, no cuatro tarjetas altas.
+- Las metricas resumen todo el periodo seleccionado; buscador y estado modifican solo los resultados visibles de la tabla y deben rotularse de forma inequivoca.
+- La tabla conserva densidad operativa con encabezado claro, estado mediante indicador discreto y todas las columnas de datos ordenables.
+- `Gestionar` mantiene enfasis primario; `Ver detalle` se presenta como accion secundaria.
+- El modal evita recuadros anidados: contexto, gestion e historial se separan principalmente mediante lineas y espacio.
+- En anchos intermedios el resumen pasa de cuatro a dos columnas; solo en movil usa una columna.
 
 ## Formularios
 

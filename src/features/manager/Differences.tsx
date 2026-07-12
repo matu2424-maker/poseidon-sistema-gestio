@@ -1,4 +1,5 @@
-import { ReactNode, useState } from "react";
+import { useState } from "react";
+import { Eye, Info, Search, SlidersHorizontal } from "lucide-react";
 import type { AppData, Balance, DifferenceStatus, User } from "../../types";
 import { formatDateTime, monthRange, operatingDateFromTimestamp } from "../../lib/dates";
 import {
@@ -14,6 +15,7 @@ import { formatMoneyInput, money, moneyInputValue, normalizeRequiredMoneyInput, 
 import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
+import { Modal } from "../../components/ui";
 import { commandContext } from "../../application/command";
 import { manageDifferenceCommand } from "../../application/differences/manageDifference";
 import { confirmAction } from "../../lib/confirmations";
@@ -48,53 +50,6 @@ const parseAuditValue = (value: string): Record<string, unknown> => {
     return {};
   }
 };
-
-function InfoCard({
-  title,
-  lines,
-  tone,
-}: {
-  title: string;
-  lines: string[];
-  tone: "blue" | "green" | "orange" | "red";
-}) {
-  return (
-    <article className={`info-card ${tone}`}>
-      <h3>{title}</h3>
-      {lines.map((line) => (
-        <p key={line}>{line}</p>
-      ))}
-    </article>
-  );
-}
-
-function Modal({
-  title,
-  children,
-  onClose,
-  closeLabel = "Cerrar",
-  wide,
-}: {
-  title: string;
-  children: ReactNode;
-  onClose: () => void;
-  closeLabel?: string;
-  wide?: boolean;
-}) {
-  return (
-    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className={wide ? "modal-card wide" : "modal-card"} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{title}</h2>
-          <button className="button muted compact" type="button" onClick={onClose}>
-            {closeLabel}
-          </button>
-        </div>
-        {children}
-      </section>
-    </div>
-  );
-}
 
 export function Differences({ data, user, patchData, setMessage }: DifferencesProps) {
   const [drafts, setDrafts] = useState<Record<string, DifferenceDraft>>({});
@@ -275,13 +230,8 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
 
   return (
     <section className="admin-focus differences-page detail-card-surface">
-      <div className="admin-header">
-        <div>
-          <p className="helper">Las diferencias no modifican el resultado economico. Se revisan y quedan auditadas por encargado o administrador.</p>
-        </div>
-        <div className="admin-header-actions">
-          <span>{balances.length} control(es)</span>
-        </div>
+      <div className="differences-intro">
+        <p className="helper">Control mensual de cierres con diferencias y seguimiento completo de cada gestion.</p>
       </div>
       <MonthlyPeriodSelector
         mode={periodMode}
@@ -297,28 +247,72 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
         className="differences-period-bar"
         rangeClassName="differences-date-range"
       />
-      <div className="card-grid four difference-summary-grid">
-        <InfoCard tone={pending > 0 ? "red" : "green"} title="Pendientes" lines={[`${pending}`, "Requieren gestion"]} />
-        <InfoCard tone={totalCashDifference === 0 ? "green" : "red"} title="Diferencia efectivo" lines={[money(totalCashDifference), "Cuenta efectivo"]} />
-        <InfoCard tone={totalBankDifference === 0 ? "green" : "red"} title="Diferencia banco" lines={[money(totalBankDifference), "Cuenta banco"]} />
-        <InfoCard tone={managed > 0 ? "blue" : "orange"} title="Gestionadas" lines={[`${managed}`, `Total ${money(totalDifference)}`]} />
-      </div>
-      <p className="helper difference-impact-helper">Las diferencias mueven efectivo/banco del local para que la proxima caja abra con saldo real. No cambian el resultado economico.</p>
-      <div className="difference-toolbar">
-        <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por ID, local, fecha u observacion..." />
-        <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as DifferenceStatusFilter)}>
-          <option value="PENDIENTE">Pendientes</option>
-          <option value="GESTIONADAS">Gestionadas</option>
-          <option value="TODAS">Todas</option>
-          <option value="VERIFICADA">Verificadas</option>
-          <option value="CORREGIDA">Corregidas</option>
-          <option value="ANULADA">Anuladas</option>
-        </select>
-        <span>{activeRange.start} al {activeRange.end}</span>
-      </div>
-      {error && !selectedBalance ? <p className="validation error">{error}</p> : null}
-      <div className="table-wrap">
-        <table className="data-table difference-table">
+      <section className="difference-summary-surface" aria-labelledby="difference-summary-title">
+        <div className="difference-summary-heading">
+          <div>
+            <span>Resumen del periodo</span>
+            <h2 id="difference-summary-title">Situacion de las diferencias</h2>
+          </div>
+          <p>Los indicadores consideran todo el periodo seleccionado.</p>
+        </div>
+        <div className="difference-summary-grid">
+          <article className={pending > 0 ? "difference-summary-item is-alert" : "difference-summary-item is-ok"}>
+            <span>Pendientes</span>
+            <strong>{pending}</strong>
+            <small>Requieren gestion</small>
+          </article>
+          <article className={totalCashDifference === 0 ? "difference-summary-item is-ok" : "difference-summary-item is-alert"}>
+            <span>Diferencia efectivo</span>
+            <strong>{money(totalCashDifference)}</strong>
+            <small>Cuenta efectivo</small>
+          </article>
+          <article className={totalBankDifference === 0 ? "difference-summary-item is-ok" : "difference-summary-item is-alert"}>
+            <span>Diferencia banco</span>
+            <strong>{money(totalBankDifference)}</strong>
+            <small>Cuenta banco</small>
+          </article>
+          <article className="difference-summary-item is-neutral">
+            <span>Gestionadas</span>
+            <strong>{managed}</strong>
+            <small>Total {money(totalDifference)}</small>
+          </article>
+        </div>
+        <p className="difference-impact-helper">
+          <Info size={17} aria-hidden="true" />
+          <span>Actualizan efectivo o banco para reflejar el saldo declarado, pero no modifican el resultado economico.</span>
+        </p>
+      </section>
+      <section className="difference-list-surface" aria-labelledby="difference-list-title">
+        <div className="difference-list-heading">
+          <div>
+            <h2 id="difference-list-title">Historial de controles</h2>
+            <p>Selecciona una recaudacion para consultar su detalle o gestionar la diferencia.</p>
+          </div>
+          <span>{balances.length} resultado(s) visible(s)</span>
+        </div>
+        <div className="difference-toolbar">
+          <label className="difference-control difference-search-control">
+            <span>Buscar</span>
+            <div className="difference-input-with-icon">
+              <Search size={17} aria-hidden="true" />
+              <input className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ID, local, fecha u observacion" />
+            </div>
+          </label>
+          <label className="difference-control difference-status-control">
+            <span>Estado</span>
+            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as DifferenceStatusFilter)}>
+              <option value="PENDIENTE">Pendientes</option>
+              <option value="GESTIONADAS">Gestionadas</option>
+              <option value="TODAS">Todas</option>
+              <option value="VERIFICADA">Verificadas</option>
+              <option value="CORREGIDA">Corregidas</option>
+              <option value="ANULADA">Anuladas</option>
+            </select>
+          </label>
+        </div>
+        {error && !selectedBalance ? <p className="validation error difference-inline-alert">{error}</p> : null}
+        <div className="table-wrap difference-table-wrap">
+          <table className="data-table difference-table">
           <thead>
             <tr>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "id"))}>Caja{sortIndicator(sort, "id")}</button></th>
@@ -328,7 +322,7 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "bankDifference"))}>Banco{sortIndicator(sort, "bankDifference")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "status"))}>Estado{sortIndicator(sort, "status")}</button></th>
               <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "lastReview"))}>Ultima gestion{sortIndicator(sort, "lastReview")}</button></th>
-              <th>Accion</th>
+              <th className="difference-action-heading">Accion</th>
             </tr>
           </thead>
           <tbody>
@@ -366,8 +360,9 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
                       "Sin gestion"
                     )}
                   </td>
-                  <td>
-                    <button className="button primary compact" type="button" onClick={(event) => { event.stopPropagation(); openDifference(balance.id); }}>
+                  <td className="difference-action-cell">
+                    <button className={hasAvailableAction ? "button primary compact difference-action-button" : "button compact difference-action-button difference-detail-button"} type="button" onClick={(event) => { event.stopPropagation(); openDifference(balance.id); }}>
+                      {hasAvailableAction ? <SlidersHorizontal size={15} aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}
                       {hasAvailableAction ? "Gestionar" : "Ver detalle"}
                     </button>
                   </td>
@@ -380,8 +375,9 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
               </tr>
             )}
           </tbody>
-        </table>
-      </div>
+          </table>
+        </div>
+      </section>
       {selectedBalance && (
         <Modal title={`Diferencia ${balanceVisibleId(data, selectedBalance)}`} onClose={closeDifference} wide>
           {(() => {
@@ -427,12 +423,12 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
                     </div>
                   </div>
                   {selectedLocalHasOpenCash ? (
-                    <p className="validation error">Cierra la caja abierta de este local antes de gestionar una diferencia historica.</p>
+                    <p className="validation error difference-inline-alert">Cierra la caja abierta de este local antes de gestionar una diferencia historica.</p>
                   ) : null}
                   {!selectedTransitions.length ? (
                     <p className="helper">Esta diferencia esta anulada y no admite nuevas acciones. El historial permanece disponible para auditoria.</p>
                   ) : null}
-                  {error ? <p className="validation error">{error}</p> : null}
+                  {error ? <p className="validation error difference-inline-alert">{error}</p> : null}
                   <div className="difference-review-form modal-form">
                     <select value={selectedDraft.status} onChange={(event) => changeDraftStatus(selectedBalance, event.target.value as DifferenceStatus | "")} disabled={!canManageSelected}>
                       <option value="">Elegir accion</option>
