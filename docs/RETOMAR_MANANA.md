@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Este archivo registra continuidad inmediata. Las reglas permanentes viven en las fuentes canonicas indicadas por `docs/INDICE_DOCUMENTACION.md`.
 
@@ -19,6 +19,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Codex cuenta con tres perfiles personalizados de solo lectura y limites conservadores de concurrencia/profundidad en `.codex/`.
 - `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
 - El perfil UI actua como custodio de diseno; tres pilotos, sistema visual, referencias y `check:design` quedan versionados.
+- Cuatro skills reutilizables y `check:skills` quedan versionados; `check:commit` es el control unico previo al commit.
+- El hook local usa `.githooks/pre-commit`; GitHub, Supabase y Vercel siguen sin conectarse.
 
 ## Ultimo bloque funcional completado
 
@@ -31,7 +33,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Anular una diferencia conserva el asiento original y agrega contramovimientos activos, dejando impacto neto cero.
 - Matriz de transiciones, bloqueo por caja abierta, historico inmutable, IDs/cadena append-only, finitud, periodo operativo y auditoria local quedaron implementados.
 - Auditoria muestra detalle de saldos/movimientos y limita al encargado a sus locales.
-- 96 pruebas automatizadas en 22 archivos.
+- 102 pruebas automatizadas en 24 archivos.
 
 ## Bloque documental actual
 
@@ -42,6 +44,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
 - Protocolo de agentes y subagentes integrado con un piloto de solo lectura sobre Diferencias.
 - Validacion automatica, medicion obligatoria, regla de tres usos y responsabilidad exclusiva del agente principal documentadas.
+- Skills, validador, hook proporcional y piloto real documentados en `docs/SKILLS_POSEIDON.md` y `docs/PILOTO_SKILLS_POSEIDON.md`.
 
 ## Proximas prioridades de codigo
 
@@ -50,7 +53,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 3. Completado: primera division mecanica de locales/maquinas, movimientos, salarios y normalizacion de datos.
 4. Completado: navegacion, permisos, confirmaciones y avisos centralizados.
 5. Completado: CSS global separado sin alterar la cascada.
-6. Completado: validacion de agentes/diseno, ESLint, 96 pruebas, smoke HTTP y smoke manual por los tres roles.
+6. Completado: validacion de agentes/skills/diseno, ESLint, 102 pruebas, smoke HTTP y smoke manual por los tres roles.
 7. Completado: E2E critico de cajero, E2E de diferencias/auditoria del encargado y carga diferida por pantalla.
 8. Completado: comandos de movimientos operativos y locales/maquinas con pruebas de invariantes y auditoria.
 9. Completado: integracion contable transversal y puerto asincrono con adaptador `localStorage`.
@@ -58,7 +61,8 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 11. Completado: riesgos priorizados del piloto de Diferencias corregidos e integrados.
 12. Completado: perfiles personalizados validados en una tarea nueva; API sin selector nativo de `agent_type`, pero contratos TOML obedecidos.
 13. Completado: `check:agents`, pruebas, plantilla, registro y regla para perfiles nuevos.
-14. Siguiente paso: continuar con un modulo funcional elegido por el usuario, sin otra refactorizacion amplia.
+14. Completado: cuatro skills, `check:skills`, `check:commit`, hook local y piloto medido.
+15. Siguiente paso: continuar con un modulo funcional elegido por el usuario, usando la skill correspondiente.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
@@ -77,6 +81,7 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 pnpm run check
 pnpm run build
 pnpm run smoke:localhost
+pnpm run check:commit
 git diff --check
 git status --short
 ```

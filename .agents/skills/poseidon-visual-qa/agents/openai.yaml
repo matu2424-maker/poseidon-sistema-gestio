@@ -1,0 +1,4 @@
+interface:
+  display_name: "Poseidon Visual QA"
+  short_description: "Valida interfaces y responsive de Poseidon"
+  default_prompt: "Usa $poseidon-visual-qa para verificar esta interfaz de Poseidon en los viewports y estados relevantes."

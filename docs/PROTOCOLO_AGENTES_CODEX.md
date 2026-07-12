@@ -1,6 +1,6 @@
 # Poseidon - Protocolo de agentes y subagentes Codex
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Fuente canonica para decidir cuando delegar trabajo de desarrollo de Poseidon, que perfil usar y como integrar sus resultados. Estos agentes son infraestructura de Codex versionada con el proyecto; no forman parte de la aplicacion ni son visibles para sus usuarios.
 
@@ -10,8 +10,16 @@ Fuente canonica para decidir cuando delegar trabajo de desarrollo de Poseidon, q
 - Subagente: hilo temporal creado para una tarea acotada y cerrado cuando devuelve su resultado.
 - Perfil personalizado: configuracion reutilizable en `.codex/agents/` que define instrucciones y permisos de un tipo de subagente.
 - `AGENTS.md`: reglas de trabajo y mapas de lectura aplicables por carpeta; no reemplaza un perfil personalizado.
+- Skill: procedimiento reutilizable versionado en `.agents/skills/`; no reemplaza una regla canonica ni justifica por si solo una delegacion.
 
-La carpeta correcta para perfiles del proyecto es `.codex/agents/`. La carpeta `.agents/` existente esta vacia y no se usa para esta infraestructura.
+La carpeta correcta para perfiles del proyecto es `.codex/agents/`. Las skills del proyecto viven separadas en `.agents/skills/` y se rigen por `docs/SKILLS_POSEIDON.md`.
+
+## Skills antes que perfiles nuevos
+
+- Usar una skill cuando la necesidad sea un procedimiento repetible del agente principal.
+- Usar un perfil cuando haga falta una perspectiva estable, delimitada y preferentemente de solo lectura.
+- No crear un perfil de localhost, documentacion, QA o cambio modular si una skill puede encapsular el flujo.
+- Una skill puede recomendar delegacion, pero el agente principal aplica esta fuente canonica antes de crear subagentes.
 
 ## Configuracion de control
 
@@ -151,6 +159,7 @@ Para cambios de configuracion o perfiles:
 
 ```text
 pnpm run check:agents
+pnpm run check:skills
 pnpm run check:design
 verificar carga de los perfiles en una nueva tarea Codex
 ejecutar un piloto de solo lectura
@@ -158,6 +167,8 @@ comprobar que el piloto no modifica el worktree
 git diff --check
 revisar referencias documentales
 ```
+
+Las skills se validan ademas con el contrato de `docs/SKILLS_POSEIDON.md`. El control unico previo al commit es `pnpm run check:commit`.
 
 Una tarea Codex ya iniciada puede no recargar perfiles agregados durante esa misma ejecucion. La carga nominal de perfiles nuevos debe comprobarse desde una tarea nueva; el piloto inicial puede aplicar sus contratos con agentes integrados de solo lectura.
 

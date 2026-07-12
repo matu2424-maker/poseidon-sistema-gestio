@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a la tarea.
 
@@ -14,12 +14,15 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
 - `src/App.tsx` orquesta estado; `src/navigation/screens.ts` define pantallas/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
-- Pruebas actuales: 96 casos en 22 archivos, mas dos E2E: ciclo critico de cajero y gestion/auditoria de diferencias del encargado.
+- Pruebas actuales: 102 casos en 24 archivos, mas dos E2E: ciclo critico de cajero y gestion/auditoria de diferencias del encargado.
 - Infraestructura Codex: `.codex/config.toml` limita concurrencia/profundidad y `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.
 - `pnpm run check:design` valida gobierno visual y referencias sin mezclarlo con reglas funcionales.
+- Cuatro skills versionadas en `.agents/skills/` cubren cambio modular, QA visual, regresion contable y diagnostico de localhost.
+- `pnpm run check:skills` valida sus contratos; `pnpm run check:commit` es la entrada unica previa al commit.
 - Piloto de Diferencias cerrado: perfiles validados en tarea nueva y riesgos priorizados implementados con pruebas. Evidencia en `docs/PILOTO_SUBAGENTES_DIFERENCIAS.md`.
+- Piloto de skills cerrado: cambio modular y control previo al commit validados sin modificar funcionalidad. Evidencia en `docs/PILOTO_SKILLS_POSEIDON.md`.
 
 ## Usuarios de prueba
 
@@ -52,6 +55,8 @@ Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs
 
 Para delegar trabajo, leer `docs/PROTOCOLO_AGENTES_CODEX.md`. No crear subagentes para tareas simples ni superar dos ejecuciones paralelas. Registrar cada resultado y exigir tres delegaciones utiles de la misma necesidad antes de proponer un perfil nuevo. Los tres pilotos de diseno estan consolidados en `docs/PILOTOS_DISENO_POSEIDON.md`.
 
+Para un procedimiento repetible, leer `docs/SKILLS_POSEIDON.md` y usar solo la skill aplicable. No confundir una skill con permiso para editar ni con un perfil permanente.
+
 No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` completos.
 
 ## Documentacion obligatoria al cambiar
@@ -69,9 +74,11 @@ No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` comp
 
 ```text
 pnpm run check:agents
+pnpm run check:skills
 pnpm run check:design
 pnpm run check
 pnpm run build
+pnpm run check:commit
 iniciar-poseidon.bat
 pnpm run smoke:localhost
 ```

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Poseidon Localhost Diagnostics"
+  short_description: "Diagnostica localhost con el flujo oficial"
+  default_prompt: "Usa $poseidon-localhost-diagnostics para levantar o diagnosticar Poseidon en localhost con el procedimiento oficial."

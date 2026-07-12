@@ -1,0 +1,4 @@
+interface:
+  display_name: "Poseidon Accounting Regression"
+  short_description: "Comprueba invariantes contables de Poseidon"
+  default_prompt: "Usa $poseidon-accounting-regression para comprobar el impacto contable y los casos de regresion de este cambio."

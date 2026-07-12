@@ -1,0 +1,4 @@
+interface:
+  display_name: "Poseidon Module Change"
+  short_description: "Ejecuta cambios modulares con control integral"
+  default_prompt: "Usa $poseidon-module-change para ejecutar este cambio modular con alcance, autorizacion, validacion, documentacion y cierre estable."

@@ -529,10 +529,10 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La tabla permite ordenar todas sus columnas visibles de datos y `Ver` abre una ventana con el detalle completo.
 - En gestiones de diferencias, el detalle incluye saldos efectivo/banco antes y despues y cada movimiento nuevo con ID, cuenta, direccion, importe y cadena de ajuste.
 
-## Estado actual al 2026-07-11
+## Estado actual al 2026-07-12
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida infraestructura Codex, sistema visual, TypeScript, ESLint y 96 pruebas en 22 archivos; el build y smoke se vuelven a ejecutar al cerrar cada bloque.
+- `pnpm run check` valida agentes, skills, sistema visual, TypeScript, ESLint y 102 pruebas en 24 archivos; el build y smoke se vuelven a ejecutar al cerrar cada bloque.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

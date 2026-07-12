@@ -1,6 +1,6 @@
 # Poseidon - Indice de documentacion
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Este archivo es la puerta de entrada a la documentacion. Su objetivo es cargar solo el contexto necesario y evitar que una misma regla quede copiada en varios lugares.
 
@@ -55,6 +55,12 @@ Agregar:
 3. Agregar reglas contables o visuales solo cuando correspondan al perfil convocado.
 4. Al terminar, registrar el subagente en `docs/REGISTRO_DELEGACIONES_AGENTES.md` con `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
 
+### Ejecutar un procedimiento repetible de Codex
+
+1. `docs/SKILLS_POSEIDON.md`.
+2. Skill correspondiente en `.agents/skills/`.
+3. Fuentes dirigidas por esa skill.
+
 ### Preparar futura migracion online
 
 1. `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
@@ -80,6 +86,7 @@ Agregar:
 | Ejecucion local | `README.md` | Documentos funcionales |
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
+| Skills reutilizables de Codex | `docs/SKILLS_POSEIDON.md` | Perfiles TOML, contextos funcionales |
 | Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
 | Evidencia de pilotos de diseno | `docs/PILOTOS_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
@@ -122,6 +129,7 @@ Todos viven en `docs/contextos/`.
 - `docs/PILOTOS_DISENO_POSEIDON.md`: tres revisiones funcionales que justifican el custodio de diseno y delimitan patrones aprobados o pendientes.
 - `docs/REGISTRO_DELEGACIONES_AGENTES.md`: resultado y eficiencia de cada delegacion real.
 - `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`: campos obligatorios para nuevas entradas.
+- `docs/PILOTO_SKILLS_POSEIDON.md`: evidencia de uso, validacion y ahorro de contexto de las skills del repositorio.
 
 ## Regla de mantenimiento
 

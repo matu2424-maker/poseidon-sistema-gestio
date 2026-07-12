@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Este documento define la validacion tecnica y funcional minima. No reemplaza las pruebas especificas de cada modulo.
 
@@ -10,20 +10,31 @@ Con el runtime del proyecto disponible:
 
 ```bash
 pnpm run check:agents
+pnpm run check:skills
 pnpm run check:design
 pnpm run check
 pnpm run build
+pnpm run check:commit
 ```
 
 `pnpm run check` ejecuta, en orden:
 
 1. Validacion de 28 controles de agentes Codex.
-2. Validacion de 33 controles de gobierno visual, pilotos y referencias.
-3. TypeScript sin emitir archivos.
-4. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
-5. Vitest sobre `src/` y `scripts/`.
+2. Validacion de cuatro skills y sus contratos.
+3. Validacion de 33 controles de gobierno visual, pilotos y referencias.
+4. TypeScript sin emitir archivos.
+5. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
+6. Vitest sobre `src/` y `scripts/`.
 
-`pnpm run check:agents` tambien puede ejecutarse solo cuando cambien `.codex/`, protocolo, plantilla o registro. `pnpm run check:design` se ejecuta cuando cambian el custodio, reglas, patrones, pilotos o capturas aprobadas.
+`check:agents`, `check:skills` y `check:design` pueden ejecutarse por separado para su infraestructura. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
+
+## Entorno y servidor
+
+```text
+iniciar-poseidon.bat --check
+```
+
+`--check` valida Node, Vite y si el puerto 5173 esta libre u ocupado sin iniciar otro servidor. Si esta libre, iniciar con `iniciar-poseidon.bat`. Si esta ocupado, comprobar smoke y navegador antes de asumir que el proceso corresponde a Poseidon. Para liberar el puerto usar `detener-poseidon.bat`.
 
 Con `iniciar-poseidon.bat` activo:
 
@@ -67,9 +78,10 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso elimina 
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia del bloque 2026-07-11
+## Evidencia vigente al 2026-07-12
 
-- 22 archivos de pruebas y 96 casos aprobados, incluidos contratos de agentes, gobierno visual, ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
+- 24 archivos de pruebas y 102 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero transversal, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
+- `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 33 controles y dos referencias visuales reproducibles.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.

@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -21,13 +21,21 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 .codex/agents/poseidon_scope_mapper.toml        mapa de alcance, solo lectura
 .codex/agents/poseidon_accounting_reviewer.toml revision contable, solo lectura
 .codex/agents/poseidon_ui_reviewer.toml         custodio de diseno, solo lectura
+.agents/skills/poseidon-module-change/           flujo modular autorizado
+.agents/skills/poseidon-visual-qa/               verificacion visual y responsive
+.agents/skills/poseidon-accounting-regression/   matriz de regresion contable
+.agents/skills/poseidon-localhost-diagnostics/   arranque y diagnostico local
 docs/PROTOCOLO_AGENTES_CODEX.md            fuente canonica de delegacion
+docs/SKILLS_POSEIDON.md                     fuente canonica de skills
 docs/REGISTRO_DELEGACIONES_AGENTES.md      medicion acumulada
 docs/plantillas/REPORTE_DELEGACION_AGENTES.md contrato de cada registro
 docs/SISTEMA_VISUAL_POSEIDON.md             patrones y referencias de diseno
 docs/PILOTOS_DISENO_POSEIDON.md             evidencia de tres revisiones UI
 scripts/validate-agent-config.mjs           validador ejecutable
 scripts/agent-config-validation.mjs         reglas puras del validador
+scripts/validate-skills.mjs                 validador ejecutable de skills
+scripts/skill-config-validation.mjs         reglas puras del validador de skills
+scripts/precommit-check.mjs                 seleccion proporcional previa al commit
 scripts/validate-design-system.mjs          validador de gobierno visual
 scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
 ```
@@ -36,7 +44,8 @@ scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
 - Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
 - El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
-- `pnpm run check:agents` valida configuracion y perfiles; `pnpm run check:design` valida patrones y referencias visuales; `pnpm run check` ejecuta ambos antes del codigo.
+- `pnpm run check:agents` valida perfiles; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta los tres antes del codigo.
+- `.githooks/pre-commit` y `scripts/precommit-hook.ps1` ejecutan `pnpm run check:commit` con el runtime disponible en Windows.
 - Todo subagente terminado se registra; no se considera un perfil nuevo sin tres delegaciones utiles de la misma especialidad.
 
 ## Flujo principal
@@ -235,7 +244,8 @@ pnpm run check
 pnpm run build
 iniciar-poseidon.bat
 pnpm run smoke:localhost
+pnpm run check:commit
 git diff --check
 ```
 
-`pnpm run check` ejecuta `check:agents`, `check:design`, typecheck, ESLint y 96 pruebas en 22 archivos. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`. Actualizar este mapa solo cuando cambien propiedad de archivos, dependencias, arquitectura o deuda tecnica.
+`pnpm run check` ejecuta `check:agents`, `check:skills`, `check:design`, typecheck, ESLint y la suite automatizada. `check:commit` selecciona ese control completo o validadores de infraestructura segun las rutas preparadas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`.

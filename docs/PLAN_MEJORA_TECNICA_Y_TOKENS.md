@@ -1,6 +1,6 @@
 # Poseidon - Plan tecnico y ahorro de contexto
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-12
 
 Este documento contiene prioridades vigentes. Los bloques terminados viven en Git y no se enumeran uno por uno aqui.
 
@@ -127,12 +127,22 @@ Agregar en este orden:
 - Resultado de pilotos visuales: `docs/PILOTOS_DISENO_POSEIDON.md`.
 - Registro: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 
+## Skills y control previo al commit
+
+- Completado 2026-07-12: cuatro skills del repositorio para cambio modular, QA visual, regresion contable y localhost.
+- Las skills viven en `.agents/skills/` y referencian fuentes canonicas sin copiar reglas de producto.
+- `pnpm run check:skills` valida estructura, disparadores, metadata y referencias.
+- `pnpm run check:commit` selecciona controles segun las rutas preparadas; `.githooks/pre-commit` lo ejecuta automaticamente en este repositorio.
+- Piloto real aprobado: 17 rutas, `check` y `build`, 102 pruebas, sin cambios funcionales. Evidencia en `docs/PILOTO_SKILLS_POSEIDON.md`.
+- GitHub queda diferido hasta decidir trabajo remoto. Supabase y Vercel siguen fuera del flujo local.
+
 ## Validacion por bloque
 
 ```text
 pnpm run check
 pnpm run build
 pnpm run smoke:localhost
+pnpm run check:commit
 git diff --check
 documentacion de la fuente canonica y modulo
 ```

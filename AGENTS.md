@@ -30,6 +30,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
 - Hacer commit local cuando un bloque quede estable, validado y sea correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin pedido explicito del usuario.
 - Para crear, modificar o validar perfiles/agentes Codex, leer `docs/PROTOCOLO_AGENTES_CODEX.md` y ejecutar `pnpm run check:agents`.
+- Para crear, modificar o usar skills del repositorio, leer `docs/SKILLS_POSEIDON.md` y ejecutar `pnpm run check:skills`.
 - Registrar cada delegacion terminada en `docs/REGISTRO_DELEGACIONES_AGENTES.md` usando la plantilla canonica, sin inventar duracion ni consumo.
 - No crear un perfil permanente nuevo sin tres delegaciones utiles documentadas de la misma especialidad y autorizacion explicita del usuario.
 - El agente principal es el unico responsable de integrar resultados, validar, documentar, resolver contradicciones y cerrar commits locales.
@@ -61,6 +62,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Supabase/Auth real y storage real de archivos quedan pendientes para una etapa posterior.
 - Las validaciones minimas antes de cerrar un cambio son `pnpm run check`, `pnpm run build` y `pnpm run smoke:localhost` con el servidor activo.
 - Cuando cambien perfiles, reglas o referencias de diseno, ejecutar ademas `pnpm run check:design`; `pnpm run check` ya lo incluye.
+- Antes de cada commit local ejecutar `pnpm run check:commit`; el hook versionado aplica el mismo control segun las rutas preparadas.
 - Para cambios visuales o de permisos, completar ademas el smoke por rol de `docs/VALIDACION_LOCAL.md`.
 - Para levantar localhost se usa solo `iniciar-poseidon.bat`; si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
 
