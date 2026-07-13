@@ -61,5 +61,6 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 - Tarjetas estilo Datos de caja.
 - No repetir datos de barra superior.
 - Tipografia de interfaz Segoe UI/Aptos y tipografia monoespaciada solo para importes e identificadores.
+- Pesos moderados: texto secundario regular, etiquetas medias y valores principales semibold.
 - Metricas en superficies neutras separadas por lineas, sin colores laterales.
 - Accesos rapidos con color lateral, alineados en una grilla compacta y con el mismo ancho y altura estable.

@@ -10,9 +10,9 @@
   --red: #bc2b32;
   --bg: #f1f4f8;
   --card: #ffffff;
-  --line: #c8d0dc;
+  --line: #d7dee7;
   --text: #1d2733;
-  --muted: #505c6b;
+  --muted: #667487;
   --soft: #edf2f7;
   --radius-control: 8px;
   --radius-surface: 8px;
@@ -223,7 +223,7 @@ label {
   display: grid;
   gap: 8px;
   color: var(--muted);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 input,
@@ -272,7 +272,8 @@ select:disabled {
   border-radius: var(--radius-control);
   padding: 0 28px;
   color: #ffffff;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -356,7 +357,7 @@ select:disabled {
   background: #fff7e8;
   padding: 14px 18px;
   margin-bottom: 20px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .data-value,

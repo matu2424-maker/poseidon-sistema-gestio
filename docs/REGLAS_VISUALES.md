@@ -29,7 +29,8 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - La interfaz usa la pila local `Segoe UI`, `Aptos`, `system-ui`, sin depender de descargas externas.
 - Importes, contadores e identificadores que necesiten alineacion usan `Cascadia Mono`, `Consolas`, `monospace` mediante `--font-data` o una clase de dato equivalente.
 - Los numeros usan cifras tabulares para conservar la alineacion entre filas y metricas.
-- Evitar pesos `900` generalizados: usar `600` o `700` para controles y etiquetas, y reservar pesos altos para marca o valores realmente prioritarios.
+- Evitar pesos `900` generalizados: el texto secundario usa `400` o `500`, controles y etiquetas usan `500` o `600`, y `700` se reserva principalmente para marca o valores prioritarios.
+- Los importes monoespaciados usan `500` o `600`; no deben verse como bloques de texto en negrita.
 - La tipografia de datos no se aplica a parrafos ni a columnas textuales completas.
 
 ## Botones

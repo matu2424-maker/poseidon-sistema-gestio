@@ -22,13 +22,13 @@
 }
 
 .side-brand strong {
-  font-size: 1.68rem;
-  font-weight: 750;
+  font-size: 1.42rem;
+  font-weight: 700;
 }
 
 .side-brand span {
   color: #c2cfdd;
-  font-size: 0.92rem;
+  font-size: 0.78rem;
 }
 
 .side nav {
@@ -60,8 +60,8 @@
   border-radius: 8px;
   color: #8fa7bd;
   cursor: pointer;
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.66rem;
+  font-weight: 600;
   letter-spacing: 0;
   list-style: none;
   padding: 0 8px;
@@ -100,16 +100,16 @@
   background: transparent;
   color: #d8e2ed;
   padding: 0 12px;
-  font-size: 0.94rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .side-link.active,
 .side-link:hover {
-  background: var(--blue);
+  background: rgba(46, 116, 181, 0.48);
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .side-link.logout {
@@ -122,7 +122,7 @@
 }
 
 .top {
-  min-height: 76px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -134,8 +134,8 @@
 
 .top h1 {
   margin: 0;
-  font-size: 1.65rem;
-  font-weight: 750;
+  font-size: 1.45rem;
+  font-weight: 600;
 }
 
 .top-meta {
@@ -144,7 +144,7 @@
   justify-content: flex-end;
   gap: 12px;
   color: #334155;
-  font-size: 0.96rem;
+  font-size: 0.88rem;
   line-height: 1.2;
 }
 
@@ -169,8 +169,8 @@
 
 .top-meta-items small {
   color: #667487;
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: 0.62rem;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1;
   text-transform: uppercase;
@@ -178,8 +178,8 @@
 
 .top-meta-items strong {
   color: #172434;
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -191,12 +191,14 @@
 }
 
 .content {
-  padding: 28px 34px 56px;
+  width: min(100%, 1500px);
+  margin: 0 auto;
+  padding: 26px 32px 52px;
 }
 
 .content h2 {
   margin-bottom: 18px;
-  font-size: 1.45rem;
-  font-weight: 750;
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 

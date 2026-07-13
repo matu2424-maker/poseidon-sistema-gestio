@@ -92,6 +92,8 @@ Agrupa campos de una misma accion. Campos obligatorios, error y botones pertenec
 
 - La interfaz usa `--font-ui`; los datos numericos que requieren alineacion usan `--font-data`.
 - Las cifras tabulares se activan globalmente para evitar desplazamientos visuales entre importes.
+- La jerarquia se obtiene primero mediante tamano, espacio y color; no mediante negrita generalizada.
+- Navegacion, etiquetas y texto secundario mantienen pesos moderados. La opcion activa puede aumentar un solo nivel de peso, sin convertirse en un bloque dominante.
 - Titulo principal: solo en barra superior.
 - Titulo de seccion: compacto y proporcional al panel.
 - Etiqueta: pequena, clara y sin espaciado negativo.
@@ -196,6 +198,8 @@ Estado: primera base visual implementada.
 - `Control financiero` agrupa diferencias, efectivo y banco en una superficie compacta de tres celdas.
 - `Resultado economico` agrupa ingresos, salidas y resultado neto del mes sin repetir el periodo en cada celda.
 - Las metricas son informativas y no duplican acciones; los destinos frecuentes viven en una unica fila de botones con tamano estable.
+- Titulos, etiquetas e importes usan una escala liviana: los valores principales conservan prioridad sin poner en negrita todo el contenido.
+- El contenido de escritorio se centra dentro de un ancho maximo para evitar bandas excesivamente extendidas en pantallas grandes.
 - En movil las bandas se convierten en una columna y separan sus celdas con lineas.
 
 ## Antipatrones
