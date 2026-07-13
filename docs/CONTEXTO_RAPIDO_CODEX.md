@@ -19,7 +19,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.
-- `pnpm run check:design` valida gobierno visual y referencias sin mezclarlo con reglas funcionales.
+- `pnpm run check:design` valida 37 controles de gobierno visual, referencias y pesos operativos hasta `600` sin mezclarlo con reglas funcionales.
 - Cuatro skills versionadas en `.agents/skills/` cubren cambio modular, QA visual, regresion contable y diagnostico de localhost.
 - `pnpm run check:skills` valida sus contratos; `pnpm run check:commit` es la entrada unica previa al commit.
 - Validacion de subagentes cerrada: perfiles comprobados en tarea nueva y riesgos priorizados implementados con pruebas. Evidencia en `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`.

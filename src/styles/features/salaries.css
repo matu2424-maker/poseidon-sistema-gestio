@@ -53,8 +53,8 @@
 .salary-detail-context span,
 .salary-detail-metrics span {
   color: #667487;
-  font-size: 0.72rem;
-  font-weight: 900;
+  font-size: 0.68rem;
+  font-weight: 500;
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -63,13 +63,14 @@
 .salary-detail-metrics strong {
   overflow-wrap: anywhere;
   color: #142235;
-  font-size: 0.94rem;
-  font-weight: 900;
+  font-size: 0.86rem;
+  font-weight: 600;
   line-height: 1.18;
 }
 
 .salary-detail-metrics strong {
-  font-size: 1.08rem;
+  font-family: var(--font-data);
+  font-size: 1rem;
 }
 
 .salary-main-panel,
@@ -96,16 +97,16 @@
   border-bottom: 1px solid #e5ebf2;
   padding: 9px 6px;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .mini-summary-table th {
   color: #172434;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .mini-summary-table td:last-child {
-  font-weight: 900;
+  font-weight: 600;
   text-align: right;
 }
 
@@ -119,7 +120,7 @@
   margin: 0;
   color: #b42318;
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .span-2 {

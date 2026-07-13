@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { VISUAL_REFERENCES, VISUAL_REVIEWS_PATH, VISUAL_SYSTEM_PATH, validateDesignSystem } from "./design-system-validation.mjs";
+import { FEATURE_STYLE_PATHS, VISUAL_REFERENCES, VISUAL_REVIEWS_PATH, VISUAL_SYSTEM_PATH, validateDesignSystem } from "./design-system-validation.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -14,5 +14,6 @@ describe("gobierno del sistema visual", () => {
     expect(VISUAL_SYSTEM_PATH).toBe("docs/SISTEMA_VISUAL_POSEIDON.md");
     expect(VISUAL_REVIEWS_PATH).toBe("docs/REVISIONES_DE_DISENO_POSEIDON.md");
     expect(VISUAL_REFERENCES).toHaveLength(2);
+    expect(FEATURE_STYLE_PATHS).toHaveLength(4);
   });
 });

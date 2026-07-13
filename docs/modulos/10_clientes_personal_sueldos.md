@@ -31,6 +31,7 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 ## Liquidacion de salarios
 
 - Etapa actual: registro manual, no liquidacion legal automatica.
+- Resumen, detalle, tablas y formularios usan la escala visual global; importes usan tipografia de datos y las etiquetas no compiten con los valores.
 - Conceptos de liquidacion administrativa: SALARIO, ADELANTO, EXTRA, HORAS_EXTRAS, AGUINALDO, SALARIO_VACACIONAL y DESCUENTO. `SUELDO` y `AJUSTE` quedan como conceptos heredados para compatibilidad; `AJUSTE` se normaliza como Premio / Gratificacion.
 - Pago de salarios del cajero usa una lista reducida para nuevos registros: solo SALARIO y ADELANTO.
 - Todo pago del cajero sigue guardandose como `SalarySettlement`; no existe una tabla paralela de pagos.

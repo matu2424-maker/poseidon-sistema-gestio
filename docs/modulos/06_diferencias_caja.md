@@ -45,6 +45,7 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 - Arriba de la tabla hay buscador por ID, local, fecha u observacion y filtro de estado, ambos con etiqueta visible.
 - Se puede filtrar por pendientes, gestionadas, todas o por estado especifico.
 - La tabla es compacta, usa encabezado claro y no muestra formularios largos por fila.
+- Titulos, estados, metricas e historial respetan la escala global `400/500/600`, sin negrita generalizada.
 - La tabla permite ordenar por todas sus columnas visibles de datos.
 - La tabla principal muestra caja, fecha, local, diferencia efectivo, diferencia banco, estado, ultima gestion y accion.
 - La observacion de cierre no se muestra como columna principal para mantener la tabla limpia; se ve dentro del detalle.

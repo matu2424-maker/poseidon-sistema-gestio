@@ -48,6 +48,7 @@ Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 
 ## Reglas
 
+- Tabla, filtros y detalle usan la escala visual global, encabezado claro y jerarquia basada en espacio y color antes que negrita.
 - La auditoria no se borra.
 - Si encargado/admin trabajan como cajero, debe verse el usuario real y la funcion Cajero.
 - Las diferencias deben conservar observacion original y revision posterior.

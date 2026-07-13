@@ -32,6 +32,8 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - Evitar pesos `900` generalizados: el texto secundario usa `400` o `500`, controles y etiquetas usan `500` o `600`, y `700` se reserva principalmente para marca o valores prioritarios.
 - Los importes monoespaciados usan `500` o `600`; no deben verse como bloques de texto en negrita.
 - La tipografia de datos no se aplica a parrafos ni a columnas textuales completas.
+- En pantallas operativas y administrativas el peso maximo normal es `600`; `700` o superior queda reservado para la marca de acceso y casos excepcionales documentados.
+- Los componentes compartidos deben heredar esta escala. No se permite reintroducir pesos altos por modulo para compensar falta de jerarquia.
 
 ## Botones
 
@@ -50,6 +52,7 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - Cualquier otra excepcion debe explicarse y aprobarse antes.
 - Tablas administrativas deben ser densas, legibles y compactas.
 - Ajustar columnas para ver la mayor cantidad posible sin perder lectura.
+- El encabezado general usa superficie clara, borde fino y texto secundario compacto; un encabezado oscuro requiere una justificacion funcional aprobada.
 - Los indicadores de orden usan texto ASCII `asc` / `desc`.
 - Fila con error debe marcarse visualmente en rojo donde ocurre el problema.
 
@@ -65,6 +68,7 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - Recuadros con colores laterales se reservan principalmente para botones o tarjetas de accion.
 - Los recuadros informativos deben seguir estilo tipo `Datos de caja`: etiqueta chica, valor fuerte y filas compactas.
 - No usar decoracion innecesaria.
+- Los contenedores grid deben alinear su contenido al inicio cuando una pantalla tenga pocos datos; no deben estirar tarjetas para llenar artificialmente el alto disponible.
 
 ## Piloto visual de Diferencias
 

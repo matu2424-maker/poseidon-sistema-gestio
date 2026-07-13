@@ -14,10 +14,7 @@ async function openDifferences(page) {
   await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
   await page.getByRole("heading", { name: "Panel del encargado", exact: true }).waitFor();
 
-  const differenceCard = page.locator("article").filter({
-    has: page.getByRole("heading", { name: "Diferencias", exact: true }),
-  });
-  await differenceCard.getByRole("button", { name: "Ver diferencias", exact: true }).click();
+  await page.getByRole("button", { name: "Ver diferencias", exact: true }).click();
   await page.getByRole("heading", { name: "Diferencias de caja", exact: true }).waitFor();
   await page.getByRole("heading", { name: "Situacion de las diferencias", exact: true }).waitFor();
   await page.locator(".difference-table").waitFor();

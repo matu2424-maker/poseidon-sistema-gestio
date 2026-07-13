@@ -33,6 +33,8 @@ Centralizar la operativa diaria del cajero sin barra lateral.
 ## Reglas visuales
 
 - Todo centrado y claro.
+- La cabecera, metricas, ayudas y acciones usan la escala tipografica liviana global; solo los importes prioritarios usan semibold.
+- Sin caja abierta, el panel se mantiene compacto y alineado arriba; no estira sus bloques para completar el alto de pantalla.
 - Botones inferiores del mismo tamano.
 - Botones alineados.
 - `Salida total`, `Efectivo en caja` y `Dinero en banco` son lectura, no botones.

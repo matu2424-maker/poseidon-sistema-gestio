@@ -5,25 +5,27 @@
 }
 
 .cashier-top {
-  min-height: 76px;
+  min-height: 68px;
   display: grid;
   grid-template-columns: minmax(180px, 1fr) auto auto auto;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
   background: #081d32;
   color: #ffffff;
-  padding: 0 44px;
-  box-shadow: 0 10px 30px rgba(8, 29, 50, 0.18);
+  padding: 0 32px;
+  box-shadow: 0 8px 24px rgba(8, 29, 50, 0.14);
 }
 
 .cashier-top strong {
   display: block;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
+  font-weight: 600;
   letter-spacing: 0;
 }
 
 .cashier-top span {
   color: #c2cfdd;
+  font-size: 0.78rem;
 }
 
 .cashier-user {
@@ -33,21 +35,23 @@
 }
 
 .cashier-content {
-  min-height: calc(100vh - 76px);
+  min-height: calc(100vh - 68px);
   display: grid;
+  align-items: start;
   justify-items: center;
-  padding: 34px 24px 72px;
+  padding: 26px 24px 56px;
 }
 
 .cashier-panel {
   width: min(1220px, 100%);
   display: grid;
-  gap: 20px;
+  align-content: start;
+  gap: 16px;
   border: 1px solid #ccd8e5;
   border-radius: 8px;
   background: #fdfefe;
-  padding: 28px;
-  box-shadow: 0 24px 62px rgba(11, 34, 56, 0.14);
+  padding: 22px;
+  box-shadow: var(--shadow-surface);
 }
 
 .cashier-heading {
@@ -58,22 +62,23 @@
   border: 1px solid #dde6ef;
   border-radius: 8px;
   background: #f8fafc;
-  padding: 20px 22px;
+  padding: 16px 18px;
   text-align: left;
 }
 
 .cashier-heading h1 {
   margin-bottom: 0;
   color: #152333;
-  font-size: clamp(1.9rem, 4vw, 2.45rem);
-  line-height: 1.05;
+  font-size: 1.55rem;
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 .cashier-heading p {
   margin-bottom: 0;
   color: var(--muted);
-  font-size: 1.08rem;
-  font-weight: 800;
+  font-size: 0.88rem;
+  font-weight: 400;
 }
 
 .cashier-heading-balances {
@@ -93,15 +98,17 @@
 
 .cashier-heading-balances small {
   color: #667487;
-  font-size: 0.72rem;
-  font-weight: 900;
+  font-size: 0.68rem;
+  font-weight: 500;
   line-height: 1.15;
   text-transform: uppercase;
 }
 
 .cashier-heading-balances strong {
   color: #142235;
-  font-size: 1.08rem;
+  font-family: var(--font-data);
+  font-size: 0.94rem;
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -124,7 +131,7 @@
 
 .cashier-metric {
   appearance: none;
-  min-height: 118px;
+  min-height: 108px;
   display: grid;
   grid-template-rows: auto 1fr auto;
   align-content: start;
@@ -135,7 +142,7 @@
   border-right: 5px solid #7894ad;
   border-radius: 8px;
   background: #ffffff;
-  padding: 15px 16px;
+  padding: 14px;
   box-shadow: 0 10px 22px rgba(11, 34, 56, 0.06);
   color: inherit;
   cursor: pointer;
@@ -159,8 +166,8 @@
 
 .cashier-metric span {
   color: #536273;
-  font-size: 0.76rem;
-  font-weight: 900;
+  font-size: 0.7rem;
+  font-weight: 500;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -168,14 +175,16 @@
 .cashier-metric strong {
   align-self: center;
   color: #172434;
-  font-size: clamp(1.2rem, 2.3vw, 1.68rem);
+  font-family: var(--font-data);
+  font-size: 1.25rem;
+  font-weight: 600;
   line-height: 1.05;
 }
 
 .cashier-metric small {
   color: #667487;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: 0.72rem;
+  font-weight: 400;
   line-height: 1.25;
 }
 
@@ -236,20 +245,20 @@
 }
 
 .cashier-panel .info-card {
-  min-height: 178px;
+  min-height: 156px;
   border-color: #d7e1ec;
   background: #ffffff;
-  padding: 20px;
+  padding: 17px;
   box-shadow: 0 10px 24px rgba(11, 34, 56, 0.07);
 }
 
 .cashier-panel .info-card h3 {
-  margin-bottom: 12px;
-  font-size: 1.28rem;
+  margin-bottom: 9px;
+  font-size: 1.02rem;
 }
 
 .cashier-panel .info-card p {
-  font-size: 0.98rem;
+  font-size: 0.86rem;
 }
 
 .cashier-panel .info-card.green {
@@ -275,13 +284,13 @@
   display: grid;
   grid-template-rows: auto minmax(46px, 1fr) auto;
   align-content: stretch;
-  min-height: 146px;
+  min-height: 132px;
   border-radius: 8px;
   border-color: #d8e2ee;
   border-left: 5px solid var(--blue);
   border-right: 5px solid var(--blue);
   background: #ffffff;
-  padding: 18px 18px 16px;
+  padding: 16px;
   transition:
     transform 0.16s ease,
     border-color 0.16s ease,
@@ -305,12 +314,14 @@
 
 .cashier-actions .action-card h3 {
   margin-bottom: 8px;
-  font-size: 1.16rem;
+  font-size: 1rem;
+  font-weight: 600;
   line-height: 1.2;
 }
 
 .cashier-actions .action-card p {
-  font-size: 0.94rem;
+  font-size: 0.84rem;
+  font-weight: 400;
   line-height: 1.35;
 }
 
@@ -508,7 +519,7 @@
   margin-bottom: 6px;
   color: var(--blue);
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 500;
   text-transform: uppercase;
 }
 
@@ -519,7 +530,7 @@
 .manager-hero p {
   margin: 0;
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 400;
 }
 
 .manager-hero-actions {
@@ -554,12 +565,12 @@
   margin: 0;
   padding-left: 22px;
   color: #344256;
-  font-weight: 800;
+  font-weight: 400;
 }
 
 .manager-flow-list li::marker {
   color: var(--blue);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .manager-actions {
@@ -636,7 +647,7 @@
   background: #fff8eb;
   color: #5f3b05;
   padding: 14px 16px;
-  font-weight: 900;
+  font-weight: 500;
 }
 
 .cashier-secondary-actions-open {
@@ -672,7 +683,7 @@
 
 .section-toolbar p {
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 400;
 }
 
 .counters-page {

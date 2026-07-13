@@ -20,7 +20,7 @@
   color: #123b63;
   padding: 0 14px;
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -31,7 +31,7 @@
   border-radius: 999px;
   padding: 0 10px;
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -57,7 +57,7 @@
 }
 
 .close-kpi {
-  min-height: 150px;
+  min-height: 132px;
   display: grid;
   align-content: start;
   gap: 6px;
@@ -70,20 +70,22 @@
 
 .close-kpi span {
   color: var(--muted);
-  font-size: 0.86rem;
-  font-weight: 900;
+  font-size: 0.72rem;
+  font-weight: 500;
   text-transform: uppercase;
 }
 
 .close-kpi strong {
   color: #122233;
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-family: var(--font-data);
+  font-size: 1.28rem;
+  font-weight: 600;
 }
 
 .close-kpi p {
   color: #4b5563;
-  font-size: 0.9rem;
-  font-weight: 800;
+  font-size: 0.82rem;
+  font-weight: 400;
 }
 
 .close-workspace {
@@ -104,7 +106,7 @@
 .close-breakdown h3,
 .close-form h3 {
   margin-bottom: 16px;
-  font-size: 1.28rem;
+  font-size: 1.05rem;
 }
 
 .close-breakdown dl {
@@ -123,12 +125,12 @@
 
 .close-breakdown dt {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .close-breakdown dd {
   color: #172434;
-  font-weight: 900;
+  font-weight: 600;
   text-align: right;
   white-space: nowrap;
 }
@@ -163,17 +165,17 @@
 
 .close-difference-input.positive {
   color: var(--green);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .close-difference-input.negative {
   color: var(--red);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .close-difference-input.neutral {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .close-alert {
@@ -182,7 +184,7 @@
   background: #f3f8ff;
   color: #23384d;
   padding: 12px 14px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .close-alert.ok {
@@ -271,7 +273,7 @@
 .counter-overview span {
   color: var(--muted);
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .counter-overview strong {
@@ -285,8 +287,8 @@
 
 .card-grid {
   display: grid;
-  gap: 30px;
-  margin-bottom: 54px;
+  gap: 18px;
+  margin-bottom: 28px;
 }
 
 .card-grid.three {
@@ -328,7 +330,8 @@
 .info-card h3,
 .action-card h3 {
   margin-bottom: 10px;
-  font-size: 1.45rem;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .info-card p,
@@ -336,7 +339,8 @@
 .helper {
   margin-bottom: 6px;
   color: var(--muted);
-  font-size: 1.05rem;
+  font-size: 0.88rem;
+  font-weight: 400;
   line-height: 1.45;
 }
 
@@ -350,7 +354,7 @@
   margin: 1px 0 3px;
   color: #152333;
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -368,7 +372,9 @@
 
 .info-card .info-row strong {
   color: #152333;
-  font-size: 1rem;
+  font-family: var(--font-data);
+  font-size: 0.88rem;
+  font-weight: 500;
   text-align: right;
   white-space: nowrap;
 }
@@ -378,13 +384,13 @@
   border-radius: 7px;
   background: #f1f5f9;
   padding: 5px 8px;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .info-card .info-row-total span,
 .info-card .info-row-total strong {
   color: #0f1f33;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .action-card {
@@ -421,7 +427,7 @@
   margin: 0 0 10px;
   color: #667487;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.1;
   text-transform: uppercase;
@@ -430,16 +436,16 @@
 .detail-card-surface .info-card p {
   margin: 0 0 7px;
   color: #526173;
-  font-size: 0.94rem;
-  font-weight: 800;
+  font-size: 0.84rem;
+  font-weight: 400;
   line-height: 1.25;
 }
 
 .detail-card-surface .info-card > p:first-of-type:not(.info-row):not(.info-row-total):not(.info-section-label):not(.info-separator) {
   margin-bottom: 10px;
   color: #142235;
-  font-size: clamp(1.25rem, 2vw, 1.62rem);
-  font-weight: 900;
+  font-size: 1.18rem;
+  font-weight: 600;
   line-height: 1.05;
 }
 
@@ -457,7 +463,7 @@
 .detail-card-surface .info-card .info-row-total span {
   color: #667487;
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -465,15 +471,16 @@
 .detail-card-surface .info-card .info-row strong,
 .detail-card-surface .info-card .info-row-total strong {
   color: #142235;
-  font-size: 1rem;
-  font-weight: 900;
+  font-family: var(--font-data);
+  font-size: 0.88rem;
+  font-weight: 600;
   line-height: 1.12;
   text-align: left;
   white-space: normal;
 }
 
 .detail-card-surface .info-card .info-row-total strong {
-  font-size: clamp(1.25rem, 2vw, 1.62rem);
+  font-size: 1.18rem;
 }
 
 .detail-card-surface .info-card-action {
@@ -482,8 +489,8 @@
 }
 
 .form-card {
-  padding: 36px 40px;
-  border-radius: 20px;
+  padding: 24px;
+  border-radius: 8px;
 }
 
 .wide-card {
@@ -532,7 +539,7 @@
 .open-cash-title p,
 .recent-cashes-panel p {
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .open-cash-title span {
@@ -541,7 +548,7 @@
   color: #176333;
   padding: 8px 12px;
   font-size: 0.86rem;
-  font-weight: 900;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -566,7 +573,7 @@
 
 .open-cash-rule span {
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .open-cash-actions {
@@ -591,7 +598,7 @@
 
 .recent-cashes-panel h3 {
   margin-bottom: 6px;
-  font-size: 1.28rem;
+  font-size: 1.05rem;
 }
 
 .recent-cash-table {
@@ -604,7 +611,7 @@
   background: #f8fafc;
   color: var(--muted);
   padding: 18px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .closed-summary-panel {
@@ -632,7 +639,7 @@
 }
 
 .closed-summary-card h3 {
-  font-size: 1.16rem;
+  font-size: 1rem;
 }
 
 .closed-summary-wide {
@@ -656,13 +663,13 @@
 
 .summary-detail-list dt {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .summary-detail-list dd {
   margin: 0;
   color: #172434;
-  font-weight: 900;
+  font-weight: 600;
   text-align: right;
 }
 
@@ -676,7 +683,7 @@
 
 .summary-total-row td {
   background: #f8fafc;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .summary-total-row.danger td {
@@ -713,7 +720,7 @@
 
 .accounts-date-range span {
   color: var(--muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .accounts-date-range input {
@@ -728,7 +735,7 @@
   background: #ffffff;
   padding: 7px 10px;
   color: var(--text);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .accounts-period-bar .period-month-button {
@@ -774,7 +781,7 @@
 .account-selector span {
   color: var(--muted);
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -785,7 +792,7 @@
 
 .account-selector small {
   color: #4b5563;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .account-summary-grid {
@@ -810,12 +817,14 @@
 .account-summary-grid span {
   color: var(--muted);
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
 .account-summary-grid strong {
   color: #132235;
-  font-size: 1.35rem;
+  font-family: var(--font-data);
+  font-size: 1.15rem;
+  font-weight: 600;
 }
 

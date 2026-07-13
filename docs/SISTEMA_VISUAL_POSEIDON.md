@@ -100,6 +100,8 @@ Agrupa campos de una misma accion. Campos obligatorios, error y botones pertenec
 - Valor: mayor peso que su etiqueta, sin escalar por ancho de viewport.
 - Ayuda: una frase breve; no explicar como usar la pantalla dentro de la interfaz.
 - Evitar mayusculas extensas y pesos `900` generalizados. Reservar peso alto para valores, estados y acciones.
+- Escala implementada en todo el sistema: texto secundario `400`, etiquetas y datos auxiliares `500`, titulos, botones y valores principales `600`.
+- La portada y la marca Poseidon son las unicas excepciones generales que pueden superar `600`.
 
 ## Botones e iconos
 
@@ -128,6 +130,7 @@ Reglas de aplicacion:
 - Fila seleccionable conserva un control accesible evidente, aunque tambien admita clic en la fila.
 - En movil, el desplazamiento horizontal queda dentro del contenedor de tabla; la pagina no desborda.
 - Si la accion queda demasiado lejos del identificador en movil, proponer columnas prioritarias o una vista adaptada antes de ocultar datos.
+- El patron global usa encabezado gris claro y texto compacto; el azul marino permanece en navegacion y no domina las grillas de datos.
 
 ## Formularios y mensajes
 
@@ -171,6 +174,17 @@ Reglas de aplicacion:
 - Acciones destructivas requieren reconfirmacion y reglas de referencia historica.
 
 ## Patrones aprobados
+
+### Base visual transversal
+
+Estado: implementada en todos los modulos.
+
+- Segoe UI/Aptos para interfaz y Cascadia Mono/Consolas para datos numericos alineados.
+- Pesos maximos de `600` en contenido operativo, administrativo, formularios, tablas, modales y estados.
+- Tablas con encabezado claro, filas compactas y acciones estables.
+- Superficies con radio de hasta `8px`, borde fino y sombra leve.
+- Paneles con pocos datos se alinean al inicio y no se estiran para ocupar el viewport.
+- La identidad azul de Poseidon se conserva en navegacion, seleccion y acciones principales.
 
 ### Diferencias de caja
 

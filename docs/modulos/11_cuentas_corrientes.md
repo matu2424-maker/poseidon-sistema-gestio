@@ -62,6 +62,7 @@ En cuenta personal, `Total` sigue la obligacion del periodo: salario base + prem
 - Diferencias de caja -> entrada o salida Local / Efectivo y/o Local / Banco, segun diferencia positiva o negativa, para reflejar el saldo real declarado.
 - Anular una diferencia desde `Diferencias` anula tambien sus movimientos de cuenta.
 - La pantalla no muestra tarjetas superiores de entrada/salida/saldo local; el foco queda en periodo, cuentas y movimientos.
+- Selector de cuentas, resumen y tabla mantienen tipografia compacta, importes monoespaciados y encabezado claro.
 
 ## Auditoria
 

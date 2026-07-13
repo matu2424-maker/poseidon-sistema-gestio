@@ -63,3 +63,8 @@ salida total = gastos + salarios + regalos
 - Si hay maquinas pendientes sin observacion, no se puede cerrar.
 - Los errores aparecen en la misma pantalla.
 - Al cerrar caja, va a Resumen de cajas.
+
+## Presentacion
+
+- Indicadores, desglose y declaracion final usan tipografia liviana; importes destacados usan `--font-data` con peso maximo `600`.
+- Las tarjetas de control son compactas y no escalan la tipografia segun el ancho del viewport.

@@ -29,6 +29,7 @@ resultado = entrada - salida
 
 ## Visual
 
+- La tabla, los totales y el boton general respetan la escala tipografica global `400/500/600`.
 - Mostrar cantidad de maquinas a recaudar.
 - Mostrar pendientes.
 - Entrada total en azul.

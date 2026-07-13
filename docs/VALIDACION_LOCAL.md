@@ -21,7 +21,7 @@ pnpm run check:commit
 
 1. Validacion de 28 controles de agentes Codex.
 2. Validacion de cuatro skills y sus contratos.
-3. Validacion de 33 controles de gobierno visual, pilotos y referencias.
+3. Validacion de 37 controles de gobierno visual, pilotos, referencias y pesos tipograficos funcionales.
 4. TypeScript sin emitir archivos.
 5. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
 6. Vitest sobre `src/` y `scripts/`.
@@ -83,7 +83,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 - 25 archivos de pruebas y 107 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero transversal, rutas/sesion, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
 - 6 casos E2E en 3 archivos aprobados para caja, diferencias/auditoria y navegacion de Cajero, Encargado y Administrador.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
-- `check:design` aprobado con 33 controles y dos referencias visuales reproducibles.
+- `check:design` aprobado con 37 controles, limite automatico de peso funcional y dos referencias visuales reproducibles.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.

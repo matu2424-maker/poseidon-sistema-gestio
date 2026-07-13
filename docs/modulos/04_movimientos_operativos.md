@@ -34,6 +34,7 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 
 ## Salarios desde cajero
 
+- Formularios y tablas operativas usan tipografia compacta, encabezado claro e importes monoespaciados.
 - Campos: personal, concepto, periodo trabajado y monto.
 - La tabla operativa es ordenable por personal, concepto, periodo trabajado, monto y estado; `Accion` no se ordena.
 - Personal inicia vacio y es obligatorio.

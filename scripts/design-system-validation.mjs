@@ -7,6 +7,12 @@ export const VISUAL_REFERENCES = [
   "docs/referencias-visuales/diferencias-desktop-1920x1080.png",
   "docs/referencias-visuales/diferencias-mobile-390x844.png",
 ];
+export const FEATURE_STYLE_PATHS = [
+  "src/styles/features/admin.css",
+  "src/styles/features/cash.css",
+  "src/styles/features/dashboards.css",
+  "src/styles/features/salaries.css",
+];
 
 const normalized = (value) =>
   String(value)
@@ -94,6 +100,18 @@ export async function validateDesignSystem({ rootDir }) {
   const globalCss = await readRequired(rootDir, "src/styles/global.css", errors);
   const globalLines = globalCss.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   pass(globalLines.every((line) => line.startsWith("@import ")), "global.css conserva solo imports", "src/styles/global.css debe conservarse como manifiesto de imports.");
+
+  for (const stylePath of FEATURE_STYLE_PATHS) {
+    const styleSource = await readRequired(rootDir, stylePath, errors);
+    const excessiveWeights = [...styleSource.matchAll(/font-weight:\s*(\d+)/g)]
+      .map((match) => Number(match[1]))
+      .filter((weight) => weight > 600);
+    pass(
+      excessiveWeights.length === 0,
+      `${stylePath} conserva pesos operativos hasta 600`,
+      `${stylePath} contiene pesos tipograficos mayores a 600: ${[...new Set(excessiveWeights)].join(", ")}.`,
+    );
+  }
 
   const packageSource = await readRequired(rootDir, "package.json", errors);
   if (packageSource) {

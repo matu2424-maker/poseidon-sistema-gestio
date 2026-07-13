@@ -57,3 +57,8 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 ## Refactor pendiente
 
 - No queda pendiente conocido de datos demo/normalizacion. Cualquier nuevo refactor debe justificarse por reduccion real de contexto, riesgo o duplicacion.
+
+## Presentacion
+
+- Tablas administrativas usan encabezado claro, tipografia compacta y todas sus columnas visibles de datos continuan siendo ordenables.
+- Formularios, modales, filtros y selectores de columnas respetan pesos maximos de `600` y radios de hasta `8px`.

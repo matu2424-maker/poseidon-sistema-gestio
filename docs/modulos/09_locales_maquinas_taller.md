@@ -44,6 +44,7 @@
 
 ## Taller
 
+- Locales, maquinas, historiales y taller usan tablas compactas con encabezado claro y pesos maximos de `600`.
 - Contiene maquinas disponibles.
 - Contiene apartado de maquinas en desuso.
 - El apartado de maquinas en desuso permite ordenar por ID, maquina, IN actual y OUT actual; `Accion` no se ordena.
