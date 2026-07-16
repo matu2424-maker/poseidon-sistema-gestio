@@ -6,6 +6,7 @@ import {
   upsertAccountMovement,
 } from "../../lib/accountMovements";
 import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
+import { activeLocalCashSourceOutflow, localCashOutflowError } from "../../lib/cashAvailability";
 import { staffFullName } from "../../lib/people";
 import {
   cashierSalaryConceptOptions,
@@ -56,8 +57,16 @@ export function saveSalarySettlementCommand(
   const validationError = validateSalarySettlementLimit(data, staff, input.period, concept, input.amount, existing?.id);
   if (validationError) return commandError(validationError);
 
-  const timestamp = context.now();
   const breakdown = salaryConceptBreakdown(concept, input.amount);
+  const nextCashAmount = concept === "DESCUENTO" ? 0 : input.amount;
+  const previousCashAmount = existing?.localId === staff.localId
+    ? activeLocalCashSourceOutflow(data, staff.localId, existing.id)
+    : 0;
+  const netCashOutflow = Math.max(0, nextCashAmount - previousCashAmount);
+  const cashError = localCashOutflowError(data, staff.localId, netCashOutflow);
+  if (cashError) return commandError(cashError);
+
+  const timestamp = context.now();
   const correction = Boolean(existing);
   const next: SalarySettlement = {
     id: correction ? context.id("salary-settlement-correction") : context.id("salary-settlement"),

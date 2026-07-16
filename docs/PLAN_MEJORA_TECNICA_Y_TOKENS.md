@@ -18,7 +18,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Veintisiete archivos de pruebas, 139 casos, mas 8 casos E2E en 5 archivos.
+- Veintiocho archivos de pruebas, 146 casos, mas 8 casos E2E en 5 archivos.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 

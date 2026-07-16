@@ -15,7 +15,7 @@ import { totalsForBalance } from "../../lib/cashTotals";
 import { ensureLocalCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
 import { balanceVisibleId } from "../../lib/display";
 import { machineHistoryEvent } from "../../lib/machineHistory";
-import { counter } from "../../lib/money";
+import { counter, money } from "../../lib/money";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
 
 export type CloseCashInput = {
@@ -57,6 +57,11 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
     ![localBalances.cash, localBalances.bank].every((amount) => Number.isFinite(amount))
   ) {
     return commandError("Los importes del cierre deben ser numeros finitos.");
+  }
+  if (totals.expectedCash < 0) {
+    return commandError(
+      `No se puede cerrar la caja porque el efectivo esperado es negativo (${money(totals.expectedCash)}). Registra un aporte real en efectivo para cubrir el faltante antes de cerrar.`,
+    );
   }
   if (input.finalWithdrawalCash > totals.expectedCash) {
     return commandError("El retiro final en efectivo no puede superar el efectivo esperado antes del retiro.");

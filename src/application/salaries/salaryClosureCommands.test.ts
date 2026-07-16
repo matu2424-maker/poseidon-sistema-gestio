@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { AccountMovement, AppData } from "../../types";
 import { clearOperationalData, createSeedData } from "../../data/appData";
+import { localCashAccountId } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
 import { openCashCommand } from "../cash/openCash";
 import {
@@ -19,9 +21,27 @@ const testContext = (data: ReturnType<typeof createSeedData>) => {
   });
 };
 
+const withLocalCash = (data: AppData, amount: number): AppData => {
+  const localId = data.staff.find((item) => item.status === "ACTIVO")!.localId;
+  const movement: AccountMovement = {
+    id: "account-movement-test-cash",
+    accountId: localCashAccountId(localId),
+    sourceType: "APORTE",
+    sourceId: "test-cash",
+    direction: "ENTRADA",
+    concept: "APORTE_PRUEBA",
+    amount,
+    detail: "Fondo de prueba salarial",
+    status: "ACTIVO",
+    userId: "user-admin",
+    createdAt: "2026-08-01T12:00:00.000Z",
+  };
+  return { ...data, accountMovements: [movement, ...data.accountMovements] };
+};
+
 describe("cierre salarial definitivo", () => {
   it("congela importes por empleado y bloquea operaciones ordinarias", () => {
-    const data = clearOperationalData(createSeedData());
+    const data = withLocalCash(clearOperationalData(createSeedData()), 5_000);
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = testContext(data);
     const cashier = data.users.find((item) => item.role === "CAJERO")!;
@@ -71,7 +91,7 @@ describe("cierre salarial definitivo", () => {
   });
 
   it("encadena una correccion sin modificar la foto original", () => {
-    const data = clearOperationalData(createSeedData());
+    const data = withLocalCash(clearOperationalData(createSeedData()), 5_000);
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = testContext(data);
     const closed = closeSalaryPeriodCommand(data, { period: "2026-07" }, context);
@@ -176,11 +196,11 @@ describe("cierre salarial definitivo", () => {
       {
         localId: staff.localId,
         operatingDate: "2026-08-05",
-        initialFund: 0,
+        initialFund: 1_000,
         initialBankFund: 0,
         initialNote: "Prueba salarial",
         openingCapitalPerson: "MATHIAS",
-        firstOpening: false,
+        firstOpening: true,
       },
       context,
     );

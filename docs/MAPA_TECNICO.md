@@ -120,6 +120,7 @@ src/
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
 | `accountMovements.ts` | Movimientos derivados, saldo corrido y ajustes de diferencias append-only encadenados |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
+| `cashAvailability.ts` | Saldo activo Local / Efectivo y rechazo atomico de nuevas salidas sin fondos |
 | `differences.ts` | Estados y calculos de diferencias |
 | `salaryRules.ts` | Conceptos, base, periodos y limites salariales |
 | `balanceReferences.ts` | Recaudacion asociada por `balanceId` |
@@ -137,12 +138,12 @@ src/
 | --- | --- |
 | `application/cash/openCash.ts` | Apertura, aportes iniciales, lecturas, cuentas y auditoria |
 | `application/cash/saveReading.ts` | Validacion/guardado de contador, resultado, cuenta y auditoria |
-| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con cuenta y auditoria |
+| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con validacion de efectivo, cuenta y auditoria |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
 | `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
-| `application/cash/closeCash.ts` | Cierre, retiros, maquinas, diferencias, cuentas, historial y auditoria |
+| `application/cash/closeCash.ts` | Cierre, bloqueo por efectivo esperado negativo, retiros, maquinas, diferencias, cuentas, historial y auditoria |
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
-| `application/salaries/salarySettlementCommands.ts` | Alta, correccion y anulacion salarial con cuentas y auditoria |
+| `application/salaries/salarySettlementCommands.ts` | Alta, correccion neta y anulacion salarial con disponibilidad de efectivo, cuentas y auditoria |
 | `application/salaries/salaryClosureCommands.ts` | Cierre mensual definitivo y ciclo de revisiones correctivas |
 
 ## Componentes compartidos

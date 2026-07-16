@@ -155,6 +155,9 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Si no es la primera caja del local, la apertura toma automaticamente el saldo que quedo en las cuentas corrientes del local:
   - saldo `Local / Efectivo` como efectivo inicial;
   - saldo `Local / Banco` como banco inicial.
+- El saldo activo `Local / Efectivo` es la fuente unica para autorizar nuevas salidas en efectivo.
+- Gastos, transferencias desde efectivo, regalos, retiros operativos en efectivo y pagos salariales se rechazan antes de guardar si dejarian ese saldo negativo; el importe igual al disponible se acepta.
+- Un aporte real en efectivo aumenta el disponible. No se crea un movimiento pendiente automatico y banco se controla de forma independiente.
 - Cada caja tiene un ID visible rastreable con las primeras cuatro letras del local y un numero correlativo, por ejemplo `POSE-1`.
 - Cada caja muestra hora de apertura y hora de cierre en los resumenes.
 - Cada caja registra usuario real y funcion usada en apertura y cierre (`openedByRole` y `closedByRole`), para saber si actuaba como cajero, encargado o administrador.
@@ -208,6 +211,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - esos movimientos de diferencia no modifican el resultado economico;
   - si hay diferencia de efectivo o banco, la observacion es obligatoria;
   - si hay maquinas pendientes sin observacion, no se puede cerrar;
+  - un resultado de maquinas negativo se conserva; si deja el efectivo esperado negativo, se bloquean nuevas salidas y el cierre hasta registrar un aporte real;
+  - el error de efectivo esperado negativo se muestra antes que el error de retiro final y no crea diferencia, cierre, auditoria ni cambio economico;
   - los errores de cierre se muestran como avisos dentro de la pantalla de cierre.
 
 ## Diferencias de caja
@@ -338,6 +343,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La referencia de regalos se elige desde una lista cerrada.
 - La referencia de regalos inicia por defecto en `Cajero`.
 - Regalos se pueden eliminar mientras la caja esta abierta, antes del cierre.
+- Toda alta que implique salida en efectivo valida previamente el saldo activo `Local / Efectivo`; el rechazo no altera tablas, cuentas ni auditoria.
 
 ## Retiros y aportes de capital
 
@@ -354,6 +360,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Si el medio es `EFECTIVO`, afecta la cuenta `Local / Efectivo` y el efectivo esperado de caja.
 - Si el medio es `TRANSFERENCIA`, afecta la cuenta `Local / Banco` y no cambia el efectivo fisico esperado.
 - Se pueden anular movimientos; la anulacion deja auditoria y anula el movimiento de cuenta asociado.
+- Un retiro operativo en efectivo no puede superar el saldo disponible; un aporte previo puede cubrir el faltante.
 
 ## Personal
 
@@ -433,6 +440,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - `EXTRA` queda solo como codigo tecnico interno; en interfaz se muestra `Premio / Gratificacion` y no pertenece al modulo Regalos de clientes.
 - Cada liquidacion guarda origen (`CAJA` o `LIQUIDACION`), usuario creador, usuario aprobador, fecha de aprobacion y, si se elimina, usuario/fecha de anulacion.
 - Los movimientos de cuenta de liquidaciones usan el usuario real que ejecuto la accion.
+- Los pagos salariales validan disponibilidad en `Local / Efectivo`. Una correccion del mismo local exige fondos solo por el incremento neto; reducir o anular el pago sigue permitido.
 - La cuenta corriente del empleado dentro del detalle muestra fecha, concepto, monto, total, pendiente y usuario; todas esas columnas son ordenables. `Total` es base + premio/gratificacion + horas extras + bonos - descuentos al momento del movimiento y `Pendiente` es el pendiente al momento de registrar ese movimiento.
 - La cuenta corriente del empleado se filtra por periodo trabajado de la liquidacion; si se carga una liquidacion de un mes anterior hoy, aparece dentro del mes anterior correspondiente.
 - Clic en un movimiento de la cuenta corriente del empleado abre un detalle completo con origen, usuario, recaudacion asociada y notas.
@@ -550,7 +558,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Estado actual al 2026-07-16
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 139 pruebas en 27 archivos; existen ademas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
+- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 146 pruebas en 28 archivos; existen ademas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

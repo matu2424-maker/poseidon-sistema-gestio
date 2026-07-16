@@ -6,7 +6,7 @@ Estados permitidos: `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA`, `INTEGRADA`, `
 
 | ID | Chat propietario | Alcance | Rama/commit | Contratos compartidos | Estado | Validacion |
 | --- | --- | --- | --- | --- | --- | --- |
-| Sin tareas | - | La infraestructura queda preparada para recibir la primera orden | - | - | `INTEGRADA` | Estructura inicial |
+| 2026-07-16-CEN-01 | Poseidon Central | Contrato de disponibilidad de efectivo y cierre con esperado negativo | `main` / commit de esta integracion | `cashAvailability`, movimientos, salarios y cierre | `INTEGRADA` | 146 pruebas centrales, check/build/smoke/check:commit |
 
 ## Uso
 

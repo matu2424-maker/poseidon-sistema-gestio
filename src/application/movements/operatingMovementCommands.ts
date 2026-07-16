@@ -24,6 +24,7 @@ import {
   ensureLocalCurrentAccounts,
   TRANSFER_ACCOUNT_ID,
 } from "../../lib/currentAccounts";
+import { localCashOutflowError } from "../../lib/cashAvailability";
 import {
   auditCommand,
   commandError,
@@ -59,12 +60,14 @@ export function createExpenseCommand(
   const category = data.expenseCategories.find(
     (item) => item.status === "ACTIVA" && item.name === input.category.trim(),
   );
-  if (!category || !input.subcategory.trim() || input.amount <= 0) {
+  if (!category || !input.subcategory.trim() || !Number.isFinite(input.amount) || input.amount <= 0) {
     return commandError("Categoria, subcategoria y monto son obligatorios.");
   }
   if (!category.subcategories.includes(input.subcategory.trim())) {
     return commandError("La subcategoria no pertenece a la categoria seleccionada.");
   }
+  const cashError = localCashOutflowError(data, balance.localId, input.amount);
+  if (cashError) return commandError(cashError);
   const expense: Expense = {
     id: context.id("expense"),
     balanceId: balance.id,
@@ -145,12 +148,14 @@ export function createTransferCommand(
 ): CommandResult<Transfer> {
   const balance = openCash(data, input.balanceId, context);
   if (typeof balance === "string") return commandError(balance);
-  if (!input.receipt.trim() || !input.name.trim() || input.amount <= 0) {
+  if (!input.receipt.trim() || !input.name.trim() || !Number.isFinite(input.amount) || input.amount <= 0) {
     return commandError("Comprobante, nombre y monto son obligatorios.");
   }
   if (input.clientId && !data.clients.some((client) => client.id === input.clientId && client.status === "ACTIVO")) {
     return commandError("El cliente seleccionado no esta activo.");
   }
+  const cashError = localCashOutflowError(data, balance.localId, input.amount);
+  if (cashError) return commandError(cashError);
   const transfer: Transfer = {
     id: context.id("transfer"),
     balanceId: balance.id,
@@ -243,9 +248,11 @@ export function createGiftCommand(
   const allClientsActive = clientIds.every((id) =>
     data.clients.some((client) => client.id === id && client.status === "ACTIVO"),
   );
-  if (!clientIds.length || !allClientsActive || !input.reference.trim() || input.amount <= 0) {
+  if (!clientIds.length || !allClientsActive || !input.reference.trim() || !Number.isFinite(input.amount) || input.amount <= 0) {
     return commandError("Cliente, referencia y monto son obligatorios.");
   }
+  const cashError = localCashOutflowError(data, balance.localId, input.amount);
+  if (cashError) return commandError(cashError);
   const gift: Gift = {
     id: context.id("gift"),
     balanceId: balance.id,
@@ -338,7 +345,13 @@ export function createCapitalMovementCommand(
   if (!(["RICARDO", "MATHIAS"] as string[]).includes(input.person)) {
     return commandError("Selecciona una persona valida.");
   }
-  if (input.amount <= 0) return commandError("El monto es obligatorio y debe ser mayor a cero.");
+  if (!Number.isFinite(input.amount) || input.amount <= 0) {
+    return commandError("El monto es obligatorio y debe ser un numero finito mayor a cero.");
+  }
+  if (input.type === "RETIRO" && input.medium === "EFECTIVO") {
+    const cashError = localCashOutflowError(data, balance.localId, input.amount);
+    if (cashError) return commandError(cashError);
+  }
   const movement: CapitalMovement = {
     id: context.id("capital"),
     balanceId: balance.id,

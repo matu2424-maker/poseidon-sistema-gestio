@@ -1,6 +1,6 @@
 # Poseidon - Reglas contables
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-16
 
 Esta es la fuente canonica de reglas economicas, financieras y de cuentas corrientes. Antes de modificar caja, cierre, diferencias, cuentas corrientes, salarios, gastos, transferencias, regalos, retiros o aportes, leer este archivo y el contexto del modulo afectado.
 
@@ -51,6 +51,18 @@ No forman parte del resultado economico:
 - El cierre registra usuario real y funcion usada.
 - Mientras la caja permanece abierta no se mueve ni asigna una maquina del local, no se ajustan sus contadores administrativos y no se cierra el local.
 
+## Disponibilidad de efectivo
+
+- La unica fuente para autorizar una nueva salida en efectivo es el saldo activo de la cuenta `Local / Efectivo` del local correspondiente.
+- Antes de crear IDs, entidades, movimientos o auditoria, el comando calcula si la salida dejaria ese saldo por debajo de cero.
+- Una salida igual al disponible se acepta. Una salida superior se rechaza sin mutar el snapshot.
+- Esta regla se aplica a gastos, transferencias desde efectivo, regalos en efectivo, retiros operativos en efectivo y pagos salariales.
+- Un aporte real en efectivo aumenta la disponibilidad. El usuario tambien puede elegir otro medio cuando la operacion lo permita o cancelar la operacion; no existe un nuevo estado `PENDIENTE` para forzarla.
+- En una correccion salarial del mismo local se valida solo el incremento neto de efectivo respecto del pago reemplazado. Una reduccion o anulacion sigue permitida.
+- Las anulaciones y reversos no se bloquean porque restituyen o corrigen saldo y conservan el historial append-only.
+- Un resultado de maquinas negativo se registra normalmente. Si deja `Local / Efectivo` negativo, bloquea nuevas salidas y el cierre hasta que un aporte real cubra el faltante.
+- El saldo banco es independiente y queda fuera de esta validacion de efectivo.
+
 ## Libro de movimientos
 
 - Los movimientos contables persistidos no se reescriben durante la normalizacion.
@@ -67,6 +79,7 @@ No forman parte del resultado economico:
 - Al cerrar, las diferencias crean movimientos `DIFERENCIA_CAJA` para que las cuentas del local reflejen el saldo declarado.
 - Esos movimientos no cambian resultado economico.
 - Los importes directos y derivados del cierre deben ser numeros finitos; `NaN` e infinitos se rechazan antes de persistir.
+- Si el efectivo esperado es negativo, el cierre devuelve primero un error especifico que exige cubrir el faltante con un aporte real. No crea diferencia, cierre, auditoria ni ajuste economico.
 
 ## Diferencias
 

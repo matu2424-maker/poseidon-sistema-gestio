@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { clearOperationalData, createSeedData } from "../../data/appData";
 import { accountTotalsFromMovements } from "../../lib/accountMovements";
+import { totalsForBalance } from "../../lib/cashTotals";
+import { localAccountBalances } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
+import { createCapitalMovementCommand } from "../movements/operatingMovementCommands";
 import { closeCashCommand } from "./closeCash";
 import { openCashCommand } from "./openCash";
 import { saveReadingCommand } from "./saveReading";
@@ -123,6 +126,105 @@ describe("comandos de caja", () => {
         context,
       ),
     ).toMatchObject({ ok: false, error: "Toda diferencia requiere observacion." });
+  });
+
+  it("prioriza el error de efectivo esperado negativo y permite cerrar despues de un aporte", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const opened = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 1_000,
+        initialBankFund: 0,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    if (!opened.ok) throw new Error(opened.error);
+    const reading = opened.data.readings.find((item) => item.balanceId === opened.value.id)!;
+    const saved = saveReadingCommand(
+      opened.data,
+      opened.value.id,
+      reading.id,
+      {
+        inActual: reading.inPrevious,
+        outActual: reading.outPrevious + 1_500,
+        status: "CARGADA",
+      },
+      context,
+    );
+    if (!saved.ok) throw new Error(saved.error);
+    const negative = {
+      ...saved.data,
+      readings: saved.data.readings.map((item) =>
+        item.balanceId === opened.value.id && item.id !== reading.id
+          ? { ...item, status: "SIN_LECTURA" as const, observation: "Sin actividad" }
+          : item,
+      ),
+    };
+    const before = JSON.stringify(negative);
+    expect(totalsForBalance(negative, opened.value.id).commercialResult).toBe(-1_500);
+    const rejected = closeCashCommand(
+      negative,
+      {
+        balanceId: opened.value.id,
+        declaredCash: 0,
+        declaredBank: 0,
+        finalWithdrawalCash: 0,
+        finalWithdrawalBank: 0,
+        withdrawalCashPerson: "MATHIAS",
+        withdrawalBankPerson: "MATHIAS",
+        differenceNote: "",
+      },
+      context,
+    );
+    expect(rejected).toMatchObject({ ok: false });
+    if (!rejected.ok) {
+      expect(rejected.error).toContain("efectivo esperado es negativo");
+      expect(rejected.error).not.toContain("retiro final");
+    }
+    expect(JSON.stringify(negative)).toBe(before);
+    expect(negative.balances.find((item) => item.id === opened.value.id)?.status).toBe("EN_PROCESO");
+    expect(negative.accountMovements.some((item) => item.sourceType === "DIFERENCIA_CAJA")).toBe(false);
+
+    const contribution = createCapitalMovementCommand(
+      negative,
+      {
+        balanceId: opened.value.id,
+        type: "APORTE",
+        medium: "EFECTIVO",
+        person: "RICARDO",
+        amount: 500,
+        note: "Cubre resultado negativo",
+      },
+      context,
+    );
+    expect(contribution.ok).toBe(true);
+    if (!contribution.ok) return;
+    expect(totalsForBalance(contribution.data, opened.value.id).commercialResult).toBe(-1_500);
+    expect(localAccountBalances(contribution.data, opened.value.localId).bank).toBe(0);
+    const closed = closeCashCommand(
+      contribution.data,
+      {
+        balanceId: opened.value.id,
+        declaredCash: 0,
+        declaredBank: 0,
+        finalWithdrawalCash: 0,
+        finalWithdrawalBank: 0,
+        withdrawalCashPerson: "MATHIAS",
+        withdrawalBankPerson: "MATHIAS",
+        differenceNote: "",
+      },
+      context,
+    );
+    expect(closed.ok).toBe(true);
+    if (!closed.ok) return;
+    expect(closed.value).toMatchObject({ status: "CERRADO", cashDifference: 0 });
+    expect(totalsForBalance(closed.data, opened.value.id).commercialResult).toBe(-1_500);
   });
 
   it.each([

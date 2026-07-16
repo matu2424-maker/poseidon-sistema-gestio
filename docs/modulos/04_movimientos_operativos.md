@@ -2,6 +2,14 @@
 
 Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se ejecutan mediante `src/application/movements/operatingMovementCommands.ts`. Cada comando valida funcion Cajero y caja abierta, y actualiza entidad, cuentas y auditoria en una operacion tipada. La interfaz conserva solamente formularios, confirmaciones y mensajes.
 
+## Regla comun de efectivo
+
+- Gastos, transferencias desde efectivo, regalos en efectivo, retiros operativos en efectivo y pagos salariales consultan el saldo activo `Local / Efectivo` antes de guardar.
+- El importe igual al disponible se acepta. Si la salida dejaria saldo negativo, el comando se rechaza antes de crear entidad, movimiento o auditoria.
+- Un aporte real en efectivo puede cubrir el faltante. No se crea una operacion pendiente automaticamente.
+- Anulaciones y reversos siguen permitidos porque restituyen saldo y conservan historial.
+- Banco se controla por separado y no forma parte de esta regla.
+
 ## Gastos
 
 - Se cargan directo desde tabla.
@@ -49,6 +57,7 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - La validacion de salario base usa el periodo trabajado, no la fecha de pago.
 - La validacion bloquea salario pagado mayor al salario base, salario pagado + adelantos mayor al salario base y salario pagado + adelantos + descuentos mayor al salario base.
 - Descuento reduce pendiente/base cubierta, pero no genera salida de caja ni cuenta como dinero entregado.
+- Toda liquidacion que entregue dinero valida efectivo disponible. Al corregir una liquidacion del mismo local se controla solamente el incremento neto respecto de la reemplazada.
 - Se pueden anular antes de cerrar caja; la anulacion es logica, queda auditada y deja de impactar caja, liquidacion y cuenta personal.
 
 ## Retiros y aportes
@@ -60,4 +69,5 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - Persona: RICARDO o MATHIAS.
 - Retiros salen de cuenta corriente del local.
 - Aportes entran a cuenta corriente del local.
+- Un retiro operativo en efectivo se rechaza si supera el saldo `Local / Efectivo`; un retiro por transferencia queda fuera de esta validacion.
 - La carga requiere funcion activa `CAJERO`; encargado/administrador registran el movimiento usando `Trabajar como cajero` y conservan su usuario real en auditoria.

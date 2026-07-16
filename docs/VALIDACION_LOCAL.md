@@ -82,7 +82,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-16
 
-- 27 archivos de pruebas y 139 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion, snapshot, referencias y conflictos de escritura.
+- 28 archivos de pruebas y 146 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion, snapshot, referencias y conflictos de escritura.
 - 8 casos E2E en 5 archivos aprobados para caja, diferencias/auditoria, navegacion de roles, accesibilidad, conflicto entre pestañas y cierre salarial correctivo R1.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.

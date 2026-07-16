@@ -18,6 +18,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
+- Las nuevas salidas en efectivo validan el saldo activo `Local / Efectivo`; un saldo negativo por maquinas bloquea salidas y cierre hasta un aporte real.
 - Codex cuenta con tres perfiles personalizados de solo lectura; `.codex/` no fija cantidad de hilos ni profundidad.
 - `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
 - `pnpm run check:workstreams` controla tres chats de rol, prompts, contextos, propiedad de archivos y contratos reservados.
@@ -37,14 +38,14 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Cierre salarial definitivo con foto por empleado, bloqueo mensual y revisiones correctivas R1/R2 enlazadas.
 - Paneles iniciales separados en `CashierDashboard`, `ManagerDashboard` y `AdminDashboard`, con selector compatible en `RoleDashboard`.
 - Poseidon Central, Cajero, Encargado y Administrador tienen prompts, workstreams, contratos y plantillas versionados.
-- 139 pruebas automatizadas en 27 archivos y 8 casos E2E en 5 archivos.
+- 146 pruebas automatizadas en 28 archivos y 8 casos E2E en 5 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas de validacion al 2026-07-16: 139 pruebas en 27 archivos y 8 casos E2E en 5 archivos.
+- Metricas de validacion al 2026-07-16: 146 pruebas en 28 archivos y 8 casos E2E en 5 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.

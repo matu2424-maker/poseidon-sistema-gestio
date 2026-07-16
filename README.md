@@ -29,7 +29,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 139 casos en 27 archivos, mas 8 casos E2E en 5 archivos.
+- Validacion automatizada actual: 146 casos en 28 archivos, mas 8 casos E2E en 5 archivos.
 
 ## Ejecutar el proyecto
 
