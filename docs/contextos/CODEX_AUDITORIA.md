@@ -1,6 +1,6 @@
 # Contexto Codex - Auditoria
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-16
 
 Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, historiales, anulaciones, diferencias, cierres o movimientos contables. Referencias asociadas:
 
@@ -24,6 +24,8 @@ Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, 
 ## Reglas criticas
 
 - Todo cambio sensible registra fecha/hora, usuario, rol real y funcion usada.
+- Cada evento nuevo congela los locales asociados en ese momento.
+- No se crean logs sinteticos durante el render ni se guardan contraseñas/base64 en valor anterior/nuevo.
 - No borrar historial operativo; anular o desactivar con auditoria.
 - Cuando encargado/admin opera como cajero, debe quedar registrado el usuario real y la funcion Cajero.
 - Diferencias corregidas, verificadas o anuladas deben conservar observacion y cambios de valores.
@@ -38,7 +40,7 @@ Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, 
 - Caja: apertura, cierre, contadores, movimientos y anulaciones.
 - Diferencias: estado, correccion y movimientos de cuenta.
 - Cuentas corrientes: cada movimiento debe poder rastrearse a origen y recaudacion si aplica.
-- Salarios: pagos, anulaciones, cambios de base y cierres.
+- Salarios: pagos, anulaciones, cambios de base, cierre definitivo y apertura/cierre/cancelacion de revisiones correctivas.
 - Locales/maquinas: estado, ubicacion, taller, reset y desuso.
 
 ## Pruebas manuales

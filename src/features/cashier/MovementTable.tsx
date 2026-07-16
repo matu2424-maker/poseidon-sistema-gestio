@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import type { MovementStatus } from "../../types";
 
 export function CashierMovementPanel({
@@ -77,7 +77,7 @@ export function MovementTable({
         <thead>
           <tr>
             {columns.map((column, index) => (
-              <th key={column}>
+              <th key={column} aria-sort={index < columns.length - 1 ? ariaSort(sort, column) : undefined}>
                 {index < columns.length - 1 ? (
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column))}>
                     {column}

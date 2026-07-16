@@ -3,7 +3,7 @@ import type { AppData, Balance, Expense, ExpenseReviewStatus, MovementStatus, Us
 import { formatDateTime, nowIso } from "../../lib/dates";
 import { balanceVisibleId, localName, userDisplayName } from "../../lib/display";
 import { money } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal, type TableColumn } from "../../components/ui";
 import { reverseSourceAccountMovements } from "../../lib/accountMovements";
 import { confirmAction } from "../../lib/confirmations";
@@ -192,7 +192,6 @@ export function ManagerExpenses({
     <section className="admin-focus manager-expenses-page detail-card-surface">
       <div className="admin-header">
         <div>
-          <h2>Control de gastos</h2>
           <p className="helper">Revision completa por caja, categoria, comprobante, usuario y estado. No se borra historial operativo.</p>
         </div>
         <div className="admin-header-actions">
@@ -229,7 +228,7 @@ export function ManagerExpenses({
           <thead>
             <tr>
               {expenseColumns.map((column) => (
-                <th key={column.key}>
+                <th key={column.key} aria-sort={column.sortable ? ariaSort(sort, column.key) : undefined}>
                   {column.sortable ? (
                     <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
                       {column.label}

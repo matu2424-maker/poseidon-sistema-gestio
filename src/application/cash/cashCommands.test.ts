@@ -218,7 +218,7 @@ describe("comandos de caja", () => {
     ).toMatchObject({ ok: false, error: "Los importes del cierre deben ser numeros finitos." });
   });
 
-  it("impide abrir dos cajas en proceso para el mismo local y fecha", () => {
+  it("impide abrir dos cajas en proceso para el mismo local aunque tengan distinta fecha", () => {
     const data = clearOperationalData(createSeedData());
     const context = fixedContext();
     const first = openCashCommand(
@@ -241,7 +241,7 @@ describe("comandos de caja", () => {
         first.data,
         {
           localId: "1",
-          operatingDate: "2026-07-10",
+          operatingDate: "2026-07-11",
           initialFund: 0,
           initialBankFund: 0,
           initialNote: "",
@@ -250,6 +250,28 @@ describe("comandos de caja", () => {
         },
         context,
       ),
-    ).toMatchObject({ ok: false, error: "Ya existe una caja abierta para ese local y fecha." });
+    ).toMatchObject({ ok: false, error: "Ya existe una caja abierta para ese local. Primero hay que cerrarla." });
   });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(
+    "rechaza saldos iniciales no finitos: %s",
+    (invalidAmount) => {
+      const data = clearOperationalData(createSeedData());
+      expect(
+        openCashCommand(
+          data,
+          {
+            localId: "1",
+            operatingDate: "2026-07-10",
+            initialFund: invalidAmount,
+            initialBankFund: 0,
+            initialNote: "",
+            openingCapitalPerson: "MATHIAS",
+            firstOpening: true,
+          },
+          fixedContext(),
+        ),
+      ).toMatchObject({ ok: false, error: "Los saldos iniciales deben ser numeros finitos." });
+    },
+  );
 });

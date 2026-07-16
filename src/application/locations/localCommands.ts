@@ -1,5 +1,6 @@
 import type { AppData, Local, LocalImage, Machine, MachineLocalHistory } from "../../types";
 import { POSEIDON_LOCAL_ID, WORKSHOP_LABEL, WORKSHOP_LOCAL_ID } from "../../data/appDataIds";
+import { openBalanceForLocal } from "../../lib/balanceReferences";
 import {
   createLocalBankCurrentAccount,
   createLocalCashCurrentAccount,
@@ -123,6 +124,9 @@ export function saveLocalCommand(
   }
 
   const closesLocal = existing.status !== "CERRADO" && next.status === "CERRADO";
+  if (closesLocal && openBalanceForLocal(data, next.id)) {
+    return commandError("No se puede cerrar el local mientras tenga una caja abierta.");
+  }
   const closingMachines = closesLocal ? data.machines.filter((machine) => machine.localId === next.id) : [];
   const machines = closesLocal
     ? data.machines.map((machine) =>

@@ -169,6 +169,8 @@ export type SalarySettlement = {
   annulledBy?: string;
   annulledByName?: string;
   annulledAt?: string;
+  correctionClosureId?: string;
+  annulledInCorrectionClosureId?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -189,12 +191,52 @@ export type SalaryHistory = {
   createdAt: string;
 };
 
+export type SalaryClosureKind = "ORDINARIO" | "CORRECTIVO";
+export type SalaryClosureStatus = "CORRECCION_ABIERTA" | "CERRADO" | "ANULADO";
+
+export type SalaryClosureSettlementSnapshot = {
+  id: string;
+  concept: SalaryConcept;
+  amount: number;
+  notes: string;
+  origin: SalarySettlementOrigin;
+  createdByName: string;
+  approvedByName: string;
+  createdAt: string;
+};
+
+export type SalaryClosureEmployeeSnapshot = {
+  staffId: string;
+  staffName: string;
+  position: string;
+  localId: string;
+  salaryType: SalaryType;
+  baseSalary: number;
+  salaryPaid: number;
+  advances: number;
+  extraAmount: number;
+  bonuses: number;
+  deductions: number;
+  totalAmount: number;
+  baseCoveredAmount: number;
+  liquidatedAmount: number;
+  pendingAmount: number;
+  settlementIds: string[];
+  settlements: SalaryClosureSettlementSnapshot[];
+};
+
 export type SalaryClosure = {
   id: string;
   visibleId: string;
+  period: string;
   startDate: string;
   endDate: string;
   periodLabel: string;
+  kind: SalaryClosureKind;
+  revision: number;
+  parentClosureId?: string;
+  snapshotVersion: number;
+  employeeSnapshots: SalaryClosureEmployeeSnapshot[];
   employeeCount: number;
   settlementIds: string[];
   totalBase: number;
@@ -207,11 +249,14 @@ export type SalaryClosure = {
   totalBaseCovered: number;
   totalLiquidated: number;
   totalPending: number;
-  status: "CERRADO" | "ANULADO";
+  status: SalaryClosureStatus;
   note: string;
   createdBy: string;
   createdByName: string;
   createdAt: string;
+  closedBy?: string;
+  closedByName?: string;
+  closedAt?: string;
 };
 
 export type Client = {
@@ -440,6 +485,7 @@ export type AuditEvent = {
   entity: string;
   entityId: string;
   localId?: string;
+  localIds?: string[];
   previousValue: string;
   newValue: string;
   reason: string;

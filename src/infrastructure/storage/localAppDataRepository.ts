@@ -45,14 +45,28 @@ export function loadLocalAppData(storage: KeyValueStorage = localStorage): Stora
   return { status: "ready", ...decoded.value, raw };
 }
 
-export function saveLocalAppData(data: AppData, storage: KeyValueStorage = localStorage): StorageSaveResult {
-  const serialized = serializeAppData(data);
+export function saveLocalAppData(
+  data: AppData,
+  storage: KeyValueStorage = localStorage,
+  expectedRaw?: string | null,
+): StorageSaveResult {
+  let serialized = "";
   try {
+    serialized = serializeAppData(data);
+    const storedRaw = storage.getItem(STORAGE_KEY);
+    if (expectedRaw !== undefined && storedRaw !== expectedRaw) {
+      return {
+        status: "conflict",
+        error: "Otra pestaña modifico los datos locales antes de este guardado.",
+        attemptedRaw: serialized,
+        storedRaw: storedRaw ?? "",
+      };
+    }
     storage.setItem(STORAGE_KEY, serialized);
-    return { status: "ok", bytes: new Blob([serialized]).size };
+    return { status: "ok", bytes: new Blob([serialized]).size, raw: serialized };
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo escribir el almacenamiento local.";
-    return { status: "failed", error: message };
+    return { status: "failed", error: message, attemptedRaw: serialized };
   }
 }
 
@@ -69,7 +83,7 @@ export function clearLocalAppData(storage: KeyValueStorage = localStorage) {
 export function createLocalAppDataRepository(storage: KeyValueStorage): AppDataRepository {
   return {
     load: async () => loadLocalAppData(storage),
-    save: async (data) => saveLocalAppData(data, storage),
+    save: async (data, expectedRaw) => saveLocalAppData(data, storage, expectedRaw),
     clear: async () => clearLocalAppData(storage),
   };
 }

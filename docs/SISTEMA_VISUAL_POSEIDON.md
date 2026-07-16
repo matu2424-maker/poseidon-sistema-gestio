@@ -1,6 +1,6 @@
 # Poseidon - Sistema visual
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Guia de aplicacion de la identidad visual de Poseidon. `docs/REGLAS_VISUALES.md` conserva las reglas obligatorias; este documento explica patrones, jerarquia, referencias y validacion para implementarlas sin depender de la memoria de un chat.
 
@@ -125,9 +125,10 @@ Reglas de aplicacion:
 - Cada columna visible de datos ordena ascendente y descendente.
 - Acciones y seleccion son excepciones normales.
 - Encabezado claro, compacto y con indicador ASCII `asc` o `desc`.
+- El encabezado comunica el mismo estado mediante `aria-sort`.
 - La columna de acciones se alinea a la derecha y mantiene ancho estable.
 - Estados usan badge o indicador discreto; no colorear toda la tabla salvo error localizado.
-- Fila seleccionable conserva un control accesible evidente, aunque tambien admita clic en la fila.
+- Fila seleccionable conserva un control accesible evidente; si toda la fila admite clic, tambien acepta `Enter` y barra espaciadora.
 - En movil, el desplazamiento horizontal queda dentro del contenedor de tabla; la pagina no desborda.
 - Si la accion queda demasiado lejos del identificador en movil, proponer columnas prioritarias o una vista adaptada antes de ocultar datos.
 - El patron global usa encabezado gris claro y texto compacto; el azul marino permanece en navegacion y no domina las grillas de datos.
@@ -138,6 +139,7 @@ Reglas de aplicacion:
 - Obligatorio marcado antes de guardar.
 - Error junto al campo o dentro del modal que origina la accion.
 - Exito y aviso se actualizan al cambiar de operacion.
+- Avisos dinamicos se anuncian mediante una region `status` sin interrumpir la operacion.
 - Confirmaciones sensibles explican el efecto real, sin lenguaje generico.
 - Campos monetarios respetan `docs/REGLAS_VISUALES.md` y `src/lib/money.ts`.
 
@@ -148,6 +150,7 @@ Reglas de aplicacion:
 - Orden: contexto, datos principales, accion, historial.
 - Separar secciones con lineas y espacio; evitar paneles dentro de paneles.
 - El modal debe tener scroll interno y conservar los botones accesibles en `390x844`.
+- El foco inicial queda dentro del modal, `Tab` permanece contenido, `Escape` cierra y el foco vuelve al control de origen.
 - `Ver detalle` no debe parecer una accion modificadora.
 
 ## Patrones por rol

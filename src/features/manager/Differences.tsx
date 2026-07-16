@@ -12,7 +12,7 @@ import {
   normalizeDifferenceStatus,
 } from "../../lib/differences";
 import { formatMoneyInput, money, moneyInputValue, normalizeRequiredMoneyInput, parseRequiredMoneyInput } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { Modal } from "../../components/ui";
@@ -315,13 +315,13 @@ export function Differences({ data, user, patchData, setMessage }: DifferencesPr
           <table className="data-table difference-table">
           <thead>
             <tr>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "id"))}>Caja{sortIndicator(sort, "id")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "operatingDate"))}>Fecha{sortIndicator(sort, "operatingDate")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "local"))}>Local{sortIndicator(sort, "local")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "cashDifference"))}>Efectivo{sortIndicator(sort, "cashDifference")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "bankDifference"))}>Banco{sortIndicator(sort, "bankDifference")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "status"))}>Estado{sortIndicator(sort, "status")}</button></th>
-              <th><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "lastReview"))}>Ultima gestion{sortIndicator(sort, "lastReview")}</button></th>
+              <th aria-sort={ariaSort(sort, "id")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "id"))}>Caja{sortIndicator(sort, "id")}</button></th>
+              <th aria-sort={ariaSort(sort, "operatingDate")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "operatingDate"))}>Fecha{sortIndicator(sort, "operatingDate")}</button></th>
+              <th aria-sort={ariaSort(sort, "local")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "local"))}>Local{sortIndicator(sort, "local")}</button></th>
+              <th aria-sort={ariaSort(sort, "cashDifference")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "cashDifference"))}>Efectivo{sortIndicator(sort, "cashDifference")}</button></th>
+              <th aria-sort={ariaSort(sort, "bankDifference")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "bankDifference"))}>Banco{sortIndicator(sort, "bankDifference")}</button></th>
+              <th aria-sort={ariaSort(sort, "status")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "status"))}>Estado{sortIndicator(sort, "status")}</button></th>
+              <th aria-sort={ariaSort(sort, "lastReview")}><button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, "lastReview"))}>Ultima gestion{sortIndicator(sort, "lastReview")}</button></th>
               <th className="difference-action-heading">Accion</th>
             </tr>
           </thead>

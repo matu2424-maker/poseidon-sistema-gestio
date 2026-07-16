@@ -6,12 +6,13 @@ export type AppDataLoadResult =
   | { status: "corrupt"; raw: string; error: string };
 
 export type AppDataSaveResult =
-  | { status: "ok"; bytes: number }
-  | { status: "failed"; error: string };
+  | { status: "ok"; bytes: number; raw: string }
+  | { status: "conflict"; error: string; attemptedRaw: string; storedRaw: string }
+  | { status: "failed"; error: string; attemptedRaw: string };
 
 export interface AppDataRepository {
   load(): Promise<AppDataLoadResult>;
-  save(data: AppData): Promise<AppDataSaveResult>;
+  save(data: AppData, expectedRaw?: string | null): Promise<AppDataSaveResult>;
   clear(): Promise<void>;
 }
 

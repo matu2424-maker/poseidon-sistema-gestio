@@ -4,7 +4,7 @@ import { formatDateTime } from "../../../lib/dates";
 import { localName } from "../../../lib/display";
 import { nextShortId } from "../../../lib/ids";
 import { counter, formatCounterInput, parseCounter } from "../../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
 import type { AppData, MachineLocalHistory, MachineStatus, User } from "../../../types";
 import { commandContext } from "../../../application/command";
 import {
@@ -228,7 +228,7 @@ export function AdminMachineEditor({
                       ["action", "Movimiento"],
                       ["detail", "Detalle"],
                     ].map(([key, label]) => (
-                      <th key={key}>
+                      <th key={key} aria-sort={ariaSort(machineHistorySort, key as typeof machineHistorySort.key)}>
                         <button
                           className="sort-button"
                           type="button"

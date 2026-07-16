@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a la tarea.
 
@@ -14,12 +14,12 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Supabase/Auth/Storage y publicacion quedan pendientes y requieren autorizacion explicita.
 - `src/App.tsx` orquesta estado y sesion; `src/navigation/screens.ts` define ruta/pantalla/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - La URL conserva el modulo; `sessionStorage` conserva solo `userId` y funcion activa durante la pestaña. No reemplaza Auth real.
-- `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste.
-- Pruebas actuales: 107 casos en 25 archivos, mas 6 E2E en 3 archivos: ciclo critico de cajero, diferencias/auditoria y rutas por rol.
+- `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste el esquema 3.
+- Pruebas actuales: 134 casos en 26 archivos, mas 8 E2E en 5 archivos: ciclo critico de cajero, diferencias/auditoria, rutas por rol, conflicto entre pestañas y cierre salarial correctivo.
 - Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.
-- `pnpm run check:design` valida 37 controles de gobierno visual, referencias y pesos operativos hasta `600` sin mezclarlo con reglas funcionales.
+- `pnpm run check:design` valida 38 controles de gobierno visual, referencias, tablas accesibles y pesos operativos hasta `600` sin mezclarlo con reglas funcionales.
 - Cuatro skills versionadas en `.agents/skills/` cubren cambio modular, QA visual, regresion contable y diagnostico de localhost.
 - `pnpm run check:skills` valida sus contratos; `pnpm run check:commit` es la entrada unica previa al commit.
 - Validacion de subagentes cerrada: perfiles comprobados en tarea nueva y riesgos priorizados implementados con pruebas. Evidencia en `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`.
@@ -39,9 +39,12 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Estados vigentes de diferencias: `PENDIENTE`, `VERIFICADA`, `CORREGIDA`, `ANULADA`.
 - `ANULADA` es terminal; no se gestionan diferencias con caja abierta del mismo local y una gestion historica no reescribe cajas posteriores.
 - La liquidacion salarial se asocia al periodo trabajado; la caja se asocia por `balanceId`.
+- Un cierre salarial congela el mes por empleado. El periodo queda bloqueado y solo una revision correctiva enlazada puede modificarlo.
 - No borrar historial operativo: anular, desactivar, enviar a papelera o ajustar con auditoria.
 - Toda accion sensible registra usuario real, rol real, funcion usada, fecha/hora y motivo cuando corresponde.
 - Toda tabla de datos permite ordenar sus columnas visibles, excepto acciones/seleccion o excepcion documentada.
+- Solo existe una caja abierta por local; con caja abierta no se mueve/asigna maquina, no se ajustan sus contadores administrativos y no se cierra el local.
+- Una pestaña desactualizada no sobrescribe otra: el guardado se bloquea y conserva un respaldo pendiente.
 - No publicar, desplegar ni conectar servicios externos sin confirmacion.
 
 Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs/REGLAS_VISUALES.md`.
@@ -88,4 +91,4 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Proxima prioridad tecnica
 
-Mantener todo local y evitar otra refactorizacion transversal amplia. La prioridad es reforzar autorizacion y alcance por local dentro de comandos, reemplazar el local operativo fijo por un contexto de local activo, blindar una sola caja abierta por local y extraer las operaciones sensibles que aun viven en handlers React. El detalle vigente esta en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MAPA_TECNICO.md`.
+Mantener todo local y enfocado en Poseidon. La prioridad es reforzar autorizacion dentro de comandos, extraer operaciones sensibles que aun viven en handlers React y reservar para el bloque final la validacion runtime profunda del snapshot. Multi-local queda postergado. El cierre salarial inmutable ya esta implementado. El detalle vigente esta en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MAPA_TECNICO.md`.

@@ -18,6 +18,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` es un manifiesto; los estilos se dividen en `base.css`, `layout.css`, `features/` y `responsive.css` conservando el orden de cascada.
 - Persistencia versionada en `localStorage`.
+- Cada guardado compara la version leida para impedir que una pestaña desactualizada sobrescriba otra.
 - Login local sin contrasena.
 - La demo inicial incluye datos operativos para probar paneles:
   - 3 maquinas activas asignadas a Poseidon;
@@ -52,5 +53,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - No se borran datos operativos automaticamente al iniciar.
 - `Sistema > Datos locales` permite exportar/importar respaldo JSON validado.
 - Si el almacenamiento esta corrupto se conserva sin sobrescribir hasta que el usuario descargue respaldo o confirme iniciar datos nuevos.
+- Si existe conflicto entre pestañas o falla una escritura, la operacion se bloquea y el intento queda disponible como respaldo antes de reintentar o cargar la ultima version guardada.
+- Modales compartidos encierran el foco, cierran con `Escape` y restauran el foco anterior; avisos y tablas exponen estado accesible.
 - Localhost se levanta solo con `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.

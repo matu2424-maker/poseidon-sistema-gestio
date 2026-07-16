@@ -85,7 +85,7 @@ export const salaryPeriodEndDate = (period: string) => {
   return new Date(year, month, 0).toISOString().slice(0, 10);
 };
 
-export const isValidSalaryPeriod = (period: string) => /^\d{4}-\d{2}$/.test(period);
+export const isValidSalaryPeriod = (period: string) => /^\d{4}-(0[1-9]|1[0-2])$/.test(period);
 
 export const shiftSalaryPeriod = (period: string, offsetMonths: number) => {
   const [year, month] = period.split("-").map(Number);
@@ -106,8 +106,19 @@ export const suggestedSalaryPeriodModeFromDate = (date: string): "current" | "pr
   return day >= 1 && day <= 10 ? "previous" : "current";
 };
 
+export const staffWorkedInSalaryPeriod = (staff: StaffMember | undefined, period: string) => {
+  if (!staff || !isValidSalaryPeriod(period)) return false;
+  const periodStart = `${period}-01`;
+  const periodEnd = salaryPeriodEndDate(period);
+  const hireDate = staff.hireDate?.slice(0, 10);
+  const terminatedAt = staff.terminatedAt?.slice(0, 10);
+  if (hireDate && hireDate > periodEnd) return false;
+  if (terminatedAt && terminatedAt < periodStart) return false;
+  return true;
+};
+
 export function salaryBaseForPeriod(data: Pick<AppData, "salaryHistories">, staff: StaffMember | undefined, period: string) {
-  if (!staff || staff.status !== "ACTIVO") {
+  if (!staff || !staffWorkedInSalaryPeriod(staff, period)) {
     return { amount: 0, salaryType: staff?.salaryType ?? "MENSUAL" };
   }
   const endDate = salaryPeriodEndDate(period);

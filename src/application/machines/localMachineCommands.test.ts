@@ -170,6 +170,30 @@ describe("comandos de locales y maquinas", () => {
     };
     const blockedReset = resetMachineCountersCommand(withOpenCash, assignedMachine.id, base.context);
     expect(blockedReset.ok).toBe(false);
+    expect(moveMachineToWorkshopCommand(withOpenCash, assignedMachine.id, base.context)).toMatchObject({
+      ok: false,
+      error: "No se puede enviar la maquina al Taller mientras su local tenga una caja abierta.",
+    });
+    expect(
+      saveMachineCommand(
+        withOpenCash,
+        {
+          machineId: assignedMachine.id,
+          visibleId: assignedMachine.visibleId,
+          name: assignedMachine.name,
+          localId: assignedMachine.localId,
+          location: assignedMachine.location,
+          status: assignedMachine.status,
+          lastIn: 6_000,
+          lastOut: 1_000,
+          notes: assignedMachine.notes,
+        },
+        base.context,
+      ),
+    ).toMatchObject({
+      ok: false,
+      error: "No se puede mover la maquina ni ajustar sus contadores mientras el local tenga una caja abierta.",
+    });
 
     const reset = resetMachineCountersCommand(adjusted.data, assignedMachine.id, base.context);
     expect(reset.ok).toBe(true);
@@ -183,6 +207,48 @@ describe("comandos de locales y maquinas", () => {
     if (!deleted.ok) return;
     expect(deleted.data.machines.some((machine) => machine.id === assignedMachine.id)).toBe(false);
     expect(deleted.data.machineLocalHistory[0]).toMatchObject({ action: "QUITADA", userId: base.context.user.id });
+  });
+
+  it("bloquea asignaciones y cierre de local mientras exista una caja abierta", () => {
+    const base = setup();
+    const workshopMachine = { ...base.data.machines[0], localId: WORKSHOP_LOCAL_ID, location: "Taller" };
+    const data = {
+      ...base.data,
+      machines: base.data.machines.map((machine) => (machine.id === workshopMachine.id ? workshopMachine : machine)),
+      balances: [
+        {
+          ...base.data.balances[0],
+          id: "balance-open-guards",
+          localId: POSEIDON_LOCAL_ID,
+          operatingDate: "2026-07-12",
+          status: "EN_PROCESO" as const,
+        },
+        ...base.data.balances,
+      ],
+    };
+
+    expect(assignMachinesToLocalCommand(data, POSEIDON_LOCAL_ID, [workshopMachine.id], base.context)).toMatchObject({
+      ok: false,
+      error: "No se pueden asignar maquinas mientras el local tenga una caja abierta.",
+    });
+    expect(
+      saveLocalCommand(
+        data,
+        {
+          localId: POSEIDON_LOCAL_ID,
+          id: POSEIDON_LOCAL_ID,
+          name: data.locals[0].name,
+          tenantName: data.locals[0].tenantName,
+          phone: data.locals[0].phone,
+          email: data.locals[0].email,
+          address: data.locals[0].address,
+          googleMapsUrl: data.locals[0].googleMapsUrl,
+          images: data.locals[0].images,
+          status: "CERRADO",
+        },
+        base.context,
+      ),
+    ).toMatchObject({ ok: false, error: "No se puede cerrar el local mientras tenga una caja abierta." });
   });
 
   it("impide eliminar una maquina con recaudaciones y asignar desuso", () => {

@@ -1,6 +1,6 @@
 # Poseidon - Handoff tecnico
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Este documento permite continuar el proyecto desde otra cuenta o agente sin leer el chat. Las reglas completas viven en las fuentes canonicas enlazadas; no deben reconstruirse desde este resumen.
 
@@ -62,7 +62,7 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - `src/data/appData.ts`: seed, reset y fachada de datos iniciales.
 - `src/data/normalizeData.ts`: migracion y normalizacion del snapshot.
 - `src/application/`: comandos de negocio y contratos de persistencia.
-- `src/infrastructure/storage/`: snapshot versionado y adaptador `localStorage`.
+- `src/infrastructure/storage/`: snapshot esquema 3 versionado y adaptador `localStorage`.
 - `src/lib/`: reglas y helpers compartidos.
 - `src/components/`: UI transversal.
 - `src/features/`: pantallas por dominio/rol.
@@ -104,30 +104,29 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 107 pruebas aprobadas en 25 archivos, mas 6 casos E2E en 3 archivos para caja, diferencias/auditoria y rutas de los tres roles.
+- 134 pruebas aprobadas en 26 archivos, mas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas, conflicto entre pestañas y cierre salarial correctivo.
 - Tres perfiles Codex de solo lectura, cuatro skills versionadas y validadores de agentes, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 
 ## Riesgos conocidos
 
 - `localStorage` no es multiusuario ni persistencia durable.
-- La cuota de `localStorage` puede impedir un guardado; el sistema no recorta historial y exige recuperar o exportar.
-- El local operativo sigue fijado a Poseidon/primer local; el modelo multi-local existe, pero falta contexto de local activo.
-- Apertura, contadores, cierre y salarios no verifican aun de forma uniforme rol, funcion activa y local asignado dentro de cada comando.
-- La apertura solo bloquea otra caja abierta para el mismo local y fecha; la unicidad por local depende tambien del flujo visual.
-- Cierres salariales, cierres periodicos, control administrativo de gastos y algunos maestros mantienen mutaciones en handlers React.
-- Faltan E2E y pruebas completas para formularios administrativos, cierres salariales/periodicos y ciclo de maquinas.
+- La cuota de `localStorage` puede impedir un guardado; el sistema no recorta historial, bloquea la operacion y conserva el intento para descargar o reintentar.
+- El local operativo sigue fijado a Poseidon/primer local. Multi-local esta postergado por decision del usuario.
+- Apertura, contadores y cierre de caja no verifican aun de forma uniforme rol, funcion activa y local asignado dentro de cada comando.
+- Cierres periodicos, control administrativo de gastos y algunos maestros mantienen mutaciones en handlers React.
+- Faltan E2E y pruebas completas para formularios administrativos y cierres periodicos.
 - La validacion inicial del snapshot es estructuralmente superficial antes de la normalizacion.
+- El cierre salarial definitivo ya congela detalle por empleado, bloquea el periodo y usa revisiones correctivas enlazadas sobre esquema 3.
 - Permisos de frontend no sustituyen seguridad de backend.
 
 ## Prioridad recomendada
 
 1. Aplicar autorizacion uniforme dentro de comandos: usuario real, funcion activa y locales permitidos.
-2. Introducir un contexto real de local activo y blindar una sola caja abierta por local.
-3. Extraer cierres salariales, cierres periodicos y anulaciones administrativas sensibles a comandos.
-4. Ampliar pruebas negativas de permisos y ciclos completos de salarios y maquinas.
-5. Profundizar validacion runtime del snapshot y separar tipos canonicos de compatibilidad heredada.
-6. Mantener el adaptador local hasta que el usuario autorice diseño SQL, Auth/RLS y Storage de prueba.
+2. Extraer cierres periodicos y anulaciones administrativas sensibles a comandos.
+3. Ampliar pruebas negativas de permisos.
+4. Al final, completar validacion runtime profunda del snapshot.
+5. Mantener el adaptador local hasta que el usuario autorice diseño SQL, Auth/RLS y Storage de prueba.
 
 Plan vigente: `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md`.
 

@@ -4,7 +4,7 @@ import { totalsForBalance } from "../../lib/cashTotals";
 import { balanceVisibleId } from "../../lib/display";
 import { exportCsv, exportDailyExcel } from "../../lib/export";
 import { money } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 
 type ReportBalanceColumnKey = "id" | "operatingDate" | "status" | "expectedCash" | "declaredCash" | "cashDifference" | "bankDifference" | "actions";
 
@@ -83,7 +83,7 @@ export function Reports({ data, user }: { data: AppData; user: User }) {
           <thead>
             <tr>
               {balanceColumns.map((column) => (
-                <th key={column.key}>
+                <th key={column.key} aria-sort={column.sortable ? ariaSort(sort, column.key) : undefined}>
                   {column.sortable ? (
                     <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
                       {column.label}

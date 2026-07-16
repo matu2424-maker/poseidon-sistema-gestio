@@ -63,6 +63,37 @@ describe("alcance local de auditoria", () => {
     });
 
     expect(auditEventLocalIds(next, next.audit[0])).toEqual([localId]);
-    expect(next.audit[0]).toMatchObject({ id: "audit-explicit", createdAt: "2026-07-11T12:00:00.000Z" });
+    expect(next.audit[0]).toMatchObject({ id: "audit-explicit", createdAt: "2026-07-11T12:00:00.000Z", localIds: [localId] });
+  });
+
+  it("congela el alcance local al crear el evento", () => {
+    const data = createSeedData();
+    const machine = data.machines[0];
+    const localId = machine.localId;
+    const next = appendAuditEvent(data, {}, "Modificar", "Maquina", machine.id, machine, machine);
+    const moved = {
+      ...next,
+      machines: next.machines.map((item) => (item.id === machine.id ? { ...item, localId: "workshop" } : item)),
+    };
+
+    expect(next.audit[0].localIds).toEqual([localId]);
+    expect(auditEventLocalIds(moved, moved.audit[0])).toEqual([localId]);
+  });
+
+  it("omite credenciales y archivos inline del detalle auditado", () => {
+    const data = createSeedData();
+    const next = appendAuditEvent(
+      data,
+      {},
+      "Crear",
+      "Usuario",
+      "user-test",
+      "",
+      { username: "prueba", password: "secreto", receiptDataUrl: `data:image/png;base64,${"a".repeat(600)}` },
+    );
+    expect(next.audit[0].newValue).toContain("[dato sensible omitido]");
+    expect(next.audit[0].newValue).toContain("[archivo omitido]");
+    expect(next.audit[0].newValue).not.toContain("secreto");
+    expect(next.audit[0].newValue).not.toContain("base64");
   });
 });

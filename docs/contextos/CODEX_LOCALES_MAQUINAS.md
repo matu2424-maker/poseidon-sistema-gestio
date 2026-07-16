@@ -1,6 +1,6 @@
 # Contexto Codex - Locales, maquinas y taller
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-16
 
 Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en desuso, historial de maquinas o asociaciones entre local y maquina. Referencias asociadas:
 
@@ -26,6 +26,7 @@ Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en des
 - Para eliminar una maquina primero debe estar en Taller.
 - No se puede eliminar una maquina con recaudaciones.
 - Si un local pasa a `CERRADO`, sus maquinas vuelven al Taller con aviso previo.
+- No se cierra un local ni se trasladan/asignan maquinas mientras ese local tenga caja abierta.
 - Locales deben conservar historial de maquinas con fecha.
 - IN/OUT actual no puede ser menor al anterior.
 - Tablas de locales y maquinas tienen columnas fijas y columnas opcionales guardadas.
@@ -35,6 +36,7 @@ Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en des
 - Maquinas activas por local alimentan contadores de caja.
 - Cambios de local/estado impactan historial y auditoria.
 - Reset de contadores requiere revisar si hay caja abierta.
+- El ajuste administrativo de IN/OUT usa el mismo bloqueo de caja abierta que el reset.
 - Contadores impactan resultado de maquinas y cuentas corrientes del local.
 
 ## Pruebas manuales

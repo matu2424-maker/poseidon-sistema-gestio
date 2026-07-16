@@ -4,7 +4,12 @@ import type { AppDataRepository } from "../application/ports/AppDataRepository";
 import { createAsyncOperationQueue } from "../application/ports/asyncOperationQueue";
 import { createSeedData, normalizeData } from "../data/appData";
 
-export type StorageIssue = { raw: string; error: string };
+export type StorageIssue = {
+  kind: "corrupt" | "conflict" | "write";
+  raw: string;
+  error: string;
+  storedRaw?: string;
+};
 
 export function useAppDataRepository(
   repository: AppDataRepository,
@@ -14,11 +19,28 @@ export function useAppDataRepository(
   const [storageIssue, setStorageIssue] = useState<StorageIssue>();
   const [storageReady, setStorageReady] = useState(false);
   const operationQueue = useRef(createAsyncOperationQueue());
+  const persistedRaw = useRef<string | null | undefined>(undefined);
+  const skipNextPersistence = useRef(false);
 
   const enqueue = useCallback(<T,>(operation: () => Promise<T>): Promise<T> => operationQueue.current.run(operation), []);
 
   const persistNow = useCallback(
-    (nextData: AppData) => enqueue(() => repository.save(nextData)),
+    async (nextData: AppData) => {
+      const result = await enqueue(() => repository.save(nextData, persistedRaw.current));
+      if (result.status === "ok") {
+        persistedRaw.current = result.raw;
+      } else if (result.status === "conflict") {
+        setStorageIssue({
+          kind: "conflict",
+          raw: result.attemptedRaw,
+          storedRaw: result.storedRaw,
+          error: result.error,
+        });
+      } else {
+        setStorageIssue({ kind: "write", raw: result.attemptedRaw, error: result.error });
+      }
+      return result;
+    },
     [enqueue, repository],
   );
 
@@ -29,15 +51,20 @@ export function useAppDataRepository(
         const stored = await repository.load();
         if (!active) return;
         if (stored.status === "empty") {
+          persistedRaw.current = null;
           setData(createSeedData());
         } else if (stored.status === "corrupt") {
-          setStorageIssue({ raw: stored.raw, error: stored.error });
+          persistedRaw.current = undefined;
+          setStorageIssue({ kind: "corrupt", raw: stored.raw, error: stored.error });
         } else {
           try {
+            persistedRaw.current = stored.raw;
+            skipNextPersistence.current = !stored.needsRewrite;
             setData(normalizeData(stored.data));
             if (stored.needsRewrite) setMessage("Los datos locales se actualizaron al formato versionado.");
           } catch (error) {
             setStorageIssue({
+              kind: "corrupt",
               raw: stored.raw,
               error: error instanceof Error ? error.message : "No se pudo normalizar el almacenamiento local.",
             });
@@ -46,6 +73,7 @@ export function useAppDataRepository(
       } catch (error) {
         if (!active) return;
         setStorageIssue({
+          kind: "corrupt",
           raw: "",
           error: error instanceof Error ? error.message : "No se pudo leer el repositorio de datos.",
         });
@@ -61,19 +89,63 @@ export function useAppDataRepository(
 
   useEffect(() => {
     if (!storageReady || storageIssue) return;
-    void persistNow(data)
-      .then((result) => {
-        if (result.status === "failed") {
-          setMessage("No se pudo guardar localmente. Exporta un respaldo antes de continuar cargando datos.");
-        }
-      })
-      .catch(() => {
-        setMessage("No se pudo guardar localmente. Exporta un respaldo antes de continuar cargando datos.");
+    if (skipNextPersistence.current) {
+      skipNextPersistence.current = false;
+      return;
+    }
+    void persistNow(data).catch((error) => {
+      setStorageIssue({
+        kind: "write",
+        raw: "",
+        error: error instanceof Error ? error.message : "No se pudo guardar localmente.",
       });
-  }, [data, persistNow, setMessage, storageIssue, storageReady]);
+    });
+  }, [data, persistNow, storageIssue, storageReady]);
+
+  const reloadStored = useCallback(async () => {
+    const stored = await enqueue(() => repository.load());
+    if (stored.status === "corrupt") {
+      persistedRaw.current = undefined;
+      setStorageIssue({ kind: "corrupt", raw: stored.raw, error: stored.error });
+      return false;
+    }
+    if (stored.status === "empty") {
+      persistedRaw.current = null;
+      skipNextPersistence.current = false;
+      setData(createSeedData());
+    } else {
+      try {
+        persistedRaw.current = stored.raw;
+        skipNextPersistence.current = true;
+        setData(normalizeData(stored.data));
+      } catch (error) {
+        setStorageIssue({
+          kind: "corrupt",
+          raw: stored.raw,
+          error: error instanceof Error ? error.message : "No se pudo normalizar el almacenamiento local.",
+        });
+        return false;
+      }
+    }
+    setStorageIssue(undefined);
+    setStorageReady(true);
+    setMessage("Se cargo la ultima version guardada localmente.");
+    return true;
+  }, [enqueue, repository, setMessage]);
+
+  const retryPendingSave = useCallback(async () => {
+    const result = await persistNow(data);
+    if (result.status !== "ok") return false;
+    skipNextPersistence.current = true;
+    setStorageIssue(undefined);
+    setMessage("Los datos pendientes se guardaron correctamente.");
+    return true;
+  }, [data, persistNow, setMessage]);
 
   const startFresh = useCallback(async () => {
     await enqueue(() => repository.clear());
+    persistedRaw.current = null;
+    skipNextPersistence.current = false;
     setData(createSeedData());
     setStorageIssue(undefined);
     setStorageReady(true);
@@ -86,6 +158,8 @@ export function useAppDataRepository(
     storageIssue,
     storageReady,
     persistNow,
+    reloadStored,
+    retryPendingSave,
     startFresh,
   };
 }

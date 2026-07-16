@@ -6,6 +6,7 @@ import type {
   Reading,
 } from "../../types";
 import { capitalAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
+import { openBalanceForLocal } from "../../lib/balanceReferences";
 import { ensureLocalCurrentAccounts } from "../../lib/currentAccounts";
 import { nextBalanceVisibleId } from "../../data/appData";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
@@ -24,14 +25,13 @@ export function openCashCommand(data: AppData, input: OpenCashInput, context: Co
   const local = data.locals.find((item) => item.id === input.localId);
   if (!local) return commandError("No se encontro el local activo.");
   if (!input.operatingDate) return commandError("La fecha operativa es obligatoria.");
+  if (![input.initialFund, input.initialBankFund].every(Number.isFinite)) {
+    return commandError("Los saldos iniciales deben ser numeros finitos.");
+  }
   if (input.initialFund < 0 || input.initialBankFund < 0) return commandError("Los saldos iniciales no pueden ser negativos.");
-  const duplicate = data.balances.find(
-    (balance) =>
-      balance.localId === input.localId &&
-      balance.operatingDate === input.operatingDate &&
-      balance.status === "EN_PROCESO",
-  );
-  if (duplicate) return commandError("Ya existe una caja abierta para ese local y fecha.");
+  if (openBalanceForLocal(data, input.localId)) {
+    return commandError("Ya existe una caja abierta para ese local. Primero hay que cerrarla.");
+  }
 
   const timestamp = context.now();
   const balance: Balance = {

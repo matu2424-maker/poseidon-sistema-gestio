@@ -17,4 +17,6 @@ Reglas locales:
 - Salario pagado + adelantos no puede superar salario base del periodo.
 - Premio/gratificacion no debe confundirse con regalos de clientes.
 - Cambios de salario base son prospectivos por fecha efectiva y no alteran periodos cerrados.
+- Un cierre mensual congela el snapshot por empleado; el periodo no admite operaciones ordinarias posteriores.
+- Toda correccion usa una revision abierta enlazada al ultimo cierre y conserva inmutable la foto anterior.
 - Toda tabla operativa debe ordenar por cada columna visible de datos. Las columnas de acciones son la excepcion.

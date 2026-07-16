@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Este archivo registra continuidad inmediata. Las reglas permanentes viven en las fuentes canonicas indicadas por `docs/INDICE_DOCUMENTACION.md`.
 
@@ -12,8 +12,9 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - React Router mantiene una URL estable por modulo y `sessionStorage` conserva usuario/funcion durante la pestaña.
 - Datos demo: Poseidon, tres maquinas y operaciones para probar roles.
 - El servidor oficial se inicia con `iniciar-poseidon.bat`.
-- El snapshot local esta versionado y validado; no se recorta historial para forzar guardados.
+- El snapshot local usa esquema 3 y esta versionado; no se recorta historial para forzar guardados.
 - Datos locales permite exportar/importar respaldo y recuperar almacenamiento corrupto sin sobrescribirlo.
+- El guardado compara la version leida por la pestaña; conflictos o fallos bloquean nuevas escrituras y conservan un respaldo pendiente.
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
@@ -25,20 +26,22 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 
 ## Ultimo bloque funcional completado
 
-- Migracion progresiva a React Router completada sin modificar reglas contables ni pantallas funcionales.
-- `screenDefinitions` concentra URL, titulo, roles, menu y requisito de caja abierta.
-- La pantalla se deriva de `location.pathname`; botones y acciones usan historial real del navegador.
-- Ruta directa, recarga, Atrás/Adelante, ruta desconocida, permisos y caja requerida quedaron probados.
-- La sesion de pestaña conserva solo usuario y funcion activa; Administrador/Encargado mantienen el modo Cajero al recargar.
-- Cerrar caja navega a `/recaudaciones` y conserva el aviso de exito.
-- 107 pruebas automatizadas en 25 archivos y 6 casos E2E en 3 archivos.
+- Una sola caja abierta por local, independientemente de la fecha operativa.
+- Con caja abierta se bloquean cierre del local, traslado/asignacion de maquinas y ajustes administrativos de contadores.
+- Periodos salariales limitados a `AAAA-MM` con meses reales.
+- Guardado local con comparacion optimista, respaldo del intento y recuperacion ante conflicto/fallo.
+- Referencias de baja ampliadas para transferencias de clientes, historial salarial y operaciones del local.
+- Auditoria sin logs sinteticos, con locales congelados y redaccion de credenciales/archivos inline.
+- Modales con foco/Escape, avisos anunciables, filas por teclado y `aria-sort` en todas las grillas ordenables.
+- Cierre salarial definitivo con foto por empleado, bloqueo mensual y revisiones correctivas R1/R2 enlazadas.
+- 134 pruebas automatizadas en 26 archivos y 8 casos E2E en 5 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas de validacion al 2026-07-12: 107 pruebas en 25 archivos y 6 casos E2E en 3 archivos.
+- Metricas de validacion al 2026-07-16: 134 pruebas en 26 archivos y 8 casos E2E en 5 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
@@ -49,22 +52,23 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 ## Proximas prioridades de codigo
 
 1. Reforzar autorizacion de rol, funcion activa y local asignado dentro de los comandos existentes.
-2. Crear un contexto real de local activo y blindar una sola caja abierta por local.
-3. Extraer cierres salariales, cierres periodicos y control administrativo de gastos desde handlers React.
-4. Agregar pruebas de permisos negativos, cierre salarial, cierre periodico y ciclo completo de maquinas.
-5. Profundizar la validacion runtime del snapshot antes de trabajar en un adaptador online.
+2. Extraer cierres periodicos y control administrativo de gastos desde handlers React.
+3. Agregar pruebas de permisos negativos y cierre periodico.
+4. Al final, implementar validacion runtime profunda del snapshot.
+
+El contexto operativo multi-local queda postergado por decision del usuario; el trabajo actual se enfoca solo en Poseidon.
 
 No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
 ## Riesgos vigentes
 
 - `localStorage` no es persistencia multiusuario ni durable.
-- La cuota de `localStorage` puede impedir nuevos guardados; el sistema conserva el snapshot anterior y pide exportar respaldo.
+- La cuota de `localStorage` puede impedir nuevos guardados; el sistema bloquea la operacion y conserva el intento para descargar o reintentar.
 - El local operativo sigue fijado a Poseidon/primer local aunque la estructura de datos sea multi-local.
-- Parte de la autorizacion de caja y salarios depende de navegacion/UI en vez de quedar blindada dentro del comando.
+- Parte de la autorizacion de caja depende de navegacion/UI; los cierres salariales ya validan rol y el bloqueo mensual vive dentro del comando.
 - Varias operaciones sensibles siguen dentro de componentes React.
 - Los archivos mas grandes restantes son liquidacion salarial, seed demo, historiales y estilos administrativos ya separados.
-- La cobertura automatizada incluye apertura-contadores-cierre, pero no todos los formularios UI, cierres salariales/periodicos ni el ciclo completo de maquinas.
+- La cobertura automatizada incluye apertura-contadores-cierre, diferencias, ciclo de maquinas, conflicto entre pestañas y cierre salarial correctivo, pero no todos los formularios UI ni cierres periodicos.
 - La validacion inicial del snapshot comprueba colecciones principales y depende de la normalizacion posterior para completar compatibilidad.
 - Los perfiles personalizados se comprobaron por contrato nominal; la API disponible no permite demostrar seleccion interna nativa por `agent_type`.
 

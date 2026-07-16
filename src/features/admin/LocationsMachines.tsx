@@ -4,7 +4,7 @@ import { formatDateTime } from "../../lib/dates";
 import { localName } from "../../lib/display";
 import { counter } from "../../lib/money";
 import { readColumnPreference, writeColumnPreference } from "../../lib/storage";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ColumnChooser, Modal, type TableColumn } from "../../components/ui";
 import {
   WORKSHOP_LOCAL_ID,
@@ -167,7 +167,7 @@ export function AdminMachines({
           <thead>
             <tr>
               {visibleMachineColumns.map((column) => (
-                <th key={column.key}>
+                <th key={column.key} aria-sort={column.sortable ? ariaSort(sort, column.key) : undefined}>
                   {column.sortable ? (
                     <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
                       {column.label}
@@ -230,7 +230,7 @@ export function AdminMachines({
                     ["lastIn", "IN actual"],
                     ["lastOut", "OUT actual"],
                   ].map(([key, label]) => (
-                    <th key={key}>
+                    <th key={key} aria-sort={ariaSort(disusedSort, key as typeof disusedSort.key)}>
                       <button className="sort-button" type="button" onClick={() => setDisusedSort((current) => nextSort(current, key as typeof disusedSort.key))}>
                         {label}
                         {sortIndicator(disusedSort, key as typeof disusedSort.key)}
@@ -366,7 +366,7 @@ export function AdminLocals({
           <thead>
             <tr>
               {visibleLocalColumns.map((column) => (
-                <th key={column.key}>
+                <th key={column.key} aria-sort={column.sortable ? ariaSort(sort, column.key) : undefined}>
                   {column.sortable ? (
                     <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
                       {column.label}
@@ -576,7 +576,7 @@ function LocalMachinesModal({
                 ["lastIn", "IN actual"],
                 ["lastOut", "OUT actual"],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(machineSort, key as typeof machineSort.key)}>
                   <button className="sort-button" type="button" onClick={() => setMachineSort((current) => nextSort(current, key as typeof machineSort.key))}>
                     {label}
                     {sortIndicator(machineSort, key as typeof machineSort.key)}
@@ -637,7 +637,7 @@ function LocalMachinesModal({
                 ["action", "Movimiento"],
                 ["detail", "Detalle"],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(historySort, key as typeof historySort.key)}>
                   <button className="sort-button" type="button" onClick={() => setHistorySort((current) => nextSort(current, key as typeof historySort.key))}>
                     {label}
                     {sortIndicator(historySort, key as typeof historySort.key)}
@@ -747,7 +747,7 @@ function WorkshopMachinePicker({
                 ["lastOut", "OUT"],
                 ["notes", "Obs."],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(sort, key as typeof sort.key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
                     {label}
                     {sortIndicator(sort, key as typeof sort.key)}

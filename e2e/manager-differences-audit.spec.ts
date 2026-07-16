@@ -28,9 +28,15 @@ test("valida, corrige y audita una diferencia con detalle contable", async ({ pa
   await expect(page.getByRole("heading", { name: "Diferencias de caja" })).toBeVisible();
   await expect(page).toHaveURL(/\/diferencias$/);
   await expect(page.locator(".difference-table thead button")).toHaveCount(7);
+  await expect(page.locator(".difference-table thead th[aria-sort]")).toHaveCount(7);
 
   await page.getByRole("button", { name: "Gestionar", exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: "Diferencia POSE-1", exact: true });
+  let dialog = page.getByRole("dialog", { name: "Diferencia POSE-1", exact: true });
+  await expect(dialog.getByRole("button", { name: "Cerrar", exact: true }).first()).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await page.getByRole("button", { name: "Gestionar", exact: true }).click();
+  dialog = page.getByRole("dialog", { name: "Diferencia POSE-1", exact: true });
   await dialog.getByRole("combobox").selectOption("CORREGIDA");
 
   const cashInput = dialog.getByLabel("Efectivo declarado corregido");

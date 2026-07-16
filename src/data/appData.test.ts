@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { reverseSourceAccountMovements } from "../lib/accountMovements";
+import type { AppData } from "../types";
 import { createSeedData, normalizeData } from "./appData";
 
 describe("normalizacion de datos locales", () => {
@@ -77,5 +78,43 @@ describe("normalizacion de datos locales", () => {
     expect(normalized.locals[0].images[0]).toMatchObject({ name: "local.jpg", dataUrl: "" });
     expect(normalized.accountMovements.length).toBeGreaterThan(0);
     expect(new Set(normalized.accountMovements.map((movement) => movement.id)).size).toBe(normalized.accountMovements.length);
+  });
+
+  it("migra cierres salariales anteriores sin inventar un snapshot por empleado", () => {
+    const seed = createSeedData();
+    const legacyClosure = {
+      id: "salary-closure-legacy",
+      visibleId: "LS-9",
+      startDate: "2026-06-01",
+      endDate: "2026-06-30",
+      periodLabel: "Junio 2026",
+      employeeCount: 1,
+      settlementIds: [],
+      totalBase: 42000,
+      totalExtras: 0,
+      totalBonuses: 0,
+      totalDeductions: 0,
+      totalSalaries: 42000,
+      totalSalaryPaid: 42000,
+      totalAdvances: 0,
+      totalBaseCovered: 42000,
+      totalLiquidated: 42000,
+      totalPending: 0,
+      status: "CERRADO",
+      note: "Cierre historico",
+      createdBy: "user-encargado",
+      createdByName: "Encargado",
+      createdAt: "2026-07-05T12:00:00.000Z",
+    } as unknown as AppData["salaryClosures"][number];
+    const normalized = normalizeData({ ...seed, salaryClosures: [legacyClosure] });
+
+    expect(normalized.salaryClosures[0]).toMatchObject({
+      period: "2026-06",
+      kind: "ORDINARIO",
+      revision: 0,
+      snapshotVersion: 0,
+      employeeSnapshots: [],
+      closedBy: "user-encargado",
+    });
   });
 });

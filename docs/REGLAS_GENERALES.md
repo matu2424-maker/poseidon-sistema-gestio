@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales del sistema
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-16
 
 Esta es la fuente canonica de reglas transversales de trabajo, documentacion y auditoria general. Aplica a todo el sistema, salvo que un modulo indique una excepcion explicita.
 
@@ -18,12 +18,17 @@ Esta es la fuente canonica de reglas transversales de trabajo, documentacion y a
 - Toda creacion, edicion, anulacion, baja, restauracion, eliminacion o ajuste importante debe registrarse en auditoria.
 - Las bajas operativas deben ser estado, anulacion o papelera antes de eliminacion definitiva.
 - Una entidad con referencias operativas no se elimina fisicamente; queda cerrada, inactiva o en papelera para conservar trazabilidad.
+- Clientes con regalos o transferencias, personal con liquidaciones/historial salarial y locales con operaciones asociadas permanecen en papelera o estado cerrado.
 - Los datos de prueba se guardan en un snapshot local versionado.
 - Un snapshot corrupto no se reemplaza automaticamente: debe ofrecerse descarga de recuperacion o reinicio confirmado.
+- Cada guardado local compara la version leida por la pestaña con la version almacenada. Ante conflicto no sobrescribe: bloquea nuevas escrituras, conserva un respaldo pendiente y permite cargar explicitamente la version guardada.
+- Ante un fallo de escritura se conserva el intento serializado para descargar o reintentar; la aplicacion no debe continuar operando como si el dato estuviera persistido.
 - No recortar auditoria, movimientos ni historiales para forzar un guardado local. Si se supera la cuota, informar y pedir exportar respaldo.
 - No guardar archivos pesados/base64 en `localStorage`; solo metadatos.
 - No conectar Supabase/Auth/Storage real hasta que se reactive esa etapa.
 - No publicar ni desplegar sin autorizacion explicita del usuario.
+- Solo puede existir una caja `EN_PROCESO` por local, sin importar la fecha operativa.
+- Con caja abierta no se puede cerrar el local, trasladar o asignar maquinas ni ajustar sus contadores administrativos.
 - Para levantar localhost se usa solo `iniciar-poseidon.bat`. Si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
 - Cuando el usuario marque un objetivo activo para ejecutar mejoras del sistema, Codex trabaja con autonomia dentro de ese objetivo: implementa, valida, documenta y commitea bloques locales estables sin pedir permiso paso a paso.
 - Con objetivo activo, Codex solo se detiene a pedir confirmacion ante push, publicacion, despliegue, conexion externa, cambios destructivos amplios, credenciales o decisiones de producto ambiguas.
@@ -71,6 +76,8 @@ No se considera cerrado un cambio si la documentacion relacionada quedo desactua
 - `Cubierto base` = salario pagado + adelantos + descuentos. No puede superar el salario base del periodo.
 - `EXTRA` queda como codigo tecnico interno y en interfaz se muestra como `Premio / Gratificacion`.
 - Los cambios de salario base son prospectivos: no pueden afectar cierres de liquidacion ya cerrados; si afectan periodos abiertos con liquidaciones activas, requieren reconfirmacion.
+- Los cierres salariales definitivos y sus snapshots no se editan ni se anulan. Toda correccion crea una revision enlazada y auditada.
+- Personal o locales incluidos en una foto salarial cerrada conservan esa referencia y no se eliminan definitivamente.
 
 ## Reglas visuales globales
 
@@ -116,4 +123,7 @@ Cada evento debe registrar, cuando aplique:
 - local asociado, cuando la entidad o el movimiento pertenece a un local.
 
 - Administrador puede consultar la auditoria completa; encargado solo puede consultar eventos resueltos a uno de sus `localIds`.
+- Cada evento nuevo congela sus `localIds` al momento de la accion para que cambios posteriores de ubicacion no alteren su alcance historico.
+- La auditoria omite contraseñas y contenido inline de archivos; conserva metadatos y valores operativos necesarios.
+- No se generan filas sinteticas con la hora del render: los logs visibles deben provenir de eventos persistidos.
 - Un evento sin contexto local resoluble no se muestra al encargado.

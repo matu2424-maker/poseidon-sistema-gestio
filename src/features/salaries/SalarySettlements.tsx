@@ -1,74 +1,63 @@
 import { useState } from "react";
-import type { AccountMovement, AppData, SalaryClosure, SalarySettlement, SalarySettlementStatus, SalaryType, StaffMember, User } from "../../types";
-import { localSalaryAccountMovement, salaryAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
+import type { AccountMovement, AppData, SalaryClosure, SalaryClosureEmployeeSnapshot, SalarySettlement, User } from "../../types";
+import { salaryAccountMovement } from "../../lib/accountMovements";
 import { balanceForMovement, balanceReferenceLabel } from "../../lib/balanceReferences";
-import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
-import { formatDateTime, monthRange, nowIso, today } from "../../lib/dates";
+import { staffAccountId } from "../../lib/currentAccounts";
+import { formatDateTime, monthRange, today } from "../../lib/dates";
 import { confirmAction } from "../../lib/confirmations";
 import { localName, userDisplayName } from "../../lib/display";
 import { exportCsv } from "../../lib/export";
-import { uid } from "../../lib/ids";
 import { money } from "../../lib/money";
 import { historicalYearOptions, monthLabel, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
-import { staffFullName } from "../../lib/people";
 import {
   isSalaryPaymentConcept,
   movementConceptLabel,
   normalizeSalaryConcept,
-  salaryBaseForPeriod,
   salaryConceptLabel,
   salarySettlementAmount,
   salarySettlementTotalDelta,
   suggestedSalaryPeriodModeFromDate,
 } from "../../lib/salaryRules";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import {
+  latestClosedSalaryClosure,
+  openSalaryCorrection,
+  salaryClosurePeriod,
+  salaryPeriodEmployeeSummaries,
+  salaryPeriodTotals,
+} from "../../lib/salaryClosures";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal } from "../../components/ui";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { ClosedBalanceSummary } from "../cashier/ClosedBalanceSummary";
 import { commandContext } from "../../application/command";
 import { annulSalarySettlementCommand } from "../../application/salaries/salarySettlementCommands";
+import {
+  cancelSalaryCorrectionCommand,
+  closeSalaryCorrectionCommand,
+  closeSalaryPeriodCommand,
+  startSalaryCorrectionCommand,
+} from "../../application/salaries/salaryClosureCommands";
 import { SalarySettlementEditor } from "./SalarySettlementEditor";
 
-const POSEIDON_LOCAL_ID = "1";
 export function AdminSalarySettlements({
   data,
   user,
   patchData,
-  audit,
 }: {
   data: AppData;
   user: User;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
 }) {
-  type SalaryEmployeeRow = {
-    staffId: string;
-    name: string;
-    position: string;
-    localId: string;
-    salaryType: SalaryType;
-    baseSalary: number;
-    salaryPaid: number;
-    advances: number;
-    extraAmount: number;
-    bonuses: number;
-    otherDeductions: number;
-    totalAmount: number;
-    baseCoveredAmount: number;
-    liquidatedAmount: number;
-    pendingAmount: number;
-    activeSettlementCount: number;
-    status: "Pendiente" | "Borrador" | "Confirmada" | "Anulada" | "Mixta";
-    settlements: SalarySettlement[];
-    staff?: StaffMember;
-  };
-
   const [editorId, setEditorId] = useState<string | null | undefined>(undefined);
   const [editorStaffId, setEditorStaffId] = useState<string | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedStaffMovementId, setSelectedStaffMovementId] = useState<string | null>(null);
   const [showSelectedStaffMovementBalance, setShowSelectedStaffMovementBalance] = useState(false);
   const [closureMessage, setClosureMessage] = useState("");
+  const [selectedClosureId, setSelectedClosureId] = useState<string | null>(null);
+  const [showCorrectionForm, setShowCorrectionForm] = useState(false);
+  const [correctionNote, setCorrectionNote] = useState("");
+  const [correctionError, setCorrectionError] = useState("");
   const [settlementSort, setSettlementSort] = useState<
     SortState<"period" | "concept" | "salaryPaid" | "advances" | "extraPrize" | "hoursExtra" | "bonuses" | "otherDeductions" | "status">
   >({
@@ -93,19 +82,19 @@ export function AdminSalarySettlements({
     direction: "asc",
   });
   const [closureSort, setClosureSort] = useState<
-    SortState<"visibleId" | "periodLabel" | "employeeCount" | "totalSalaries" | "totalBaseCovered" | "totalLiquidated" | "totalPending" | "createdByName" | "createdAt" | "status">
+    SortState<"visibleId" | "periodLabel" | "kind" | "revision" | "employeeCount" | "totalSalaries" | "totalBaseCovered" | "totalLiquidated" | "totalPending" | "createdByName" | "closedAt" | "status">
   >({
-    key: "createdAt",
+    key: "closedAt",
     direction: "desc",
   });
+  const [snapshotSort, setSnapshotSort] = useState<
+    SortState<"staffName" | "baseSalary" | "extraAmount" | "bonuses" | "deductions" | "totalAmount" | "advances" | "salaryPaid" | "pendingAmount">
+  >({ key: "staffName", direction: "asc" });
   const selectedPeriod = periodForMode(periodMode, currentPeriod, previousPeriod, customMonth, customYear);
   const activeRange = periodRange(selectedPeriod);
   const startMonth = selectedPeriod;
   const endMonth = selectedPeriod;
   const defaultPeriod = startMonth;
-  const monthsInPeriod = [selectedPeriod];
-  const projectedSalaryBase = (staff: StaffMember | undefined) =>
-    staff?.status === "ACTIVO" ? monthsInPeriod.reduce((total, period) => total + salaryBaseForPeriod(data, staff, period).amount, 0) : 0;
   const suggestedPeriodLabel = monthLabel(suggestedPeriodMonth);
   const periodLabel = monthLabel(startMonth);
   const currentYear = Number(currentPeriod.slice(0, 4));
@@ -116,91 +105,28 @@ export function AdminSalarySettlements({
     `${currentYear + 1}`,
     ...data.salarySettlements.map((settlement) => settlement.period),
     ...data.salaryHistories.map((history) => history.effectiveDate),
+    ...data.salaryClosures.map((closure) => salaryClosurePeriod(closure)),
   );
-  const rangeSettlements = data.salarySettlements.filter((settlement) => settlement.period >= startMonth && settlement.period <= endMonth);
+  const rangeSettlements = data.salarySettlements.filter((settlement) => settlement.period === selectedPeriod);
   const payableRows = rangeSettlements.filter((settlement) => settlement.status !== "ANULADA");
   const activeStaff = data.staff.filter((staff) => staff.status === "ACTIVO");
-  const allRelevantStaff = data.staff.filter((staff) => staff.status !== "PAPELERA");
-
-  const employeeRowsMap = new Map<string, SalaryEmployeeRow>();
-  const ensureEmployeeRow = (staff: StaffMember | undefined, settlement?: SalarySettlement) => {
-    const staffId = staff?.id ?? settlement?.staffId ?? "";
-    const existing = employeeRowsMap.get(staffId);
-    if (existing) return existing;
-    const row: SalaryEmployeeRow = {
-      staffId,
-      name: staff ? staffFullName(staff) : settlement?.staffName ?? "Personal sin ficha",
-      position: staff?.position ?? "Sin cargo",
-      localId: staff?.localId ?? settlement?.localId ?? POSEIDON_LOCAL_ID,
-      salaryType: salaryBaseForPeriod(data, staff, endMonth).salaryType,
-      baseSalary: projectedSalaryBase(staff),
-      salaryPaid: 0,
-      advances: 0,
-      extraAmount: 0,
-      bonuses: 0,
-      otherDeductions: 0,
-      totalAmount: projectedSalaryBase(staff),
-      baseCoveredAmount: 0,
-      liquidatedAmount: 0,
-      pendingAmount: projectedSalaryBase(staff),
-      activeSettlementCount: 0,
-      status: "Pendiente",
-      settlements: [],
-      staff,
-    };
-    employeeRowsMap.set(staffId, row);
-    return row;
-  };
-
-  activeStaff.forEach((staff) => ensureEmployeeRow(staff));
-  rangeSettlements.forEach((settlement) => {
-    const staff = allRelevantStaff.find((item) => item.id === settlement.staffId);
-    const row = ensureEmployeeRow(staff, settlement);
-    row.settlements.push(settlement);
-  });
-
-  const employeeRowsAll: SalaryEmployeeRow[] = [...employeeRowsMap.values()].map((row) => {
-    const activeSettlements = row.settlements.filter((settlement) => settlement.status !== "ANULADA");
-    const statuses = [...new Set(row.settlements.map((settlement) => settlement.status))];
-    const activeStatuses = [...new Set(activeSettlements.map((settlement) => settlement.status))];
-    const baseSalary = projectedSalaryBase(row.staff);
-    const salaryPaid = activeSettlements
-      .filter((settlement) => isSalaryPaymentConcept(normalizeSalaryConcept(settlement.concept)))
-      .reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
-    const advances = activeSettlements.reduce((total, settlement) => total + Number(settlement.advances ?? 0), 0);
-    const extraAmount = activeSettlements.reduce((total, settlement) => total + Number(settlement.extraAmount ?? 0), 0);
-    const bonuses = activeSettlements.reduce((total, settlement) => total + Number(settlement.aguinaldo ?? 0) + Number(settlement.vacationSalary ?? 0), 0);
-    const otherDeductions = activeSettlements.reduce((total, settlement) => total + Number(settlement.otherDeductions ?? 0), 0);
-    const totalAmount = Math.max(0, baseSalary + extraAmount + bonuses - otherDeductions);
-    const baseCoveredAmount = salaryPaid + advances + otherDeductions;
-    const liquidatedAmount = salaryPaid + advances + extraAmount + bonuses;
-    const pendingAmount = baseSalary - baseCoveredAmount;
-    const status: SalaryEmployeeRow["status"] =
-      row.settlements.length === 0 || (row.staff?.status === "ACTIVO" && activeSettlements.length === 0)
-        ? "Pendiente"
-        : activeStatuses.length > 1
-          ? "Mixta"
-          : activeStatuses[0] === "CONFIRMADA"
-            ? "Confirmada"
-            : statuses[0] === "BORRADOR"
-              ? "Borrador"
-              : statuses[0] === "ANULADA"
-              ? "Anulada"
-              : "Pendiente";
-    return { ...row, baseSalary, salaryPaid, advances, extraAmount, bonuses, otherDeductions, totalAmount, baseCoveredAmount, liquidatedAmount, pendingAmount, activeSettlementCount: activeSettlements.length, status };
-  });
-  const summaryRows = employeeRowsAll.filter((row) => row.staff?.status === "ACTIVO" || row.settlements.length > 0);
-  const periodTotal = summaryRows.reduce((total, row) => total + row.totalAmount, 0);
-  const periodPending = summaryRows.reduce((total, row) => total + row.pendingAmount, 0);
-  const periodBase = summaryRows.reduce((total, row) => total + row.baseSalary, 0);
-  const periodSalaryPaid = summaryRows.reduce((total, row) => total + row.salaryPaid, 0);
-  const periodAdvances = summaryRows.reduce((total, row) => total + row.advances, 0);
-  const periodExtras = summaryRows.reduce((total, row) => total + row.extraAmount, 0);
-  const periodBonuses = summaryRows.reduce((total, row) => total + row.bonuses, 0);
-  const periodDeductions = summaryRows.reduce((total, row) => total + row.otherDeductions, 0);
-  const periodBaseCovered = summaryRows.reduce((total, row) => total + row.baseCoveredAmount, 0);
-  const periodLiquidated = summaryRows.reduce((total, row) => total + row.liquidatedAmount, 0);
-  const employeeValue = (row: SalaryEmployeeRow, key: typeof sort.key): string | number => {
+  const employeeRowsAll = salaryPeriodEmployeeSummaries(data, selectedPeriod);
+  const summaryRows = employeeRowsAll;
+  const periodTotals = salaryPeriodTotals(summaryRows);
+  const periodTotal = periodTotals.totalSalaries;
+  const periodPending = periodTotals.totalPending;
+  const periodBase = periodTotals.totalBase;
+  const periodSalaryPaid = periodTotals.totalSalaryPaid;
+  const periodAdvances = periodTotals.totalAdvances;
+  const periodExtras = periodTotals.totalExtras;
+  const periodBonuses = periodTotals.totalBonuses;
+  const periodDeductions = periodTotals.totalDeductions;
+  const periodBaseCovered = periodTotals.totalBaseCovered;
+  const periodLiquidated = periodTotals.totalLiquidated;
+  const latestClosure = latestClosedSalaryClosure(data, selectedPeriod);
+  const activeCorrection = openSalaryCorrection(data, selectedPeriod);
+  const canMutatePeriod = !latestClosure || Boolean(activeCorrection);
+  const employeeValue = (row: (typeof employeeRowsAll)[number], key: typeof sort.key): string | number => {
     if (key === "name") return row.name;
     return row[key];
   };
@@ -310,6 +236,8 @@ export function AdminSalarySettlements({
   const salaryClosureValue = (closure: SalaryClosure, key: typeof closureSort.key): string | number => {
     if (key === "visibleId") return closure.visibleId;
     if (key === "periodLabel") return closure.periodLabel;
+    if (key === "kind") return closure.kind;
+    if (key === "revision") return closure.revision;
     if (key === "employeeCount") return closure.employeeCount;
     if (key === "totalSalaries") return closure.totalSalaries;
     if (key === "totalBaseCovered") return closure.totalBaseCovered;
@@ -317,123 +245,92 @@ export function AdminSalarySettlements({
     if (key === "totalPending") return closure.totalPending;
     if (key === "createdByName") return closure.createdByName;
     if (key === "status") return closure.status;
-    return closure.createdAt;
+    return closure.closedAt ?? closure.createdAt;
   };
   const salaryClosures = [...data.salaryClosures].sort((a, b) => {
     const result = compareValues(salaryClosureValue(a, closureSort.key), salaryClosureValue(b, closureSort.key));
     return closureSort.direction === "asc" ? result : -result;
   });
-  const nextSalaryClosureVisibleId = (current: AppData) => {
-    const max = current.salaryClosures
-      .map((closure) => {
-        const match = String(closure.visibleId ?? "").match(/LS-(\d+)$/);
-        return match ? Number(match[1]) : 0;
+  const selectedClosure = selectedClosureId
+    ? data.salaryClosures.find((closure) => closure.id === selectedClosureId)
+    : undefined;
+  const closureKindLabel = (closure: SalaryClosure) =>
+    closure.kind === "CORRECTIVO" ? `Correctivo R${closure.revision}` : "Ordinario";
+  const snapshotValue = (snapshot: SalaryClosureEmployeeSnapshot, key: typeof snapshotSort.key) => {
+    if (key === "staffName") return snapshot.staffName;
+    return snapshot[key];
+  };
+  const sortedClosureSnapshots = selectedClosure
+    ? [...selectedClosure.employeeSnapshots].sort((a, b) => {
+        const result = compareValues(snapshotValue(a, snapshotSort.key), snapshotValue(b, snapshotSort.key));
+        return snapshotSort.direction === "asc" ? result : -result;
       })
-      .reduce((highest, value) => Math.max(highest, value), 0);
-    return `LS-${max + 1}`;
-  };
+    : [];
   const closeSalaryPeriod = () => {
-    if (!summaryRows.length) {
-      setClosureMessage("No hay empleados para cerrar en este periodo.");
+    if (!confirmAction(`Cerrar definitivamente ${periodLabel}? El periodo quedara bloqueado y cualquier cambio exigira un ajuste correctivo.`)) return;
+    const result = closeSalaryPeriodCommand(data, { period: selectedPeriod }, commandContext(user, user.role));
+    if (!result.ok) {
+      setClosureMessage(result.error);
       return;
     }
-    const duplicate = data.salaryClosures.some((closure) => closure.status === "CERRADO" && closure.startDate === activeRange.start && closure.endDate === activeRange.end);
-    if (duplicate) {
-      setClosureMessage("Este periodo ya tiene un cierre de liquidacion guardado.");
+    patchData(() => result.data);
+    setClosureMessage(`${result.value.visibleId}: cierre salarial definitivo guardado.`);
+  };
+  const startSalaryCorrection = () => {
+    if (!latestClosure) return;
+    const result = startSalaryCorrectionCommand(
+      data,
+      { parentClosureId: latestClosure.id, note: correctionNote },
+      commandContext(user, user.role),
+    );
+    if (!result.ok) {
+      setCorrectionError(result.error);
       return;
     }
-    if (!confirmAction(`Cerrar liquidacion de ${periodLabel}? Se guardara una foto auditada del periodo.`)) return;
-    patchData((current) => {
-      const closure: SalaryClosure = {
-        id: uid("salary-closure"),
-        visibleId: nextSalaryClosureVisibleId(current),
-        startDate: activeRange.start,
-        endDate: activeRange.end,
-        periodLabel,
-        employeeCount: summaryRows.length,
-        settlementIds: payableRows.map((settlement) => settlement.id),
-        totalBase: periodBase,
-        totalExtras: periodExtras,
-        totalBonuses: periodBonuses,
-        totalDeductions: periodDeductions,
-        totalSalaries: periodTotal,
-        totalSalaryPaid: periodSalaryPaid,
-        totalAdvances: periodAdvances,
-        totalBaseCovered: periodBaseCovered,
-        totalLiquidated: periodLiquidated,
-        totalPending: periodPending,
-        status: "CERRADO",
-        note: "Cierre manual de liquidacion de salarios",
-        createdBy: user.id,
-        createdByName: user.name,
-        createdAt: nowIso(),
-      };
-      return audit(
-        { ...current, salaryClosures: [closure, ...current.salaryClosures] },
-        "Cerrar liquidacion salarios",
-        "LiquidacionSalarioCierre",
-        closure.id,
-        "",
-        closure,
-        closure.note,
-      );
-    });
-    setClosureMessage("Cierre de liquidacion guardado.");
+    patchData(() => result.data);
+    setCorrectionError("");
+    setCorrectionNote("");
+    setShowCorrectionForm(false);
+    setClosureMessage(`${result.value.visibleId}: ajuste correctivo abierto. Los cambios quedaran enlazados a esta revision.`);
   };
-  const annulSalaryClosure = (closure: SalaryClosure) => {
-    if (!confirmAction(`Anular cierre ${closure.visibleId}? La auditoria se conserva.`)) return;
-    patchData((current) => {
-      const previous = current.salaryClosures.find((item) => item.id === closure.id);
-      const salaryClosures = current.salaryClosures.map((item) => (item.id === closure.id ? { ...item, status: "ANULADO" as const } : item));
-      const next = salaryClosures.find((item) => item.id === closure.id);
-      return audit({ ...current, salaryClosures }, "Anular cierre liquidacion salarios", "LiquidacionSalarioCierre", closure.id, previous, next, "Anulacion de cierre");
-    });
-    setClosureMessage("Cierre de liquidacion anulado.");
+  const finishSalaryCorrection = () => {
+    if (!activeCorrection) return;
+    if (!confirmAction(`Cerrar el ajuste ${activeCorrection.visibleId}? La nueva foto quedara inmutable.`)) return;
+    const result = closeSalaryCorrectionCommand(data, activeCorrection.id, commandContext(user, user.role));
+    if (!result.ok) {
+      setClosureMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setClosureMessage(`${result.value.visibleId}: ajuste correctivo cerrado y nueva foto guardada.`);
   };
-
-  const changeStatus = (settlement: SalarySettlement, status: SalarySettlementStatus) => {
-    if (status === "ANULADA" && !confirmAction(`Eliminar liquidacion de ${settlement.staffName}? Queda registrada en auditoria y no impacta los totales.`)) return;
-    patchData((current) => {
-      if (status === "ANULADA") {
-        const result = annulSalarySettlementCommand(current, settlement.id, commandContext(user, user.role));
-        if (!result.ok) {
-          setClosureMessage(result.error);
-          return current;
-        }
-        setClosureMessage("Liquidacion anulada y compensada en cuentas.");
-        return result.data;
-      }
-      const previous = current.salarySettlements.find((item) => item.id === settlement.id);
-      const updatedAt = nowIso();
-      const salarySettlements = current.salarySettlements.map((item) =>
-        item.id === settlement.id
-          ? {
-              ...item,
-              status,
-              approvedBy: status === "CONFIRMADA" ? user.id : item.approvedBy,
-              approvedByName: status === "CONFIRMADA" ? user.name : item.approvedByName,
-              approvedAt: status === "CONFIRMADA" ? updatedAt : item.approvedAt,
-              updatedAt,
-            }
-          : item,
-      );
-      const next = salarySettlements.find((item) => item.id === settlement.id);
-      const staffMember = current.staff.find((item) => item.id === settlement.staffId);
-      const currentAccounts = staffMember && !current.currentAccounts.some((account) => account.id === staffAccountId(staffMember.id))
-        ? [createStaffCurrentAccount(staffMember), ...current.currentAccounts]
-        : current.currentAccounts;
-      const withLocalAccounts = ensureLocalCurrentAccounts({ ...current, currentAccounts }, settlement.localId);
-      const accountMovements = next
-        ? upsertAccountMovement(upsertAccountMovement(current.accountMovements, salaryAccountMovement(next, user.id)), localSalaryAccountMovement(next, user.id))
-        : current.accountMovements;
-      const activeAdvanceBalance = salarySettlements
-        .filter((item) => item.staffId === settlement.staffId && item.status !== "ANULADA" && item.concept === "ADELANTO")
-        .reduce((total, item) => total + Number(item.advances ?? 0), 0);
-      const staff = current.staff.map((item) =>
-        item.id === settlement.staffId ? { ...item, salaryAdvanceBalance: activeAdvanceBalance, updatedAt: nowIso() } : item,
-      );
-      return audit({ ...current, currentAccounts: withLocalAccounts, accountMovements, salarySettlements, staff }, "Cambiar estado liquidacion salario", "LiquidacionSalario", settlement.id, previous, next);
+  const cancelSalaryCorrection = () => {
+    if (!activeCorrection) return;
+    if (!confirmAction(`Cancelar el ajuste ${activeCorrection.visibleId}? Solo es posible si todavia no tiene movimientos.`)) return;
+    const result = cancelSalaryCorrectionCommand(data, activeCorrection.id, commandContext(user, user.role));
+    if (!result.ok) {
+      setClosureMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setClosureMessage(`${result.value.visibleId}: ajuste correctivo cancelado sin modificar el cierre original.`);
+  };
+  const annulSettlement = (settlement: SalarySettlement) => {
+    if (!confirmAction(`Eliminar liquidacion de ${settlement.staffName}? Queda registrada en auditoria y no impacta los totales.`)) return;
+    const result = annulSalarySettlementCommand(data, settlement.id, commandContext(user, user.role), {
+      correctionClosureId: activeCorrection?.id,
+      reason: activeCorrection ? `Ajuste correctivo ${activeCorrection.visibleId}` : "Anulacion",
     });
+    if (!result.ok) {
+      setClosureMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setClosureMessage(
+      activeCorrection
+        ? `Liquidacion anulada dentro del ajuste ${activeCorrection.visibleId}.`
+        : "Liquidacion anulada y compensada en cuentas.",
+    );
   };
   const exportSalaryExcel = () => {
     exportCsv(`poseidon-liquidacion-salarios-${startMonth}-${endMonth}.csv`, [
@@ -475,12 +372,36 @@ export function AdminSalarySettlements({
         </div>
         <div className="admin-header-actions">
           <span>{payableRows.length} liquidaciones activas</span>
-          <button className="button success compact" type="button" onClick={closeSalaryPeriod}>
-            Cerrar liquidacion
-          </button>
+          {activeCorrection ? (
+            <div className="button-row end">
+              <button className="button muted compact" type="button" onClick={cancelSalaryCorrection}>
+                Cancelar ajuste
+              </button>
+              <button className="button success compact" type="button" onClick={finishSalaryCorrection}>
+                Cerrar ajuste correctivo
+              </button>
+            </div>
+          ) : latestClosure ? (
+            <button className="button primary compact" type="button" onClick={() => setShowCorrectionForm(true)}>
+              Iniciar ajuste correctivo
+            </button>
+          ) : (
+            <button className="button success compact" type="button" onClick={closeSalaryPeriod}>
+              Cerrar liquidacion
+            </button>
+          )}
         </div>
       </div>
       {closureMessage && <p className="notice">{closureMessage}</p>}
+      {activeCorrection ? (
+        <p className="notice warning">
+          Ajuste {activeCorrection.visibleId} abierto sobre {latestClosure?.visibleId}. Motivo: {activeCorrection.note}
+        </p>
+      ) : latestClosure ? (
+        <p className="notice">
+          Periodo cerrado por {latestClosure.visibleId}. La foto salarial es inmutable; cualquier cambio exige un ajuste correctivo.
+        </p>
+      ) : null}
       <MonthlyPeriodSelector
         mode={periodMode}
         currentPeriod={currentPeriod}
@@ -531,7 +452,7 @@ export function AdminSalarySettlements({
                   ["salaryPaid", "Salario pagado"],
                   ["pendingAmount", "Pendiente"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(sort, key as typeof sort.key)}>
                     <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
                       {label}
                       {sortIndicator(sort, key as typeof sort.key)}
@@ -593,16 +514,18 @@ export function AdminSalarySettlements({
                 {[
                   ["visibleId", "ID"],
                   ["periodLabel", "Periodo"],
+                  ["kind", "Tipo"],
+                  ["revision", "Revision"],
                   ["employeeCount", "Empleados"],
                   ["totalSalaries", "Total salarios"],
                   ["totalBaseCovered", "Cubierto base"],
                   ["totalLiquidated", "Pagado / Entregado"],
                   ["totalPending", "Pendiente"],
                   ["createdByName", "Usuario"],
-                  ["createdAt", "Fecha cierre"],
+                  ["closedAt", "Fecha cierre"],
                   ["status", "Estado"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(closureSort, key as typeof closureSort.key)}>
                     <button className="sort-button" type="button" onClick={() => setClosureSort((current) => nextSort(current, key as typeof closureSort.key))}>
                       {label}
                       {sortIndicator(closureSort, key as typeof closureSort.key)}
@@ -614,37 +537,194 @@ export function AdminSalarySettlements({
             </thead>
             <tbody>
               {salaryClosures.map((closure) => (
-                <tr key={closure.id} className={closure.status === "ANULADO" ? "status-inactive" : ""}>
+                <tr
+                  key={closure.id}
+                  className={
+                    closure.status === "ANULADO"
+                      ? "status-inactive"
+                      : closure.status === "CORRECCION_ABIERTA"
+                        ? "status-maintenance"
+                        : ""
+                  }
+                >
                   <td>{closure.visibleId}</td>
                   <td>{closure.periodLabel}</td>
+                  <td>{closure.kind === "CORRECTIVO" ? "Correctivo" : "Ordinario"}</td>
+                  <td>R{closure.revision}</td>
                   <td>{closure.employeeCount}</td>
                   <td>{money(closure.totalSalaries)}</td>
                   <td>{money(closure.totalBaseCovered)}</td>
                   <td>{money(closure.totalLiquidated)}</td>
                   <td className={closure.totalPending > 0 ? "money-negative" : "money-positive"}>{money(closure.totalPending)}</td>
                   <td>{closure.createdByName}</td>
-                  <td>{formatDateTime(closure.createdAt)}</td>
+                  <td>{closure.closedAt ? formatDateTime(closure.closedAt) : "En curso"}</td>
                   <td>{closure.status}</td>
                   <td>
-                    {closure.status === "CERRADO" ? (
-                      <button className="button muted compact" type="button" onClick={() => annulSalaryClosure(closure)}>
-                        Anular
-                      </button>
-                    ) : (
-                      "-"
-                    )}
+                    <button className="button primary compact" type="button" onClick={() => setSelectedClosureId(closure.id)}>
+                      Ver foto
+                    </button>
                   </td>
                 </tr>
               ))}
               {!salaryClosures.length && (
                 <tr>
-                  <td colSpan={11}>Todavia no hay cierres de liquidacion guardados.</td>
+                  <td colSpan={13}>Todavia no hay cierres de liquidacion guardados.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
       </section>
+      {showCorrectionForm && latestClosure && (
+        <Modal
+          title={`Ajuste correctivo de ${latestClosure.visibleId}`}
+          onClose={() => {
+            setShowCorrectionForm(false);
+            setCorrectionError("");
+          }}
+        >
+          <form
+            className="form-grid"
+            onSubmit={(event) => {
+              event.preventDefault();
+              startSalaryCorrection();
+            }}
+          >
+            {correctionError && <p className="notice warning span-2" role="alert">{correctionError}</p>}
+            <p className="helper span-2">
+              El cierre original no se modifica. Las operaciones nuevas o anuladas quedaran enlazadas a una revision correctiva.
+            </p>
+            <label className="span-2">
+              Motivo del ajuste *
+              <textarea
+                value={correctionNote}
+                onChange={(event) => setCorrectionNote(event.target.value)}
+                rows={4}
+                placeholder="Explica el error, omision o correccion necesaria."
+                required
+              />
+            </label>
+            <div className="form-actions span-2">
+              <div className="button-row end">
+                <button className="button muted" type="button" onClick={() => setShowCorrectionForm(false)}>
+                  Cancelar
+                </button>
+                <button className="button primary" type="submit">
+                  Abrir ajuste correctivo
+                </button>
+              </div>
+            </div>
+          </form>
+        </Modal>
+      )}
+      {selectedClosure && (
+        <Modal title={`Foto salarial ${selectedClosure.visibleId}`} onClose={() => setSelectedClosureId(null)} wide>
+          <div className="salary-detail-modal">
+            <dl className="summary-detail-list">
+              <div>
+                <dt>Periodo</dt>
+                <dd>{selectedClosure.periodLabel}</dd>
+              </div>
+              <div>
+                <dt>Tipo</dt>
+                <dd>{closureKindLabel(selectedClosure)}</dd>
+              </div>
+              <div>
+                <dt>Cierre anterior</dt>
+                <dd>{data.salaryClosures.find((closure) => closure.id === selectedClosure.parentClosureId)?.visibleId ?? "-"}</dd>
+              </div>
+              <div>
+                <dt>Estado</dt>
+                <dd>{selectedClosure.status}</dd>
+              </div>
+              <div>
+                <dt>Cerrado por</dt>
+                <dd>{selectedClosure.closedByName ?? "En curso"}</dd>
+              </div>
+              <div>
+                <dt>Fecha de cierre</dt>
+                <dd>{selectedClosure.closedAt ? formatDateTime(selectedClosure.closedAt) : "En curso"}</dd>
+              </div>
+              <div>
+                <dt>Motivo</dt>
+                <dd>{selectedClosure.note || "-"}</dd>
+              </div>
+            </dl>
+            {selectedClosure.snapshotVersion < 1 && (
+              <p className="notice warning">
+                Cierre historico anterior al snapshot por empleado. Conserva totales e IDs, pero no dispone del desglose congelado.
+              </p>
+            )}
+            <div className="table-wrap">
+              <table className="data-table admin-data-table salary-table">
+                <thead>
+                  <tr>
+                    {[
+                      ["staffName", "Empleado"],
+                      ["baseSalary", "Salario base"],
+                      ["extraAmount", "Premios y horas"],
+                      ["bonuses", "Bonos"],
+                      ["deductions", "Descuentos"],
+                      ["totalAmount", "Total"],
+                      ["advances", "Adelantos"],
+                      ["salaryPaid", "Salario pagado"],
+                      ["pendingAmount", "Pendiente"],
+                    ].map(([key, label]) => (
+                      <th key={key} aria-sort={ariaSort(snapshotSort, key as typeof snapshotSort.key)}>
+                        <button
+                          className="sort-button"
+                          type="button"
+                          onClick={() => setSnapshotSort((current) => nextSort(current, key as typeof snapshotSort.key))}
+                        >
+                          {label}
+                          {sortIndicator(snapshotSort, key as typeof snapshotSort.key)}
+                        </button>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedClosureSnapshots.map((snapshot) => (
+                    <tr key={snapshot.staffId}>
+                      <td>
+                        <div className="cell-stack">
+                          <strong>{snapshot.staffName}</strong>
+                          <small>{snapshot.salaryType} - {snapshot.position}</small>
+                          {snapshot.settlements.length > 0 && (
+                            <details>
+                              <summary>{snapshot.settlements.length} movimiento(s)</summary>
+                              <ul className="compact-list">
+                                {snapshot.settlements.map((settlement) => (
+                                  <li key={settlement.id}>
+                                    {salaryConceptLabel(settlement.concept)}: {money(settlement.amount)} - {settlement.approvedByName}
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
+                          )}
+                        </div>
+                      </td>
+                      <td>{money(snapshot.baseSalary)}</td>
+                      <td>{money(snapshot.extraAmount)}</td>
+                      <td>{money(snapshot.bonuses)}</td>
+                      <td>{money(snapshot.deductions)}</td>
+                      <td>{money(snapshot.totalAmount)}</td>
+                      <td>{money(snapshot.advances)}</td>
+                      <td>{money(snapshot.salaryPaid)}</td>
+                      <td className={snapshot.pendingAmount > 0 ? "money-negative" : "money-positive"}>{money(snapshot.pendingAmount)}</td>
+                    </tr>
+                  ))}
+                  {!sortedClosureSnapshots.length && (
+                    <tr>
+                      <td colSpan={9}>Este cierre no tiene un snapshot detallado por empleado.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Modal>
+      )}
       {selectedEmployee && (
         <Modal
           title={`Detalle de ${selectedEmployee.name}`}
@@ -698,16 +778,20 @@ export function AdminSalarySettlements({
                   <h3>Liquidaciones del periodo</h3>
                   <p>Detalle de conceptos cargados para este empleado.</p>
                 </div>
-                <button
-                  className="button success compact"
-                  type="button"
-                  onClick={() => {
-                    setEditorStaffId(selectedEmployee.staffId);
-                    setEditorId(null);
-                  }}
-                >
-                  Agregar liquidacion
-                </button>
+                {canMutatePeriod ? (
+                  <button
+                    className="button success compact"
+                    type="button"
+                    onClick={() => {
+                      setEditorStaffId(selectedEmployee.staffId);
+                      setEditorId(null);
+                    }}
+                  >
+                    {activeCorrection ? "Agregar correccion" : "Agregar liquidacion"}
+                  </button>
+                ) : (
+                  <span className="close-status-pill">Periodo cerrado</span>
+                )}
               </div>
               <div className="table-wrap">
                 <table className="data-table admin-data-table salary-detail-table">
@@ -724,7 +808,7 @@ export function AdminSalarySettlements({
                         ["otherDeductions", "Descuento"],
                         ["status", "Estado"],
                       ].map(([key, label]) => (
-                        <th key={key}>
+                        <th key={key} aria-sort={ariaSort(settlementSort, key as typeof settlementSort.key)}>
                           <button className="sort-button" type="button" onClick={() => setSettlementSort((current) => nextSort(current, key as typeof settlementSort.key))}>
                             {label}
                             {sortIndicator(settlementSort, key as typeof settlementSort.key)}
@@ -752,7 +836,7 @@ export function AdminSalarySettlements({
                           <td>{settlement.status}</td>
                           <td>
                             <div className="table-actions">
-                              {settlement.status !== "ANULADA" && (
+                              {canMutatePeriod && settlement.status !== "ANULADA" && (
                                 <button
                                   className="button primary compact"
                                   type="button"
@@ -764,11 +848,12 @@ export function AdminSalarySettlements({
                                   Editar
                                 </button>
                               )}
-                              {settlement.status !== "ANULADA" && (
-                                <button className="button muted compact" type="button" onClick={() => changeStatus(settlement, "ANULADA")}>
+                              {canMutatePeriod && settlement.status !== "ANULADA" && (
+                                <button className="button muted compact" type="button" onClick={() => annulSettlement(settlement)}>
                                   Eliminar
                                 </button>
                               )}
+                              {!canMutatePeriod && "-"}
                             </div>
                           </td>
                         </tr>
@@ -802,7 +887,7 @@ export function AdminSalarySettlements({
                         ["pendingAfter", "Pendiente"],
                         ["user", "Usuario"],
                       ].map(([key, label]) => (
-                        <th key={key}>
+                        <th key={key} aria-sort={ariaSort(staffAccountSort, key as typeof staffAccountSort.key)}>
                           <button className="sort-button" type="button" onClick={() => setStaffAccountSort((current) => nextSort(current, key as typeof staffAccountSort.key))}>
                             {label}
                             {sortIndicator(staffAccountSort, key as typeof staffAccountSort.key)}

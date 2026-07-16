@@ -1,6 +1,6 @@
 # Poseidon - Modularizacion y referencias cruzadas
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Fuente canonica del metodo para dividir o mover codigo sin romper asociaciones funcionales, contables, visuales o de auditoria. Git conserva los cortes ya completados; este documento describe el estado y los proximos cortes.
 
@@ -74,7 +74,7 @@ Evitar archivos `index.ts` generales que oculten ciclos. Preferir imports explic
 Cruces o duplicaciones pendientes:
 
 - `ClosedBalanceSummary` y `ClientEditor` son usados entre features y deberian evaluarse como UI compartida cuando se modifiquen esos flujos.
-- Liquidacion salarial conserva listado, detalle, cuentas y cierres en una misma pantalla para compartir el periodo activo; dividirla exige primero extraer el cierre salarial a un comando.
+- Liquidacion salarial conserva listado, detalle, cuentas y cierres en una misma pantalla para compartir el periodo activo; el cierre y la correccion ya estan extraidos a comandos y el siguiente corte puede separar historial/snapshots sin mover reglas contables.
 
 ## Proximos cortes recomendados
 
@@ -127,7 +127,7 @@ data/migrations/
 infrastructure/storage/localAppDataRepository.ts
 ```
 
-El snapshot versionado y el repositorio local ya existen. `application/ports/AppDataRepository.ts` define el contrato asincrono; `hooks/useAppDataRepository.ts` hidrata y serializa escrituras; `infrastructure/storage/localAppDataRepository.ts` es el adaptador activo. `data/normalizeData.ts` separa normalizacion/migracion de `appData.ts`; falta dividir el seed demo y agregar migraciones incrementales cuando cambie el esquema.
+El snapshot versionado y el repositorio local ya existen. `application/ports/AppDataRepository.ts` define el contrato asincrono y resultados de conflicto/fallo; `hooks/useAppDataRepository.ts` conserva la version esperada, bloquea escrituras incompatibles y recupera; `infrastructure/storage/localAppDataRepository.ts` es el adaptador activo con comparacion optimista. `data/normalizeData.ts` separa normalizacion/migracion de `appData.ts`; falta dividir el seed demo, agregar migraciones incrementales y validar profundamente campos/relaciones en el bloque final.
 
 Riesgo: muy alto; puede afectar datos existentes.
 
@@ -143,7 +143,7 @@ Completados con contexto inyectable y pruebas:
 
 Pendientes de extraer uno por vez:
 
-- cierre y anulacion de periodos salariales;
+- presentacion del historial y snapshots de cierres salariales;
 - cierre y anulacion de periodos operativos;
 - revision y anulacion administrativa de gastos;
 - maestros que todavia coordinan entidad, referencias y auditoria directamente desde React.

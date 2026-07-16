@@ -87,6 +87,27 @@
   min-width: 1120px;
 }
 
+.salary-page details {
+  margin-top: 4px;
+}
+
+.salary-page details summary {
+  width: fit-content;
+  cursor: pointer;
+  color: #245f9e;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.salary-page .compact-list {
+  display: grid;
+  gap: 3px;
+  margin: 6px 0 0;
+  padding-left: 16px;
+  color: #536173;
+  font-size: 0.72rem;
+}
+
 .mini-summary-table {
   width: 100%;
   border-collapse: collapse;

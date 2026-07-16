@@ -9,7 +9,7 @@
 
 ## Locales
 
-- Un local con recaudaciones, personal, clientes, usuarios, cuentas o historial de maquinas no se elimina fisicamente; debe pasar a `CERRADO`.
+- Un local con recaudaciones, maquinas, personal, clientes, usuarios, liquidaciones, capital, cierres, cuentas o historial no se elimina fisicamente; debe pasar a `CERRADO`.
 
 - ID numerico corto.
 - Estados: ACTIVO, INACTIVO, CERRADO.
@@ -27,6 +27,7 @@
 ## Cierre de local
 
 - Al pasar a CERRADO, las maquinas vuelven al Taller.
+- No se puede cerrar un local mientras tenga una caja abierta.
 - Debe haber aviso previo y confirmacion.
 - Movimiento queda en historial y auditoria.
 
@@ -40,6 +41,7 @@
 - DESUSO aparece solo en apartado de desuso del Taller.
 - No aparece en listado general de Maquinas.
 - El historial dentro del editor de maquina permite ordenar por fecha, local, movimiento y detalle.
+- Con caja abierta no se puede mover una maquina hacia/desde el local ni ajustar sus contadores administrativos.
 - El modal de historial de maquina permite ordenar sus pestañas de Locales, Contadores y Auditoria por todas las columnas visibles de datos.
 
 ## Taller
@@ -49,6 +51,7 @@
 - Contiene apartado de maquinas en desuso.
 - El apartado de maquinas en desuso permite ordenar por ID, maquina, IN actual y OUT actual; `Accion` no se ordena.
 - Desde Taller se asignan maquinas a locales.
+- No se asignan maquinas a un local mientras tenga una caja abierta.
 - Los selectores de maquinas del Taller permiten ordenar por todas sus columnas visibles de datos; el checkbox de seleccion no se ordena.
 
 ## Eliminacion de maquinas

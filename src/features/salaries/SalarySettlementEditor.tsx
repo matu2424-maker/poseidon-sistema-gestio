@@ -17,6 +17,7 @@ import {
   salaryConceptOptions,
   salarySettlementDisplayAmount,
 } from "../../lib/salaryRules";
+import { openSalaryCorrection } from "../../lib/salaryClosures";
 import type { AppData, User } from "../../types";
 
 export function SalarySettlementEditor({
@@ -43,6 +44,9 @@ export function SalarySettlementEditor({
   const defaultConcept = normalizeSalaryConcept(existing?.concept ?? "SALARIO");
   const defaultAmount = existing ? salarySettlementDisplayAmount(existing) : 0;
   const staffLocked = Boolean(fixedStaffId);
+  const correctionClosure = openSalaryCorrection(data, existing?.period ?? defaultPeriod);
+  const correctionClosureId = correctionClosure?.id;
+  const periodLocked = Boolean(correctionClosureId);
   const isNew = !existing;
   const [formError, setFormError] = useState("");
 
@@ -58,29 +62,28 @@ export function SalarySettlementEditor({
       return;
     }
     const period = String(form.get("period") || defaultPeriod);
-    patchData((current) => {
-      const result = saveSalarySettlementCommand(
-        current,
-        {
-          settlementId: existing?.id,
-          staffId: staff.id,
-          period,
-          concept,
-          amount,
-          notes: String(form.get("notes") ?? ""),
-          origin: existing?.origin ?? "LIQUIDACION",
-          balanceId: existing?.balanceId,
-        },
-        commandContext(user, user.role),
-      );
-      if (!result.ok) {
-        setFormError(result.error);
-        return current;
-      }
-      setFormError("");
-      onClose();
-      return result.data;
-    });
+    const result = saveSalarySettlementCommand(
+      data,
+      {
+        settlementId: existing?.id,
+        staffId: staff.id,
+        period,
+        concept,
+        amount,
+        notes: String(form.get("notes") ?? ""),
+        origin: existing?.origin ?? "LIQUIDACION",
+        balanceId: existing?.balanceId,
+        correctionClosureId,
+      },
+      commandContext(user, user.role),
+    );
+    if (!result.ok) {
+      setFormError(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setFormError("");
+    onClose();
   };
 
   return (
@@ -89,7 +92,14 @@ export function SalarySettlementEditor({
         {formError && <p className="notice warning span-2">{formError}</p>}
         <label>
           Mes
-          <input name="period" type="month" defaultValue={existing?.period ?? defaultPeriod} required />
+          {periodLocked ? (
+            <>
+              <input type="month" value={existing?.period ?? defaultPeriod} disabled />
+              <input name="period" type="hidden" value={existing?.period ?? defaultPeriod} />
+            </>
+          ) : (
+            <input name="period" type="month" defaultValue={existing?.period ?? defaultPeriod} required />
+          )}
         </label>
         <label>
           Personal
@@ -148,6 +158,13 @@ export function SalarySettlementEditor({
             `Adelantos actuales: ${money(selectedStaff?.salaryAdvanceBalance)}`,
           ]}
         />
+        {correctionClosure && (
+          <InfoCard
+            tone="orange"
+            title="Ajuste correctivo"
+            lines={[`${correctionClosure.visibleId} - revision ${correctionClosure.revision}`, correctionClosure.note]}
+          />
+        )}
         <div className="form-actions span-2">
           <div className="button-row end">
             <button className="button muted" type="button" onClick={onClose}>

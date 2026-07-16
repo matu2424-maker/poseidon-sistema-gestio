@@ -1,6 +1,6 @@
 # Poseidon - Plan tecnico y ahorro de contexto
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Este documento contiene prioridades vigentes. Los bloques terminados viven en Git y no se enumeran uno por uno aqui.
 
@@ -14,11 +14,11 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 
 ## Linea base
 
-- Aproximadamente 17.900 lineas fisicas TypeScript/React en 99 archivos de `src/`.
+- Aproximadamente 18.700 lineas fisicas TypeScript/React en 104 archivos de `src/`.
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Veinticinco archivos de pruebas, 107 casos, mas 6 casos E2E en 3 archivos.
+- Veintiseis archivos de pruebas, 134 casos, mas 8 casos E2E en 5 archivos.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -39,6 +39,8 @@ Agregar reglas contables, visuales o mapa tecnico solo si aplican. El enrutador 
 - Completado: fecha operativa local y timestamps historicos deterministas.
 - Completado: validacion runtime y `schemaVersion` del snapshot.
 - Completado: recuperacion de snapshot corrupto y exportacion/importacion administrativa.
+- Completado: comparacion optimista del snapshot; una pestaña desactualizada no sobrescribe cambios de otra y conserva respaldo del intento.
+- Completado: un fallo de escritura bloquea nuevas operaciones y permite descargar/reintentar el dato pendiente.
 - Completado: se elimino el recorte silencioso de auditoria e historiales.
 - Completado: `pnpm check` ejecuta typecheck, ESLint sin advertencias y pruebas.
 - Completado parcialmente: fixtures de migracion, permisos y comandos ampliados; seguir sumando por comando nuevo.
@@ -58,12 +60,12 @@ Primera division mecanica completada el 2026-07-10: editores/historiales de loca
 
 ## Prioridad 3 - Comandos de dominio
 
-- Completado para apertura, contadores, cierre, diferencias y liquidaciones salariales.
+- Completado para apertura, contadores, cierre de caja, diferencias, liquidaciones y cierres salariales.
 - Los comandos reciben actor, funcion, reloj e IDs, devuelven resultado tipado y actualizan entidad/cuentas/historial/auditoria en conjunto.
 - Completado: movimientos operativos con validacion de funcion/caja, cuentas, contramovimientos y auditoria.
 - Completado: locales/maquinas con validacion de rol, referencias, taller, cuentas, historial y auditoria.
 - Pendiente: aplicar autorizacion de rol, funcion activa y local asignado de forma uniforme dentro de apertura, contadores, cierre y salarios.
-- Pendiente: extraer cierres salariales, cierres periodicos y revision/anulacion administrativa de gastos que aun se resuelven en handlers React.
+- Pendiente: extraer cierres periodicos y revision/anulacion administrativa de gastos que aun se resuelven en handlers React.
 
 No agregar Redux o un store complejo antes de definir comandos.
 
@@ -75,12 +77,14 @@ Agregar en este orden:
 - Completado: correccion/anulacion de diferencias y saldos;
 - Completado: alta, correccion y anulacion de pagos/adelantos/descuentos;
 - Completado: movimientos operativos;
-- Pendiente: cierre salarial;
-- Pendiente: traslado, reset y eliminacion de maquinas;
+- Completado: cierre salarial definitivo, bloqueo de periodo y revisiones correctivas enlazadas;
+- Completado: creacion, asignacion, ajuste, reset, traslado y eliminacion de maquinas, incluidos bloqueos con caja abierta;
 - Completado inicial: migracion de ID historico, limpieza de imagenes y reconstruccion de asientos faltantes;
 - Completado: ciclo integrado de caja, saldos, liquidacion, diferencias y roundtrip de snapshot; la migracion reconstruye la salida de efectivo faltante en transferencias.
 - Completado inicial: permisos por rol y requisito de caja abierta;
 - Completado inicial: E2E Playwright de apertura, carga de las tres maquinas, cierre y persistencia despues de recargar;
+- Completado: E2E de conflicto entre dos pestañas y recuperacion sin sobrescritura;
+- Completado: E2E de cierre salarial, bloqueo, correccion R1 y conservacion de la foto R0;
 - Pendiente: pruebas UI automatizadas de formularios administrativos y flujos completos del encargado;
 - Completado manual/documentado: smoke de cajero, encargado y administrador en navegador.
 
@@ -91,6 +95,7 @@ Agregar en este orden:
 - Completado: protecciones de ruta por funcion activa y caja abierta conservando `screenDefinitions` como matriz central.
 - Completado: confirmacion compartida.
 - Completado: mensajes con ciclo de vida claro para evitar avisos obsoletos.
+- Completado: modales con foco/Escape, avisos anunciables, filas clicables por teclado y `aria-sort` en encabezados ordenables.
 - Mover componentes transversales fuera de features propietarias.
 - Completado: CSS dividido por base, layout, features y responsive, preservando exactamente el orden original.
 - Completado: pantallas funcionales cargadas bajo demanda; despues de incorporar React Router el bundle inicial mide 328,76 kB, sin advertencia de chunk grande y por debajo del historico de 507,03 kB.
@@ -98,17 +103,34 @@ Agregar en este orden:
 ## Prioridad tecnica vigente
 
 1. Reforzar autorizacion dentro de comandos y separar usuario real, funcion activa y locales permitidos.
-2. Reemplazar el local operativo fijo por un contexto de local activo compatible con usuarios asignados a uno o varios locales.
-3. Blindar en dominio la regla de una sola caja abierta por local, no solo por local y fecha.
-4. Extraer a comandos las operaciones sensibles que todavia modifican varias colecciones desde React.
-5. Ampliar pruebas de cierre salarial, cierre periodico, ciclo de maquinas y permisos negativos.
-6. Profundizar la validacion runtime del snapshot antes de iniciar cualquier adaptador online.
+2. Extraer a comandos las operaciones sensibles que todavia modifican varias colecciones desde React.
+3. Ampliar pruebas de cierre periodico y permisos negativos.
+4. Completar al final la validacion runtime profunda del snapshot.
+
+Completado 2026-07-16: una sola caja abierta por local, bloqueos de maquinas/local con caja abierta, periodos salariales validos, referencias ampliadas, auditoria historica estable y guardado local con deteccion de conflictos.
+
+Completado 2026-07-16: cierre salarial mensual inmutable por empleado, esquema 3, bloqueo transversal del periodo y ciclo correctivo auditado R1/R2 sin reescribir cierres anteriores.
+
+Postergado por decision de producto: contexto operativo multi-local. Mientras el foco siga exclusivamente en Poseidon no se implementa selector de local activo.
+
+### Pendiente reservado para el bloque final
+
+**Validacion profunda del snapshot**
+
+- definir esquemas runtime para todas las colecciones, campos, enums e importes finitos;
+- validar referencias entre balances, lecturas, maquinas, movimientos, personal, clientes y cierres;
+- aplicar migraciones incrementales por `schemaVersion` antes de normalizar;
+- conservar el JSON original y producir un informe de errores sin borrar relaciones silenciosamente;
+- cubrir snapshots validos, heredados, corruptos y con referencias huerfanas mediante fixtures.
+
+La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega una dependencia antes de necesitarla.
 
 ## Preparacion online sin implementacion
 
 - Arquitectura objetivo: `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
 - Plan reversible: `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`.
 - Completado en local: puerto `AppDataRepository`, codec de respaldo, adaptador `localStorage` y cola asincrona de escrituras.
+- Completado en local: control optimista de version, respaldo del intento fallido y recuperacion explicita ante conflicto.
 - Mientras no se autorice: mantener adaptador local y no crear conexiones/credenciales.
 
 ## Reglas para ahorrar tokens

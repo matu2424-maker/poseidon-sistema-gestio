@@ -8,7 +8,8 @@ Abrir una caja diaria por local y fecha, con saldos iniciales correctos.
 
 ## Reglas de apertura
 
-- No puede haber dos cajas abiertas para el mismo local y fecha.
+- No puede haber dos cajas abiertas para el mismo local, aunque tengan distinta fecha operativa.
+- Los saldos iniciales deben ser importes finitos y no negativos.
 - Al abrir caja se toma una foto de maquinas activas del local.
 - Cada caja tiene ID visible: primeras cuatro letras del local + correlativo. Ejemplo: `POSE-1`.
 - Cada caja registra usuario real y funcion usada al abrir.

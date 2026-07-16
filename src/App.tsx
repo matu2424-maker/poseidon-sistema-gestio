@@ -92,7 +92,7 @@ function App({
   const [actingRole, setActingRole] = useState<Role | null>(null);
   const [sessionRestored, setSessionRestored] = useState(false);
   const { message, setMessage, clearMessage } = useNotice();
-  const { data, setData, storageIssue, storageReady, persistNow, startFresh } = useAppDataRepository(
+  const { data, setData, storageIssue, storageReady, persistNow, reloadStored, retryPendingSave, startFresh } = useAppDataRepository(
     repository,
     setMessage,
   );
@@ -220,7 +220,7 @@ function App({
         "Importacion manual validada",
       );
       const saveResult = await persistNow(audited);
-      if (saveResult.status === "failed") return `El respaldo es valido pero no pudo guardarse: ${saveResult.error}`;
+      if (saveResult.status !== "ok") return `El respaldo es valido pero no pudo guardarse: ${saveResult.error}`;
       setData(audited);
       setUser(null);
       setActingRole(null);
@@ -236,8 +236,16 @@ function App({
   if (storageIssue) {
     return (
       <StorageRecovery
+        kind={storageIssue.kind}
         error={storageIssue.error}
         raw={storageIssue.raw}
+        onRetrySave={async () => {
+          await retryPendingSave();
+        }}
+        onReloadStored={async () => {
+          if (!confirmAction("Usar la version guardada? Descarga antes el respaldo pendiente si queres conservar esos cambios.")) return;
+          await reloadStored();
+        }}
         onStartNew={async () => {
           if (!confirmAction("Iniciar datos nuevos? El respaldo actual debe descargarse antes si queres conservarlo.")) return;
           await startFresh();
@@ -471,6 +479,7 @@ function App({
           setScreen={goToScreen}
           save={openCash}
           summaryOnly
+          hideHeading
         />
       )}
       {screen === "counters" && openBalance && (
@@ -508,7 +517,7 @@ function App({
       {screen === "manager-expenses" && <ManagerExpenses data={data} user={user} patchData={patchData} audit={audit} setMessage={setMessage} />}
       {screen === "admin-users" && <AdminUsers data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-staff" && <AdminStaff data={data} user={user} patchData={patchData} audit={audit} />}
-      {screen === "admin-salary-settlements" && <AdminSalarySettlements data={data} user={user} patchData={patchData} audit={audit} />}
+      {screen === "admin-salary-settlements" && <AdminSalarySettlements data={data} user={user} patchData={patchData} />}
       {screen === "admin-current-accounts" && <AdminCurrentAccounts data={data} user={user} effectiveRole={effectiveRole ?? user.role} local={activeLocal} />}
       {screen === "admin-clients" && <AdminClients data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-trash" && <AdminTrash data={data} patchData={patchData} audit={audit} />}

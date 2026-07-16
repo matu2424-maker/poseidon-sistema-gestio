@@ -6,7 +6,7 @@ import { balanceVisibleId, localName } from "../../lib/display";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceIsPending } from "../../lib/differences";
 import { uid } from "../../lib/ids";
 import { money } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard } from "../../components/ui";
 import { confirmAction } from "../../lib/confirmations";
 
@@ -227,7 +227,7 @@ export function Periodic({
               <thead>
                 <tr>
                   {balanceColumns.map((column) => (
-                    <th key={column.key}>
+                    <th key={column.key} aria-sort={ariaSort(balanceSort, column.key)}>
                       <button className="sort-button" type="button" onClick={() => setBalanceSort((current) => nextSort(current, column.key))}>
                         {column.label}
                         {sortIndicator(balanceSort, column.key)}
@@ -278,7 +278,7 @@ export function Periodic({
               <thead>
                 <tr>
                   {closureColumns.map((column) => (
-                    <th key={column.key}>
+                    <th key={column.key} aria-sort={column.sortable ? ariaSort(closureSort, column.key) : undefined}>
                       {column.sortable ? (
                         <button className="sort-button" type="button" onClick={() => setClosureSort((current) => nextSort(current, column.key))}>
                           {column.label}

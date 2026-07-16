@@ -13,6 +13,15 @@ type AuditOptions = {
   localId?: string;
 };
 
+const auditJson = (value: unknown) =>
+  JSON.stringify(value ?? "", (key, item: unknown) => {
+    const normalizedKey = key.toLocaleLowerCase("es-UY");
+    if (normalizedKey === "password") return "[dato sensible omitido]";
+    if (normalizedKey === "dataurl" || normalizedKey === "receiptdataurl") return "[archivo omitido]";
+    if (typeof item === "string" && item.startsWith("data:") && item.length > 500) return "[archivo omitido]";
+    return item;
+  });
+
 const parseAuditJson = (value: string): unknown => {
   try {
     return JSON.parse(value);
@@ -97,6 +106,10 @@ function collectEntityLocalIds(data: AppData, event: AuditEvent, target: Set<str
     if (localId) target.add(localId);
   });
 
+  data.salaryClosures
+    .find((item) => item.id === event.entityId)
+    ?.employeeSnapshots.forEach((snapshot) => target.add(snapshot.localId));
+
   const accountMovement = data.accountMovements.find((item) => item.id === event.entityId);
   const currentAccount = data.currentAccounts.find((item) => item.id === (accountMovement?.accountId ?? event.entityId));
   if (currentAccount && (currentAccount.kind === "LOCAL_EFECTIVO" || currentAccount.kind === "LOCAL_BANCO") && currentAccount.entityId) {
@@ -108,9 +121,12 @@ function collectEntityLocalIds(data: AppData, event: AuditEvent, target: Set<str
 }
 
 export function auditEventLocalIds(data: AppData, event: AuditEvent) {
+  const frozenLocalIds = event.localIds?.filter(Boolean) ?? [];
+  if (frozenLocalIds.length) return [...new Set(frozenLocalIds)].sort();
   const localIds = new Set<string>();
-  const explicitLocalId = (event as AuditEvent & { localId?: string }).localId;
+  const explicitLocalId = event.localId;
   if (explicitLocalId) localIds.add(explicitLocalId);
+  if (explicitLocalId) return [...localIds].sort();
   collectEntityLocalIds(data, event, localIds);
   collectPayloadLocalIds(data, parseAuditJson(event.previousValue), localIds);
   collectPayloadLocalIds(data, parseAuditJson(event.newValue), localIds);
@@ -136,7 +152,7 @@ export function appendAuditEvent(
   options: AuditOptions = {},
 ): AppData {
   const user = actor.user;
-  const event: AuditEvent & { localId?: string } = {
+  const eventBase: AuditEvent = {
     id: options.id ?? uid("audit"),
     userId: user?.id ?? "system",
     userName: user?.name ?? "Sistema",
@@ -145,11 +161,15 @@ export function appendAuditEvent(
     action,
     entity,
     entityId,
-    previousValue: JSON.stringify(previousValue ?? ""),
-    newValue: JSON.stringify(newValue ?? ""),
+    previousValue: auditJson(previousValue),
+    newValue: auditJson(newValue),
     reason,
     createdAt: options.createdAt ?? nowIso(),
     ...(options.localId ? { localId: options.localId } : {}),
+  };
+  const event: AuditEvent = {
+    ...eventBase,
+    localIds: auditEventLocalIds(current, eventBase),
   };
   return {
     ...current,

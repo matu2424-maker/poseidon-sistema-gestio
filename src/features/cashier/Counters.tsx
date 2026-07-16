@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState } from "react";
 import type { AppData, Balance, Reading, ReadingStatus, User } from "../../types";
 import { counter, formatCounterInput, money, parseCounter } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 
 function InfoCard({ title, lines, tone }: { title: string; lines: string[]; tone: "blue" | "green" | "orange" | "red" }) {
   return (
@@ -177,7 +177,7 @@ export function Counters({
           <thead>
             <tr>
               {counterColumns.map((column) => (
-                <th key={column.key}>
+                <th key={column.key} aria-sort={ariaSort(sort, column.key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
                     {column.label}
                     {sortIndicator(sort, column.key)}

@@ -1,6 +1,6 @@
 # Contexto Codex - Layout base y navegacion
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Leer este contexto antes de modificar pantalla inicial, login local, barra superior, menu lateral, layout de cajero o navegacion base.
 
@@ -32,6 +32,7 @@ Referencias asociadas:
 - Encargado/admin solo operan caja cambiando a funcion Cajero.
 - Evitar repetir titulo/datos que ya aparecen en barra superior.
 - Botones deben quedar alineados y verse bien en 1080p.
+- Modales compartidos encierran/restauran foco y cierran con `Escape`; avisos usan region anunciable y filas clicables aceptan teclado.
 - No cambiar permisos ni menu sin revisar modulos 07 y 08.
 - Rutas directas y recargas deben respetar los mismos permisos que los botones de navegacion.
 

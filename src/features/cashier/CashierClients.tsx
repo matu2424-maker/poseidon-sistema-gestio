@@ -2,7 +2,7 @@ import { useState } from "react";
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
 import { nowIso } from "../../lib/dates";
 import { confirmAction } from "../../lib/confirmations";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import type { AppData, Client, ClientStatus } from "../../types";
 import { ClientEditor } from "../admin/Clients";
 import { clientSortValue, clientStatusClass, type ClientTableColumn } from "../clients/clientTable";
@@ -82,7 +82,7 @@ export function CashierClients({
                 ["email", "Email"],
                 ["status", "Estado"],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(sort, key as typeof sort.key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
                     {label}
                     {sortIndicator(sort, key as typeof sort.key)}

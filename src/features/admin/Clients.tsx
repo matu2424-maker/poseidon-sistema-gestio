@@ -13,7 +13,7 @@ import { nowIso } from "../../lib/dates";
 import { localName } from "../../lib/display";
 import { fileMetaLabel, readUploadFile } from "../../lib/files";
 import { nextShortId, uid } from "../../lib/ids";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
 import { confirmAction } from "../../lib/confirmations";
 
@@ -109,7 +109,7 @@ export function AdminClients({
                 ["photo", "Foto"],
                 ["identityDocument", "Cedula"],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(sort, key as typeof sort.key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
                     {label}
                     {sortIndicator(sort, key as typeof sort.key)}

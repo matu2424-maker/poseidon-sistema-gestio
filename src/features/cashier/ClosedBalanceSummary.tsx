@@ -5,7 +5,7 @@ import { formatDateTime, formatTime } from "../../lib/dates";
 import { balanceVisibleId, localName, userDisplayName, userDisplayNameWithRole } from "../../lib/display";
 import { bankDifferenceForBalance, cashDifferenceForBalance, differenceIsPending } from "../../lib/differences";
 import { money } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 
 type SummaryMachineSortKey = "visibleId" | "name" | "in" | "out" | "result" | "status";
 
@@ -281,7 +281,7 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
                     ["result", "Resultado"],
                     ["status", "Estado"],
                   ].map(([key, label]) => (
-                    <th key={key}>
+                    <th key={key} aria-sort={ariaSort(machineSort, key as typeof machineSort.key)}>
                       <button className="sort-button" type="button" onClick={() => setMachineSort((current) => nextSort(current, key as typeof machineSort.key))}>
                         {label}
                         {sortIndicator(machineSort, key as typeof machineSort.key)}

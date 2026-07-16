@@ -16,8 +16,9 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 
 ## Estado actual
 
-- Persistencia: snapshot JSON versionado en `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- Persistencia: snapshot JSON esquema 3 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
 - La UI usa el puerto asincrono `AppDataRepository`; el adaptador activo sigue siendo `localStorage` y serializa escrituras para conservar su orden.
+- Cada escritura compara la version leida. Si otra pestaña guardo antes, Poseidon no sobrescribe y ofrece descargar el intento o cargar la version vigente.
 - El administrador puede exportar e importar respaldos desde `Sistema > Datos locales`.
 - Si el snapshot esta corrupto, la aplicacion no lo reemplaza: ofrece descargarlo antes de iniciar datos nuevos.
 - Login local: se selecciona un usuario activo desde una lista, sin contrasena.
@@ -28,7 +29,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 107 casos en 25 archivos, mas 6 casos E2E en 3 archivos.
+- Validacion automatizada actual: 134 casos en 26 archivos, mas 8 casos E2E en 5 archivos.
 
 ## Ejecutar el proyecto
 
@@ -161,7 +162,7 @@ La auditoria registra usuario real y funcion usada.
 - Locales con maquinas asociadas, historial y cierre de local.
 - Maquinas con taller, desuso, reset, historial y auditoria.
 - Personal y liquidacion simple de salarios.
-- Liquidacion de salarios por periodo trabajado, con tabla por empleado, detalle ordenable, cuenta corriente del empleado y cierre de liquidacion.
+- Liquidacion de salarios por periodo trabajado, con tabla por empleado, cuenta corriente, cierre mensual inmutable y revisiones correctivas enlazadas.
 - Papelera para personal y clientes.
 - Reportes y exportacion Excel-compatible.
 - Auditoria general con alcance por local y detalle de saldos/movimientos.
@@ -185,6 +186,7 @@ La auditoria registra usuario real y funcion usada.
 - En salarios, `Pagado / Entregado` no resta descuentos porque descuento no es dinero entregado; `Cubierto base` es salario pagado + adelantos + descuentos.
 - `EXTRA` queda como codigo tecnico interno y en la interfaz se muestra como `Premio / Gratificacion`, separado del modulo Regalos de clientes.
 - Los cambios de salario base son prospectivos: no afectan cierres de liquidacion ya cerrados y requieren reconfirmacion si impactan liquidaciones abiertas.
+- Un cierre salarial congela el desglose por empleado y bloquea operaciones ordinarias del mes; las correcciones posteriores crean R1/R2 sin reescribir la foto original.
 - El salario se controla por periodo trabajado; un pago realizado del 1 al 10 del mes siguiente puede quedar asociado al mes trabajado anterior.
 
 ## Panel del cajero
@@ -308,7 +310,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 
 ## Prioridad tecnica actual
 
-`src/App.tsx` ya es principalmente orquestador, React Router controla la URL y `screenDefinitions` conserva permisos/titulos. El seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia. La prioridad tecnica es reforzar autorizacion y alcance por local dentro de los comandos, definir un contexto real de local activo y extraer las operaciones sensibles que aun viven en handlers React. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
+`src/App.tsx` ya es principalmente orquestador, React Router controla la URL y `screenDefinitions` conserva permisos/titulos. El seed esta separado de normalizacion y los comandos criticos de caja, diferencias, movimientos, salarios, locales y maquinas tienen pruebas. No se recomienda otra refactorizacion transversal amplia. La prioridad tecnica es reforzar autorizacion dentro de los comandos y extraer las operaciones sensibles que aun viven en handlers React. El foco operativo sigue siendo solamente Poseidon; multi-local queda postergado. El plan y las referencias cruzadas viven en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MODULARIZACION_REFERENCIAS.md`.
 
 ## Documentacion viva
 

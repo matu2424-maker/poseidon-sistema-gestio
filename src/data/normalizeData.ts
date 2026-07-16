@@ -12,6 +12,7 @@ import {
   transferAccountMovement,
 } from "../lib/accountMovements";
 import { normalizeClientDocument, normalizeClientDocumentType } from "../lib/clients";
+import { auditEventLocalIds } from "../lib/audit";
 import {
   createLocalBankCurrentAccount,
   createLocalCashCurrentAccount,
@@ -355,33 +356,80 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
     createdBy: closure.createdBy ?? "system",
     createdAt: closure.createdAt ?? nowIso(),
   }));
-  const salaryClosures = source.salaryClosures.map((closure, index) => ({
-    ...closure,
-    visibleId: closure.visibleId ?? `LS-${index + 1}`,
-    startDate: closure.startDate ?? today(),
-    endDate: closure.endDate ?? today(),
-    periodLabel: closure.periodLabel ?? `${closure.startDate ?? today()} a ${closure.endDate ?? today()}`,
-    employeeCount: Number(closure.employeeCount ?? 0),
-    settlementIds: Array.isArray(closure.settlementIds) ? closure.settlementIds : [],
-    totalBase: Number(closure.totalBase ?? 0),
-    totalExtras: Number(closure.totalExtras ?? 0),
-    totalBonuses: Number(closure.totalBonuses ?? 0),
-    totalDeductions: Number(closure.totalDeductions ?? 0),
-    totalSalaries: Number(closure.totalSalaries ?? 0),
-    totalSalaryPaid: Number(closure.totalSalaryPaid ?? 0),
-    totalAdvances: Number(closure.totalAdvances ?? 0),
-    totalBaseCovered: Number(
-      closure.totalBaseCovered ??
-        Number(closure.totalSalaryPaid ?? 0) + Number(closure.totalAdvances ?? 0) + Number(closure.totalDeductions ?? 0),
-    ),
-    totalLiquidated: Number(closure.totalLiquidated ?? 0),
-    totalPending: Number(closure.totalPending ?? 0),
-    status: closure.status ?? "CERRADO",
-    note: closure.note ?? "",
-    createdBy: closure.createdBy ?? "system",
-    createdByName: closure.createdByName ?? userNameById(closure.createdBy ?? "system"),
-    createdAt: closure.createdAt ?? nowIso(),
-  }));
+  const salaryClosures = source.salaryClosures.map((closure, index) => {
+    const startDate = closure.startDate ?? today();
+    const period = closure.period ?? startDate.slice(0, 7);
+    const employeeSnapshots = Array.isArray(closure.employeeSnapshots)
+      ? closure.employeeSnapshots.map((employee) => ({
+          ...employee,
+          staffId: employee.staffId ?? "",
+          staffName: employee.staffName ?? "Personal sin ficha",
+          position: employee.position ?? "Sin cargo",
+          localId: mapLocalId(employee.localId ?? POSEIDON_LOCAL_ID),
+          salaryType: employee.salaryType ?? "MENSUAL",
+          baseSalary: Number(employee.baseSalary ?? 0),
+          salaryPaid: Number(employee.salaryPaid ?? 0),
+          advances: Number(employee.advances ?? 0),
+          extraAmount: Number(employee.extraAmount ?? 0),
+          bonuses: Number(employee.bonuses ?? 0),
+          deductions: Number(employee.deductions ?? 0),
+          totalAmount: Number(employee.totalAmount ?? 0),
+          baseCoveredAmount: Number(employee.baseCoveredAmount ?? 0),
+          liquidatedAmount: Number(employee.liquidatedAmount ?? 0),
+          pendingAmount: Number(employee.pendingAmount ?? 0),
+          settlementIds: Array.isArray(employee.settlementIds) ? employee.settlementIds : [],
+          settlements: Array.isArray(employee.settlements)
+            ? employee.settlements.map((settlement) => ({
+                ...settlement,
+                concept: normalizeSalaryConcept(settlement.concept),
+                amount: Number(settlement.amount ?? 0),
+                notes: settlement.notes ?? "",
+                origin: settlement.origin ?? "LIQUIDACION",
+                createdByName: settlement.createdByName ?? "Usuario no disponible",
+                approvedByName: settlement.approvedByName ?? settlement.createdByName ?? "Usuario no disponible",
+                createdAt: settlement.createdAt ?? closure.createdAt ?? nowIso(),
+              }))
+            : [],
+        }))
+      : [];
+    return {
+      ...closure,
+      visibleId: closure.visibleId ?? `LS-${index + 1}`,
+      period,
+      startDate,
+      endDate: closure.endDate ?? today(),
+      periodLabel: closure.periodLabel ?? `${startDate} a ${closure.endDate ?? today()}`,
+      kind: closure.kind ?? (closure.parentClosureId ? "CORRECTIVO" : "ORDINARIO"),
+      revision: Number(closure.revision ?? 0),
+      snapshotVersion: Number(closure.snapshotVersion ?? (employeeSnapshots.length ? 1 : 0)),
+      employeeSnapshots,
+      employeeCount: Number(closure.employeeCount ?? employeeSnapshots.length),
+      settlementIds: Array.isArray(closure.settlementIds) ? closure.settlementIds : [],
+      totalBase: Number(closure.totalBase ?? 0),
+      totalExtras: Number(closure.totalExtras ?? 0),
+      totalBonuses: Number(closure.totalBonuses ?? 0),
+      totalDeductions: Number(closure.totalDeductions ?? 0),
+      totalSalaries: Number(closure.totalSalaries ?? 0),
+      totalSalaryPaid: Number(closure.totalSalaryPaid ?? 0),
+      totalAdvances: Number(closure.totalAdvances ?? 0),
+      totalBaseCovered: Number(
+        closure.totalBaseCovered ??
+          Number(closure.totalSalaryPaid ?? 0) + Number(closure.totalAdvances ?? 0) + Number(closure.totalDeductions ?? 0),
+      ),
+      totalLiquidated: Number(closure.totalLiquidated ?? 0),
+      totalPending: Number(closure.totalPending ?? 0),
+      status: closure.status ?? "CERRADO",
+      note: closure.note ?? "",
+      createdBy: closure.createdBy ?? "system",
+      createdByName: closure.createdByName ?? userNameById(closure.createdBy ?? "system"),
+      createdAt: closure.createdAt ?? nowIso(),
+      closedBy: closure.closedBy ?? (closure.status === "CORRECCION_ABIERTA" ? undefined : closure.createdBy ?? "system"),
+      closedByName:
+        closure.closedByName ??
+        (closure.status === "CORRECCION_ABIERTA" ? undefined : closure.createdByName ?? userNameById(closure.createdBy ?? "system")),
+      closedAt: closure.closedAt ?? (closure.status === "CORRECCION_ABIERTA" ? undefined : closure.createdAt ?? nowIso()),
+    };
+  });
   const accountById = new Map<string, CurrentAccount>();
   source.currentAccounts.forEach((account) => {
     accountById.set(account.id, {
@@ -477,6 +525,8 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
   const accountMovements = [...movementById.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const auditEvents = source.audit.map((event) => ({
     ...event,
+    localId: event.localId ? mapLocalId(event.localId) : undefined,
+    localIds: event.localIds?.map(mapLocalId),
     userName: event.userName ?? source.users.find((user) => user.id === event.userId)?.name ?? "Sistema",
     actualRole: event.actualRole,
     actorRole: event.actorRole,
@@ -485,7 +535,7 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
     ? source.machineLocalHistory.map((event) => ({ ...event, localId: mapLocalId(event.localId) }))
     : machines.map((machine) => machineHistoryEvent(machine, machine.localId, "AGREGADA", "Carga inicial migrada", "system"));
 
-  return {
+  const normalizedData: AppData = {
     ...source,
     users,
     staff,
@@ -507,5 +557,12 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
     readings: source.readings.filter((reading) => machineIds.has(reading.machineId)),
     audit: auditEvents,
     machineLocalHistory,
+  };
+  return {
+    ...normalizedData,
+    audit: auditEvents.map((event) => ({
+      ...event,
+      localIds: event.localIds?.length ? event.localIds : auditEventLocalIds(normalizedData, event),
+    })),
   };
 }

@@ -1,6 +1,6 @@
 # Contexto Codex - Caja diaria y cierre
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-16
 
 Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre o resumen de cajas. Referencias asociadas:
 
@@ -38,6 +38,7 @@ Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre
 - Cajero no usa barra lateral.
 - Si no hay caja abierta, solo puede usar Clientes, Resumen cajas y Abrir caja.
 - Apertura toma saldos de cuentas del local.
+- Apertura rechaza cualquier segunda caja abierta del local, aunque use otra fecha.
 - Primera caja exige aporte inicial efectivo/banco.
 - Cierre calcula resultado economico separado del flujo financiero.
 - Cierre crea diferencias si lo declarado no coincide con esperado.
@@ -48,6 +49,7 @@ Leer este contexto antes de modificar apertura, panel cajero, contadores, cierre
 - Cargar contadores ordena por todas sus columnas visibles: ID, maquina, estado, IN/OUT anterior, IN/OUT actual, resultado y observacion.
 - Importes monetarios usan formato con punto de miles.
 - IN/OUT actual no puede ser menor al anterior.
+- Con caja abierta no se mueve/asigna una maquina ni se ajustan sus contadores administrativos.
 
 ## Asociaciones
 

@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -111,18 +111,18 @@ src/
 | `ids.ts` | IDs locales actuales |
 | `audit.ts` | Construccion de eventos, resolucion de local y visibilidad por rol |
 | `lib/storage.ts` | Preferencias locales de columnas |
-| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 2 preserva cadena de ajustes |
-| `application/ports/AppDataRepository.ts` | Puerto asincrono de datos y codec de respaldo |
+| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 3 agrega cierres salariales inmutables |
+| `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo y codec de respaldo |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
-| `hooks/useAppDataRepository.ts` | Hidratacion, recuperacion y persistencia sin acoplar App al adaptador |
-| `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, importacion y exportacion local |
+| `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, bloqueo y recuperacion sin acoplar App al adaptador |
+| `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, comparacion optimista, importacion y exportacion local |
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
 | `accountMovements.ts` | Movimientos derivados, saldo corrido y ajustes de diferencias append-only encadenados |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
 | `differences.ts` | Estados y calculos de diferencias |
 | `salaryRules.ts` | Conceptos, base, periodos y limites salariales |
 | `balanceReferences.ts` | Recaudacion asociada por `balanceId` |
-| `sorting.ts` | Ordenamiento compartido de tablas |
+| `sorting.ts` | Ordenamiento compartido e indicador accesible `aria-sort` |
 | `clients.ts`, `people.ts` | Reglas de clientes y personal |
 | `files.ts`, `export.ts` | Metadata local y exportaciones |
 | `machineHistory.ts` | Eventos de historial de maquinas |
@@ -141,10 +141,11 @@ src/
 | `application/cash/closeCash.ts` | Cierre, retiros, maquinas, diferencias, cuentas, historial y auditoria |
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
 | `application/salaries/salarySettlementCommands.ts` | Alta, correccion y anulacion salarial con cuentas y auditoria |
+| `application/salaries/salaryClosureCommands.ts` | Cierre mensual definitivo y ciclo de revisiones correctivas |
 
 ## Componentes compartidos
 
-- `components/ui.tsx`: `InfoCard`, `FormButtons`, `Modal`, `ColumnChooser`.
+- `components/ui.tsx`: `InfoCard`, `FormButtons`, `Modal` con gestion de foco/Escape y `ColumnChooser`.
 - `components/MonthlyPeriodSelector.tsx`: selector mensual comun.
 - `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
 - `features/clients/clientTable.ts`: orden y estados compartidos de clientes.
@@ -166,6 +167,7 @@ src/
 - `balanceId` vincula movimientos, salarios y lecturas con una recaudacion.
 - `localId` determina alcance operativo y permisos futuros.
 - `staffId`, `clientId` y `machineId` vinculan historiales con maestros.
+- `parentClosureId` encadena revisiones salariales y `correctionClosureId` vincula cada movimiento con su ajuste abierto.
 - Una accion contable puede modificar entidad operativa, movimientos de cuenta y auditoria; no deben separarse al extraer comandos.
 - Cuenta personal usa periodo salarial; caja usa `balanceId`.
 - Rol real y funcion usada son datos distintos de auditoria.
@@ -186,6 +188,7 @@ src/
 - `LocationsMachines.tsx` ya separa editores, historiales y helpers en `features/admin/locationsMachines/`.
 - `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
 - `SalarySettlements.tsx` ya separa su editor de escritura.
+- El cierre salarial y sus revisiones ya se ejecutan mediante comandos; `salaryClosures.ts` comparte calculo, snapshot y bloqueo entre dominio e interfaz.
 - `appData.ts` ya delega la normalizacion/migracion en `data/normalizeData.ts`.
 - Las pantallas funcionales se cargan bajo demanda desde `navigation/lazyScreens.ts`; el arranque, login, shell y recuperacion quedan estaticos.
 - El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino continuar sacando comandos de negocio de React.
@@ -200,9 +203,9 @@ Medicion de referencia 2026-07-12:
 | `features/admin/LocationsMachines.tsx` | 795 | Bajo/medio: tablas y modales; mutaciones delegadas a comandos |
 | `features/admin/locationsMachines/HistoryModals.tsx` | 759 | Medio: dos historiales complejos, sin mutaciones |
 | `data/appData.ts` | 839 | Medio: seed demo; normalizacion ya separada |
-| `data/normalizeData.ts` | 511 | Alto por impacto: migracion central, aunque aislada |
+| `data/normalizeData.ts` | 568 | Alto por impacto: migracion central, aunque aislada |
 | `features/cashier/Movements.tsx` | 580 | Bajo/medio: formularios y tablas; negocio operativo delegado a comandos |
-| `features/salaries/SalarySettlements.tsx` | 965 | Medio/alto: listado, detalle, cuentas y cierres; editor separado |
+| `features/salaries/SalarySettlements.tsx` | 1.050 | Medio/alto: listado, detalle, cuentas y presentacion de snapshots; escritura y cierres separados |
 | `features/admin/Staff.tsx` | 716 | Medio: personal, editor y papelera |
 | `App.tsx` | 558 | Medio: orquestacion, rutas, sesion, local activo y algunos comandos |
 | `styles/features/admin.css` | 1.286 | Medio: tablas, modales y administracion |
@@ -218,16 +221,18 @@ Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de pl
 
 - Apertura, contadores, cierre y salarios no aplican todavia una politica uniforme de rol, funcion activa y local asignado dentro de cada comando; parte del control depende de navegacion/UI.
 - El local operativo de `App.tsx` sigue resolviendose como Poseidon o el primer local; la estructura de datos es multi-local, pero el contexto operativo multi-local aun no esta completo.
-- La regla de una sola caja abierta por local esta protegida por el flujo visual, pero el comando de apertura solo rechaza otra caja abierta del mismo local y fecha.
-- Cierres salariales, cierres periodicos, revision/anulacion administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
-- Cobertura automatizada insuficiente para cierre salarial, ciclo completo de maquinas, formularios administrativos y flujos completos del encargado.
-- El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales para forzar guardado.
+- La apertura ya rechaza cualquier segunda caja abierta del mismo local, sin depender de la fecha. Traslados/asignaciones de maquinas, ajustes administrativos de contadores y cierre de local tambien se bloquean durante esa caja.
+- Cierres periodicos, revision/anulacion administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
+- Cobertura automatizada insuficiente para cierre periodico, formularios administrativos y todos los flujos completos del encargado.
+- El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales y conserva el intento fallido para descargar o reintentar.
+- El adaptador local compara el snapshot esperado con el almacenado y evita que una pestaña desactualizada sobrescriba otra.
 
 Completado en integridad local: los movimientos persistidos se conservan, las anulaciones usan contramovimientos y las bajas definitivas validan referencias.
 
 ### Media
 
 - La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales; la normalizacion posterior es amplia, pero falta validacion profunda de campos y relaciones.
+- El cierre salarial inmutable esta implementado con snapshot por empleado, bloqueo del periodo, revision correctiva enlazada y migracion explicita de cierres heredados.
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.
 - IDs locales no son adecuados para concurrencia online.

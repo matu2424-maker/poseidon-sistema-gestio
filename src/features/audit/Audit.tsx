@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Modal } from "../../components/ui";
 import { auditEventLocalIds, auditEventVisibleToUser } from "../../lib/audit";
-import { formatDateTime, nowIso } from "../../lib/dates";
+import { formatDateTime } from "../../lib/dates";
 import { roleLabels } from "../../lib/display";
 import { money } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import type { AppData, AuditEvent, User } from "../../types";
 
 type AuditSortKey = "createdAt" | "user" | "action" | "entity" | "actorRole" | "reason";
@@ -36,26 +36,7 @@ const accountSnapshotEntries = (value: unknown) => {
 export function Audit({ data, user }: { data: AppData; user: User }) {
   const [sort, setSort] = useState<SortState<AuditSortKey>>({ key: "createdAt", direction: "desc" });
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const userLogs: AuditEvent[] = data.users.map((registeredUser) => ({
-    id: `user-log-${registeredUser.id}`,
-    userId: registeredUser.id,
-    userName: registeredUser.name,
-    actualRole: registeredUser.role,
-    actorRole: registeredUser.role,
-    action: "Usuario registrado",
-    entity: "Usuario",
-    entityId: registeredUser.id,
-    previousValue: "",
-    newValue: JSON.stringify({
-      username: registeredUser.username,
-      role: registeredUser.role,
-      status: registeredUser.status,
-      localIds: registeredUser.localIds,
-    }),
-    reason: "Log de usuario",
-    createdAt: data.audit.find((event) => event.entity === "Usuario" && event.entityId === registeredUser.id)?.createdAt ?? nowIso(),
-  }));
-  const rows = [...data.audit, ...userLogs].filter((event) => auditEventVisibleToUser(data, event, user));
+  const rows = data.audit.filter((event) => auditEventVisibleToUser(data, event, user));
   const auditValue = (event: AuditEvent, key: AuditSortKey): string | number => {
     if (key === "createdAt") return new Date(event.createdAt).getTime();
     if (key === "user") return auditUserName(data, event);
@@ -83,7 +64,7 @@ export function Audit({ data, user }: { data: AppData; user: User }) {
           <thead>
             <tr>
               {(["createdAt", "user", "action", "entity", "actorRole", "reason"] as AuditSortKey[]).map((key) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(sort, key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key))}>
                     {key === "createdAt"
                       ? "Fecha/hora"

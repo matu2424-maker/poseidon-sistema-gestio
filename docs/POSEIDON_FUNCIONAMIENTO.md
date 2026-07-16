@@ -1,6 +1,6 @@
 # Poseidon Sistema de Gestion - Funcionamiento y reglas
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-16
 
 Este documento es la fuente canonica del comportamiento funcional transversal. Cada cambio funcional relevante debe actualizar este archivo en el mismo trabajo.
 Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar el documento correspondiente en `docs/modulos/`.
@@ -20,8 +20,10 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Documentacion modular por panel/funcion: `docs/modulos/`.
 - Reglas compartidas extraidas en `src/lib/`: dinero, fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y salarios.
 - Datos demo y limpieza manual viven en `src/data/appData.ts`; la migracion/normalizacion vive en `src/data/normalizeData.ts` y los IDs tecnicos compartidos en `src/data/appDataIds.ts`.
-- Persistencia actual: snapshot JSON versionado en `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- Persistencia actual: snapshot JSON esquema 3 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
 - El snapshot se valida antes de leer o importar. Si esta corrupto no se sobrescribe y se ofrece descargar el contenido original.
+- Los guardados usan comparacion optimista contra la version leida por la pestaña. Si otra pestaña guardo antes, se detiene la escritura y se ofrece descargar el intento o cargar la version vigente.
+- Un fallo de escritura abre recuperacion con respaldo del intento y opciones de reintento o regreso a la ultima version guardada.
 - Administrador dispone de `Sistema > Datos locales` para exportar o importar un respaldo JSON validado.
 - No existe limpieza operativa automatica durante el arranque.
 - Supabase/Auth real queda pendiente para una etapa posterior.
@@ -114,6 +116,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Los locales tienen ID numerico corto.
 - Estados: `ACTIVO`, `INACTIVO`, `CERRADO`.
 - Si un local pasa a `CERRADO`, sus maquinas vuelven al Taller con confirmacion.
+- Un local con caja abierta no puede pasar a `CERRADO`.
 - Desde Locales se pueden ver maquinas asociadas, historial, recaudaciones y auditoria.
 
 ## Maquinas
@@ -128,6 +131,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - queda auditado;
   - no debe hacerse con caja abierta del local;
   - pone IN y OUT actuales en 0 para nuevas cajas.
+- Con caja abierta no se trasladan ni asignan maquinas del local y no se ajustan sus contadores administrativos.
 
 ## Caja diaria
 
@@ -137,6 +141,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Si se sale de una casilla de dinero sin ingresar monto, vuelve a `0`.
 - Los importes se escriben como numeros simples y se visualizan con separador de miles por punto, por ejemplo `1000` pasa a `1.000`.
 - Si no hay caja abierta, debe abrir caja para operar.
+- Solo puede existir una caja abierta por local, aunque la fecha operativa sea diferente.
+- Los saldos iniciales deben ser numeros finitos y no negativos.
 - Si no hay caja abierta, el panel del cajero solo permite `Clientes`, `Resumen cajas` y `Abrir caja`; el resto de la operativa muestra aviso de apertura requerida.
 - El aviso visible dice `Necesita abrir una nueva caja para poder operar.`
 - Si hay caja abierta, entra al panel del cajero y sigue esa caja.
@@ -380,6 +386,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - En cajero, `Concepto` es obligatorio y debe seleccionarse manualmente.
 - En cajero, `Periodo trabajado` es obligatorio y se guarda en `SalarySettlement.period`.
 - La sugerencia automatica del periodo trabajado usa la fecha operativa de la caja: dias 1 al 10 inclusive sugieren el mes anterior; desde el dia 11 sugiere el mes actual.
+- El periodo trabajado acepta solo formato `AAAA-MM` con meses `01` a `12`.
 - Los pagos de salario cargados por cajero quedan asociados a la caja abierta por `balanceId`, pero se imputan a la liquidacion del periodo trabajado elegido.
 - `SalarySettlement` sigue siendo la fuente canonica de pagos/liquidaciones de salario; no existe una tabla paralela para pagos del cajero.
 - Los pagos de salario cargados por cajero se pueden anular mientras la caja esta abierta, igual que gastos.
@@ -430,10 +437,15 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La cuenta corriente del empleado se filtra por periodo trabajado de la liquidacion; si se carga una liquidacion de un mes anterior hoy, aparece dentro del mes anterior correspondiente.
 - Clic en un movimiento de la cuenta corriente del empleado abre un detalle completo con origen, usuario, recaudacion asociada y notas.
 - Si ese movimiento tiene `balanceId`, el detalle permite abrir el resumen completo de la recaudacion asociada.
-- La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, cubierto base, pagado/entregado, empleados, liquidaciones incluidas, usuario y fecha.
-- El cierre de liquidacion no borra movimientos ni liquida automaticamente obligaciones legales; sirve como corte mensual/historico para iniciar y controlar periodos siguientes.
-- La pantalla muestra abajo un historial de cierres de liquidacion; un cierre puede anularse sin borrar auditoria.
-- La tabla de historial de cierres de liquidacion permite ordenar por ID, periodo, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.
+- El cierre salarial mensual congela una foto inmutable por empleado con base, conceptos, totales, cubierto, pagado, pendiente y liquidaciones activas.
+- El cierre ordinario queda como revision `R0`; no borra movimientos, no se anula y no liquida automaticamente obligaciones legales.
+- El periodo cerrado bloquea altas, ediciones y anulaciones ordinarias desde administracion y caja.
+- Un periodo no puede cerrarse mientras tenga pagos salariales vinculados a una caja abierta.
+- La correccion posterior exige motivo, encargado/admin y una revision correctiva enlazada al ultimo cierre. Al cerrarla se crea `R1`, `R2`, etc. sin modificar fotos anteriores.
+- Una correccion abierta sin movimientos puede cancelarse con auditoria; con movimientos debe completarse y cerrarse.
+- La pantalla muestra abajo el historial, permite abrir cada foto por empleado y conserva cierres heredados sin inventar un detalle que no existia.
+- La tabla de historial permite ordenar por ID, periodo, tipo, revision, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.
+- El calculo historico considera ingreso y baja del empleado, aunque su estado actual sea inactivo o papelera.
 - Exportar Excel descarga un CSV compatible con Excel del periodo consultado.
 - En esta etapa la liquidacion no calcula automaticamente obligaciones legales; se registra manualmente por concepto para saber cuanto se pago, a quien y por que.
 - El efectivo en caja descuenta solo salarios asociados a esa caja; una caja nueva siempre inicia salarios en 0.
@@ -522,20 +534,23 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Permite restaurar o eliminar definitivamente.
 - La eliminacion definitiva requiere confirmacion y auditoria.
 - La eliminacion definitiva se bloquea si personal o cliente tiene operaciones relacionadas; en ese caso permanece en papelera.
+- En clientes se consideran regalos y transferencias; en personal tambien se considera el historial salarial.
 
 ## Auditoria
 
 - Todo objeto creado, editado, anulado, enviado a papelera, restaurado o eliminado debe quedar registrado en auditoria.
 - Cada evento registra fecha/hora, id de usuario, nombre de usuario al momento de la accion, funcion usada, accion, entidad, id de entidad, valor anterior, valor nuevo y motivo.
+- Cada evento nuevo congela sus locales asociados; las contraseñas y el contenido inline de archivos se omiten del detalle.
+- La pantalla muestra solo eventos persistidos y no crea logs sinteticos con la hora actual.
 - Auditoria se usa para cambios sensibles, anulaciones, cierres, liquidaciones y papelera.
 - Administrador ve todos los eventos. Encargado solo ve los eventos que se pueden asociar a sus locales asignados; los eventos sin local resoluble no se exponen al encargado.
 - La tabla permite ordenar todas sus columnas visibles de datos y `Ver` abre una ventana con el detalle completo.
 - En gestiones de diferencias, el detalle incluye saldos efectivo/banco antes y despues y cada movimiento nuevo con ID, cuenta, direccion, importe y cadena de ajuste.
 
-## Estado actual al 2026-07-12
+## Estado actual al 2026-07-16
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, skills, sistema visual, TypeScript, ESLint y 107 pruebas en 25 archivos; existen ademas 6 casos E2E en 3 archivos para caja, diferencias/auditoria y rutas por rol.
+- `pnpm run check` valida agentes, skills, sistema visual, TypeScript, ESLint y 134 pruebas en 26 archivos; existen ademas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

@@ -1,5 +1,6 @@
 import type { AppData, Machine, MachineLocalHistory, MachineStatus } from "../../types";
 import { WORKSHOP_LABEL, WORKSHOP_LOCAL_ID } from "../../data/appDataIds";
+import { openBalanceForLocal } from "../../lib/balanceReferences";
 import { localName } from "../../lib/display";
 import { shortNumberId } from "../../lib/ids";
 import { machineHistoryEvent } from "../../lib/machineHistory";
@@ -65,7 +66,20 @@ export function saveMachineCommand(
   if (input.status === "DESUSO" && localId !== WORKSHOP_LOCAL_ID) {
     return commandError("El estado Desuso solo se puede aplicar a maquinas que estan en Taller.");
   }
+  if (![input.lastIn, input.lastOut].every(Number.isFinite)) {
+    return commandError("Los contadores deben ser numeros finitos.");
+  }
   if (input.lastIn < 0 || input.lastOut < 0) return commandError("Los contadores no pueden ser negativos.");
+  if (
+    existing &&
+    openBalanceForLocal(data, existing.localId) &&
+    (existing.localId !== localId || existing.lastIn !== input.lastIn || existing.lastOut !== input.lastOut)
+  ) {
+    return commandError("No se puede mover la maquina ni ajustar sus contadores mientras el local tenga una caja abierta.");
+  }
+  if (existing && existing.localId !== localId && openBalanceForLocal(data, localId)) {
+    return commandError("No se puede ingresar una maquina a un local con caja abierta.");
+  }
 
   const next: Machine = {
     id: existing?.id ?? context.id("machine"),
@@ -154,9 +168,7 @@ export function resetMachineCountersCommand(
   if (permissionError) return commandError(permissionError);
   const existing = data.machines.find((machine) => machine.id === machineId);
   if (!existing) return commandError("No se encontro la maquina.");
-  const blockingBalance = data.balances.find(
-    (balance) => balance.localId === existing.localId && balance.status === "EN_PROCESO",
-  );
+  const blockingBalance = openBalanceForLocal(data, existing.localId);
   if (blockingBalance) {
     return commandError(
       `No se puede resetear ${existing.name}: hay una caja abierta del ${blockingBalance.operatingDate}. Primero hay que cerrar esa caja.`,
@@ -202,6 +214,9 @@ export function moveMachineToWorkshopCommand(
   const existing = data.machines.find((machine) => machine.id === machineId);
   if (!existing) return commandError("No se encontro la maquina.");
   if (existing.localId === WORKSHOP_LOCAL_ID) return commandError("La maquina ya esta en el Taller.");
+  if (openBalanceForLocal(data, existing.localId)) {
+    return commandError("No se puede enviar la maquina al Taller mientras su local tenga una caja abierta.");
+  }
   const next: Machine = { ...existing, localId: WORKSHOP_LOCAL_ID, location: WORKSHOP_LABEL };
   const timestamp = context.now();
   const history = [
@@ -288,6 +303,9 @@ export function assignMachinesToLocalCommand(
   const local = data.locals.find((item) => item.id === localId);
   if (!local) return commandError("No se encontro el local.");
   if (local.status === "CERRADO") return commandError("No se pueden asignar maquinas a un local cerrado.");
+  if (openBalanceForLocal(data, local.id)) {
+    return commandError("No se pueden asignar maquinas mientras el local tenga una caja abierta.");
+  }
   const selectedIds = [...new Set(machineIds)];
   if (!selectedIds.length) return commandError("Seleccione al menos una maquina del taller.");
   const selectedMachines = data.machines.filter((machine) => selectedIds.includes(machine.id));

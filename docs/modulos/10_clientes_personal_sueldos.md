@@ -36,6 +36,7 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - Pago de salarios del cajero usa una lista reducida para nuevos registros: solo SALARIO y ADELANTO.
 - Todo pago del cajero sigue guardandose como `SalarySettlement`; no existe una tabla paralela de pagos.
 - En cajero, el campo `Periodo trabajado` es obligatorio y se guarda en `SalarySettlement.period`.
+- El periodo debe respetar `AAAA-MM` con mes real entre `01` y `12`; valores como `2026-00` o `2026-99` se rechazan.
 - Sugerencia de periodo desde cajero: con fecha operativa entre dia 1 y 10 inclusive se sugiere mes anterior; desde dia 11 se sugiere mes actual.
 - El pago del cajero sale de la caja actual por `balanceId`, pero se muestra en liquidacion y cuenta personal segun el periodo trabajado elegido.
 - `EXTRA` queda como codigo tecnico interno; en la interfaz se muestra `Premio / Gratificacion` y no pertenece al modulo Regalos de clientes.
@@ -86,9 +87,18 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - La cuenta corriente del empleado usa el periodo trabajado de la liquidacion. Un pago cargado hoy para un mes anterior se ve en el detalle de ese mes anterior.
 - Al hacer clic en un movimiento de la cuenta corriente del empleado se abre un detalle completo con origen, usuario, recaudacion asociada y notas.
 - Si el movimiento tiene `balanceId`, desde ese detalle se puede abrir el resumen completo de la recaudacion asociada.
-- La pantalla permite cerrar la liquidacion del periodo seleccionado. El cierre guarda una foto auditada con totales, empleados, liquidaciones incluidas, usuario y fecha.
-- Abajo se muestra historial de cierres de liquidacion. Anular un cierre no borra las liquidaciones ni la auditoria.
-- La tabla de historial de cierres de liquidacion permite ordenar por ID, periodo, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.
+- La pantalla permite cerrar definitivamente el mes con usuario, fecha, totales y una foto completa por empleado.
+- La foto congela salario base, salario pagado, adelantos, premios/horas, bonos, descuentos, total, cubierto, pagado/entregado, pendiente y detalle de liquidaciones activas.
+- El cierre ordinario es revision `R0` y no se anula ni se reescribe.
+- Un periodo cerrado bloquea alta, edicion y anulacion ordinaria tanto en liquidacion administrativa como desde caja.
+- No se permite cerrar el periodo si contiene pagos asociados a una caja abierta.
+- Para modificar un periodo cerrado, encargado/admin debe abrir un ajuste correctivo con motivo obligatorio sobre el ultimo cierre vigente.
+- Durante el ajuste, las operaciones quedan enlazadas por `correctionClosureId` o `annulledInCorrectionClosureId`.
+- Al cerrar el ajuste se crea una nueva foto `R1`, `R2`, etc. con `parentClosureId`; todas las revisiones anteriores permanecen inmutables.
+- Un ajuste vacio puede cancelarse de forma auditada. Si ya tiene movimientos, debe completarse y cerrarse.
+- El historial permite abrir cada foto y revisar los importes congelados por empleado. Los movimientos incluidos se muestran dentro de cada empleado.
+- La tabla de historial permite ordenar por ID, periodo, tipo, revision, empleados, total salarios, cubierto base, pagado/entregado, pendiente, usuario, fecha cierre y estado.
+- Los cierres anteriores al esquema 3 se identifican con `snapshotVersion: 0`: conservan sus totales, pero la interfaz informa que no existe desglose historico por empleado.
 - Las cuentas personales no se muestran en `Cuentas corrientes`; se consultan desde este modulo.
 - Cajero carga pago simple desde caja abierta.
 - Salarios de una caja nueva siempre inician en 0.
@@ -100,3 +110,11 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - Permite restaurar.
 - Permite eliminar definitivamente con confirmacion y auditoria solo si no existen operaciones relacionadas; de lo contrario permanece en papelera.
 - Las tablas de papelera permiten ordenar por sus columnas visibles de datos; `Accion` no se ordena.
+- Un cliente con regalos o transferencias no se elimina definitivamente.
+- El historial salarial es una referencia operativa: personal con ese historial permanece en papelera.
+
+## Vigencia laboral historica
+
+- El resumen salarial considera fecha de ingreso y fecha de baja para determinar si una persona trabajo en el periodo.
+- Una persona actualmente en baja o papelera conserva su base y movimientos en los meses trabajados.
+- Los cierres salariales son referencias operativas: una persona o local incluido en una foto no puede eliminarse definitivamente.

@@ -786,6 +786,26 @@ export function createSeedData(): AppData {
   const staff = createDemoStaff(local.id);
   const clients = createDemoClients(local.id);
   const demo = createDemoOperationalData(local, machines, staff, clients);
+  const users = createDemoUsers(local.id);
+  const userAudit: AuditEvent[] = users.map((demoUser, index) => ({
+    id: `audit-demo-user-${demoUser.id}`,
+    userId: "system",
+    userName: "Sistema",
+    action: "Registrar usuario demo",
+    entity: "Usuario",
+    entityId: demoUser.id,
+    localId: local.id,
+    localIds: [local.id],
+    previousValue: "\"\"",
+    newValue: JSON.stringify({
+      username: demoUser.username,
+      role: demoUser.role,
+      status: demoUser.status,
+      localIds: demoUser.localIds,
+    }),
+    reason: "Usuario de prueba inicial",
+    createdAt: `2026-06-30T1${index}:00:00.000-03:00`,
+  }));
   const salaryHistories = staff.map((staffMember) =>
     salaryHistoryEvent(
       staffMember,
@@ -801,7 +821,7 @@ export function createSeedData(): AppData {
   );
 
   return {
-    users: createDemoUsers(local.id),
+    users,
     staff,
     salarySettlements: demo.salarySettlements,
     salaryHistories,
@@ -824,7 +844,7 @@ export function createSeedData(): AppData {
     expenses: demo.expenses,
     transfers: demo.transfers,
     gifts: demo.gifts,
-    audit: demo.audit,
+    audit: [...demo.audit, ...userAudit],
     machineLocalHistory: machines.flatMap((machine) => [
       machineHistoryEvent(machine, WORKSHOP_LOCAL_ID, "AGREGADA", "Carga inicial en taller", "system"),
       machineHistoryEvent(machine, local.id, "MOVIDA", "Asignada a Poseidon para datos demo", "system"),

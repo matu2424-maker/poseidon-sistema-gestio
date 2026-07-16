@@ -23,3 +23,11 @@ export function sortIndicator<Key extends string>(sort: SortState<Key>, key: Key
   if (sort.key !== key) return "";
   return sort.direction === "asc" ? " asc" : " desc";
 }
+
+export function ariaSort<Key extends string>(
+  sort: SortState<Key>,
+  key: Key,
+): "ascending" | "descending" | "none" {
+  if (sort.key !== key) return "none";
+  return sort.direction === "asc" ? "ascending" : "descending";
+}

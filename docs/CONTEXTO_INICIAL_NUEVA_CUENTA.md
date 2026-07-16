@@ -63,9 +63,11 @@ pnpm run check:commit
 ## Estado resumido
 
 - Persistencia actual: `localStorage`, clave `poseidon-sistema-gestion-v2`.
+- Guardado local con deteccion de conflicto entre pestañas y respaldo del intento fallido.
 - Login local sin contrasena.
 - Usuarios demo: `cajero1`, `cajero2`, `encargado`, `admin`.
 - Local principal: Poseidon.
+- Multi-local operativo: postergado; el foco actual es solamente Poseidon.
 - Supabase/Auth/Storage real: pendiente.
 - Archivos subidos: se guardan como metadatos, no contenido completo.
 - `src/App.tsx`: orquestador de estado y acciones.
@@ -74,7 +76,7 @@ pnpm run check:commit
 - Pantallas principales viven en `src/features/`.
 - Reglas compartidas viven en `src/lib/`.
 - React Router conserva una URL por modulo; la sesion local de pestaña guarda solo usuario y funcion activa.
-- Pruebas actuales: 107 casos en 25 archivos, mas 6 casos E2E en 3 archivos.
+- Pruebas actuales: 134 casos en 26 archivos, mas 8 casos E2E en 5 archivos.
 - Tres perfiles Codex read-only viven en `.codex/agents/`; `check:agents` valida su contrato.
 - Cuatro skills versionadas viven en `.agents/skills/`; `check:skills` valida sus contratos.
 

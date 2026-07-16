@@ -6,7 +6,7 @@ import { today, formatTime } from "../../lib/dates";
 import { balanceVisibleId } from "../../lib/display";
 import { bankDifferenceForBalance, cashDifferenceForBalance, differenceIsPending } from "../../lib/differences";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, moneyInputValue, parseMoneyInput } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ClosedBalanceSummary } from "./ClosedBalanceSummary";
 
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
@@ -29,6 +29,7 @@ export function OpenCash({
   setScreen,
   save,
   summaryOnly = false,
+  hideHeading = false,
 }: {
   data: AppData;
   user: User;
@@ -36,6 +37,7 @@ export function OpenCash({
   openBalance: Balance | undefined;
   setScreen: (screen: Screen) => void;
   summaryOnly?: boolean;
+  hideHeading?: boolean;
   save: (
     date: string,
     initialFund: number,
@@ -114,15 +116,15 @@ export function OpenCash({
           <table className="data-table recent-cash-table">
             <thead>
               <tr>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "id"))}>ID{sortIndicator(recentSort, "id")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "operatingDate"))}>Fecha{sortIndicator(recentSort, "operatingDate")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "schedule"))}>Horario{sortIndicator(recentSort, "schedule")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "commercialResult"))}>Resultado final{sortIndicator(recentSort, "commercialResult")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "declaredCash"))}>Declarado{sortIndicator(recentSort, "declaredCash")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "cashDifference"))}>Dif. efectivo{sortIndicator(recentSort, "cashDifference")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "bankDifference"))}>Dif. banco{sortIndicator(recentSort, "bankDifference")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "differenceStatus"))}>Estado dif.{sortIndicator(recentSort, "differenceStatus")}</button></th>
-                <th><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "machines"))}>Maquinas{sortIndicator(recentSort, "machines")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "id")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "id"))}>ID{sortIndicator(recentSort, "id")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "operatingDate")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "operatingDate"))}>Fecha{sortIndicator(recentSort, "operatingDate")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "schedule")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "schedule"))}>Horario{sortIndicator(recentSort, "schedule")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "commercialResult")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "commercialResult"))}>Resultado final{sortIndicator(recentSort, "commercialResult")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "declaredCash")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "declaredCash"))}>Declarado{sortIndicator(recentSort, "declaredCash")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "cashDifference")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "cashDifference"))}>Dif. efectivo{sortIndicator(recentSort, "cashDifference")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "bankDifference")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "bankDifference"))}>Dif. banco{sortIndicator(recentSort, "bankDifference")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "differenceStatus")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "differenceStatus"))}>Estado dif.{sortIndicator(recentSort, "differenceStatus")}</button></th>
+                <th aria-sort={ariaSort(recentSort, "machines")}><button className="sort-button" type="button" onClick={() => setRecentSort((current) => nextSort(current, "machines"))}>Maquinas{sortIndicator(recentSort, "machines")}</button></th>
                 <th>Ver</th>
               </tr>
             </thead>
@@ -177,7 +179,7 @@ export function OpenCash({
     <section className="admin-focus open-cash-page">
       <div className="admin-header">
         <div>
-          <h2>{showSummaryOnly ? "Resumen de cajas" : "Caja diaria"}</h2>
+          {!hideHeading ? <h2>{showSummaryOnly ? "Resumen de cajas" : "Caja diaria"}</h2> : null}
           <p className="helper">{showSummaryOnly ? "Revision rapida de ultimas cajas cerradas del local activo." : "Apertura de caja y revision rapida de los ultimos cierres del local activo."}</p>
         </div>
         <div className="admin-header-actions">

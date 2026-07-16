@@ -7,7 +7,7 @@ import { formatDateTime, monthRange } from "../../lib/dates";
 import { balanceVisibleId } from "../../lib/display";
 import { money } from "../../lib/money";
 import { historicalYearOptions, periodForMode, periodRange, type MonthlyPeriodMode } from "../../lib/periods";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
 import { MonthlyPeriodSelector } from "../../components/MonthlyPeriodSelector";
 import { ClosedBalanceSummary } from "../cashier/ClosedBalanceSummary";
@@ -214,37 +214,37 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                 <table className="data-table admin-data-table">
                   <thead>
                     <tr>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "createdAt")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("createdAt")}>
                           Fecha {sortIndicator(movementSort, "createdAt")}
                         </button>
                       </th>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "sourceType")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("sourceType")}>
                           Tipo {sortIndicator(movementSort, "sourceType")}
                         </button>
                       </th>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "detail")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("detail")}>
                           Detalle {sortIndicator(movementSort, "detail")}
                         </button>
                       </th>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "user")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("user")}>
                           Usuario {sortIndicator(movementSort, "user")}
                         </button>
                       </th>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "debit")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("debit")}>
                           Debito {sortIndicator(movementSort, "debit")}
                         </button>
                       </th>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "credit")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("credit")}>
                           Credito {sortIndicator(movementSort, "credit")}
                         </button>
                       </th>
-                      <th>
+                      <th aria-sort={ariaSort(movementSort, "balance")}>
                         <button className="sort-button" type="button" onClick={() => sortMovement("balance")}>
                           Saldo {sortIndicator(movementSort, "balance")}
                         </button>
@@ -256,7 +256,15 @@ export function AdminCurrentAccounts({ data, user, effectiveRole, local }: { dat
                       <tr
                         key={movement.id}
                         className={movement.status === "ANULADO" ? "status-inactive clickable-row" : "clickable-row"}
+                        tabIndex={0}
+                        aria-label={`Ver detalle de ${movement.detail || movement.concept || "movimiento"}`}
                         onClick={() => {
+                          setSelectedMovementId(movement.id);
+                          setShowMovementBalance(false);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter" && event.key !== " ") return;
+                          event.preventDefault();
                           setSelectedMovementId(movement.id);
                           setShowMovementBalance(false);
                         }}

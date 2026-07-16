@@ -43,11 +43,13 @@ No forman parte del resultado economico:
 
 ## Caja diaria
 
+- Solo puede existir una caja abierta por local, independientemente de la fecha operativa.
 - La caja abre con el saldo activo de `Local / Efectivo` y `Local / Banco`.
 - Una transferencia mueve el importe de `Local / Efectivo` a `Local / Banco`; no cambia el resultado economico y tambien queda reflejada en la cuenta de transferencias.
 - La primera caja de un local exige declarar aporte inicial efectivo y banco.
 - El saldo final declarado por el cajero define el saldo real para la siguiente apertura.
 - El cierre registra usuario real y funcion usada.
+- Mientras la caja permanece abierta no se mueve ni asigna una maquina del local, no se ajustan sus contadores administrativos y no se cierra el local.
 
 ## Libro de movimientos
 
@@ -91,6 +93,15 @@ No forman parte del resultado economico:
 - `Pagado / Entregado` = salario pagado + adelantos + premio/gratificacion + horas extras + bonos.
 - `Cubierto base` = salario pagado + adelantos + descuentos.
 - `Pendiente` = salario base - cubierto base.
+- El periodo trabajado usa formato `AAAA-MM` y solo admite meses reales de `01` a `12`.
+- El cierre salarial mensual es definitivo: congela por empleado salario base, conceptos, total, cubierto, pagado, pendiente y el detalle de liquidaciones activas.
+- Un periodo con cierre `CERRADO` no admite altas, ediciones ni anulaciones ordinarias desde caja o liquidacion administrativa.
+- No se cierra un periodo si contiene un pago salarial asociado a una caja todavia abierta.
+- Una correccion posterior exige una revision `CORRECTIVO` abierta por encargado o administrador, con motivo obligatorio y enlazada al ultimo cierre vigente.
+- Solo puede existir una correccion abierta por periodo. Toda alta, reemplazo o anulacion realizada durante ella guarda su `correctionClosureId`.
+- Al cerrar la correccion se genera una nueva revision inmutable; el cierre anterior y su foto no se modifican.
+- Una correccion sin movimientos puede cancelarse con auditoria. Si ya tiene movimientos, debe completarse y cerrarse.
+- La base historica considera fecha de ingreso y baja: una persona actualmente inactiva conserva su salario en los periodos que efectivamente trabajo.
 
 ## Referencias obligatorias por modulo
 

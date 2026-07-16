@@ -13,7 +13,7 @@ import { formatDateTime } from "../../lib/dates";
 import { readUploadFile } from "../../lib/files";
 import { confirmAction } from "../../lib/confirmations";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
 import { CashierMovementPanel, MovementTable } from "./MovementTable";
 import { clientSortValue, type ClientTableColumn } from "../clients/clientTable";
@@ -405,7 +405,7 @@ function ClientPickerModal({
                 ["category", "Categoria"],
                 ["phone", "Telefono"],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(sort, key as typeof sort.key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
                     {label}
                     {sortIndicator(sort, key as typeof sort.key)}

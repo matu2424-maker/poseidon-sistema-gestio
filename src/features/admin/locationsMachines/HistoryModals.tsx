@@ -4,7 +4,7 @@ import { totalsForBalance } from "../../../lib/cashTotals";
 import { formatDateTime } from "../../../lib/dates";
 import { localName } from "../../../lib/display";
 import { counter, money } from "../../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
 import type { AppData, AuditEvent, Local, Machine, MachineLocalHistory } from "../../../types";
 import {
   WORKSHOP_LOCAL_ID,
@@ -157,7 +157,7 @@ export function MachineHistoryModal({ data, machine, onClose }: { data: AppData;
                   ["action", "Movimiento"],
                   ["detail", "Detalle"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(historySort, key as typeof historySort.key)}>
                     <button
                       className="sort-button"
                       type="button"
@@ -205,7 +205,7 @@ export function MachineHistoryModal({ data, machine, onClose }: { data: AppData;
                     ["result", "Resultado"],
                     ["observation", "Obs."],
                   ].map(([key, label]) => (
-                    <th key={key}>
+                    <th key={key} aria-sort={ariaSort(readingSort, key as typeof readingSort.key)}>
                       <button
                         className="sort-button"
                         type="button"
@@ -252,7 +252,7 @@ export function MachineHistoryModal({ data, machine, onClose }: { data: AppData;
                   ["user", "Usuario"],
                   ["reason", "Motivo"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(auditSort, key as typeof auditSort.key)}>
                     <button
                       className="sort-button"
                       type="button"
@@ -535,7 +535,7 @@ export function LocalHistoryModal({ data, local, onClose }: { data: AppData; loc
                     ["action", "Accion"],
                     ["reason", "Motivo"],
                   ].map(([key, label]) => (
-                    <th key={key}>
+                    <th key={key} aria-sort={ariaSort(dataAuditSort, key as typeof dataAuditSort.key)}>
                       <button
                         className="sort-button"
                         type="button"
@@ -580,7 +580,7 @@ export function LocalHistoryModal({ data, local, onClose }: { data: AppData; loc
                   ["lastOut", "OUT actual"],
                   ["revenue", "Recaudaciones"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(localMachineSort, key as typeof localMachineSort.key)}>
                     <button
                       className="sort-button"
                       type="button"
@@ -628,7 +628,7 @@ export function LocalHistoryModal({ data, local, onClose }: { data: AppData; loc
                   ["next", "Nuevo"],
                   ["action", "Accion"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(statusSort, key as typeof statusSort.key)}>
                     <button
                       className="sort-button"
                       type="button"
@@ -675,7 +675,7 @@ export function LocalHistoryModal({ data, local, onClose }: { data: AppData; loc
                     ["difference", "Diferencia"],
                     ["accumulated", "Acumulado"],
                   ].map(([key, label]) => (
-                    <th key={key}>
+                    <th key={key} aria-sort={ariaSort(revenueSort, key as typeof revenueSort.key)}>
                       <button
                         className="sort-button"
                         type="button"
@@ -722,7 +722,7 @@ export function LocalHistoryModal({ data, local, onClose }: { data: AppData; loc
                   ["reason", "Motivo"],
                   ["newValue", "Nuevo valor"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(localAuditSort, key as typeof localAuditSort.key)}>
                     <button
                       className="sort-button"
                       type="button"

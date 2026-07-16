@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Este documento define la validacion tecnica y funcional minima. No reemplaza las pruebas especificas de cada modulo.
 
@@ -21,7 +21,7 @@ pnpm run check:commit
 
 1. Validacion de 28 controles de agentes Codex.
 2. Validacion de cuatro skills y sus contratos.
-3. Validacion de 37 controles de gobierno visual, pilotos, referencias y pesos tipograficos funcionales.
+3. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 4. TypeScript sin emitir archivos.
 5. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
 6. Vitest sobre `src/` y `scripts/`.
@@ -45,7 +45,7 @@ pnpm run test:e2e
 
 El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http://127.0.0.1:5173/`.
 
-La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia la clave local de Poseidon y la sesion de pestaña, y carga el dataset demo. Los casos cubren apertura, tres lecturas, cierre y persistencia; diferencias/auditoria; y rutas directas, recarga, Atrás/Adelante, permisos, caja requerida y funcion activa para los tres roles. Las trazas y capturas se conservan solo cuando falla.
+La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia la clave local de Poseidon y la sesion de pestaña, y carga el dataset demo. Los casos cubren apertura, tres lecturas, cierre y persistencia; diferencias/auditoria; rutas, permisos y funcion activa; conflicto entre pestañas; y cierre salarial con revision correctiva. Las trazas y capturas se conservan solo cuando falla.
 
 ## Smoke de interfaz por rol
 
@@ -62,7 +62,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 2. Ver diferencias, cuentas de efectivo/banco y totales mensuales.
 3. Abrir `Cierres y reportes`: debe mostrar Resumen de cajas, Cierre periodico y Reportes; no apertura/cierre operativo.
 4. Abrir Resumen de cajas y comprobar tabla ordenable y detalle de recaudacion.
-5. Usar `Trabajar como cajero` solo para operaciones de caja; el usuario real debe seguir siendo Encargado.
+5. En Liquidacion de salarios, abrir una foto cerrada y verificar bloqueo del periodo y flujo correctivo.
+6. Usar `Trabajar como cajero` solo para operaciones de caja; el usuario real debe seguir siendo Encargado.
 
 ### Administrador
 
@@ -78,12 +79,12 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia vigente al 2026-07-12
+## Evidencia vigente al 2026-07-16
 
-- 25 archivos de pruebas y 107 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero transversal, rutas/sesion, matriz/cadena de diferencias, finitud, alcance por local, migracion, snapshot, repositorio y orden de escrituras.
-- 6 casos E2E en 3 archivos aprobados para caja, diferencias/auditoria y navegacion de Cajero, Encargado y Administrador.
+- 26 archivos de pruebas y 134 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion, snapshot, referencias y conflictos de escritura.
+- 8 casos E2E en 5 archivos aprobados para caja, diferencias/auditoria, navegacion de roles, accesibilidad, conflicto entre pestañas y cierre salarial correctivo R1.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
-- `check:design` aprobado con 37 controles, limite automatico de peso funcional y dos referencias visuales reproducibles.
+- `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.
@@ -97,4 +98,4 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Cobertura pendiente
 
-Los flujos criticos de cajero, diferencias/auditoria y navegacion por los tres roles tienen E2E. Los demas formularios administrativos todavia se validan con pruebas de integracion y smoke manual por rol.
+Los flujos criticos de cajero, diferencias/auditoria, cierre salarial y navegacion por los tres roles tienen E2E. Los demas formularios administrativos todavia se validan con pruebas de integracion y smoke manual por rol.

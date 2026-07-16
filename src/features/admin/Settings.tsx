@@ -3,7 +3,7 @@ import type { AppData, ExpenseCategory, Role, User } from "../../types";
 import { localName, roleLabels } from "../../lib/display";
 import { uid } from "../../lib/ids";
 import { readColumnPreference, writeColumnPreference } from "../../lib/storage";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { ColumnChooser, type TableColumn } from "../../components/ui";
 import { confirmAction } from "../../lib/confirmations";
 
@@ -114,7 +114,7 @@ export function AdminUsers({
               <thead>
                 <tr>
                   {visibleUserColumns.map((column) => (
-                    <th key={column.key}>
+                    <th key={column.key} aria-sort={column.sortable ? ariaSort(sort, column.key) : undefined}>
                       {column.sortable ? (
                         <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, column.key))}>
                           {column.label}

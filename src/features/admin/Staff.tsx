@@ -7,7 +7,7 @@ import { nextShortId, uid } from "../../lib/ids";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, moneyInputValue, parseMoneyInput } from "../../lib/money";
 import { salaryHistoryEvent, staffFullName } from "../../lib/people";
 import { shiftSalaryPeriod } from "../../lib/salaryRules";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
 import { clientDeletionReferences, referenceMessage, staffDeletionReferences } from "../../lib/entityReferences";
 import { staffAccountId } from "../../lib/currentAccounts";
@@ -115,7 +115,7 @@ export function AdminStaff({
                 ["estimatedAguinaldo", "Aguinaldo est."],
                 ["estimatedVacationSalary", "Sal. vacacional est."],
               ].map(([key, label]) => (
-                <th key={key}>
+                <th key={key} aria-sort={ariaSort(sort, key as typeof sort.key)}>
                   <button className="sort-button" type="button" onClick={() => setSort((current) => nextSort(current, key as typeof sort.key))}>
                     {label}
                     {sortIndicator(sort, key as typeof sort.key)}
@@ -459,7 +459,7 @@ function StaffEditor({
                     ["userName", "Usuario"],
                     ["reason", "Motivo"],
                   ].map(([key, label]) => (
-                    <th key={key}>
+                    <th key={key} aria-sort={ariaSort(salaryHistorySort, key as typeof salaryHistorySort.key)}>
                       <button className="sort-button" type="button" onClick={() => setSalaryHistorySort((current) => nextSort(current, key as typeof salaryHistorySort.key))}>
                         {label}
                         {sortIndicator(salaryHistorySort, key as typeof salaryHistorySort.key)}
@@ -602,7 +602,6 @@ export function AdminTrash({
     <section className="admin-focus">
       <div className="admin-header">
         <div>
-          <h2>Papelera</h2>
           <p className="helper">Todo pasa por aca antes de eliminarse definitivamente.</p>
         </div>
         <span>{trashedStaff.length + trashedClients.length} elementos</span>
@@ -620,7 +619,7 @@ export function AdminTrash({
                   ["position", "Cargo"],
                   ["deletedAt", "Eliminado"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(trashStaffSort, key as typeof trashStaffSort.key)}>
                     <button className="sort-button" type="button" onClick={() => setTrashStaffSort((current) => nextSort(current, key as typeof trashStaffSort.key))}>
                       {label}
                       {sortIndicator(trashStaffSort, key as typeof trashStaffSort.key)}
@@ -671,7 +670,7 @@ export function AdminTrash({
                   ["category", "Categoria"],
                   ["deletedAt", "Eliminado"],
                 ].map(([key, label]) => (
-                  <th key={key}>
+                  <th key={key} aria-sort={ariaSort(trashClientSort, key as typeof trashClientSort.key)}>
                     <button className="sort-button" type="button" onClick={() => setTrashClientSort((current) => nextSort(current, key as typeof trashClientSort.key))}>
                       {label}
                       {sortIndicator(trashClientSort, key as typeof trashClientSort.key)}

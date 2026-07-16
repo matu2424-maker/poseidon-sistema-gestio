@@ -14,6 +14,7 @@ import {
   salaryConceptBreakdown,
   validateSalarySettlementLimit,
 } from "../../lib/salaryRules";
+import { salaryPeriodMutationError } from "../../lib/salaryClosures";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
 
 export type SaveSalarySettlementInput = {
@@ -25,6 +26,7 @@ export type SaveSalarySettlementInput = {
   notes: string;
   origin: "CAJA" | "LIQUIDACION";
   balanceId?: string;
+  correctionClosureId?: string;
 };
 
 export function saveSalarySettlementCommand(
@@ -36,7 +38,7 @@ export function saveSalarySettlementCommand(
   if (!staff) return commandError("Selecciona una persona activa.");
   const concept = normalizeSalaryConcept(input.concept);
   if (!isValidSalaryPeriod(input.period)) return commandError("Selecciona un periodo trabajado valido.");
-  if (input.amount <= 0) return commandError("Ingresa un monto mayor a cero.");
+  if (!Number.isFinite(input.amount) || input.amount <= 0) return commandError("Ingresa un monto valido mayor a cero.");
   if (input.origin === "CAJA") {
     if (!cashierSalaryConceptOptions.includes(concept)) return commandError("Desde caja solo se permite Salario o Adelanto.");
     const balance = data.balances.find((item) => item.id === input.balanceId);
@@ -45,6 +47,12 @@ export function saveSalarySettlementCommand(
   const existing = input.settlementId ? data.salarySettlements.find((item) => item.id === input.settlementId) : undefined;
   if (input.settlementId && !existing) return commandError("No se encontro la liquidacion a corregir.");
   if (existing?.status === "ANULADA") return commandError("Una liquidacion anulada no se edita; crea una nueva liquidacion.");
+  const targetPeriodError = salaryPeriodMutationError(data, input.period, input.correctionClosureId);
+  if (targetPeriodError) return commandError(targetPeriodError);
+  if (existing && existing.period !== input.period) {
+    const sourcePeriodError = salaryPeriodMutationError(data, existing.period, input.correctionClosureId);
+    if (sourcePeriodError) return commandError(sourcePeriodError);
+  }
   const validationError = validateSalarySettlementLimit(data, staff, input.period, concept, input.amount, existing?.id);
   if (validationError) return commandError(validationError);
 
@@ -68,6 +76,7 @@ export function saveSalarySettlementCommand(
     approvedBy: context.user.id,
     approvedByName: context.user.name,
     approvedAt: timestamp,
+    correctionClosureId: input.correctionClosureId,
     createdAt: timestamp,
     updatedAt: timestamp,
   };
@@ -78,6 +87,7 @@ export function saveSalarySettlementCommand(
         annulledBy: context.user.id,
         annulledByName: context.user.name,
         annulledAt: timestamp,
+        annulledInCorrectionClosureId: input.correctionClosureId,
         updatedAt: timestamp,
       }
     : undefined;
@@ -118,11 +128,13 @@ export function annulSalarySettlementCommand(
   data: AppData,
   settlementId: string,
   context: CommandContext,
-  options: { requireOpenBalance?: boolean; reason?: string } = {},
+  options: { requireOpenBalance?: boolean; reason?: string; correctionClosureId?: string } = {},
 ): CommandResult<SalarySettlement> {
   const previous = data.salarySettlements.find((item) => item.id === settlementId);
   if (!previous) return commandError("No se encontro la liquidacion.");
   if (previous.status === "ANULADA") return commandError("La liquidacion ya esta anulada.");
+  const periodError = salaryPeriodMutationError(data, previous.period, options.correctionClosureId);
+  if (periodError) return commandError(periodError);
   if (options.requireOpenBalance) {
     const balance = data.balances.find((item) => item.id === previous.balanceId);
     if (!balance || balance.status !== "EN_PROCESO") return commandError("Solo se pueden eliminar salarios antes de cerrar la caja.");
@@ -134,6 +146,7 @@ export function annulSalarySettlementCommand(
     annulledBy: context.user.id,
     annulledByName: context.user.name,
     annulledAt: timestamp,
+    annulledInCorrectionClosureId: options.correctionClosureId,
     updatedAt: timestamp,
   };
   const salarySettlements = data.salarySettlements.map((item) => (item.id === settlementId ? next : item));

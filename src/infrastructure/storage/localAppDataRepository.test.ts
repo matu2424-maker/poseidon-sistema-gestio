@@ -53,4 +53,41 @@ describe("repositorio local de AppData", () => {
     await repository.clear();
     expect(await repository.load()).toEqual({ status: "empty" });
   });
+
+  it("rechaza un guardado si otra pestaña cambio la version leida", async () => {
+    const values = new Map<string, string>();
+    const storage: KeyValueStorage = {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+      removeItem: (key) => values.delete(key),
+    };
+    const repository = createLocalAppDataRepository(storage);
+    const seed = createSeedData();
+    const first = await repository.save(seed, null);
+    expect(first.status).toBe("ok");
+    if (first.status !== "ok") return;
+
+    const external = await repository.save({ ...seed, locals: [{ ...seed.locals[0], tenantName: "Otra pestaña" }] });
+    expect(external.status).toBe("ok");
+    const stale = await repository.save({ ...seed, locals: [{ ...seed.locals[0], tenantName: "Cambio pendiente" }] }, first.raw);
+
+    expect(stale).toMatchObject({ status: "conflict" });
+    if (stale.status !== "conflict") return;
+    expect(stale.attemptedRaw).toContain("Cambio pendiente");
+    expect(stale.storedRaw).toContain("Otra pestaña");
+  });
+
+  it("devuelve un respaldo del intento cuando falla la escritura", async () => {
+    const storage: KeyValueStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error("Cuota agotada");
+      },
+      removeItem: () => undefined,
+    };
+    const result = await createLocalAppDataRepository(storage).save(createSeedData(), null);
+    expect(result).toMatchObject({ status: "failed", error: "Cuota agotada" });
+    if (result.status !== "failed") return;
+    expect(result.attemptedRaw).toContain("poseidon-app-data");
+  });
 });

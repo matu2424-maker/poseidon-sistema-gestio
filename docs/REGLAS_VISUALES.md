@@ -1,6 +1,6 @@
 # Poseidon - Reglas visuales
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar pantallas, tablas, modales o paneles, leer este archivo, `docs/SISTEMA_VISUAL_POSEIDON.md` y el contexto del modulo afectado.
 
@@ -54,13 +54,17 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 - Ajustar columnas para ver la mayor cantidad posible sin perder lectura.
 - El encabezado general usa superficie clara, borde fino y texto secundario compacto; un encabezado oscuro requiere una justificacion funcional aprobada.
 - Los indicadores de orden usan texto ASCII `asc` / `desc`.
+- Cada encabezado ordenable expone tambien `aria-sort`; las columnas de acciones o seleccion no lo usan.
 - Fila con error debe marcarse visualmente en rojo donde ocurre el problema.
+- Una fila clicable debe poder activarse tambien con teclado mediante `Enter` o barra espaciadora.
 
 ## Modales
 
 - Usar ventanas flotantes para edicion/detalle cuando el usuario lo pida o cuando evita perder contexto.
 - El error debe aparecer dentro del modal si la accion ocurre dentro del modal.
 - Los modales de gestion deben mostrar detalle suficiente, accion clara, observacion si corresponde e historial cuando sea relevante.
+- Al abrir, el foco queda dentro del modal; `Tab` no escapa, `Escape` cierra y al terminar se restaura el foco anterior.
+- Los avisos dinamicos compartidos usan una region anunciable para lectores de pantalla.
 
 ## Tarjetas y recuadros
 

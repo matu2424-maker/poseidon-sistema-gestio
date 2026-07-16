@@ -1,4 +1,4 @@
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
 export const VISUAL_SYSTEM_PATH = "docs/SISTEMA_VISUAL_POSEIDON.md";
@@ -27,6 +27,18 @@ async function readRequired(rootDir, relativePath, errors) {
     errors.push(`No se pudo leer ${relativePath}: ${error instanceof Error ? error.message : String(error)}`);
     return "";
   }
+}
+
+async function sourceFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const nested = await Promise.all(
+    entries.map((entry) => {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return sourceFiles(entryPath);
+      return entry.isFile() && /\.tsx?$/.test(entry.name) ? [entryPath] : [];
+    }),
+  );
+  return nested.flat();
 }
 
 export async function validateDesignSystem({ rootDir }) {
@@ -112,6 +124,20 @@ export async function validateDesignSystem({ rootDir }) {
       `${stylePath} contiene pesos tipograficos mayores a 600: ${[...new Set(excessiveWeights)].join(", ")}.`,
     );
   }
+
+  const featureSources = await sourceFiles(path.join(rootDir, "src/features"));
+  const sortableWithoutAria = [];
+  for (const sourcePath of featureSources) {
+    const source = await readFile(sourcePath, "utf8");
+    if (source.includes("sortIndicator(") && !source.includes("ariaSort(")) {
+      sortableWithoutAria.push(path.relative(rootDir, sourcePath));
+    }
+  }
+  pass(
+    sortableWithoutAria.length === 0,
+    "tablas ordenables declaran estado accesible",
+    `Las tablas con sortIndicator tambien deben usar ariaSort: ${sortableWithoutAria.join(", ")}.`,
+  );
 
   const packageSource = await readRequired(rootDir, "package.json", errors);
   if (packageSource) {

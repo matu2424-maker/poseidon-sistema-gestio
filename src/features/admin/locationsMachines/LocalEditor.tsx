@@ -3,7 +3,7 @@ import { Modal } from "../../../components/ui";
 import { sanitizeDigits } from "../../../lib/clients";
 import { nextShortId } from "../../../lib/ids";
 import { counter } from "../../../lib/money";
-import { compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
+import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../../lib/sorting";
 import type { AppData, Local, Machine, User } from "../../../types";
 import { commandContext } from "../../../application/command";
 import { deleteLocalCommand, saveLocalCommand } from "../../../application/locations/localCommands";
@@ -280,7 +280,7 @@ export function AdminLocalEditor({
                       ["lastIn", "IN"],
                       ["lastOut", "OUT"],
                     ].map(([key, label]) => (
-                      <th key={key}>
+                      <th key={key} aria-sort={ariaSort(workshopSort, key as typeof workshopSort.key)}>
                         <button
                           className="sort-button"
                           type="button"
