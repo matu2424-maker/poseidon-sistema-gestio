@@ -558,7 +558,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Estado actual al 2026-07-16
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 146 pruebas en 28 archivos; existen ademas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
+- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 146 pruebas en 28 archivos; existen ademas 9 casos E2E en 5 archivos para caja, cierre con efectivo negativo y aporte real, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

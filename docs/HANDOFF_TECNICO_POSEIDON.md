@@ -107,7 +107,7 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 146 pruebas aprobadas en 28 archivos, mas 8 casos E2E en 5 archivos para caja, disponibilidad de efectivo, diferencias/auditoria, rutas, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- 146 pruebas aprobadas en 28 archivos, mas 9 casos E2E en 5 archivos para caja, bloqueo y recuperacion del cierre con efectivo negativo, disponibilidad de efectivo, diferencias/auditoria, rutas, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Tres perfiles Codex de solo lectura, cuatro chats permanentes coordinados, cuatro skills versionadas y validadores de agentes, workstreams, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 

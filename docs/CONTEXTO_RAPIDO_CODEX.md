@@ -15,7 +15,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - `src/App.tsx` orquesta estado y sesion; `src/navigation/screens.ts` define ruta/pantalla/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - La URL conserva el modulo; `sessionStorage` conserva solo `userId` y funcion activa durante la pestaña. No reemplaza Auth real.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste el esquema 3.
-- Pruebas actuales: 146 casos en 28 archivos, mas 8 E2E en 5 archivos: ciclo critico de cajero, disponibilidad de efectivo, diferencias/auditoria, rutas por rol, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- Pruebas actuales: 146 casos en 28 archivos, mas 9 E2E en 5 archivos: ciclo critico de cajero, bloqueo y recuperacion del cierre con efectivo negativo, disponibilidad de efectivo, diferencias/auditoria, rutas por rol, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `pnpm run check:workstreams` valida los chats permanentes Cajero, Encargado y Administrador, sus prompts, contextos, propietarios y contratos reservados.

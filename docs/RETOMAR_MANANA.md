@@ -38,14 +38,14 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Cierre salarial definitivo con foto por empleado, bloqueo mensual y revisiones correctivas R1/R2 enlazadas.
 - Paneles iniciales separados en `CashierDashboard`, `ManagerDashboard` y `AdminDashboard`, con selector compatible en `RoleDashboard`.
 - Poseidon Central, Cajero, Encargado y Administrador tienen prompts, workstreams, contratos y plantillas versionados.
-- 146 pruebas automatizadas en 28 archivos y 8 casos E2E en 5 archivos.
+- 146 pruebas automatizadas en 28 archivos y 9 casos E2E en 5 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas de validacion al 2026-07-16: 146 pruebas en 28 archivos y 8 casos E2E en 5 archivos.
+- Metricas de validacion al 2026-07-16: 146 pruebas en 28 archivos y 9 casos E2E en 5 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.

@@ -29,7 +29,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 146 casos en 28 archivos, mas 8 casos E2E en 5 archivos.
+- Validacion automatizada actual: 146 casos en 28 archivos, mas 9 casos E2E en 5 archivos.
 
 ## Ejecutar el proyecto
 
@@ -96,7 +96,7 @@ pnpm run smoke:localhost
 pnpm run test:e2e
 ```
 
-La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, cierre y persistencia; valida diferencias/auditoria y comprueba rutas directas, recarga, Atrás/Adelante, permisos y funcion activa para los tres roles.
+La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, bloqueo del cierre con efectivo negativo, aporte correctivo real, cierre y persistencia; valida diferencias/auditoria y comprueba rutas directas, recarga, Atrás/Adelante, permisos y funcion activa para los tres roles.
 
 La matriz de smoke por rol esta en `docs/VALIDACION_LOCAL.md`.
 
