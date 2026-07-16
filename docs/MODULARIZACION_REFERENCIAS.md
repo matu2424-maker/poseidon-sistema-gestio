@@ -135,7 +135,7 @@ data/migrations/
 infrastructure/storage/localAppDataRepository.ts
 ```
 
-El snapshot versionado y el repositorio local ya existen. `application/ports/AppDataRepository.ts` define el contrato asincrono y resultados de conflicto/fallo; `hooks/useAppDataRepository.ts` conserva la version esperada, bloquea escrituras incompatibles y recupera; `infrastructure/storage/localAppDataRepository.ts` es el adaptador activo con comparacion optimista. `data/normalizeData.ts` separa normalizacion/migracion de `appData.ts`; falta dividir el seed demo, agregar migraciones incrementales y validar profundamente campos/relaciones en el bloque final.
+El snapshot versionado y el repositorio local ya existen. `application/ports/AppDataRepository.ts` define el contrato asincrono y resultados de conflicto/fallo; `hooks/useAppDataRepository.ts` conserva la version esperada, bloquea escrituras incompatibles y recupera; `infrastructure/storage/localAppDataRepository.ts` es el adaptador activo con comparacion optimista. `data/normalizeData.ts` separa la normalizacion estructural y `data/migrateData.ts` incorpora la primera migracion incremental 3 -> 4. Falta dividir el seed demo, ampliar las migraciones futuras y validar profundamente campos/relaciones en el bloque final.
 
 Riesgo: muy alto; puede afectar datos existentes.
 

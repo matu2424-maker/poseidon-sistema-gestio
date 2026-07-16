@@ -1,7 +1,8 @@
 import type { AppData } from "../../types";
+import { CURRENT_SCHEMA_VERSION } from "../../data/schemaVersion";
 
 export const SNAPSHOT_KIND = "poseidon-app-data";
-export const CURRENT_SCHEMA_VERSION = 3;
+export { CURRENT_SCHEMA_VERSION };
 
 export type AppDataSnapshot = {
   kind: typeof SNAPSHOT_KIND;

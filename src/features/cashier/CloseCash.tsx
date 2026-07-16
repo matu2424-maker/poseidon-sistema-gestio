@@ -8,6 +8,7 @@ import type {
   User,
 } from "../../types";
 import { totalsForBalance } from "../../lib/cashTotals";
+import { balanceCashReconciliation } from "../../lib/cashAvailability";
 import { localAccountBalances } from "../../lib/currentAccounts";
 import { clearZeroMoneyInput, formatMoneyInput, money, normalizeMoneyInput, parseMoneyInput } from "../../lib/money";
 import { commandContext } from "../../application/command";
@@ -59,6 +60,8 @@ export function CloseCash({
   const hasDeclaredCash = declaredCashDraft.trim() !== "";
   const hasDeclaredBank = declaredBankDraft.trim() !== "";
   const hasNegativeExpectedCash = totals.expectedCash < 0;
+  const cashReconciliation = balanceCashReconciliation(data, balance.id);
+  const hasCashReconciliationError = !cashReconciliation?.isConsistent;
   const expectedCashAfterFinalWithdrawal = totals.expectedCash - finalWithdrawalCashPreview;
   const expectedBankAfterFinalWithdrawal = localBalances.bank - finalWithdrawalBankPreview;
   const nextBankPreview = declaredBankPreview;
@@ -108,7 +111,11 @@ export function CloseCash({
         </span>
       </div>
 
-      {hasNegativeExpectedCash ? (
+      {hasCashReconciliationError ? (
+        <div className="close-alert danger" role="alert">
+          La caja no esta conciliada: el efectivo calculado es {money(cashReconciliation?.expectedCash)} y Local / Efectivo muestra {money(cashReconciliation?.accountCash)}. Diferencia tecnica: {money(cashReconciliation?.delta)}. El cierre queda bloqueado hasta aplicar una reconciliacion auditada; un aporte comun no corrige este desacople.
+        </div>
+      ) : hasNegativeExpectedCash ? (
         <div className="close-alert danger" role="alert">
           No se puede cerrar: el efectivo esperado es {money(totals.expectedCash)}. Registra un aporte real en efectivo que cubra el faltante y vuelve a esta pantalla.{" "}
           <button className="link-button" type="button" onClick={() => setScreen("capital-movements")}>
@@ -319,7 +326,7 @@ export function CloseCash({
           )}
 
           <div className="close-actions">
-            <button className="button success" type="submit" disabled={hasNegativeExpectedCash}>
+            <button className="button success" type="submit" disabled={hasNegativeExpectedCash || hasCashReconciliationError}>
               Cerrar caja
             </button>
           </div>

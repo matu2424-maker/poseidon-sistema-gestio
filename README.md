@@ -16,7 +16,8 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 
 ## Estado actual
 
-- Persistencia: snapshot JSON esquema 3 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
+- Persistencia: snapshot JSON esquema 4 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
+- La carga separa normalizacion estructural de migraciones financieras incrementales. La migracion 3 -> 4 reconcilia de forma auditada el defecto historico de transferencias en efectivo solo cuando el delta tiene causalidad exacta.
 - La UI usa el puerto asincrono `AppDataRepository`; el adaptador activo sigue siendo `localStorage` y serializa escrituras para conservar su orden.
 - Cada escritura compara la version leida. Si otra pestaña guardo antes, Poseidon no sobrescribe y ofrece descargar el intento o cargar la version vigente.
 - El administrador puede exportar e importar respaldos desde `Sistema > Datos locales`.
@@ -29,7 +30,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 146 casos en 28 archivos, mas 9 casos E2E en 5 archivos.
+- Validacion automatizada actual: 155 casos en 29 archivos, mas 10 casos E2E en 5 archivos.
 
 ## Ejecutar el proyecto
 
@@ -96,7 +97,7 @@ pnpm run smoke:localhost
 pnpm run test:e2e
 ```
 
-La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, bloqueo del cierre con efectivo negativo, aporte correctivo real, cierre y persistencia; valida diferencias/auditoria y comprueba rutas directas, recarga, Atrás/Adelante, permisos y funcion activa para los tres roles.
+La suite E2E usa Chrome en modo aislado y exige que `iniciar-poseidon.bat` ya este activo. Recorre apertura, carga de las tres maquinas, bloqueo del cierre con efectivo negativo, aporte real, desconciliacion caja/libro, cierre y persistencia; valida diferencias/auditoria y comprueba rutas directas, recarga, Atrás/Adelante, permisos y funcion activa para los tres roles.
 
 La matriz de smoke por rol esta en `docs/VALIDACION_LOCAL.md`.
 
@@ -262,7 +263,9 @@ src/App.tsx                    Orquestacion global, usuario/funcion, navegacion 
 src/navigation/screens.ts     Rutas, titulos, roles, menus y requisito de caja abierta
 src/navigation/lazyScreens.ts Carga diferida de pantallas por feature
 src/data/appData.ts            Datos demo, reset operativo e ID visible de caja
-src/data/normalizeData.ts      Normalizacion y migracion de datos persistidos
+src/data/normalizeData.ts      Normalizacion estructural de datos persistidos
+src/data/migrateData.ts        Hidratacion y migraciones financieras incrementales
+src/data/schemaVersion.ts      Version canonica del snapshot local
 src/application/ports/         Contratos asincronos y cola ordenada de persistencia
 src/infrastructure/session/    Sesion local de pestaña para usuario y funcion activa
 src/hooks/useAppDataRepository Carga/guardado independiente del adaptador concreto

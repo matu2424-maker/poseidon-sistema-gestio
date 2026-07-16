@@ -17,8 +17,8 @@ import type { AppDataBackupCodec, AppDataRepository } from "./application/ports/
 import {
   POSEIDON_LOCAL_ID,
   createSeedData,
-  normalizeData,
 } from "./data/appData";
+import { hydrateAppData } from "./data/migrateData";
 import { CashierWorkspace, Login, Shell, Welcome } from "./features/layout/AppShell";
 import { EmptyState } from "./components/EmptyState";
 import { NoticeBanner } from "./components/NoticeBanner";
@@ -209,7 +209,7 @@ function App({
     const imported = backupCodec.deserialize(raw);
     if (imported.status !== "ready") return imported.status === "corrupt" ? imported.error : "El respaldo esta vacio.";
     try {
-      const normalized = normalizeData(imported.data);
+      const normalized = hydrateAppData(imported.data, imported.sourceVersion);
       const audited = audit(
         normalized,
         "Importar respaldo local",

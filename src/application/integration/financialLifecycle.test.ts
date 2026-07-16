@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AppData } from "../../types";
-import { createSeedData, normalizeData, POSEIDON_LOCAL_ID } from "../../data/appData";
+import { createSeedData, POSEIDON_LOCAL_ID } from "../../data/appData";
+import { hydrateAppData } from "../../data/migrateData";
 import { localAccountBalances } from "../../lib/currentAccounts";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { importLocalAppData, serializeAppData } from "../../infrastructure/storage/localAppDataRepository";
@@ -224,7 +225,9 @@ describe("ciclo financiero integrado", () => {
     expect(legacyImport.sourceVersion).toBe(0);
     expect(legacyImport.needsRewrite).toBe(true);
 
-    const migrated = normalizeData(legacyImport.data);
+    const migrated = hydrateAppData(legacyImport.data, legacyImport.sourceVersion, {
+      now: () => "2026-07-11T18:00:00.000Z",
+    });
     expect(migrated.accountMovements.some((movement) => movement.id === cashMovementId)).toBe(true);
     const uniqueMovementIds = new Set(migrated.accountMovements.map((movement) => movement.id));
     expect(uniqueMovementIds.size).toBe(migrated.accountMovements.length);
@@ -234,7 +237,7 @@ describe("ciclo financiero integrado", () => {
     if (versionedImport.status !== "ready") return;
     expect(versionedImport.sourceVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(versionedImport.needsRewrite).toBe(false);
-    const normalizedAgain = normalizeData(versionedImport.data);
+    const normalizedAgain = hydrateAppData(versionedImport.data, versionedImport.sourceVersion);
     expect(normalizedAgain.accountMovements.filter((movement) => movement.id === cashMovementId)).toHaveLength(1);
     expect(localAccountBalances(normalizedAgain, POSEIDON_LOCAL_ID)).toEqual(
       localAccountBalances(migrated, POSEIDON_LOCAL_ID),

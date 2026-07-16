@@ -76,7 +76,9 @@ src/
     ports/                  contrato de repositorio y cola asincrona ordenada
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed demo, reset y fachada de normalizacion
-  data/normalizeData.ts    migracion y normalizacion del snapshot actual
+  data/normalizeData.ts    normalizacion estructural del snapshot
+  data/migrateData.ts      hidratacion y migraciones financieras incrementales
+  data/schemaVersion.ts    version canonica del snapshot local
   data/appDataIds.ts       IDs tecnicos compartidos de local/taller
   infrastructure/storage/ snapshot, validacion y adaptador local
   infrastructure/session/ sesion local de pestaña para usuario y funcion
@@ -112,7 +114,7 @@ src/
 | `ids.ts` | IDs locales actuales |
 | `audit.ts` | Construccion de eventos, resolucion de local y visibilidad por rol |
 | `lib/storage.ts` | Preferencias locales de columnas |
-| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 3 agrega cierres salariales inmutables |
+| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 4 separa migracion financiera de normalizacion |
 | `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo y codec de respaldo |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
 | `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, bloqueo y recuperacion sin acoplar App al adaptador |
@@ -120,7 +122,8 @@ src/
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
 | `accountMovements.ts` | Movimientos derivados, saldo corrido y ajustes de diferencias append-only encadenados |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
-| `cashAvailability.ts` | Saldo activo Local / Efectivo y rechazo atomico de nuevas salidas sin fondos |
+| `cashAvailability.ts` | Saldo activo Local / Efectivo, rechazo atomico de salidas y reconciliacion caja/libro |
+| `data/migrateData.ts` | Migraciones por `schemaVersion`, puente tecnico causal, idempotente y auditado |
 | `differences.ts` | Estados y calculos de diferencias |
 | `salaryRules.ts` | Conceptos, base, periodos y limites salariales |
 | `balanceReferences.ts` | Recaudacion asociada por `balanceId` |
@@ -136,12 +139,12 @@ src/
 
 | Archivo | Operacion atomica |
 | --- | --- |
-| `application/cash/openCash.ts` | Apertura, aportes iniciales, lecturas, cuentas y auditoria |
-| `application/cash/saveReading.ts` | Validacion/guardado de contador, resultado, cuenta y auditoria |
-| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con validacion de efectivo, cuenta y auditoria |
+| `application/cash/openCash.ts` | Apertura, verificacion de saldos heredados, aportes iniciales, lecturas, cuentas y auditoria |
+| `application/cash/saveReading.ts` | Validacion/guardado de contador, reconciliacion previa, resultado, cuenta y auditoria |
+| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con reconciliacion, efectivo, cuenta y auditoria |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
 | `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
-| `application/cash/closeCash.ts` | Cierre, bloqueo por efectivo esperado negativo, retiros, maquinas, diferencias, cuentas, historial y auditoria |
+| `application/cash/closeCash.ts` | Cierre, reconciliacion caja/libro, bloqueo por efectivo negativo, retiros, maquinas, diferencias, cuentas, historial y auditoria |
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
 | `application/salaries/salarySettlementCommands.ts` | Alta, correccion neta y anulacion salarial con disponibilidad de efectivo, cuentas y auditoria |
 | `application/salaries/salaryClosureCommands.ts` | Cierre mensual definitivo y ciclo de revisiones correctivas |
@@ -192,7 +195,7 @@ src/
 - `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
 - `SalarySettlements.tsx` ya separa su editor de escritura.
 - El cierre salarial y sus revisiones ya se ejecutan mediante comandos; `salaryClosures.ts` comparte calculo, snapshot y bloqueo entre dominio e interfaz.
-- `appData.ts` ya delega la normalizacion/migracion en `data/normalizeData.ts`.
+- `appData.ts` delega la normalizacion estructural en `data/normalizeData.ts`; `data/migrateData.ts` hidrata segun la version y evita reconstrucciones financieras silenciosas en snapshots vigentes.
 - Las pantallas funcionales se cargan bajo demanda desde `navigation/lazyScreens.ts`; el arranque, login, shell y recuperacion quedan estaticos.
 - El siguiente foco no es seguir reduciendo `App.tsx` por tamano, sino continuar sacando comandos de negocio de React.
 - `Diferencias` reutiliza el `Modal` compartido de `components/ui.tsx`; sus estilos dejaron de depender de `features/salaries.css` y pertenecen a `features/admin.css` con breakpoints en `responsive.css`.
@@ -206,7 +209,8 @@ Medicion de referencia 2026-07-12:
 | `features/admin/LocationsMachines.tsx` | 795 | Bajo/medio: tablas y modales; mutaciones delegadas a comandos |
 | `features/admin/locationsMachines/HistoryModals.tsx` | 759 | Medio: dos historiales complejos, sin mutaciones |
 | `data/appData.ts` | 839 | Medio: seed demo; normalizacion ya separada |
-| `data/normalizeData.ts` | 568 | Alto por impacto: migracion central, aunque aislada |
+| `data/normalizeData.ts` | 578 | Medio/alto: normalizacion central sin decidir migraciones financieras vigentes |
+| `data/migrateData.ts` | 155 | Alto por impacto: migraciones incrementales y reconciliacion auditada |
 | `features/cashier/Movements.tsx` | 580 | Bajo/medio: formularios y tablas; negocio operativo delegado a comandos |
 | `features/salaries/SalarySettlements.tsx` | 1.050 | Medio/alto: listado, detalle, cuentas y presentacion de snapshots; escritura y cierres separados |
 | `features/admin/Staff.tsx` | 716 | Medio: personal, editor y papelera |
@@ -234,7 +238,7 @@ Completado en integridad local: los movimientos persistidos se conservan, las an
 
 ### Media
 
-- La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales; la normalizacion posterior es amplia, pero falta validacion profunda de campos y relaciones.
+- La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales. La primera migracion incremental ya esta separada por `schemaVersion`, pero falta validacion profunda de campos, enums y relaciones.
 - El cierre salarial inmutable esta implementado con snapshot por empleado, bloqueo del periodo, revision correctiva enlazada y migracion explicita de cierres heredados.
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.

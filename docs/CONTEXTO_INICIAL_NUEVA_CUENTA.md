@@ -73,11 +73,12 @@ pnpm run check:commit
 - Archivos subidos: se guardan como metadatos, no contenido completo.
 - `src/App.tsx`: orquestador de estado y acciones.
 - `src/data/appData.ts`: datos demo.
-- `src/data/normalizeData.ts`: normalizacion y migracion.
+- `src/data/normalizeData.ts`: normalizacion estructural.
+- `src/data/migrateData.ts`: migraciones incrementales y reconciliacion financiera auditada.
 - Pantallas principales viven en `src/features/`.
 - Reglas compartidas viven en `src/lib/`.
 - React Router conserva una URL por modulo; la sesion local de pestaña guarda solo usuario y funcion activa.
-- Pruebas actuales: 146 casos en 28 archivos, mas 9 casos E2E en 5 archivos.
+- Pruebas actuales: 155 casos en 29 archivos, mas 10 casos E2E en 5 archivos.
 - Tres perfiles Codex read-only viven en `.codex/agents/`; `check:agents` valida su contrato.
 - Los chats permanentes por rol y su propiedad viven en `docs/coordinacion/`; `check:workstreams` valida el contrato.
 - Cuatro skills versionadas viven en `.agents/skills/`; `check:skills` valida sus contratos.

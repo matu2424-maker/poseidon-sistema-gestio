@@ -2,6 +2,7 @@ import { FormEvent, ReactNode, useEffect, useState } from "react";
 import type { AppData, Balance, Local, MenuGroup, Role, Screen, User } from "../../types";
 import { localAccountBalances } from "../../lib/currentAccounts";
 import { totalsForBalance } from "../../lib/cashTotals";
+import { balanceCashReconciliation } from "../../lib/cashAvailability";
 import { balanceVisibleId, roleLabels } from "../../lib/display";
 import { money } from "../../lib/money";
 import { Modal } from "../../components/ui";
@@ -203,6 +204,8 @@ export function CashierWorkspace({
   const cashierMachines = balanceReadings.length;
   const completedReadings = balanceReadings.filter((reading) => reading.status === "CARGADA").length;
   const localBalances = localAccountBalances(data, local.id);
+  const cashReconciliation = openBalance ? balanceCashReconciliation(data, openBalance.id) : null;
+  const hasCashReconciliationError = Boolean(openBalance && !cashReconciliation?.isConsistent);
   const machineResultTone = (totals?.resultMachines ?? 0) >= 0 ? "positive" : "negative";
   const totalOutflows = (totals?.totalExpenses ?? 0) + (totals?.totalSalaries ?? 0) + (totals?.giftCash ?? 0);
   const windowScreens: Screen[] = ["close-cash"];
@@ -256,6 +259,11 @@ export function CashierWorkspace({
               </div>
             )}
           </div>
+          {hasCashReconciliationError && (
+            <div className="cashier-reconciliation-alert" role="alert">
+              El efectivo de la caja no coincide con Local / Efectivo. Caja: {money(cashReconciliation?.expectedCash)}. Cuenta corriente: {money(cashReconciliation?.accountCash)}. Diferencia tecnica: {money(cashReconciliation?.delta)}. Las operaciones quedan bloqueadas hasta una reconciliacion auditada.
+            </div>
+          )}
           {openBalance && !showInline && (
             <div className="cashier-summary-grid">
               <button className={`cashier-metric ${machineResultTone}`} type="button" onClick={() => setScreen("counters")}>
@@ -272,8 +280,8 @@ export function CashierWorkspace({
               </div>
               <div className="cashier-metric passive neutral">
                 <span>Efectivo en caja</span>
-                <strong>{money(totals?.expectedCash)}</strong>
-                <small>Esperado antes del cierre</small>
+                <strong>{hasCashReconciliationError ? "No conciliado" : money(cashReconciliation?.expectedCash)}</strong>
+                <small>{hasCashReconciliationError ? "Saldo bloqueado" : "Saldo conciliado con la cuenta local"}</small>
               </div>
               <div className="cashier-metric passive neutral">
                 <span>Dinero en banco</span>

@@ -39,6 +39,8 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - El periodo debe respetar `AAAA-MM` con mes real entre `01` y `12`; valores como `2026-00` o `2026-99` se rechazan.
 - Sugerencia de periodo desde cajero: con fecha operativa entre dia 1 y 10 inclusive se sugiere mes anterior; desde dia 11 se sugiere mes actual.
 - El pago del cajero sale de la caja actual por `balanceId`, pero se muestra en liquidacion y cuenta personal segun el periodo trabajado elegido.
+- Si existe caja abierta, una liquidacion administrativa que entrega efectivo tambien debe asociarse a esa recaudacion para mover caja y libro en conjunto.
+- Un pago historico en efectivo no se corrige, anula ni traslada a la caja actual mientras otra caja esta abierta; se bloquea antes de mutar para preservar la conciliacion.
 - `EXTRA` queda como codigo tecnico interno; en la interfaz se muestra `Premio / Gratificacion` y no pertenece al modulo Regalos de clientes.
 - HORAS_EXTRAS significa pago por horas trabajadas fuera del horario/base.
 - Admin/encargado ven la liquidacion por periodo mensual.

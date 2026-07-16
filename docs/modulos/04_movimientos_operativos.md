@@ -8,6 +8,9 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - El importe igual al disponible se acepta. Si la salida dejaria saldo negativo, el comando se rechaza antes de crear entidad, movimiento o auditoria.
 - Un aporte real en efectivo puede cubrir el faltante. No se crea una operacion pendiente automaticamente.
 - Anulaciones y reversos siguen permitidos porque restituyen saldo y conservan historial.
+- Antes de cualquier alta, la caja abierta debe estar conciliada: `efectivo esperado` tiene que coincidir con `Local / Efectivo`.
+- Si existe un delta tecnico, se rechazan tambien los aportes ordinarios porque mueven ambos calculos por igual y no corrigen el desacople.
+- Una anulacion o correccion historica con impacto en efectivo se bloquea mientras exista otra caja abierta del mismo local. Los reversos pertenecientes a la caja abierta se mantienen disponibles.
 - Banco se controla por separado y no forma parte de esta regla.
 
 ## Gastos
@@ -20,6 +23,7 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - Se pueden eliminar/anular antes de cerrar caja.
 - Categorias y subcategorias se definen desde administrador.
 - Encargado/admin revisan gastos en `Control de gastos`, pantalla ubicada en `src/features/manager/Expenses.tsx`.
+- Encargado/admin no pueden anular un gasto historico con impacto en efectivo mientras exista otra caja abierta del local.
 - La tabla de control permite ordenar por todas las columnas visibles de datos.
 
 ## Transferencias
@@ -58,6 +62,7 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - La validacion bloquea salario pagado mayor al salario base, salario pagado + adelantos mayor al salario base y salario pagado + adelantos + descuentos mayor al salario base.
 - Descuento reduce pendiente/base cubierta, pero no genera salida de caja ni cuenta como dinero entregado.
 - Toda liquidacion que entregue dinero valida efectivo disponible. Al corregir una liquidacion del mismo local se controla solamente el incremento neto respecto de la reemplazada.
+- Una liquidacion administrativa con salida de efectivo debe quedar asociada a la caja abierta del local. No puede modificar solo el libro contable mientras la caja calcula otro saldo.
 - Se pueden anular antes de cerrar caja; la anulacion es logica, queda auditada y deja de impactar caja, liquidacion y cuenta personal.
 
 ## Retiros y aportes

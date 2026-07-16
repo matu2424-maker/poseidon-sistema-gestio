@@ -62,9 +62,11 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - `src/infrastructure/session/`: persistencia local de `userId` y funcion activa durante la pestaña.
 - `src/types.ts`: contrato de datos actual.
 - `src/data/appData.ts`: seed, reset y fachada de datos iniciales.
-- `src/data/normalizeData.ts`: migracion y normalizacion del snapshot.
+- `src/data/normalizeData.ts`: normalizacion estructural del snapshot.
+- `src/data/migrateData.ts`: hidratacion y migraciones financieras incrementales.
+- `src/data/schemaVersion.ts`: version canonica del snapshot.
 - `src/application/`: comandos de negocio y contratos de persistencia.
-- `src/infrastructure/storage/`: snapshot esquema 3 versionado y adaptador `localStorage`.
+- `src/infrastructure/storage/`: snapshot esquema 4 versionado y adaptador `localStorage`.
 - `src/lib/`: reglas y helpers compartidos.
 - `src/components/`: UI transversal.
 - `src/features/`: pantallas por dominio/rol.
@@ -83,6 +85,8 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - Periodo salarial trabajado y caja de pago son dimensiones distintas (`period` y `balanceId`).
 - Salario, adelantos y descuentos respetan limites de base documentados.
 - IN/OUT actual nunca puede quedar por debajo del anterior.
+- Durante una caja abierta, `efectivo esperado` debe coincidir con `Local / Efectivo`; un delta tecnico bloquea operativa y cierre y no se corrige con un aporte ordinario.
+- La migracion 3 -> 4 solo agrega un puente `MIGRACION` si las transferencias reconstruidas explican exactamente el delta; conserva historial y no cambia resultado economico.
 - Cerrar un local envia sus maquinas al Taller con confirmacion/auditoria.
 - Maquina con recaudaciones no se elimina directamente.
 
@@ -107,7 +111,7 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 146 pruebas aprobadas en 28 archivos, mas 9 casos E2E en 5 archivos para caja, bloqueo y recuperacion del cierre con efectivo negativo, disponibilidad de efectivo, diferencias/auditoria, rutas, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- 155 pruebas aprobadas en 29 archivos, mas 10 casos E2E en 5 archivos para caja, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, rutas, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Tres perfiles Codex de solo lectura, cuatro chats permanentes coordinados, cuatro skills versionadas y validadores de agentes, workstreams, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 
@@ -119,8 +123,8 @@ Toda accion sensible debe registrar cuando corresponda:
 - Apertura, contadores y cierre de caja no verifican aun de forma uniforme rol, funcion activa y local asignado dentro de cada comando.
 - Cierres periodicos, control administrativo de gastos y algunos maestros mantienen mutaciones en handlers React.
 - Faltan E2E y pruebas completas para formularios administrativos y cierres periodicos.
-- La validacion inicial del snapshot es estructuralmente superficial antes de la normalizacion.
-- El cierre salarial definitivo ya congela detalle por empleado, bloquea el periodo y usa revisiones correctivas enlazadas sobre esquema 3.
+- La validacion inicial del snapshot es estructuralmente superficial; la migracion incremental ya esta separada, pero falta validacion profunda de campos y relaciones.
+- El cierre salarial definitivo ya congela detalle por empleado, bloquea el periodo y usa revisiones correctivas enlazadas; se incorporo en esquema 3 y se conserva en esquema 4.
 - Permisos de frontend no sustituyen seguridad de backend.
 
 ## Prioridad recomendada

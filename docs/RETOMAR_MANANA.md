@@ -12,13 +12,15 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - React Router mantiene una URL estable por modulo y `sessionStorage` conserva usuario/funcion durante la pestaña.
 - Datos demo: Poseidon, tres maquinas y operaciones para probar roles.
 - El servidor oficial se inicia con `iniciar-poseidon.bat`.
-- El snapshot local usa esquema 3 y esta versionado; no se recorta historial para forzar guardados.
+- El snapshot local usa esquema 4 y esta versionado; no se recorta historial para forzar guardados.
+- La hidratacion separa normalizacion estructural de migraciones incrementales. Esquema 3 -> 4 reconstruye salidas historicas de transferencias y agrega un puente tecnico solo con causalidad exacta, auditoria e idempotencia.
 - Datos locales permite exportar/importar respaldo y recuperar almacenamiento corrupto sin sobrescribirlo.
 - El guardado compara la version leida por la pestaña; conflictos o fallos bloquean nuevas escrituras y conservan un respaldo pendiente.
 - Libro contable local conserva asientos originales y usa contramovimientos para anulaciones.
 - Papelera y locales bloquean eliminacion definitiva cuando existen referencias operativas.
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
 - Las nuevas salidas en efectivo validan el saldo activo `Local / Efectivo`; un saldo negativo por maquinas bloquea salidas y cierre hasta un aporte real.
+- Una caja abierta exige `efectivo esperado === Local / Efectivo`; un delta tecnico bloquea operaciones y cierre y no se corrige con aporte ordinario.
 - Codex cuenta con tres perfiles personalizados de solo lectura; `.codex/` no fija cantidad de hilos ni profundidad.
 - `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
 - `pnpm run check:workstreams` controla tres chats de rol, prompts, contextos, propiedad de archivos y contratos reservados.
@@ -38,14 +40,14 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Cierre salarial definitivo con foto por empleado, bloqueo mensual y revisiones correctivas R1/R2 enlazadas.
 - Paneles iniciales separados en `CashierDashboard`, `ManagerDashboard` y `AdminDashboard`, con selector compatible en `RoleDashboard`.
 - Poseidon Central, Cajero, Encargado y Administrador tienen prompts, workstreams, contratos y plantillas versionados.
-- 146 pruebas automatizadas en 28 archivos y 9 casos E2E en 5 archivos.
+- 155 pruebas automatizadas en 29 archivos y 10 casos E2E en 5 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas de validacion al 2026-07-16: 146 pruebas en 28 archivos y 9 casos E2E en 5 archivos.
+- Metricas de validacion al 2026-07-16: 155 pruebas en 29 archivos y 10 casos E2E en 5 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
@@ -74,7 +76,7 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 - Varias operaciones sensibles siguen dentro de componentes React.
 - Los archivos mas grandes restantes son liquidacion salarial, seed demo, historiales y estilos administrativos ya separados.
 - La cobertura automatizada incluye apertura-contadores-cierre, diferencias, ciclo de maquinas, conflicto entre pestañas y cierre salarial correctivo, pero no todos los formularios UI ni cierres periodicos.
-- La validacion inicial del snapshot comprueba colecciones principales y depende de la normalizacion posterior para completar compatibilidad.
+- La validacion inicial del snapshot comprueba colecciones principales; la migracion incremental ya esta separada, pero la validacion runtime profunda de campos y relaciones sigue reservada para el bloque final.
 - Los perfiles personalizados se comprobaron por contrato nominal; la API disponible no permite demostrar seleccion interna nativa por `agent_type`.
 
 ## Validacion esperada al cerrar un bloque

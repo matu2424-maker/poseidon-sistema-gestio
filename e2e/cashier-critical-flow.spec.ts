@@ -121,3 +121,47 @@ test("bloquea un cierre con efectivo negativo y permite resolverlo con un aporte
   await expect(page.getByText("Caja cerrada correctamente.")).toBeVisible();
   await expect(page).toHaveURL(/\/recaudaciones$/);
 });
+
+test("bloquea una caja desincronizada y no ofrece un aporte como reparacion", async ({ page }) => {
+  await loginAsCashier(page);
+  await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
+  await page.getByLabel("Fecha operativa").fill(OPERATING_DATE);
+  await page.locator("form.open-cash-form").getByRole("button", { name: "Abrir caja", exact: true }).click();
+  await expect(page.getByText("Caja abierta correctamente.")).toBeVisible();
+  await page.waitForFunction((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return false;
+    const snapshot = JSON.parse(raw);
+    return snapshot.data.balances.some((balance: { status: string }) => balance.status === "EN_PROCESO");
+  }, STORAGE_KEY);
+
+  await page.evaluate((storageKey) => {
+    const snapshot = JSON.parse(localStorage.getItem(storageKey)!);
+    const balance = snapshot.data.balances.find((item: { status: string }) => item.status === "EN_PROCESO");
+    snapshot.data.accountMovements.unshift({
+      id: "account-movement-e2e-cash-mismatch",
+      accountId: `account-local-${balance.localId}-efectivo`,
+      balanceId: balance.id,
+      sourceType: "MIGRACION",
+      sourceId: "e2e-cash-mismatch",
+      direction: "SALIDA",
+      concept: "INCONSISTENCIA_TECNICA",
+      amount: 14_000,
+      detail: "Desacople controlado para E2E",
+      status: "ACTIVO",
+      userId: "system",
+      createdAt: "2026-07-11T18:00:00.000Z",
+    });
+    localStorage.setItem(storageKey, JSON.stringify(snapshot));
+  }, STORAGE_KEY);
+  await page.reload();
+
+  await expect(page.getByRole("alert")).toContainText("Diferencia tecnica");
+  await expect(page.getByText("No conciliado", { exact: true })).toBeVisible();
+  await page.goto("/caja/cerrar");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "La caja no esta conciliada" }),
+  ).toContainText("un aporte comun no corrige este desacople");
+  await expect(page.getByRole("button", { name: "Registrar aporte", exact: true })).toHaveCount(0);
+  await expect(page.locator("form.close-form").getByRole("button", { name: "Cerrar caja", exact: true })).toBeDisabled();
+});

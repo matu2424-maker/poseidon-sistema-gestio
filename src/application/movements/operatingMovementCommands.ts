@@ -24,7 +24,7 @@ import {
   ensureLocalCurrentAccounts,
   TRANSFER_ACCOUNT_ID,
 } from "../../lib/currentAccounts";
-import { localCashOutflowError } from "../../lib/cashAvailability";
+import { balanceCashReconciliationError, localCashOutflowError } from "../../lib/cashAvailability";
 import {
   auditCommand,
   commandError,
@@ -66,6 +66,8 @@ export function createExpenseCommand(
   if (!category.subcategories.includes(input.subcategory.trim())) {
     return commandError("La subcategoria no pertenece a la categoria seleccionada.");
   }
+  const reconciliationError = balanceCashReconciliationError(data, balance.id);
+  if (reconciliationError) return commandError(reconciliationError);
   const cashError = localCashOutflowError(data, balance.localId, input.amount);
   if (cashError) return commandError(cashError);
   const expense: Expense = {
@@ -154,6 +156,8 @@ export function createTransferCommand(
   if (input.clientId && !data.clients.some((client) => client.id === input.clientId && client.status === "ACTIVO")) {
     return commandError("El cliente seleccionado no esta activo.");
   }
+  const reconciliationError = balanceCashReconciliationError(data, balance.id);
+  if (reconciliationError) return commandError(reconciliationError);
   const cashError = localCashOutflowError(data, balance.localId, input.amount);
   if (cashError) return commandError(cashError);
   const transfer: Transfer = {
@@ -251,6 +255,8 @@ export function createGiftCommand(
   if (!clientIds.length || !allClientsActive || !input.reference.trim() || !Number.isFinite(input.amount) || input.amount <= 0) {
     return commandError("Cliente, referencia y monto son obligatorios.");
   }
+  const reconciliationError = balanceCashReconciliationError(data, balance.id);
+  if (reconciliationError) return commandError(reconciliationError);
   const cashError = localCashOutflowError(data, balance.localId, input.amount);
   if (cashError) return commandError(cashError);
   const gift: Gift = {
@@ -348,6 +354,8 @@ export function createCapitalMovementCommand(
   if (!Number.isFinite(input.amount) || input.amount <= 0) {
     return commandError("El monto es obligatorio y debe ser un numero finito mayor a cero.");
   }
+  const reconciliationError = balanceCashReconciliationError(data, balance.id);
+  if (reconciliationError) return commandError(reconciliationError);
   if (input.type === "RETIRO" && input.medium === "EFECTIVO") {
     const cashError = localCashOutflowError(data, balance.localId, input.amount);
     if (cashError) return commandError(cashError);

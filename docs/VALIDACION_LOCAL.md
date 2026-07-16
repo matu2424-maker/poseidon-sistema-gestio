@@ -82,8 +82,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-16
 
-- 28 archivos de pruebas y 146 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion, snapshot, referencias y conflictos de escritura.
-- 9 casos E2E en 5 archivos aprobados para caja, bloqueo y recuperacion del cierre con efectivo negativo mediante aporte real, diferencias/auditoria, navegacion de roles, accesibilidad, conflicto entre pestañas y cierre salarial correctivo R1.
+- 29 archivos de pruebas y 155 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad y reconciliacion de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion incremental, snapshot, referencias y conflictos de escritura.
+- 10 casos E2E en 5 archivos aprobados para caja, efectivo negativo con aporte real, desconciliacion caja/libro, diferencias/auditoria, navegacion de roles, accesibilidad, conflicto entre pestañas y cierre salarial correctivo R1.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.
 - TypeScript aprobado.
@@ -94,6 +94,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 - Browser: `/panel` -> `/locales`, recarga y Atrás/Adelante aprobados sin errores de consola.
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
+- Cierre desconciliado: aviso con caja/libro/delta visible, aporte ordinario ausente y cierre deshabilitado; QA visual aprobada en 1280 x 720 y 390 x 844 sin overflow horizontal.
 - Viewports 1920 x 1080 y 390 x 844 sin overflow horizontal en panel administrativo.
 - CSS final mantuvo el mismo hash de salida tras separarlo por capas.
 

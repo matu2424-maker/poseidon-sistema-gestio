@@ -227,6 +227,88 @@ describe("comandos de caja", () => {
     expect(totalsForBalance(closed.data, opened.value.id).commercialResult).toBe(-1_500);
   });
 
+  it("prioriza la inconsistencia tecnica y no permite cerrarla ni ocultarla con un aporte", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const opened = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 1_000,
+        initialBankFund: 0,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    if (!opened.ok) throw new Error(opened.error);
+    const inconsistent = {
+      ...opened.data,
+      readings: opened.data.readings.map((reading) => ({
+        ...reading,
+        status: "SIN_LECTURA" as const,
+        observation: "Sin actividad",
+      })),
+      accountMovements: [
+        {
+          id: "account-movement-migration-inconsistent",
+          accountId: "account-local-1-efectivo",
+          balanceId: opened.value.id,
+          sourceType: "MIGRACION" as const,
+          sourceId: "migration-inconsistent",
+          direction: "SALIDA" as const,
+          concept: "INCONSISTENCIA_TECNICA",
+          amount: 14_000,
+          detail: "Desacople de prueba",
+          status: "ACTIVO" as const,
+          userId: "system",
+          createdAt: "2026-07-10T20:30:00.000Z",
+        },
+        ...opened.data.accountMovements,
+      ],
+    };
+    const before = JSON.stringify(inconsistent);
+    const rejected = closeCashCommand(
+      inconsistent,
+      {
+        balanceId: opened.value.id,
+        declaredCash: 0,
+        declaredBank: 0,
+        finalWithdrawalCash: 0,
+        finalWithdrawalBank: 0,
+        withdrawalCashPerson: "MATHIAS",
+        withdrawalBankPerson: "MATHIAS",
+        differenceNote: "",
+      },
+      context,
+    );
+    expect(rejected).toMatchObject({ ok: false });
+    if (!rejected.ok) {
+      expect(rejected.error).toContain("no coincide con Local / Efectivo");
+      expect(rejected.error).toContain("Diferencia tecnica");
+      expect(rejected.error).not.toContain("retiro final");
+    }
+    expect(JSON.stringify(inconsistent)).toBe(before);
+
+    const fakeContribution = createCapitalMovementCommand(
+      inconsistent,
+      {
+        balanceId: opened.value.id,
+        type: "APORTE",
+        medium: "EFECTIVO",
+        person: "MATHIAS",
+        amount: 14_000,
+        note: "No debe ocultar el desacople",
+      },
+      context,
+    );
+    expect(fakeContribution).toMatchObject({ ok: false });
+    if (!fakeContribution.ok) expect(fakeContribution.error).toContain("un aporte comun no corrige");
+    expect(JSON.stringify(inconsistent)).toBe(before);
+  });
+
   it.each([
     ["declaredCash", Number.NaN],
     ["declaredCash", Number.POSITIVE_INFINITY],
@@ -332,7 +414,7 @@ describe("comandos de caja", () => {
         initialBankFund: 0,
         initialNote: "",
         openingCapitalPerson: "MATHIAS",
-        firstOpening: false,
+        firstOpening: true,
       },
       context,
     );
@@ -353,6 +435,48 @@ describe("comandos de caja", () => {
         context,
       ),
     ).toMatchObject({ ok: false, error: "Ya existe una caja abierta para ese local. Primero hay que cerrarla." });
+  });
+
+  it("rechaza una apertura heredada si los saldos recibidos no coinciden con el libro", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const first = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-09",
+        initialFund: 1_000,
+        initialBankFund: 500,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    if (!first.ok) throw new Error(first.error);
+    const closed = {
+      ...first.data,
+      balances: first.data.balances.map((balance) =>
+        balance.id === first.value.id ? { ...balance, status: "CERRADO" as const } : balance,
+      ),
+    };
+    const rejected = openCashCommand(
+      closed,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 999,
+        initialBankFund: 500,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: false,
+      },
+      context,
+    );
+    expect(rejected).toEqual({
+      ok: false,
+      error: "La caja debe abrir con los saldos vigentes de Local / Efectivo y Local / Banco.",
+    });
   });
 
   it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY])(

@@ -686,6 +686,15 @@
   font-weight: 400;
 }
 
+.cashier-reconciliation-alert {
+  border: 1px solid #e6a6a6;
+  border-radius: 8px;
+  background: #fff4f4;
+  color: #7f1d1d;
+  padding: 12px 14px;
+  font-weight: 500;
+}
+
 .counters-page {
   display: grid;
   gap: 18px;

@@ -1,5 +1,6 @@
 import type { AppData, Reading } from "../../types";
 import { syncMachineResultAccountMovement } from "../../lib/accountMovements";
+import { balanceCashReconciliationError } from "../../lib/cashAvailability";
 import { calcReading } from "../../lib/cashTotals";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
 
@@ -14,6 +15,8 @@ export function saveReadingCommand(
 ): CommandResult<Reading> {
   const balance = data.balances.find((item) => item.id === balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return commandError("La caja ya no esta abierta.");
+  const reconciliationError = balanceCashReconciliationError(data, balance.id);
+  if (reconciliationError) return commandError(reconciliationError);
   const previous = data.readings.find((reading) => reading.id === readingId && reading.balanceId === balanceId);
   if (!previous) return commandError("No se encontro la lectura de la maquina.");
   if (patch.inActual !== undefined && patch.inActual !== null && patch.inActual < previous.inPrevious) {

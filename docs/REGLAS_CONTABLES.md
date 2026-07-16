@@ -40,6 +40,7 @@ No forman parte del resultado economico:
 | Diferencia efectivo negativa | No | Salida | No | No | No | Diferencias, cierre, cuentas |
 | Diferencia banco positiva | No | No | Entrada | No | No | Diferencias, cierre, cuentas |
 | Diferencia banco negativa | No | No | Salida | No | No | Diferencias, cierre, cuentas |
+| Reconciliacion tecnica de migracion | No | Ajuste tecnico auditado | No | No | No | Migracion versionada, cuentas, auditoria |
 
 ## Caja diaria
 
@@ -48,6 +49,8 @@ No forman parte del resultado economico:
 - Una transferencia mueve el importe de `Local / Efectivo` a `Local / Banco`; no cambia el resultado economico y tambien queda reflejada en la cuenta de transferencias.
 - La primera caja de un local exige declarar aporte inicial efectivo y banco.
 - El saldo final declarado por el cajero define el saldo real para la siguiente apertura.
+- Mientras una caja esta abierta, su `efectivo esperado` y el saldo activo `Local / Efectivo` deben ser exactamente iguales. Son dos vistas del mismo efectivo y no pueden evolucionar por separado.
+- Una caja posterior solo abre si los saldos iniciales recibidos coinciden exactamente con `Local / Efectivo` y `Local / Banco`; el comando deriva del historial si es realmente la primera apertura.
 - El cierre registra usuario real y funcion usada.
 - Mientras la caja permanece abierta no se mueve ni asigna una maquina del local, no se ajustan sus contadores administrativos y no se cierra el local.
 
@@ -61,6 +64,8 @@ No forman parte del resultado economico:
 - En una correccion salarial del mismo local se valida solo el incremento neto de efectivo respecto del pago reemplazado. Una reduccion o anulacion sigue permitida.
 - Las anulaciones y reversos no se bloquean porque restituyen o corrigen saldo y conservan el historial append-only.
 - Un resultado de maquinas negativo se registra normalmente. Si deja `Local / Efectivo` negativo, bloquea nuevas salidas y el cierre hasta que un aporte real cubra el faltante.
+- Si `efectivo esperado` y `Local / Efectivo` ya estan desconciliados, se bloquean contadores, movimientos, salarios y cierre antes de mutar. Un aporte ordinario tambien se bloquea porque moveria ambos saldos por igual y no corregiria el delta tecnico.
+- Una anulacion o correccion historica con impacto en efectivo no se ejecuta mientras haya otra caja abierta del mismo local. Los reversos de la caja abierta siguen permitidos.
 - El saldo banco es independiente y queda fuera de esta validacion de efectivo.
 
 ## Libro de movimientos
@@ -71,6 +76,16 @@ No forman parte del resultado economico:
 - Los ajustes de una misma diferencia/medio son append-only: cada delta tiene ID propio y enlaza el ajuste anterior mediante `previousAdjustmentId`.
 - Operaciones aun no cerradas pueden quitarse antes de contabilizarse definitivamente cuando la regla funcional lo permite.
 
+## Migraciones financieras
+
+- El esquema actual del snapshot es `4`. `src/data/migrateData.ts` aplica migraciones incrementales antes de entregar los datos al runtime; `src/data/normalizeData.ts` completa forma y compatibilidad estructural.
+- Un snapshot que ya esta en la version actual no reconstruye silenciosamente asientos financieros faltantes durante una normalizacion ordinaria.
+- La migracion de esquema 3 a 4 reconstruye la salida de efectivo historica de transferencias que antes solo impactaban banco y cuenta Transferencias.
+- Si esa reconstruccion explica exactamente el desacople con la ultima frontera operativa, se agrega un unico movimiento `MIGRACION / RECONCILIACION_MIGRACION`, determinista, append-only y auditado por `Sistema`.
+- El puente tecnico conserva el saldo ya aceptado por la caja. No representa aporte, retiro, diferencia de caja, ingreso, gasto ni resultado economico, y no modifica banco.
+- La reparacion automatica exige causalidad exacta: el delta debe ser finito, positivo y coincidir con la suma de las transferencias historicas reconstruidas. Si no puede demostrarse, no se inventa un ajuste; el sistema conserva los datos, muestra la desconciliacion y bloquea la operativa hasta una correccion tecnica auditada.
+- La migracion es idempotente: repetir la hidratacion no duplica ni el movimiento ni la auditoria.
+
 ## Cierre de caja
 
 - Efectivo esperado se calcula desde el flujo de caja del balance.
@@ -79,6 +94,7 @@ No forman parte del resultado economico:
 - Al cerrar, las diferencias crean movimientos `DIFERENCIA_CAJA` para que las cuentas del local reflejen el saldo declarado.
 - Esos movimientos no cambian resultado economico.
 - Los importes directos y derivados del cierre deben ser numeros finitos; `NaN` e infinitos se rechazan antes de persistir.
+- Antes de evaluar faltantes, retiros o diferencias, el cierre exige que `efectivo esperado` coincida con `Local / Efectivo`. Si no coincide, devuelve un error de reconciliacion tecnica y no crea diferencia, cierre, auditoria ni movimiento.
 - Si el efectivo esperado es negativo, el cierre devuelve primero un error especifico que exige cubrir el faltante con un aporte real. No crea diferencia, cierre, auditoria ni ajuste economico.
 
 ## Diferencias

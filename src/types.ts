@@ -35,6 +35,7 @@ export type AccountMovementSource =
   | "APORTE"
   | "RESULTADO_MAQUINAS"
   | "DIFERENCIA_CAJA"
+  | "MIGRACION"
   | "AJUSTE";
 export type AccountMovementDirection = "ENTRADA" | "SALIDA";
 export type CapitalMovementType = "RETIRO" | "APORTE";

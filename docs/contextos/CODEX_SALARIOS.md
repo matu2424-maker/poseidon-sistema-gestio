@@ -38,6 +38,8 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 - Salario pagado + adelantos no puede superar salario base.
 - Salario pagado + adelantos + descuentos no puede superar salario base.
 - Descuento no es salida de caja.
+- Si el local tiene caja abierta, toda liquidacion con entrega de efectivo debe asociarse a esa caja y mantener conciliados `efectivo esperado` y `Local / Efectivo`.
+- No se corrige, anula ni reasigna a la caja actual un pago en efectivo de una recaudacion historica mientras otra caja esta abierta. La operacion se hace sin caja abierta o mediante el flujo correcto del periodo, conservando auditoria.
 - Eliminar es anulacion logica.
 - Un periodo cerrado no admite operaciones salariales ordinarias, incluso desde caja.
 - La correccion exige revision abierta, motivo y enlace al ultimo cierre del periodo.

@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppData } from "../types";
 import type { AppDataRepository } from "../application/ports/AppDataRepository";
 import { createAsyncOperationQueue } from "../application/ports/asyncOperationQueue";
-import { createSeedData, normalizeData } from "../data/appData";
+import { createSeedData } from "../data/appData";
+import { hydrateAppData } from "../data/migrateData";
 
 export type StorageIssue = {
   kind: "corrupt" | "conflict" | "write";
@@ -60,7 +61,7 @@ export function useAppDataRepository(
           try {
             persistedRaw.current = stored.raw;
             skipNextPersistence.current = !stored.needsRewrite;
-            setData(normalizeData(stored.data));
+            setData(hydrateAppData(stored.data, stored.sourceVersion));
             if (stored.needsRewrite) setMessage("Los datos locales se actualizaron al formato versionado.");
           } catch (error) {
             setStorageIssue({
@@ -117,7 +118,7 @@ export function useAppDataRepository(
       try {
         persistedRaw.current = stored.raw;
         skipNextPersistence.current = true;
-        setData(normalizeData(stored.data));
+        setData(hydrateAppData(stored.data, stored.sourceVersion));
       } catch (error) {
         setStorageIssue({
           kind: "corrupt",

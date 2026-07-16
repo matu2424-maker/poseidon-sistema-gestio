@@ -10,7 +10,7 @@ const minimumData = {
 
 describe("snapshot local versionado", () => {
   it("lee snapshots actuales", () => {
-    expect(CURRENT_SCHEMA_VERSION).toBe(3);
+    expect(CURRENT_SCHEMA_VERSION).toBe(4);
     const result = decodeSnapshot(JSON.stringify(createSnapshot(minimumData, "2026-07-10T12:00:00.000Z")));
     expect(result).toMatchObject({
       ok: true,
@@ -18,7 +18,7 @@ describe("snapshot local versionado", () => {
     });
   });
 
-  it.each([1, 2])("lee schema %s y exige reescritura al schema actual", (schemaVersion) => {
+  it.each([1, 2, 3])("lee schema %s y exige reescritura al schema actual", (schemaVersion) => {
     const result = decodeSnapshot(
       JSON.stringify({ kind: SNAPSHOT_KIND, schemaVersion, savedAt: "2026-07-10T12:00:00.000Z", data: minimumData }),
     );

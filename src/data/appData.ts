@@ -41,7 +41,7 @@ import { localCode, localName } from "../lib/display";
 import { machineHistoryEvent } from "../lib/machineHistory";
 import { salaryHistoryEvent, staffFullName } from "../lib/people";
 import { POSEIDON_LOCAL_ID, WORKSHOP_LOCAL_ID } from "./appDataIds";
-import { normalizeDataFromSeed } from "./normalizeData";
+import { normalizeDataFromSeed, type NormalizeDataOptions } from "./normalizeData";
 export { LEGACY_POSEIDON_LOCAL_ID, POSEIDON_LOCAL_ID, WORKSHOP_LOCAL_ID } from "./appDataIds";
 const defaultExpenseCategories: ExpenseCategory[] = [
   { id: "expense-cat-limpieza", name: "Limpieza", subcategories: ["Productos", "Servicio externo", "Mantenimiento diario"], status: "ACTIVA" },
@@ -853,7 +853,7 @@ export function createSeedData(): AppData {
 }
 
 
-export function normalizeData(data: AppData): AppData {
-  return normalizeDataFromSeed(data, createSeedData());
+export function normalizeData(data: AppData, options?: NormalizeDataOptions): AppData {
+  return normalizeDataFromSeed(data, createSeedData(), options);
 }
 

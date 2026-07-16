@@ -12,6 +12,7 @@ import {
   upsertAccountMovement,
 } from "../../lib/accountMovements";
 import { totalsForBalance } from "../../lib/cashTotals";
+import { balanceCashReconciliationError } from "../../lib/cashAvailability";
 import { ensureLocalCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
 import { balanceVisibleId } from "../../lib/display";
 import { machineHistoryEvent } from "../../lib/machineHistory";
@@ -58,6 +59,8 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
   ) {
     return commandError("Los importes del cierre deben ser numeros finitos.");
   }
+  const reconciliationError = balanceCashReconciliationError(data, balance.id);
+  if (reconciliationError) return commandError(reconciliationError);
   if (totals.expectedCash < 0) {
     return commandError(
       `No se puede cerrar la caja porque el efectivo esperado es negativo (${money(totals.expectedCash)}). Registra un aporte real en efectivo para cubrir el faltante antes de cerrar.`,

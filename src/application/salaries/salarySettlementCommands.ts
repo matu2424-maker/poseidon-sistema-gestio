@@ -6,7 +6,12 @@ import {
   upsertAccountMovement,
 } from "../../lib/accountMovements";
 import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
-import { activeLocalCashSourceOutflow, localCashOutflowError } from "../../lib/cashAvailability";
+import {
+  activeLocalCashSourceOutflow,
+  balanceCashReconciliationError,
+  historicalCashMutationError,
+  localCashOutflowError,
+} from "../../lib/cashAvailability";
 import { staffFullName } from "../../lib/people";
 import {
   cashierSalaryConceptOptions,
@@ -63,6 +68,20 @@ export function saveSalarySettlementCommand(
     ? activeLocalCashSourceOutflow(data, staff.localId, existing.id)
     : 0;
   const netCashOutflow = Math.max(0, nextCashAmount - previousCashAmount);
+  const targetBalanceId = input.balanceId ?? existing?.balanceId;
+  const openBalance = data.balances.find((item) => item.localId === staff.localId && item.status === "EN_PROCESO");
+  if (existing && previousCashAmount > 0) {
+    const sourceMutationError = historicalCashMutationError(data, staff.localId, existing.balanceId);
+    if (sourceMutationError) return commandError(sourceMutationError);
+  }
+  if (nextCashAmount > 0) {
+    const targetMutationError = historicalCashMutationError(data, staff.localId, targetBalanceId);
+    if (targetMutationError) return commandError(targetMutationError);
+  }
+  if (openBalance) {
+    const reconciliationError = balanceCashReconciliationError(data, openBalance.id);
+    if (reconciliationError) return commandError(reconciliationError);
+  }
   const cashError = localCashOutflowError(data, staff.localId, netCashOutflow);
   if (cashError) return commandError(cashError);
 
@@ -120,8 +139,19 @@ export function saveSalarySettlementCommand(
     upsertAccountMovement(baseMovements, salaryAccountMovement(next, context.user.id)),
     localSalaryAccountMovement(next, context.user.id),
   );
+  const mutatedData = {
+    ...data,
+    currentAccounts: withLocalAccounts,
+    accountMovements,
+    salarySettlements,
+    staff: staffUpdated,
+  };
+  if (openBalance) {
+    const postconditionError = balanceCashReconciliationError(mutatedData, openBalance.id);
+    if (postconditionError) return commandError(postconditionError);
+  }
   const nextData = auditCommand(
-    { ...data, currentAccounts: withLocalAccounts, accountMovements, salarySettlements, staff: staffUpdated },
+    mutatedData,
     context,
     existing ? "Corregir liquidacion salario" : input.origin === "CAJA" ? "Cargar pago salario cajero" : "Crear liquidacion salario",
     "LiquidacionSalario",
@@ -147,6 +177,11 @@ export function annulSalarySettlementCommand(
   if (options.requireOpenBalance) {
     const balance = data.balances.find((item) => item.id === previous.balanceId);
     if (!balance || balance.status !== "EN_PROCESO") return commandError("Solo se pueden eliminar salarios antes de cerrar la caja.");
+  }
+  const previousCashOutflow = activeLocalCashSourceOutflow(data, previous.localId, previous.id);
+  if (previousCashOutflow > 0) {
+    const historicalMutationError = historicalCashMutationError(data, previous.localId, previous.balanceId);
+    if (historicalMutationError) return commandError(historicalMutationError);
   }
   const timestamp = context.now();
   const next: SalarySettlement = {

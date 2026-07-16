@@ -18,7 +18,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Veintiocho archivos de pruebas, 146 casos, mas 9 casos E2E en 5 archivos.
+- Veintinueve archivos de pruebas, 155 casos, mas 10 casos E2E en 5 archivos.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -43,7 +43,7 @@ Agregar reglas contables, visuales o mapa tecnico solo si aplican. El enrutador 
 - Completado: un fallo de escritura bloquea nuevas operaciones y permite descargar/reintentar el dato pendiente.
 - Completado: se elimino el recorte silencioso de auditoria e historiales.
 - Completado: `pnpm check` ejecuta typecheck, ESLint sin advertencias y pruebas.
-- Completado parcialmente: fixtures de migracion, permisos y comandos ampliados; seguir sumando por comando nuevo.
+- Completado parcialmente: fixtures de migracion, permisos y comandos ampliados; esquema 4 incorpora la primera migracion incremental financiera con causalidad e idempotencia. Seguir sumando por comando nuevo.
 
 Resultado: datos locales mas previsibles y fallos detectados antes.
 
@@ -80,7 +80,8 @@ Agregar en este orden:
 - Completado: cierre salarial definitivo, bloqueo de periodo y revisiones correctivas enlazadas;
 - Completado: creacion, asignacion, ajuste, reset, traslado y eliminacion de maquinas, incluidos bloqueos con caja abierta;
 - Completado inicial: migracion de ID historico, limpieza de imagenes y reconstruccion de asientos faltantes;
-- Completado: ciclo integrado de caja, saldos, liquidacion, diferencias y roundtrip de snapshot; la migracion reconstruye la salida de efectivo faltante en transferencias.
+- Completado: ciclo integrado de caja, saldos, liquidacion, diferencias y roundtrip de snapshot; la migracion reconstruye la salida de efectivo faltante en transferencias y reconcilia la frontera operativa mediante un puente tecnico auditado solo si el delta coincide exactamente.
+- Completado: comandos y UI bloquean operaciones/cierre cuando `efectivo esperado` y `Local / Efectivo` no coinciden; un aporte ordinario no se presenta como correccion del desacople.
 - Completado inicial: permisos por rol y requisito de caja abierta;
 - Completado inicial: E2E Playwright de apertura, carga de las tres maquinas, cierre y persistencia despues de recargar;
 - Completado: E2E de conflicto entre dos pestañas y recuperacion sin sobrescritura;
@@ -111,6 +112,8 @@ Completado 2026-07-16: una sola caja abierta por local, bloqueos de maquinas/loc
 
 Completado 2026-07-16: cierre salarial mensual inmutable por empleado, esquema 3, bloqueo transversal del periodo y ciclo correctivo auditado R1/R2 sin reescribir cierres anteriores.
 
+Completado 2026-07-16: esquema 4, primera migracion incremental financiera, reconciliacion caja/libro, reparacion causal auditada de transferencias historicas y bloqueo de mutaciones historicas de efectivo con otra caja abierta.
+
 Postergado por decision de producto: contexto operativo multi-local. Mientras el foco siga exclusivamente en Poseidon no se implementa selector de local activo.
 
 ### Pendiente reservado para el bloque final
@@ -119,7 +122,7 @@ Postergado por decision de producto: contexto operativo multi-local. Mientras el
 
 - definir esquemas runtime para todas las colecciones, campos, enums e importes finitos;
 - validar referencias entre balances, lecturas, maquinas, movimientos, personal, clientes y cierres;
-- aplicar migraciones incrementales por `schemaVersion` antes de normalizar;
+- ampliar las migraciones incrementales por `schemaVersion`; la infraestructura y el primer paso 3 -> 4 ya estan implementados;
 - conservar el JSON original y producir un informe de errores sin borrar relaciones silenciosamente;
 - cubrir snapshots validos, heredados, corruptos y con referencias huerfanas mediante fixtures.
 

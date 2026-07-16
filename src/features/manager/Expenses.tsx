@@ -6,6 +6,7 @@ import { money } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal, type TableColumn } from "../../components/ui";
 import { reverseSourceAccountMovements } from "../../lib/accountMovements";
+import { historicalCashMutationError } from "../../lib/cashAvailability";
 import { confirmAction } from "../../lib/confirmations";
 
 type ExpenseRow = { expense: Expense; balance: Balance };
@@ -154,6 +155,15 @@ export function ManagerExpenses({
     const note = draftReviewNote.trim();
     if (!note) {
       setError("Para anular un gasto tenes que escribir el motivo.");
+      return;
+    }
+    const mutationError = historicalCashMutationError(
+      data,
+      selectedRow.balance.localId,
+      selectedRow.balance.id,
+    );
+    if (mutationError) {
+      setError(mutationError);
       return;
     }
     if (!confirmAction("Anular este gasto? El movimiento queda auditado y no se borra.")) return;

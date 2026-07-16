@@ -19,8 +19,9 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Contextos cortos por modulo para Codex: `docs/contextos/`.
 - Documentacion modular por panel/funcion: `docs/modulos/`.
 - Reglas compartidas extraidas en `src/lib/`: dinero, fechas, cuentas corrientes, movimientos contables, totales de caja, diferencias y salarios.
-- Datos demo y limpieza manual viven en `src/data/appData.ts`; la migracion/normalizacion vive en `src/data/normalizeData.ts` y los IDs tecnicos compartidos en `src/data/appDataIds.ts`.
-- Persistencia actual: snapshot JSON esquema 3 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
+- Datos demo y limpieza manual viven en `src/data/appData.ts`; la normalizacion estructural vive en `src/data/normalizeData.ts`, las migraciones incrementales en `src/data/migrateData.ts` y la version vigente en `src/data/schemaVersion.ts`.
+- Persistencia actual: snapshot JSON esquema 4 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
+- El esquema 4 separa normalizacion de migracion financiera: un snapshot vigente no reconstruye asientos silenciosamente; los snapshots anteriores pasan por una migracion versionada, determinista y auditada.
 - El snapshot se valida antes de leer o importar. Si esta corrupto no se sobrescribe y se ofrece descargar el contenido original.
 - Los guardados usan comparacion optimista contra la version leida por la pestaña. Si otra pestaña guardo antes, se detiene la escritura y se ofrece descargar el intento o cargar la version vigente.
 - Un fallo de escritura abre recuperacion con respaldo del intento y opciones de reintento o regreso a la ultima version guardada.
@@ -155,9 +156,14 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - Si no es la primera caja del local, la apertura toma automaticamente el saldo que quedo en las cuentas corrientes del local:
   - saldo `Local / Efectivo` como efectivo inicial;
   - saldo `Local / Banco` como banco inicial.
+- El comando deriva del historial si es realmente la primera apertura y, para cajas posteriores, rechaza cualquier saldo inicial que no coincida exactamente con las cuentas del local.
 - El saldo activo `Local / Efectivo` es la fuente unica para autorizar nuevas salidas en efectivo.
 - Gastos, transferencias desde efectivo, regalos, retiros operativos en efectivo y pagos salariales se rechazan antes de guardar si dejarian ese saldo negativo; el importe igual al disponible se acepta.
 - Un aporte real en efectivo aumenta el disponible. No se crea un movimiento pendiente automatico y banco se controla de forma independiente.
+- Mientras la caja esta abierta, `efectivo esperado` debe coincidir exactamente con `Local / Efectivo`. Si existe un delta tecnico, se bloquean contadores, movimientos, salarios, aportes ordinarios y cierre antes de mutar.
+- Un aporte ordinario no corrige una desconciliacion tecnica porque mueve ambos saldos por igual. La interfaz muestra caja, libro y delta y exige una reconciliacion auditada.
+- La migracion esquema 3 -> 4 reconstruye las salidas de efectivo faltantes de transferencias historicas. Solo cuando esas transferencias explican exactamente el delta agrega un puente `MIGRACION / RECONCILIACION_MIGRACION`, append-only e idempotente, sin modificar banco ni resultado economico.
+- Si la causalidad no es exacta, no se inventa un ajuste: se conservan los movimientos y la operativa queda bloqueada hasta una correccion tecnica auditada.
 - Cada caja tiene un ID visible rastreable con las primeras cuatro letras del local y un numero correlativo, por ejemplo `POSE-1`.
 - Cada caja muestra hora de apertura y hora de cierre en los resumenes.
 - Cada caja registra usuario real y funcion usada en apertura y cierre (`openedByRole` y `closedByRole`), para saber si actuaba como cajero, encargado o administrador.
@@ -212,6 +218,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - si hay diferencia de efectivo o banco, la observacion es obligatoria;
   - si hay maquinas pendientes sin observacion, no se puede cerrar;
   - un resultado de maquinas negativo se conserva; si deja el efectivo esperado negativo, se bloquean nuevas salidas y el cierre hasta registrar un aporte real;
+  - antes de evaluar ese faltante, retiros o diferencias, el cierre exige que `efectivo esperado` coincida con `Local / Efectivo`;
+  - una desconciliacion tecnica se informa con ambos saldos y el delta, bloquea el cierre y no crea diferencia, auditoria, movimiento ni aporte automatico;
   - el error de efectivo esperado negativo se muestra antes que el error de retiro final y no crea diferencia, cierre, auditoria ni cambio economico;
   - los errores de cierre se muestran como avisos dentro de la pantalla de cierre.
 
@@ -558,7 +566,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Estado actual al 2026-07-16
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 146 pruebas en 28 archivos; existen ademas 9 casos E2E en 5 archivos para caja, cierre con efectivo negativo y aporte real, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
+- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 155 pruebas en 29 archivos; existen ademas 10 casos E2E en 5 archivos para caja, efectivo negativo, desconciliacion caja/libro, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

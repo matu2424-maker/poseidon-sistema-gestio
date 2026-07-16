@@ -8,8 +8,9 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 
 - React + React Router + Vite + TypeScript.
 - `src/App.tsx` conserva estado global, sesion, acciones y composicion; la pantalla activa se deriva de la URL.
-- `src/data/appData.ts` concentra datos demo y limpieza manual; `src/data/normalizeData.ts` normaliza/migra datos locales.
+- `src/data/appData.ts` concentra datos demo y limpieza manual; `src/data/normalizeData.ts` normaliza estructura y `src/data/migrateData.ts` ejecuta migraciones incrementales por version.
 - `src/infrastructure/storage/` valida, versiona, importa y persiste el snapshot local.
+- El esquema vigente es 4. Un snapshot actual no reconstruye asientos financieros faltantes durante la normalizacion ordinaria.
 - `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local y layouts.
 - `src/navigation/screens.ts` es la fuente unica de titulos, menus, roles permitidos y requisito de caja abierta.
 - Cada pantalla tiene una URL estable documentada en `docs/MAPA_RUTAS.md`; `screenDefinitions` sigue siendo la matriz central.

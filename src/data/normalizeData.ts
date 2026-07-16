@@ -34,7 +34,15 @@ import { salaryHistoryEvent, staffFullName } from "../lib/people";
 import { isSalaryPaymentConcept, isValidSalaryPeriod, normalizeSalaryConcept } from "../lib/salaryRules";
 import { LEGACY_POSEIDON_LOCAL_ID, POSEIDON_LOCAL_ID, WORKSHOP_LOCAL_ID } from "./appDataIds";
 
-export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
+export type NormalizeDataOptions = {
+  rebuildDerivedAccountMovements?: boolean;
+};
+
+export function normalizeDataFromSeed(
+  data: AppData,
+  seed: AppData,
+  options: NormalizeDataOptions = {},
+): AppData {
   const source = {
     ...seed,
     ...data,
@@ -485,43 +493,45 @@ export function normalizeDataFromSeed(data: AppData, seed: AppData): AppData {
     if (!movement || !accountIds.has(movement.accountId) || movementById.has(movement.id)) return;
     movementById.set(movement.id, movement);
   };
-  salarySettlements.forEach((settlement) => {
-    if (!accountIds.has(staffAccountId(settlement.staffId))) return;
-    const movementUserId = settlement.approvedBy ?? settlement.createdBy ?? "system";
-    addDerivedMovement(salaryAccountMovement(settlement, movementUserId));
-    if (accountIds.has(localCashAccountId(settlement.localId))) {
-      addDerivedMovement(localSalaryAccountMovement(settlement, movementUserId));
-    }
-  });
-  expenses.forEach((expense) => {
-    const localId = balanceLocalId(expense.balanceId);
-    if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localExpenseAccountMovement(expense, localId));
-  });
-  transfers.forEach((transfer) => {
-    addDerivedMovement(transferAccountMovement(transfer));
-    const localId = balanceLocalId(transfer.balanceId);
-    if (accountIds.has(localBankAccountId(localId))) addDerivedMovement(localTransferAccountMovement(transfer, localId));
-    if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localTransferCashAccountMovement(transfer, localId));
-  });
-  gifts.forEach((gift) => {
-    const localId = balanceLocalId(gift.balanceId);
-    if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localGiftAccountMovement(gift, localId));
-  });
-  capitalMovements.forEach((movement) => {
-    const accountId = localAccountIdForMedium(movement.localId, movement.medium);
-    if (accountIds.has(accountId)) addDerivedMovement(capitalAccountMovement(movement));
-  });
-  balances.forEach((balance) => {
-    const result = source.readings
-      .filter((reading) => reading.balanceId === balance.id && reading.status === "CARGADA")
-      .reduce((total, reading) => total + Number(reading.result ?? 0), 0);
-    addDerivedMovement(machineResultAccountMovement(balance, result, balance.closedBy ?? balance.openedBy ?? "system"));
-    const movementUserId = balance.closedBy ?? balance.openedBy ?? "system";
-    [
-      differenceAccountMovement(balance, "EFECTIVO", Number(balance.cashDifference ?? 0), movementUserId),
-      differenceAccountMovement(balance, "BANCO", Number(balance.bankDifference ?? 0), movementUserId),
-    ].forEach(addDerivedMovement);
-  });
+  if (options.rebuildDerivedAccountMovements !== false) {
+    salarySettlements.forEach((settlement) => {
+      if (!accountIds.has(staffAccountId(settlement.staffId))) return;
+      const movementUserId = settlement.approvedBy ?? settlement.createdBy ?? "system";
+      addDerivedMovement(salaryAccountMovement(settlement, movementUserId));
+      if (accountIds.has(localCashAccountId(settlement.localId))) {
+        addDerivedMovement(localSalaryAccountMovement(settlement, movementUserId));
+      }
+    });
+    expenses.forEach((expense) => {
+      const localId = balanceLocalId(expense.balanceId);
+      if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localExpenseAccountMovement(expense, localId));
+    });
+    transfers.forEach((transfer) => {
+      addDerivedMovement(transferAccountMovement(transfer));
+      const localId = balanceLocalId(transfer.balanceId);
+      if (accountIds.has(localBankAccountId(localId))) addDerivedMovement(localTransferAccountMovement(transfer, localId));
+      if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localTransferCashAccountMovement(transfer, localId));
+    });
+    gifts.forEach((gift) => {
+      const localId = balanceLocalId(gift.balanceId);
+      if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localGiftAccountMovement(gift, localId));
+    });
+    capitalMovements.forEach((movement) => {
+      const accountId = localAccountIdForMedium(movement.localId, movement.medium);
+      if (accountIds.has(accountId)) addDerivedMovement(capitalAccountMovement(movement));
+    });
+    balances.forEach((balance) => {
+      const result = source.readings
+        .filter((reading) => reading.balanceId === balance.id && reading.status === "CARGADA")
+        .reduce((total, reading) => total + Number(reading.result ?? 0), 0);
+      addDerivedMovement(machineResultAccountMovement(balance, result, balance.closedBy ?? balance.openedBy ?? "system"));
+      const movementUserId = balance.closedBy ?? balance.openedBy ?? "system";
+      [
+        differenceAccountMovement(balance, "EFECTIVO", Number(balance.cashDifference ?? 0), movementUserId),
+        differenceAccountMovement(balance, "BANCO", Number(balance.bankDifference ?? 0), movementUserId),
+      ].forEach(addDerivedMovement);
+    });
+  }
   const accountMovements = [...movementById.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const auditEvents = source.audit.map((event) => ({
     ...event,

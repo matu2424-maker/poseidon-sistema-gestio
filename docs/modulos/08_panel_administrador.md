@@ -40,7 +40,7 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 ## Codigo actual
 
 - `src/App.tsx`: estado global, acciones principales y composicion de pantallas.
-- `src/data/appData.ts` y `src/data/normalizeData.ts`: datos demo y normalizacion/migracion separadas.
+- `src/data/appData.ts`, `src/data/normalizeData.ts` y `src/data/migrateData.ts`: datos demo, normalizacion estructural y migraciones incrementales separadas.
 - `src/features/layout/AppShell.tsx`: pantalla inicial, login, layout lateral y cambio a funcion Cajero.
 - `src/navigation/screens.ts`: menu agrupado, titulos, permisos y requisito de caja abierta.
 - `src/features/dashboard/AdminDashboard.tsx`: panel administrativo y accesos rapidos.
@@ -57,7 +57,7 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 ## Refactor pendiente
 
-- No queda pendiente conocido de datos demo/normalizacion. Cualquier nuevo refactor debe justificarse por reduccion real de contexto, riesgo o duplicacion.
+- La primera migracion incremental ya esta separada; quedan para el bloque final la validacion runtime profunda y futuras migraciones versionadas. Cualquier refactor adicional debe justificarse por reduccion real de contexto, riesgo o duplicacion.
 
 ## Presentacion
 

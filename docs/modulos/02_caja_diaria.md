@@ -29,6 +29,8 @@ Esos aportes crean movimientos de cuenta corriente del local.
 - Efectivo inicial = saldo de cuenta Local / Efectivo.
 - Banco inicial = saldo de cuenta Local / Banco.
 - El cajero no carga esos saldos manualmente.
+- El comando deriva del historial si se trata de la primera caja; no confia solamente en el indicador recibido desde la interfaz.
+- En una caja posterior, los importes iniciales deben coincidir exactamente con ambas cuentas del local. Si no coinciden, la apertura se rechaza sin crear balance, lecturas, movimientos ni auditoria.
 
 ## Resumen de cajas
 

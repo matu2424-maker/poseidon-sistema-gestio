@@ -7,7 +7,7 @@ import type {
 } from "../../types";
 import { capitalAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
 import { openBalanceForLocal } from "../../lib/balanceReferences";
-import { ensureLocalCurrentAccounts } from "../../lib/currentAccounts";
+import { ensureLocalCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
 import { nextBalanceVisibleId } from "../../data/appData";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
 
@@ -29,6 +29,16 @@ export function openCashCommand(data: AppData, input: OpenCashInput, context: Co
     return commandError("Los saldos iniciales deben ser numeros finitos.");
   }
   if (input.initialFund < 0 || input.initialBankFund < 0) return commandError("Los saldos iniciales no pueden ser negativos.");
+  const firstOpening = !data.balances.some((balance) => balance.localId === input.localId);
+  if (input.firstOpening !== firstOpening) {
+    return commandError("El estado de apertura inicial no coincide con el historial del local.");
+  }
+  if (!firstOpening) {
+    const inherited = localAccountBalances(data, input.localId);
+    if (input.initialFund !== inherited.cash || input.initialBankFund !== inherited.bank) {
+      return commandError("La caja debe abrir con los saldos vigentes de Local / Efectivo y Local / Banco.");
+    }
+  }
   if (openBalanceForLocal(data, input.localId)) {
     return commandError("Ya existe una caja abierta para ese local. Primero hay que cerrarla.");
   }
@@ -48,7 +58,7 @@ export function openCashCommand(data: AppData, input: OpenCashInput, context: Co
     openedAt: timestamp,
   };
 
-  const openingCapitalCandidates: Array<CapitalMovement | null> = input.firstOpening
+  const openingCapitalCandidates: Array<CapitalMovement | null> = firstOpening
     ? [
         input.initialFund > 0
           ? {
