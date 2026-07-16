@@ -58,6 +58,7 @@ export function CloseCash({
   const totalCashOutflows = totals.totalExpenses + totals.totalSalaries + totals.giftCash;
   const hasDeclaredCash = declaredCashDraft.trim() !== "";
   const hasDeclaredBank = declaredBankDraft.trim() !== "";
+  const hasNegativeExpectedCash = totals.expectedCash < 0;
   const expectedCashAfterFinalWithdrawal = totals.expectedCash - finalWithdrawalCashPreview;
   const expectedBankAfterFinalWithdrawal = localBalances.bank - finalWithdrawalBankPreview;
   const nextBankPreview = declaredBankPreview;
@@ -106,6 +107,15 @@ export function CloseCash({
           {loadedReadings.length}/{balanceReadings.length} maquinas recaudadas
         </span>
       </div>
+
+      {hasNegativeExpectedCash ? (
+        <div className="close-alert danger" role="alert">
+          No se puede cerrar: el efectivo esperado es {money(totals.expectedCash)}. Registra un aporte real en efectivo que cubra el faltante y vuelve a esta pantalla.{" "}
+          <button className="link-button" type="button" onClick={() => setScreen("capital-movements")}>
+            Registrar aporte
+          </button>
+        </div>
+      ) : null}
 
       <section className="close-workspace">
         <div className="close-breakdown">
@@ -309,7 +319,7 @@ export function CloseCash({
           )}
 
           <div className="close-actions">
-            <button className="button success" type="submit">
+            <button className="button success" type="submit" disabled={hasNegativeExpectedCash}>
               Cerrar caja
             </button>
           </div>

@@ -61,6 +61,9 @@ salida total = gastos + salarios + regalos
 - Al cerrar, las diferencias crean movimientos en `Local / Efectivo` y/o `Local / Banco` para que la siguiente caja abra con el saldo real declarado.
 - Las diferencias no cambian el resultado economico.
 - Si hay maquinas pendientes sin observacion, no se puede cerrar.
+- Si el efectivo esperado es negativo, el cierre queda bloqueado antes de crear diferencias, auditoria o movimientos de cierre.
+- La pantalla muestra el faltante al entrar, deshabilita `Cerrar caja` y ofrece ir a `Registrar aporte`.
+- El aporte debe representar dinero real y cubrir el faltante; no se crea automaticamente ni modifica el resultado economico.
 - Los errores aparecen en la misma pantalla.
 - Al cerrar caja, va a Resumen de cajas.
 
