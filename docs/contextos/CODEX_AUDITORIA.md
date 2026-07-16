@@ -7,7 +7,7 @@ Leer este contexto antes de modificar eventos de auditoria, acciones sensibles, 
 - `docs/REGLAS_GENERALES.md`
 - `docs/REGLAS_CONTABLES.md`
 - `docs/modulos/12_auditoria.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
 - `docs/contextos/CODEX_DIFERENCIAS.md`
 - `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`
 - `docs/contextos/CODEX_SALARIOS.md`

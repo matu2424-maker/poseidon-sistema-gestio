@@ -6,7 +6,7 @@ Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de 
 
 - `docs/REGLAS_CONTABLES.md`
 - `docs/modulos/11_cuentas_corrientes.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
 - `docs/contextos/CODEX_DIFERENCIAS.md`
 - `docs/contextos/CODEX_SALARIOS.md`
 - `docs/modulos/12_auditoria.md`

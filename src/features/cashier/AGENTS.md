@@ -5,7 +5,9 @@ Antes de tocar esta carpeta, leer:
 - `docs/CONTEXTO_RAPIDO_CODEX.md`
 - `docs/REGLAS_CONTABLES.md`
 - `docs/REGLAS_VISUALES.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_CAJERO.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
+- `docs/coordinacion/README.md`
 - `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`
 - `docs/contextos/CODEX_DIFERENCIAS.md`
 - `docs/modulos/01_panel_cajero.md`

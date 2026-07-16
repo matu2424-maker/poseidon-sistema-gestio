@@ -7,6 +7,7 @@ Antes de tocar esta carpeta, leer:
 - `docs/REGLAS_VISUALES.md`
 - `docs/REGLAS_CONTABLES.md`
 - `docs/contextos/CODEX_ADMINISTRACION.md`
+- `docs/coordinacion/README.md`
 - `docs/contextos/CODEX_LOCALES_MAQUINAS.md`
 - `docs/contextos/CODEX_CLIENTES_PERSONAL.md`
 - `docs/contextos/CODEX_SALARIOS.md`

@@ -14,6 +14,16 @@ export function buildCheckPlan(files) {
   const plan = [];
   if (normalizedFiles.some((file) => file.startsWith(".agents/skills/") || file === "docs/SKILLS_POSEIDON.md")) plan.push("check:skills");
   if (normalizedFiles.some((file) => file.startsWith(".codex/") || /docs\/(PROTOCOLO_AGENTES_CODEX|REGISTRO_DELEGACIONES_AGENTES)\.md/.test(file))) plan.push("check:agents");
+  if (
+    normalizedFiles.some(
+      (file) =>
+        file.startsWith("docs/coordinacion/") ||
+        /^docs\/prompts\/CHAT_(CENTRAL|CAJERO|ENCARGADO|ADMINISTRADOR)_POSEIDON\.md$/.test(file) ||
+        /^docs\/plantillas\/(ORDEN_TRABAJO_CHAT|ENTREGA_CHAT_MODULO)\.md$/.test(file),
+    )
+  ) {
+    plan.push("check:workstreams");
+  }
   if (normalizedFiles.some((file) => /docs\/(REGLAS_VISUALES|SISTEMA_VISUAL_POSEIDON|REVISIONES_DE_DISENO_POSEIDON)\.md/.test(file) || file.startsWith("docs/referencias-visuales/"))) plan.push("check:design");
   return [...new Set(plan)];
 }

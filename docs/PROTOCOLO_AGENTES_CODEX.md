@@ -12,6 +12,16 @@ Fuente canonica para decidir cuando delegar trabajo de desarrollo de Poseidon, q
 - `AGENTS.md`: reglas de trabajo y mapas de lectura aplicables por carpeta; no reemplaza un perfil personalizado.
 - Skill: procedimiento reutilizable versionado en `.agents/skills/`; no reemplaza una regla canonica ni justifica por si solo una delegacion.
 
+## Chats permanentes y subagentes
+
+Los chats permanentes de Cajero, Encargado y Administrador no son subagentes. Mantienen contexto funcional, trabajan en ramas/worktrees aislados y se coordinan mediante `docs/coordinacion/README.md`.
+
+- Un chat permanente puede cerrar commits locales en su propia rama despues de `pnpm run check:commit`.
+- Solo Poseidon Central integra esos commits en `main` y ejecuta la validacion transversal.
+- Un subagente sigue siendo temporal y nunca hace commit, push, publicacion ni despliegue.
+- Un chat de rol puede convocar subagentes cuando este protocolo lo justifique, sin cederles integracion ni ampliar el alcance autorizado.
+- `pnpm run check:workstreams` valida prompts, contextos, propietarios y contratos reservados de los chats permanentes.
+
 La carpeta correcta para perfiles del proyecto es `.codex/agents/`. Las skills del proyecto viven separadas en `.agents/skills/` y se rigen por `docs/SKILLS_POSEIDON.md`.
 
 ## Skills antes que perfiles nuevos
@@ -158,6 +168,7 @@ Para cambios de configuracion o perfiles:
 
 ```text
 pnpm run check:agents
+pnpm run check:workstreams
 pnpm run check:skills
 pnpm run check:design
 verificar carga de los perfiles en una nueva tarea Codex

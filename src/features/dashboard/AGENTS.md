@@ -6,7 +6,9 @@ Antes de tocar esta carpeta, leer:
 - `docs/REGLAS_VISUALES.md`
 - `docs/REGLAS_CONTABLES.md`
 - `docs/contextos/CODEX_LAYOUT_BASE.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_CAJERO.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
+- `docs/coordinacion/README.md`
 - `docs/contextos/CODEX_ENCARGADO.md`
 - `docs/modulos/01_panel_cajero.md`
 - `docs/modulos/07_panel_encargado.md`

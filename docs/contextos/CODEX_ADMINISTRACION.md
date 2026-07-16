@@ -19,7 +19,7 @@ Leer este contexto antes de modificar panel administrador, menus administrativos
 
 - `src/App.tsx` conserva estado global, acciones principales y composicion de pantallas.
 - Datos demo, reset operativo y normalizacion viven en `src/data/appData.ts`.
-- Paneles iniciales por rol viven en `src/features/dashboard/RoleDashboard.tsx`.
+- El panel administrativo vive en `src/features/dashboard/AdminDashboard.tsx`; `RoleDashboard.tsx` conserva la seleccion por funcion.
 - Menu y layout base viven en `src/features/layout/AppShell.tsx`.
 - Usuarios y categorias/subcategorias de gastos viven en `src/features/admin/Settings.tsx`.
 - Locales, maquinas y taller viven en `src/features/admin/LocationsMachines.tsx`.

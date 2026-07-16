@@ -22,7 +22,8 @@ Referencias asociadas:
 - `src/navigation/screens.ts` define la URL estable de cada pantalla; `docs/MAPA_RUTAS.md` documenta el contrato completo.
 - `src/infrastructure/session/localSession.ts` conserva `userId` y funcion activa durante la pestaña para soportar recarga.
 - Recuperacion y mantenimiento local viven en `src/features/system/`; el repositorio versionado vive en `src/infrastructure/storage/`.
-- `Panel` vive en `src/features/dashboard/RoleDashboard.tsx` porque cruza datos de caja, diferencias, cuentas y accesos por rol.
+- `RoleDashboard.tsx` conserva la entrada compatible y delega en `CashierDashboard.tsx`, `ManagerDashboard.tsx` o `AdminDashboard.tsx` segun la funcion efectiva.
+- Cada panel tiene contexto y propietario de chat separado; `DashboardActionCard.tsx` y la seleccion de rol siguen reservados al chat central.
 
 ## Reglas criticas
 

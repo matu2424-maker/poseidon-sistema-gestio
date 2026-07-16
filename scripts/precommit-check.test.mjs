@@ -9,6 +9,7 @@ describe("control previo al commit", () => {
   it("selecciona validadores especificos para infraestructura", () => {
     expect(buildCheckPlan([".agents/skills/poseidon-module-change/SKILL.md"])).toEqual(["check:skills"]);
     expect(buildCheckPlan([".codex/config.toml", "docs/REGLAS_VISUALES.md"])).toEqual(["check:agents", "check:design"]);
+    expect(buildCheckPlan(["docs/coordinacion/WORKSTREAMS.json"])).toEqual(["check:workstreams"]);
   });
 
   it("interpreta rutas modificadas y renombradas", () => {

@@ -29,7 +29,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 134 casos en 26 archivos, mas 8 casos E2E en 5 archivos.
+- Validacion automatizada actual: 139 casos en 27 archivos, mas 8 casos E2E en 5 archivos.
 
 ## Ejecutar el proyecto
 
@@ -73,6 +73,7 @@ Antes de cerrar cambios:
 
 ```bash
 pnpm run check:agents
+pnpm run check:workstreams
 pnpm run check:skills
 pnpm run check:design
 pnpm run check
@@ -80,7 +81,7 @@ pnpm run build
 pnpm run check:commit
 ```
 
-`check:agents` valida perfiles y delegacion; `check:skills` valida las cuatro habilidades del repositorio; `check:design` valida el sistema visual. Los tres forman parte de `pnpm run check`. `check:commit` es la entrada unica previa al commit y selecciona controles segun las rutas preparadas.
+`check:agents` valida perfiles y delegacion; `check:workstreams` valida chats permanentes, propietarios y contratos reservados; `check:skills` valida las cuatro habilidades del repositorio; `check:design` valida el sistema visual. Todos forman parte de `pnpm run check`. `check:commit` es la entrada unica previa al commit y selecciona controles segun las rutas preparadas.
 
 Para actualizar deliberadamente las capturas aprobadas de Diferencias con el servidor activo:
 
@@ -300,6 +301,7 @@ docs/REGLAS_GENERALES.md       Reglas transversales de trabajo y auditoria
 docs/PROTOCOLO_AGENTES_CODEX.md Reglas de delegacion y perfiles Codex
 docs/SKILLS_POSEIDON.md          Reglas e inventario de skills Codex
 docs/REGISTRO_DELEGACIONES_AGENTES.md Medicion acumulada de subagentes
+docs/coordinacion/              Chats permanentes, contratos y cola de integracion
 docs/ARQUITECTURA_OBJETIVO_ONLINE.md Diseno futuro sin implementar
 docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md Plan futuro reversible
 docs/modulos/                  Reglas detalladas por panel o modulo
@@ -322,6 +324,7 @@ detener-poseidon.bat           Libera el puerto local 5173
 - Contexto rapido: `docs/CONTEXTO_RAPIDO_CODEX.md`
 - Reglas generales: `docs/REGLAS_GENERALES.md`
 - Protocolo de agentes: `docs/PROTOCOLO_AGENTES_CODEX.md`
+- Coordinacion de chats: `docs/coordinacion/README.md`
 - Skills del repositorio: `docs/SKILLS_POSEIDON.md`
 - Registro de delegaciones: `docs/REGISTRO_DELEGACIONES_AGENTES.md`
 - Modulos: `docs/modulos/`

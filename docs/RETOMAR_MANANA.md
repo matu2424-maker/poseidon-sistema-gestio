@@ -20,6 +20,7 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Apertura, contadores, cierre, diferencias, salarios, movimientos operativos y locales/maquinas usan comandos de aplicacion probados.
 - Codex cuenta con tres perfiles personalizados de solo lectura; `.codex/` no fija cantidad de hilos ni profundidad.
 - `pnpm run check:agents` controla 28 invariantes; plantilla y registro de delegaciones estan versionados.
+- `pnpm run check:workstreams` controla tres chats de rol, prompts, contextos, propiedad de archivos y contratos reservados.
 - El perfil UI actua como custodio de diseno; tres pilotos, sistema visual, referencias y `check:design` quedan versionados.
 - Cuatro skills reutilizables y `check:skills` quedan versionados; `check:commit` es el control unico previo al commit.
 - El hook local usa `.githooks/pre-commit`; GitHub, Supabase y Vercel siguen sin conectarse.
@@ -34,20 +35,23 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Auditoria sin logs sinteticos, con locales congelados y redaccion de credenciales/archivos inline.
 - Modales con foco/Escape, avisos anunciables, filas por teclado y `aria-sort` en todas las grillas ordenables.
 - Cierre salarial definitivo con foto por empleado, bloqueo mensual y revisiones correctivas R1/R2 enlazadas.
-- 134 pruebas automatizadas en 26 archivos y 8 casos E2E en 5 archivos.
+- Paneles iniciales separados en `CashierDashboard`, `ManagerDashboard` y `AdminDashboard`, con selector compatible en `RoleDashboard`.
+- Poseidon Central, Cajero, Encargado y Administrador tienen prompts, workstreams, contratos y plantillas versionados.
+- 139 pruebas automatizadas en 27 archivos y 8 casos E2E en 5 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas de validacion al 2026-07-16: 134 pruebas en 26 archivos y 8 casos E2E en 5 archivos.
+- Metricas de validacion al 2026-07-16: 139 pruebas en 27 archivos y 8 casos E2E en 5 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.
 - Protocolo de agentes y subagentes integrado con un piloto de solo lectura sobre Diferencias.
 - Validacion automatica, medicion obligatoria, regla de tres usos y responsabilidad exclusiva del agente principal documentadas.
 - Skills, validador, hook proporcional y validacion real documentados en `docs/SKILLS_POSEIDON.md` y `docs/VALIDACION_SKILLS_Y_PRECOMMIT.md`.
+- Coordinacion de chats permanentes documentada en `docs/coordinacion/`, con validacion automatica y contratos de entrega.
 
 ## Proximas prioridades de codigo
 
@@ -76,6 +80,7 @@ No iniciar ninguna de estas tareas sin orden o objetivo activo del usuario.
 
 ```text
 pnpm run check
+pnpm run check:workstreams
 pnpm run build
 pnpm run smoke:localhost
 pnpm run check:commit

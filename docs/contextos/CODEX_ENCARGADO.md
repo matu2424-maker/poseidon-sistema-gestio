@@ -15,7 +15,7 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 
 ## Codigo actual
 
-- Panel del encargado vive en `src/features/dashboard/RoleDashboard.tsx`.
+- Panel del encargado vive en `src/features/dashboard/ManagerDashboard.tsx`; `RoleDashboard.tsx` conserva la seleccion por funcion.
 - Menu y layout del encargado viven en `src/features/layout/AppShell.tsx`.
 - Control de gastos vive en `src/features/manager/Expenses.tsx`.
 - Cierre periodico vive en `src/features/reports/Periodic.tsx`.

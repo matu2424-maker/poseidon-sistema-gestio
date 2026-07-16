@@ -26,6 +26,7 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 .agents/skills/poseidon-accounting-regression/   matriz de regresion contable
 .agents/skills/poseidon-localhost-diagnostics/   arranque y diagnostico local
 docs/PROTOCOLO_AGENTES_CODEX.md            fuente canonica de delegacion
+docs/coordinacion/                          chats permanentes, propietarios y cola de integracion
 docs/SKILLS_POSEIDON.md                     fuente canonica de skills
 docs/REGISTRO_DELEGACIONES_AGENTES.md      medicion acumulada
 docs/plantillas/REPORTE_DELEGACION_AGENTES.md contrato de cada registro
@@ -44,7 +45,7 @@ scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
 - Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
 - El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
-- `pnpm run check:agents` valida perfiles; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta los tres antes del codigo.
+- `pnpm run check:agents` valida perfiles; `check:workstreams` valida chats permanentes; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta todos antes del codigo.
 - `.githooks/pre-commit` y `scripts/precommit-hook.ps1` ejecutan `pnpm run check:commit` con el runtime disponible en Windows.
 - Todo subagente terminado se registra; no se considera un perfil nuevo sin tres delegaciones utiles de la misma especialidad.
 
@@ -85,7 +86,7 @@ src/
   navigation/screens.ts    rutas, titulos, menus, permisos y requisitos por pantalla
   features/
     layout/                bienvenida, login, shell y menus
-    dashboard/             paneles iniciales por rol
+    dashboard/             selector compatible y panel independiente por rol
     cashier/               apertura, movimientos, contadores y cierre
     manager/               diferencias y control de gastos
     accounts/              cuentas corrientes
@@ -96,7 +97,7 @@ src/
   styles/global.css        manifiesto ordenado de estilos
   styles/base.css          tokens, reset y controles base
   styles/layout.css        shell y estructura general
-  styles/features/         paneles, caja, salarios y administracion
+  styles/features/         estilos compartidos y extensiones exclusivas por panel de rol
   styles/responsive.css    breakpoints al final de la cascada
 ```
 
@@ -128,6 +129,7 @@ src/
 | `machineHistory.ts` | Eventos de historial de maquinas |
 | `confirmations.ts` | Punto unico de reconfirmacion de interfaz |
 | `navigation/screens.ts` | Registro tipado de pantallas, menus, roles y caja requerida |
+| `docs/coordinacion/WORKSTREAMS.json` | Propiedad verificable de chats permanentes y contratos reservados |
 
 ## Comandos de aplicacion
 
@@ -154,12 +156,12 @@ src/
 
 | Modulo | Lee | Produce o modifica | Referencias obligatorias |
 | --- | --- | --- | --- |
-| Caja | locales, maquinas, cuentas, usuarios | balances, readings, movimientos, auditoria | `CODEX_CAJA`, modulos 01/02/05 |
+| Caja | locales, maquinas, cuentas, usuarios | balances, readings, movimientos, auditoria | `CODEX_NUCLEO_CAJA`, modulos 02/05 |
 | Diferencias | balances, cuentas, auditoria | declarados, estados, movimientos de cuenta | `CODEX_DIFERENCIAS`, modulos 06/11/12 |
 | Cuentas | cuentas, movimientos, balances | vistas y saldo corrido | `CODEX_CUENTAS_CORRIENTES`, modulo 11 |
 | Salarios | personal, historial, caja, cuentas | liquidaciones, cierres y movimientos | `CODEX_SALARIOS`, modulos 10/11/12 |
 | Locales/maquinas | locales, maquinas, readings, balances | asociaciones, contadores e historial | `CODEX_LOCALES_MAQUINAS`, modulos 03/09 |
-| Movimientos cajero | caja, clientes, personal, categorias | gastos, regalos, transferencias, salarios, capital | `CODEX_CAJA`, modulo 04 |
+| Movimientos cajero | caja, clientes, personal, categorias | gastos, regalos, transferencias, salarios, capital | `CODEX_CAJERO`, `CODEX_NUCLEO_CAJA`, modulos 01/04 |
 | Auditoria | todos los comandos sensibles | eventos append-only conceptuales | `CODEX_AUDITORIA`, modulo 12 |
 
 ## Asociaciones transversales
@@ -262,4 +264,4 @@ pnpm run check:commit
 git diff --check
 ```
 
-`pnpm run check` ejecuta `check:agents`, `check:skills`, `check:design`, typecheck, ESLint y la suite automatizada. `check:commit` selecciona ese control completo o validadores de infraestructura segun las rutas preparadas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`.
+`pnpm run check` ejecuta `check:agents`, `check:workstreams`, `check:skills`, `check:design`, typecheck, ESLint y la suite automatizada. `check:commit` selecciona ese control completo o validadores de infraestructura segun las rutas preparadas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`.

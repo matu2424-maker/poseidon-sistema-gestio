@@ -1,6 +1,6 @@
 # Poseidon - Indice de documentacion
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-16
 
 Este archivo es la puerta de entrada a la documentacion. Su objetivo es cargar solo el contexto necesario y evitar que una misma regla quede copiada en varios lugares.
 
@@ -55,6 +55,14 @@ Agregar:
 3. Agregar reglas contables o visuales solo cuando correspondan al perfil convocado.
 4. Al terminar, registrar el subagente en `docs/REGISTRO_DELEGACIONES_AGENTES.md` con `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
 
+### Trabajar con chats permanentes por rol
+
+1. `docs/coordinacion/README.md`.
+2. `docs/coordinacion/WORKSTREAMS.json`.
+3. Contexto corto del rol y contratos compartidos afectados.
+4. Orden de trabajo y entrega en `docs/plantillas/`.
+5. Central integra un commit por vez y actualiza `docs/coordinacion/COLA_INTEGRACION.md`.
+
 ### Ejecutar un procedimiento repetible de Codex
 
 1. `docs/SKILLS_POSEIDON.md`.
@@ -87,6 +95,7 @@ Agregar:
 | Ejecucion local | `README.md` | Documentos funcionales |
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
+| Chats permanentes, propietarios e integracion | `docs/coordinacion/README.md` | Prompts de rol, contextos funcionales |
 | Skills reutilizables de Codex | `docs/SKILLS_POSEIDON.md` | Perfiles TOML, contextos funcionales |
 | Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
 | Revisiones de diseno | `docs/REVISIONES_DE_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
@@ -111,7 +120,9 @@ Agregar:
 
 ## Contextos cortos
 
-- `CODEX_CAJA`: caja, contadores, movimientos y cierre.
+- `CODEX_CAJERO`: experiencia y flujo operativo del cajero.
+- `CODEX_NUCLEO_CAJA`: comandos, calculos y contratos financieros compartidos.
+- `CODEX_CAJA`: indice compatible que dirige a los dos contextos anteriores.
 - `CODEX_DIFERENCIAS`: control y correccion de diferencias.
 - `CODEX_CUENTAS_CORRIENTES`: saldos y movimientos.
 - `CODEX_SALARIOS`: personal, pagos y liquidaciones.

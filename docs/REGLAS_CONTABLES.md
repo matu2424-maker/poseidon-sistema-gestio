@@ -105,7 +105,7 @@ No forman parte del resultado economico:
 
 ## Referencias obligatorias por modulo
 
-- Caja/cierre: `docs/contextos/CODEX_CAJA.md`, `docs/modulos/02_caja_diaria.md`, `docs/modulos/05_cierre_caja.md`.
+- Caja/cierre: `docs/contextos/CODEX_NUCLEO_CAJA.md`, `docs/modulos/02_caja_diaria.md`, `docs/modulos/05_cierre_caja.md`.
 - Diferencias: `docs/contextos/CODEX_DIFERENCIAS.md`, `docs/modulos/06_diferencias_caja.md`.
 - Cuentas corrientes: `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`, `docs/modulos/11_cuentas_corrientes.md`.
 - Salarios: `docs/contextos/CODEX_SALARIOS.md`, `docs/modulos/10_clientes_personal_sueldos.md`.

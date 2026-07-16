@@ -15,9 +15,10 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - `src/App.tsx` orquesta estado y sesion; `src/navigation/screens.ts` define ruta/pantalla/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - La URL conserva el modulo; `sessionStorage` conserva solo `userId` y funcion activa durante la pestaña. No reemplaza Auth real.
 - `src/data/normalizeData.ts` migra/normaliza el snapshot; `src/infrastructure/storage/` valida y persiste el esquema 3.
-- Pruebas actuales: 134 casos en 26 archivos, mas 8 E2E en 5 archivos: ciclo critico de cajero, diferencias/auditoria, rutas por rol, conflicto entre pestañas y cierre salarial correctivo.
+- Pruebas actuales: 139 casos en 27 archivos, mas 8 E2E en 5 archivos: ciclo critico de cajero, diferencias/auditoria, rutas por rol, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
+- `pnpm run check:workstreams` valida los chats permanentes Cajero, Encargado y Administrador, sus prompts, contextos, propietarios y contratos reservados.
 - `poseidon_ui_reviewer` es custodio de diseno en modos propuesta/verificacion; patrones y referencias viven en `docs/SISTEMA_VISUAL_POSEIDON.md` y `docs/referencias-visuales/`.
 - `pnpm run check:design` valida 38 controles de gobierno visual, referencias, tablas accesibles y pesos operativos hasta `600` sin mezclarlo con reglas funcionales.
 - Cuatro skills versionadas en `.agents/skills/` cubren cambio modular, QA visual, regresion contable y diagnostico de localhost.
@@ -73,11 +74,13 @@ No releer por defecto `POSEIDON_FUNCIONAMIENTO`, `MAPA_TECNICO` y `HANDOFF` comp
 - Refactor: `MODULARIZACION_REFERENCIAS.md`.
 - Continuidad inmediata: `RETOMAR_MANANA.md`.
 - Ejecucion: `README.md`.
+- Coordinacion entre chats: `docs/coordinacion/README.md` y `docs/coordinacion/WORKSTREAMS.json`.
 
 ## Comandos
 
 ```text
 pnpm run check:agents
+pnpm run check:workstreams
 pnpm run check:skills
 pnpm run check:design
 pnpm run check

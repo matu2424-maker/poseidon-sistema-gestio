@@ -14,6 +14,7 @@ Este documento permite continuar el proyecto desde otra cuenta o agente sin leer
 6. Documenta cada cambio en su fuente canonica y modulo.
 7. Valida, y crea commit local cuando el bloque quede estable; no hagas push sin pedido.
 8. Para subagentes, sigue `docs/PROTOCOLO_AGENTES_CODEX.md`, registra cada delegacion y conserva la integracion/Git en el agente principal.
+9. Para chats permanentes por rol, sigue `docs/coordinacion/README.md`; cada rol trabaja en su worktree y solo Central integra en `main`.
 
 ## Inicio rapido
 
@@ -41,6 +42,7 @@ No cargar todos los documentos grandes por defecto.
 
 ```text
 pnpm run check:agents
+pnpm run check:workstreams
 pnpm run check:skills
 pnpm run check:design
 pnpm run check
@@ -70,6 +72,7 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - `docs/MAPA_TECNICO.md`: propiedad, dependencias y deuda vigente.
 - `.codex/` y `scripts/validate-agent-config.mjs`: perfiles y validacion automatica de infraestructura Codex.
 - `docs/REGISTRO_DELEGACIONES_AGENTES.md`: medicion real de subagentes, sin inventar tokens ni tiempos.
+- `docs/coordinacion/`: chats de rol, propietarios, contratos compartidos y entrega a Central.
 
 ## Reglas funcionales criticas
 
@@ -104,8 +107,8 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 134 pruebas aprobadas en 26 archivos, mas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas, conflicto entre pestañas y cierre salarial correctivo.
-- Tres perfiles Codex de solo lectura, cuatro skills versionadas y validadores de agentes, skills y sistema visual.
+- 139 pruebas aprobadas en 27 archivos, mas 8 casos E2E en 5 archivos para caja, diferencias/auditoria, rutas, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- Tres perfiles Codex de solo lectura, cuatro chats permanentes coordinados, cuatro skills versionadas y validadores de agentes, workstreams, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 
 ## Riesgos conocidos

@@ -6,6 +6,7 @@ Antes de tocar esta carpeta, leer:
 - `docs/REGLAS_CONTABLES.md`
 - `docs/REGLAS_VISUALES.md`
 - `docs/contextos/CODEX_ENCARGADO.md`
+- `docs/coordinacion/README.md`
 - `docs/contextos/CODEX_DIFERENCIAS.md`
 - `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`
 - `docs/modulos/06_diferencias_caja.md`

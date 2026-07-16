@@ -30,10 +30,21 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - No publicar en Vercel ni conectar servicios externos salvo pedido explicito del usuario.
 - Hacer commit local cuando un bloque quede estable, validado y sea correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin pedido explicito del usuario.
 - Para crear, modificar o validar perfiles/agentes Codex, leer `docs/PROTOCOLO_AGENTES_CODEX.md` y ejecutar `pnpm run check:agents`.
+- Para crear, modificar o coordinar chats permanentes de rol, leer `docs/coordinacion/README.md` y ejecutar `pnpm run check:workstreams`.
 - Para crear, modificar o usar skills del repositorio, leer `docs/SKILLS_POSEIDON.md` y ejecutar `pnpm run check:skills`.
 - Registrar cada delegacion terminada en `docs/REGISTRO_DELEGACIONES_AGENTES.md` usando la plantilla canonica, sin inventar duracion ni consumo.
 - No crear un perfil permanente nuevo sin tres delegaciones utiles documentadas de la misma especialidad y autorizacion explicita del usuario.
-- El agente principal es el unico responsable de integrar resultados, validar, documentar, resolver contradicciones y cerrar commits locales.
+- Poseidon Central es el unico responsable de integrar resultados en `main`, validar transversalmente, resolver contradicciones y cerrar el commit de integracion. Un chat permanente de rol puede commitear solo en su rama/worktree aislado.
+
+## Chats permanentes por rol
+
+- La fuente canonica es `docs/coordinacion/README.md`; la propiedad verificable vive en `docs/coordinacion/WORKSTREAMS.json`.
+- Los chats permanentes son Poseidon Central, Poseidon Cajero, Poseidon Encargado y Poseidon Administrador.
+- Cada chat de rol es propietario de su experiencia, no de todos los dominios que consume.
+- Cada chat de escritura usa rama y worktree propios; no se trabaja en paralelo sobre el mismo checkout.
+- Los contratos compartidos requieren propietario temporal unico asignado por Central.
+- Los chats de rol pueden cerrar commits locales despues de `pnpm run check:commit`, pero no integran `main`, no hacen push ni publican.
+- La sincronizacion confiable usa orden de trabajo, codigo/documentacion, commit y entrega estructurada; no se presume memoria compartida entre chats.
 
 ## Agentes y subagentes Codex
 
@@ -44,7 +55,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Priorizar perfiles personalizados de solo lectura para alcance, contabilidad e interfaz.
 - No usar subagentes para comandos simples, cambios locales evidentes o trabajo cuya respuesta bloquee inmediatamente al agente principal.
 - Ningun subagente hace commit, push, publicacion, despliegue ni conexion externa.
-- La escritura delegada requiere alcance autorizado y propiedad explicita de archivos; el agente principal integra, valida, documenta y cierra el commit.
+- La escritura delegada requiere alcance autorizado y propiedad explicita de archivos; dentro de la delegacion, el agente principal integra, valida, documenta y cierra el commit.
 
 ## Criterios visuales
 

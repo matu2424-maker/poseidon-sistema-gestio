@@ -18,7 +18,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Veintiseis archivos de pruebas, 134 casos, mas 8 casos E2E en 5 archivos.
+- Veintisiete archivos de pruebas, 139 casos, mas 8 casos E2E en 5 archivos.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -149,7 +149,7 @@ La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega un
 - La concurrencia se decide por independencia y utilidad dentro de la capacidad disponible de Codex.
 - Delegar solo trabajo independiente que evite contaminar el contexto principal.
 - No usar subagentes para comandos simples, cambios evidentes ni revisiones duplicadas.
-- El agente principal integra resultados, controla escritura, valida y documenta.
+- En delegaciones temporales, el agente principal integra resultados, controla escritura, valida y documenta.
 - Completado: piloto de Diferencias de caja con mapa de alcance y revision contable, sin cambios funcionales.
 - Ajuste aplicado tras el piloto: limites explicitos de archivos, palabras, riesgos y pruebas por perfil.
 - Completado 2026-07-11: una tarea nueva comprobo presencia y obediencia nominal de los tres perfiles; la API disponible no expone selector nativo `agent_type`.
@@ -157,11 +157,20 @@ La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega un
 - Completado 2026-07-11: tres pilotos UI utiles justifican fortalecer el perfil visual existente, sin crear un cuarto agente.
 - Completado 2026-07-11: patrones, referencias y control automatico viven en `docs/SISTEMA_VISUAL_POSEIDON.md`, `docs/referencias-visuales/` y `pnpm run check:design`.
 - Cada delegacion usa plantilla y registro acumulado; no se crea un perfil nuevo sin tres usos utiles documentados de la misma especialidad.
-- El agente principal conserva responsabilidad exclusiva sobre integracion, validacion, documentacion y Git.
+- Poseidon Central conserva responsabilidad exclusiva sobre integracion en `main`, validacion transversal y resolucion de contradicciones.
 - Fuente canonica: `docs/PROTOCOLO_AGENTES_CODEX.md`.
 - Validacion de subagentes: `docs/VALIDACION_SUBAGENTES_EN_DIFERENCIAS.md`.
 - Revisiones visuales: `docs/REVISIONES_DE_DISENO_POSEIDON.md`.
 - Registro: `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
+
+## Chats permanentes por rol
+
+- Completado 2026-07-16: estructura de Poseidon Central, Cajero, Encargado y Administrador.
+- Cada chat de rol tiene contexto, prompt, propiedad de archivos y stylesheet de extension propios.
+- Los chats de rol trabajan en ramas/worktrees aislados y pueden cerrar commits locales; solo Central integra en `main`.
+- Los contratos compartidos se asignan a un unico propietario temporal y se validan con `pnpm run check:workstreams`.
+- Git, orden de trabajo y entrega estructurada reemplazan cualquier supuesto de memoria compartida.
+- Fuente canonica: `docs/coordinacion/README.md`.
 
 ## Skills y control previo al commit
 

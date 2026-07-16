@@ -7,7 +7,7 @@ Vista de revision operativa y control, separada del flujo visual del cajero.
 ## Estado actual
 
 El layout lateral, cabecera y cambio de funcion viven en `src/features/layout/AppShell.tsx`.
-El panel inicial por rol vive en `src/features/dashboard/RoleDashboard.tsx`.
+El panel del encargado vive en `src/features/dashboard/ManagerDashboard.tsx`; `RoleDashboard.tsx` solo selecciona el panel por funcion efectiva.
 
 El encargado entra directo a su panel y ve:
 

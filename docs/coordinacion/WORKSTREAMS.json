@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "integrationBranch": "main",
+  "central": {
+    "id": "poseidon-central",
+    "title": "Poseidon Central",
+    "prompt": "docs/prompts/CHAT_CENTRAL_POSEIDON.md",
+    "reservedPaths": [
+      "AGENTS.md",
+      "package.json",
+      "scripts/",
+      "src/App.tsx",
+      "src/types.ts",
+      "src/application/",
+      "src/data/",
+      "src/infrastructure/",
+      "src/navigation/",
+      "src/lib/",
+      "src/components/",
+      "src/features/dashboard/RoleDashboard.tsx",
+      "src/features/dashboard/DashboardActionCard.tsx",
+      "src/styles/global.css",
+      "src/styles/base.css",
+      "src/styles/layout.css",
+      "src/styles/responsive.css",
+      "src/styles/features/dashboards.css",
+      "docs/REGLAS_GENERALES.md",
+      "docs/REGLAS_CONTABLES.md",
+      "docs/REGLAS_VISUALES.md",
+      "docs/MAPA_TECNICO.md",
+      "docs/coordinacion/"
+    ]
+  },
+  "roleChats": [
+    {
+      "id": "poseidon-cajero",
+      "title": "Poseidon Cajero",
+      "prompt": "docs/prompts/CHAT_CAJERO_POSEIDON.md",
+      "context": "docs/contextos/CODEX_CAJERO.md",
+      "writeScopes": [
+        "src/features/cashier/",
+        "src/features/dashboard/CashierDashboard.tsx",
+        "src/styles/features/dashboard-cashier.css",
+        "docs/contextos/CODEX_CAJERO.md",
+        "docs/modulos/01_panel_cajero.md"
+      ],
+      "requiredChecks": ["pnpm run check", "pnpm run build", "pnpm run check:commit"]
+    },
+    {
+      "id": "poseidon-encargado",
+      "title": "Poseidon Encargado",
+      "prompt": "docs/prompts/CHAT_ENCARGADO_POSEIDON.md",
+      "context": "docs/contextos/CODEX_ENCARGADO.md",
+      "writeScopes": [
+        "src/features/manager/",
+        "src/features/dashboard/ManagerDashboard.tsx",
+        "src/styles/features/dashboard-manager.css",
+        "docs/contextos/CODEX_ENCARGADO.md",
+        "docs/modulos/07_panel_encargado.md"
+      ],
+      "requiredChecks": ["pnpm run check", "pnpm run build", "pnpm run check:commit"]
+    },
+    {
+      "id": "poseidon-administrador",
+      "title": "Poseidon Administrador",
+      "prompt": "docs/prompts/CHAT_ADMINISTRADOR_POSEIDON.md",
+      "context": "docs/contextos/CODEX_ADMINISTRACION.md",
+      "writeScopes": [
+        "src/features/admin/",
+        "src/features/dashboard/AdminDashboard.tsx",
+        "src/styles/features/dashboard-admin.css",
+        "docs/contextos/CODEX_ADMINISTRACION.md",
+        "docs/modulos/08_panel_administrador.md"
+      ],
+      "requiredChecks": ["pnpm run check", "pnpm run build", "pnpm run check:commit"]
+    }
+  ],
+  "specialists": [
+    {
+      "id": "nucleo-financiero",
+      "context": "docs/contextos/CODEX_NUCLEO_CAJA.md"
+    },
+    {
+      "id": "salarios-personal",
+      "context": "docs/contextos/CODEX_SALARIOS.md"
+    },
+    {
+      "id": "locales-maquinas",
+      "context": "docs/contextos/CODEX_LOCALES_MAQUINAS.md"
+    },
+    {
+      "id": "revision-visual",
+      "context": "docs/REGLAS_VISUALES.md"
+    }
+  ],
+  "workOrderTemplate": "docs/plantillas/ORDEN_TRABAJO_CHAT.md",
+  "handoffTemplate": "docs/plantillas/ENTREGA_CHAT_MODULO.md",
+  "integrationQueue": "docs/coordinacion/COLA_INTEGRACION.md"
+}

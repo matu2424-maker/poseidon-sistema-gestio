@@ -8,7 +8,8 @@ Leer este contexto antes de modificar clientes, personal, papelera, documentos, 
 - `docs/REGLAS_VISUALES.md`
 - `docs/modulos/10_clientes_personal_sueldos.md`
 - `docs/contextos/CODEX_SALARIOS.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_CAJERO.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
 - `docs/contextos/CODEX_AUDITORIA.md`
 
 ## Codigo actual

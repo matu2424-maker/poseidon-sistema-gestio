@@ -98,7 +98,7 @@ Esta es la fuente canonica de criterios visuales permanentes. Antes de modificar
 
 ## Referencias por pantalla
 
-- Cajero: `docs/contextos/CODEX_CAJA.md`, `docs/modulos/01_panel_cajero.md`.
+- Cajero: `docs/contextos/CODEX_CAJERO.md`, `docs/modulos/01_panel_cajero.md`.
 - Diferencias: `docs/contextos/CODEX_DIFERENCIAS.md`, `docs/modulos/06_diferencias_caja.md`.
 - Salarios: `docs/contextos/CODEX_SALARIOS.md`, `docs/modulos/10_clientes_personal_sueldos.md`.
 - Cuentas corrientes: `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`, `docs/modulos/11_cuentas_corrientes.md`.

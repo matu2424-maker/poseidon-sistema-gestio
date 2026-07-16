@@ -56,7 +56,7 @@ El validador oficial `quick_validate.py` de Skill Creator requiere PyYAML. El ru
 - Configuracion local requerida: `git config core.hooksPath .githooks`.
 - Siempre ejecuta el control de whitespace de Git.
 - Si cambia codigo o scripts, ejecuta `check` y `build`.
-- Si cambia solo infraestructura, selecciona `check:skills`, `check:agents` o `check:design` segun las rutas preparadas.
+- Si cambia solo infraestructura, selecciona `check:skills`, `check:agents`, `check:workstreams` o `check:design` segun las rutas preparadas.
 - Documentacion general pura no dispara toda la suite si no afecta esos contratos.
 
 ## Integraciones externas

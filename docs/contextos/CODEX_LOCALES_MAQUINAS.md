@@ -9,7 +9,7 @@ Leer este contexto antes de modificar Locales, Maquinas, Taller, maquinas en des
 - `docs/modulos/09_locales_maquinas_taller.md`
 - `docs/modulos/03_contadores.md`
 - `docs/modulos/05_cierre_caja.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
 - `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`
 
 ## Codigo actual

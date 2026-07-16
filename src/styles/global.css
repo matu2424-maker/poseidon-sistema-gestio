@@ -1,6 +1,9 @@
 @import "./base.css";
 @import "./layout.css";
 @import "./features/dashboards.css";
+@import "./features/dashboard-cashier.css";
+@import "./features/dashboard-manager.css";
+@import "./features/dashboard-admin.css";
 @import "./features/cash.css";
 @import "./features/salaries.css";
 @import "./features/admin.css";

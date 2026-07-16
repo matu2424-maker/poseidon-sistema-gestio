@@ -38,6 +38,9 @@ Esta es la fuente canonica de reglas transversales de trabajo, documentacion y a
 - Cuando existan pruebas automatizadas para el modulo afectado, ejecutar `pnpm test` antes del build final.
 - No hacer push, publicacion ni despliegue sin confirmacion explicita del usuario.
 - Para modularizar, leer `docs/MODULARIZACION_REFERENCIAS.md` y dejar referencias cruzadas porque muchos modulos estan asociados.
+- Para trabajo paralelo entre chats, usar `docs/coordinacion/README.md`: rama/worktree por chat, propiedad exclusiva de archivos, contratos compartidos asignados por Central y entrega estructurada.
+- Los chats de rol pueden commitear en su rama aislada; solo Poseidon Central integra en `main`.
+- No asumir memoria compartida entre chats. Codigo, documentacion, orden de trabajo y commit son las fuentes de sincronizacion.
 
 ## Regla obligatoria de documentacion
 

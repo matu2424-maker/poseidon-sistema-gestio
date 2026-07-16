@@ -9,7 +9,8 @@ Leer este contexto antes de modificar personal, pago de salarios, liquidacion de
 - `docs/modulos/10_clientes_personal_sueldos.md`
 - `docs/modulos/11_cuentas_corrientes.md`
 - `docs/modulos/04_movimientos_operativos.md`
-- `docs/contextos/CODEX_CAJA.md`
+- `docs/contextos/CODEX_CAJERO.md`
+- `docs/contextos/CODEX_NUCLEO_CAJA.md`
 
 ## Codigo actual
 

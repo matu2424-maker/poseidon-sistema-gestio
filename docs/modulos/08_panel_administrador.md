@@ -43,7 +43,8 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - `src/data/appData.ts` y `src/data/normalizeData.ts`: datos demo y normalizacion/migracion separadas.
 - `src/features/layout/AppShell.tsx`: pantalla inicial, login, layout lateral y cambio a funcion Cajero.
 - `src/navigation/screens.ts`: menu agrupado, titulos, permisos y requisito de caja abierta.
-- `src/features/dashboard/RoleDashboard.tsx`: paneles iniciales por rol y accesos rapidos.
+- `src/features/dashboard/AdminDashboard.tsx`: panel administrativo y accesos rapidos.
+- `src/features/dashboard/RoleDashboard.tsx`: seleccion compatible del panel por funcion efectiva.
 - `src/features/admin/Settings.tsx`: usuarios y categorias/subcategorias de gastos.
 - `src/features/admin/LocationsMachines.tsx` y `src/features/admin/locationsMachines/`: locales, maquinas, taller, editores e historiales separados.
 - `src/features/admin/Clients.tsx`: clientes administrativos y editor compartido.

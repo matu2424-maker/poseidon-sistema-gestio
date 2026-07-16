@@ -10,6 +10,7 @@ Con el runtime del proyecto disponible:
 
 ```bash
 pnpm run check:agents
+pnpm run check:workstreams
 pnpm run check:skills
 pnpm run check:design
 pnpm run check
@@ -26,7 +27,7 @@ pnpm run check:commit
 5. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
 6. Vitest sobre `src/` y `scripts/`.
 
-`check:agents`, `check:skills` y `check:design` pueden ejecutarse por separado para su infraestructura. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
+`check:agents`, `check:workstreams`, `check:skills` y `check:design` pueden ejecutarse por separado para su infraestructura. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
 
 ## Entorno y servidor
 
@@ -81,7 +82,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-16
 
-- 26 archivos de pruebas y 134 casos aprobados, incluidos contratos de agentes, skills, control previo al commit, gobierno visual, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion, snapshot, referencias y conflictos de escritura.
+- 27 archivos de pruebas y 139 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion, snapshot, referencias y conflictos de escritura.
 - 8 casos E2E en 5 archivos aprobados para caja, diferencias/auditoria, navegacion de roles, accesibilidad, conflicto entre pestañas y cierre salarial correctivo R1.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.
