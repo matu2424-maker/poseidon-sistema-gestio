@@ -9,6 +9,7 @@ export function CashierMovementPanel({
   total,
   onBack,
   onAdd,
+  hideTitle = false,
   children,
 }: {
   title: string;
@@ -17,13 +18,14 @@ export function CashierMovementPanel({
   total: number;
   onBack?: () => void;
   onAdd?: () => void;
+  hideTitle?: boolean;
   children: ReactNode;
 }) {
   return (
     <section className="admin-focus movement-admin-page">
       <div className="admin-header">
         <div>
-          <h2>{title}</h2>
+          {!hideTitle && <h2>{title}</h2>}
           {detail && <p className="helper">{detail}</p>}
         </div>
         <div className="admin-header-actions">

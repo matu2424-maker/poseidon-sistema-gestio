@@ -1,6 +1,6 @@
 # Contexto Codex - Encargado
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-17
 
 Leer este contexto antes de modificar panel del encargado, diferencias, control de gastos, cuentas corrientes o cierres periodicos. Referencias asociadas:
 
@@ -22,11 +22,13 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 - Diferencias usan helpers de `src/lib/differences.ts`.
 - Movimientos de cuenta usan `src/lib/accountMovements.ts`.
 - Saldos de local usan `src/lib/currentAccounts.ts`.
+- Gastos y retiros/aportes operativos reutilizan `src/features/cashier/Movements.tsx`; su autorizacion compartida vive en `src/application/movements/operatingMovementCommands.ts`.
 
 ## Reglas criticas
 
 - Encargado ve solo locales asignados.
-- Encargado no opera caja desde el menu lateral; cambia a funcion Cajero si necesita operar caja.
+- Encargado asignado puede registrar gastos y retiros/aportes sobre la caja abierta desde su funcion propia.
+- Apertura, contadores, transferencias, regalos, salarios y cierre requieren cambiar a funcion Cajero.
 - Panel del encargado no debe repetir titulos que ya muestra la barra superior.
 - Diferencias se revisan, corrigen, verifican o anulan con auditoria completa.
 - Cierres periodicos son fotos auditadas; no borran cajas ni movimientos.
@@ -46,4 +48,5 @@ Leer este contexto antes de modificar panel del encargado, diferencias, control 
 3. Abrir Diferencias y gestionar una recaudacion.
 4. Abrir Cuentas corrientes y verificar efectivo/banco.
 5. Abrir Control de gastos y revisar/anular un gasto.
-6. Confirmar que auditoria registra usuario y funcion.
+6. Con una caja abierta, registrar un gasto y un aporte/retiro desde `Operacion del local`.
+7. Confirmar que Cajero ve el mismo movimiento y que auditoria registra usuario real, rol y funcion `ENCARGADO`.

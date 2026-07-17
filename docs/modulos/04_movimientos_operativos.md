@@ -1,6 +1,6 @@
 # Modulo 04 - Gastos, transferencias, regalos, salarios, retiros y aportes
 
-Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se ejecutan mediante `src/application/movements/operatingMovementCommands.ts`. Cada comando valida funcion Cajero y caja abierta, y actualiza entidad, cuentas y auditoria en una operacion tipada. La interfaz conserva solamente formularios, confirmaciones y mensajes.
+Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se ejecutan mediante `src/application/movements/operatingMovementCommands.ts`. Cada comando valida funcion, rol real, usuario activo, local asignado y caja abierta, y actualiza entidad, cuentas y auditoria en una operacion tipada. La interfaz conserva solamente formularios, confirmaciones y mensajes.
 
 ## Regla comun de efectivo
 
@@ -23,6 +23,7 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - Se pueden eliminar/anular antes de cerrar caja.
 - Categorias y subcategorias se definen desde administrador.
 - Encargado/admin revisan gastos en `Control de gastos`, pantalla ubicada en `src/features/manager/Expenses.tsx`.
+- El Encargado asignado tambien puede registrar y eliminar gastos de la caja abierta desde `Cargar gastos`, sin cambiar a Cajero. El comando usa su funcion `ENCARGADO`, el mismo `balanceId` y la misma cuenta `Local / Efectivo`.
 - Encargado/admin no pueden anular un gasto historico con impacto en efectivo mientras exista otra caja abierta del local.
 - La tabla de control permite ordenar por todas las columnas visibles de datos.
 
@@ -75,4 +76,6 @@ Las altas y anulaciones de gastos, transferencias, regalos, retiros y aportes se
 - Retiros salen de cuenta corriente del local.
 - Aportes entran a cuenta corriente del local.
 - Un retiro operativo en efectivo se rechaza si supera el saldo `Local / Efectivo`; un retiro por transferencia queda fuera de esta validacion.
-- La carga requiere funcion activa `CAJERO`; encargado/administrador registran el movimiento usando `Trabajar como cajero` y conservan su usuario real en auditoria.
+- La carga admite funcion `CAJERO` o `ENCARGADO`. Para Encargado exige local asignado y conserva rol real, funcion, usuario y recaudacion en auditoria.
+- El Administrador conserva el flujo `Trabajar como cajero`; esta excepcion no amplia su funcion administrativa.
+- La pantalla muestra caja activa, efectivo disponible, banco actual y funcion usada. Una salida sin fondos se rechaza completa; no se crea cuota, deuda ni movimiento parcial.

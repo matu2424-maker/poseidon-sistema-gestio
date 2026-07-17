@@ -1,6 +1,6 @@
 # Poseidon - Reglas contables
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Esta es la fuente canonica de reglas economicas, financieras y de cuentas corrientes. Antes de modificar caja, cierre, diferencias, cuentas corrientes, salarios, gastos, transferencias, regalos, retiros o aportes, leer este archivo y el contexto del modulo afectado.
 
@@ -45,6 +45,7 @@ No forman parte del resultado economico:
 ## Caja diaria
 
 - Solo puede existir una caja abierta por local, independientemente de la fecha operativa.
+- La caja abierta es una instancia operativa y de auditoria sobre las cuentas corrientes del local; no es dinero separado ni propiedad exclusiva del cajero que la abrio.
 - La caja abre con el saldo activo de `Local / Efectivo` y `Local / Banco`.
 - Una transferencia mueve el importe de `Local / Efectivo` a `Local / Banco`; no cambia el resultado economico y tambien queda reflejada en la cuenta de transferencias.
 - La primera caja de un local exige declarar aporte inicial efectivo y banco.
@@ -67,6 +68,17 @@ No forman parte del resultado economico:
 - Si `efectivo esperado` y `Local / Efectivo` ya estan desconciliados, se bloquean contadores, movimientos, salarios y cierre antes de mutar. Un aporte ordinario tambien se bloquea porque moveria ambos saldos por igual y no corregiria el delta tecnico.
 - Una anulacion o correccion historica con impacto en efectivo no se ejecuta mientras haya otra caja abierta del mismo local. Los reversos de la caja abierta siguen permitidos.
 - El saldo banco es independiente y queda fuera de esta validacion de efectivo.
+
+## Actores sobre una caja abierta
+
+- Cajero y Encargado autorizado operan sobre el mismo `balanceId`, `Local / Efectivo` y `Local / Banco`; no se crea una segunda caja ni un saldo paralelo por usuario.
+- El Encargado, manteniendo funcion `ENCARGADO`, puede registrar gastos y retiros/aportes solo en una caja `EN_PROCESO` de un local incluido en sus `localIds`.
+- El Encargado no recibe por esta excepcion permiso para apertura, contadores, transferencias, regalos, pagos salariales ni cierre. Esas operaciones conservan funcion `CAJERO`.
+- Un gasto del Encargado resta resultado economico y `Local / Efectivo` igual que un gasto del Cajero. Un aporte o retiro conserva su naturaleza financiera y no modifica resultado economico.
+- Cada alta o anulacion guarda el usuario real, rol real, funcion activa, fecha/hora, `balanceId`, `localId`, cuenta y auditoria correspondientes.
+- Si el efectivo no alcanza, el comando rechaza la operacion completa. No crea cuotas, deudas, pagos parciales ni movimientos pendientes; se requiere un aporte real previo, otro medio permitido o cancelar.
+- En almacenamiento local, una pestana pasiva y sin mutaciones propias adopta los cambios persistidos por otra pestana. Una pestana con cambios pendientes conserva el control optimista y no puede sobrescribir el snapshot vigente.
+- Esta sincronizacion local cubre pestanas del mismo navegador. Operacion simultanea entre equipos o navegadores requiere el backend transaccional pendiente y no se considera resuelta por `localStorage`.
 
 ## Libro de movimientos
 

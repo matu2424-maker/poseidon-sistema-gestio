@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -115,10 +115,10 @@ src/
 | `audit.ts` | Construccion de eventos, resolucion de local y visibilidad por rol |
 | `lib/storage.ts` | Preferencias locales de columnas |
 | `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 4 separa migracion financiera de normalizacion |
-| `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo y codec de respaldo |
+| `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo, suscripcion opcional a cambios y codec de respaldo |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
-| `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, bloqueo y recuperacion sin acoplar App al adaptador |
-| `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, comparacion optimista, importacion y exportacion local |
+| `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, sincronizacion pasiva entre pestanas, bloqueo y recuperacion sin acoplar App al adaptador |
+| `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, eventos de cambio, comparacion optimista, importacion y exportacion local |
 | `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
 | `accountMovements.ts` | Movimientos derivados, saldo corrido y ajustes de diferencias append-only encadenados |
 | `cashTotals.ts` | Totales por caja y resultado de lecturas |
@@ -141,7 +141,7 @@ src/
 | --- | --- |
 | `application/cash/openCash.ts` | Apertura, verificacion de saldos heredados, aportes iniciales, lecturas, cuentas y auditoria |
 | `application/cash/saveReading.ts` | Validacion/guardado de contador, reconciliacion previa, resultado, cuenta y auditoria |
-| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con reconciliacion, efectivo, cuenta y auditoria |
+| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con autorizacion por actor/local, reconciliacion, efectivo, cuenta y auditoria |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
 | `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
 | `application/cash/closeCash.ts` | Cierre, reconciliacion caja/libro, bloqueo por efectivo negativo, retiros, maquinas, diferencias, cuentas, historial y auditoria |
@@ -193,6 +193,7 @@ src/
 - Features cuentan con `AGENTS.md` cortos de referencia.
 - `LocationsMachines.tsx` ya separa editores, historiales y helpers en `features/admin/locationsMachines/`.
 - `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
+- `Movements.tsx` reutiliza gastos y capital entre Cajero y Encargado; recibe la funcion activa y no replica reglas de autorizacion.
 - `SalarySettlements.tsx` ya separa su editor de escritura.
 - El cierre salarial y sus revisiones ya se ejecutan mediante comandos; `salaryClosures.ts` comparte calculo, snapshot y bloqueo entre dominio e interfaz.
 - `appData.ts` delega la normalizacion estructural en `data/normalizeData.ts`; `data/migrateData.ts` hidrata segun la version y evita reconstrucciones financieras silenciosas en snapshots vigentes.
@@ -226,13 +227,15 @@ Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de pl
 
 ### Alta
 
-- Apertura, contadores, cierre y salarios no aplican todavia una politica uniforme de rol, funcion activa y local asignado dentro de cada comando; parte del control depende de navegacion/UI.
+- Movimientos operativos ya validan actor, funcion y local dentro del comando. Apertura, contadores, cierre y salarios todavia no aplican una politica uniforme equivalente; parte de ese control depende de navegacion/UI.
 - El local operativo de `App.tsx` sigue resolviendose como Poseidon o el primer local; la estructura de datos es multi-local, pero el contexto operativo multi-local aun no esta completo.
 - La apertura ya rechaza cualquier segunda caja abierta del mismo local, sin depender de la fecha. Traslados/asignaciones de maquinas, ajustes administrativos de contadores y cierre de local tambien se bloquean durante esa caja.
 - Cierres periodicos, revision/anulacion administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
 - Cobertura automatizada insuficiente para cierre periodico, formularios administrativos y todos los flujos completos del encargado.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales y conserva el intento fallido para descargar o reintentar.
 - El adaptador local compara el snapshot esperado con el almacenado y evita que una pestaña desactualizada sobrescriba otra.
+
+El mismo adaptador notifica cambios: una pestana pasiva se rehidrata automaticamente, mientras una pestana con revision local pendiente conserva el conflicto y el respaldo de recuperacion.
 
 Completado en integridad local: los movimientos persistidos se conservan, las anulaciones usan contramovimientos y las bajas definitivas validan referencias.
 

@@ -6,12 +6,15 @@ import type {
   CapitalMovementPerson,
   CapitalMovementType,
   Client,
+  Role,
   User,
 } from "../../types";
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
 import { formatDateTime } from "../../lib/dates";
 import { readUploadFile } from "../../lib/files";
 import { confirmAction } from "../../lib/confirmations";
+import { localAccountBalances } from "../../lib/currentAccounts";
+import { balanceVisibleId, roleLabels } from "../../lib/display";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
@@ -36,10 +39,36 @@ const clientNameWithDocument = (data: AppData, clientId: string | undefined) => 
   const client = data.clients.find((item) => item.id === clientId);
   return client ? `${client.name} - ${clientDocumentLabel(client)}` : "";
 };
+
+function OperatingMovementContext({ data, balance, actorRole }: { data: AppData; balance: Balance; actorRole: Role }) {
+  const balances = localAccountBalances(data, balance.localId);
+  return (
+    <div className="account-summary-grid four movement-context-summary" aria-label="Contexto de la caja activa">
+      <div>
+        <span>Caja activa</span>
+        <strong>{balanceVisibleId(data, balance)}</strong>
+      </div>
+      <div>
+        <span>Efectivo disponible</span>
+        <strong>{money(balances.cash)}</strong>
+      </div>
+      <div>
+        <span>Dinero en banco</span>
+        <strong>{money(balances.bank)}</strong>
+      </div>
+      <div>
+        <span>Registrando como</span>
+        <strong>{roleLabels[actorRole]}</strong>
+      </div>
+    </div>
+  );
+}
+
 export function Expenses({
   data,
   balance,
   user,
+  actorRole,
   patchData,
   setMessage,
   onBack,
@@ -47,6 +76,7 @@ export function Expenses({
   data: AppData;
   balance: Balance;
   user: User;
+  actorRole: Role;
   patchData: (updater: (current: AppData) => AppData) => void;
   setMessage: (message: string) => void;
   onBack?: () => void;
@@ -70,7 +100,7 @@ export function Expenses({
       receiptFileType: uploadedReceipt?.type,
     };
     patchData((current) => {
-      const result = createExpenseCommand(current, input, commandContext(user, "CAJERO"));
+      const result = createExpenseCommand(current, input, commandContext(user, actorRole));
       setMessage(result.ok ? "Gasto guardado." : result.error);
       return result.ok ? result.data : current;
     });
@@ -80,7 +110,7 @@ export function Expenses({
   const removeExpense = (id: string) => {
     if (!confirmAction("Eliminar este gasto de la caja abierta?")) return;
     patchData((current) => {
-      const result = deleteExpenseCommand(current, balance.id, id, commandContext(user, "CAJERO"));
+      const result = deleteExpenseCommand(current, balance.id, id, commandContext(user, actorRole));
       setMessage(result.ok ? "Gasto eliminado." : result.error);
       return result.ok ? result.data : current;
     });
@@ -88,7 +118,8 @@ export function Expenses({
 
   if (!activeCategories.length) {
     return (
-      <CashierMovementPanel title="Cargar gastos" detail="Registro de gastos con categoria, subcategoria y comprobante." totalLabel="gastos" total={items.length} onBack={onBack}>
+      <CashierMovementPanel title="Cargar gastos" detail="Registro de gastos con categoria, subcategoria y comprobante." totalLabel="gastos" total={items.length} onBack={onBack} hideTitle={actorRole === "ENCARGADO"}>
+        <OperatingMovementContext data={data} balance={balance} actorRole={actorRole} />
         <p className="notice">No hay categorias de gastos activas.</p>
       </CashierMovementPanel>
     );
@@ -101,7 +132,9 @@ export function Expenses({
       totalLabel="gastos"
       total={items.length}
       onBack={onBack}
+      hideTitle={actorRole === "ENCARGADO"}
     >
+      <OperatingMovementContext data={data} balance={balance} actorRole={actorRole} />
       <MovementTable
         columns={["Categoria", "Descripcion", "Monto", "Accion"]}
         rows={items.map((item) => ({
@@ -451,6 +484,7 @@ export function CapitalMovements({
   data,
   balance,
   user,
+  actorRole,
   patchData,
   setMessage,
   onBack,
@@ -458,6 +492,7 @@ export function CapitalMovements({
   data: AppData;
   balance: Balance;
   user: User;
+  actorRole: Role;
   patchData: (updater: (current: AppData) => AppData) => void;
   setMessage: (message: string) => void;
   onBack?: () => void;
@@ -484,7 +519,7 @@ export function CapitalMovements({
       note: String(form.get("note") ?? "").trim(),
     };
     patchData((current) => {
-      const result = createCapitalMovementCommand(current, input, commandContext(user, "CAJERO"));
+      const result = createCapitalMovementCommand(current, input, commandContext(user, actorRole));
       setMessage(result.ok ? (type === "RETIRO" ? "Retiro registrado." : "Aporte de capital registrado.") : result.error);
       return result.ok ? result.data : current;
     });
@@ -494,7 +529,7 @@ export function CapitalMovements({
   const annulMovement = (id: string) => {
     if (!confirmAction("Anular este retiro/aporte?")) return;
     patchData((current) => {
-      const result = annulCapitalMovementCommand(current, balance.id, id, commandContext(user, "CAJERO"));
+      const result = annulCapitalMovementCommand(current, balance.id, id, commandContext(user, actorRole));
       setMessage(result.ok ? "Movimiento anulado." : result.error);
       return result.ok ? result.data : current;
     });
@@ -507,7 +542,9 @@ export function CapitalMovements({
       totalLabel="movimientos"
       total={items.length}
       onBack={onBack}
+      hideTitle={actorRole === "ENCARGADO"}
     >
+      <OperatingMovementContext data={data} balance={balance} actorRole={actorRole} />
       <div className="account-summary-grid movement-summary-grid">
         <div>
           <span>Retiros</span>

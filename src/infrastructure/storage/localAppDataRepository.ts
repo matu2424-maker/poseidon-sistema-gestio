@@ -94,7 +94,16 @@ const browserStorage: KeyValueStorage = {
   removeItem: (key) => localStorage.removeItem(key),
 };
 
-export const localAppDataRepository = createLocalAppDataRepository(browserStorage);
+export const localAppDataRepository: AppDataRepository = {
+  ...createLocalAppDataRepository(browserStorage),
+  subscribe: (listener) => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY) listener();
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  },
+};
 
 export const localAppDataBackupCodec: AppDataBackupCodec = {
   serialize: serializeAppData,

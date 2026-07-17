@@ -1,6 +1,6 @@
 # Contexto Codex - Nucleo de caja y control financiero
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Leer este contexto antes de modificar comandos, formulas, cuentas, diferencias, saldos o auditoria asociados a una recaudacion. La interfaz del cajero se consulta en `CODEX_CAJERO`.
 
@@ -47,12 +47,13 @@ Estos archivos son contratos compartidos. Solo un chat recibe propiedad de escri
 - La migracion esquema 3 -> 4 puede agregar un puente `MIGRACION` solo si las transferencias historicas reconstruidas explican exactamente el delta. No cambia banco ni resultado economico y no borra movimientos previos.
 - Una mutacion historica de efectivo se bloquea si hay otra caja abierta del mismo local; los reversos de la caja vigente siguen permitidos.
 - Esta regla no introduce estado pendiente ni modifica banco o resultado economico.
+- Una pestana pasiva se sincroniza con el ultimo guardado; si tiene una mutacion propia pendiente, conserva el conflicto en vez de mezclar versiones.
 - Una pestaña desactualizada no sobrescribe el snapshot vigente.
 
 ## Consumidores
 
 - Cajero: ejecuta operaciones diarias mediante la interfaz.
-- Encargado: revisa cuentas, gastos y diferencias; no opera caja sin cambiar a funcion Cajero.
+- Encargado: revisa cuentas, gastos y diferencias; ademas puede registrar gastos y retiros/aportes en la caja abierta de su local desde funcion `ENCARGADO`.
 - Administrador: controla y audita; los ajustes usan comandos explicitos.
 - Salarios, maquinas y reportes consumen identificadores y resultados de caja.
 
@@ -64,5 +65,6 @@ Estos archivos son contratos compartidos. Solo un chat recibe propiedad de escri
 - Caja/libro desconciliados: bloqueos sin mutacion, aviso visible y rechazo del cierre antes de diferencias o retiros.
 - Saldos antes y despues, movimiento y contramovimiento cuando corresponda.
 - Asociacion con `balanceId` y `localId`.
+- Dos pestanas: alta del Encargado visible para Cajero sin recarga manual y conflicto preservado ante una version local realmente desactualizada.
 - Apertura, cierre y diferencia en efectivo y banco.
 - `pnpm test`, `pnpm run build` y smoke por los roles afectados.

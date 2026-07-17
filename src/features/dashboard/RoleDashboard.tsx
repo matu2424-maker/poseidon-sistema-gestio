@@ -28,7 +28,7 @@ export function Panel({
   }
 
   if (effectiveRole === "ENCARGADO") {
-    return <ManagerDashboard data={data} local={local} setScreen={setScreen} />;
+    return <ManagerDashboard data={data} local={local} openBalance={openBalance} setScreen={setScreen} />;
   }
 
   return (

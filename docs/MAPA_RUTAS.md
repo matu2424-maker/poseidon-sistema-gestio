@@ -1,6 +1,6 @@
 # Poseidon - Mapa de rutas
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-17
 
 Fuente canonica de URLs de la aplicacion. `src/navigation/screens.ts` conserva la implementacion tipada de ruta, titulo, roles permitidos y requisito de caja abierta de cada pantalla.
 
@@ -14,7 +14,7 @@ Fuente canonica de URLs de la aplicacion. `src/navigation/screens.ts` conserva l
 - Actualizar o abrir una URL directa conserva el modulo solicitado despues de seleccionar un usuario autorizado.
 - Cerrar sesion vuelve a `/ingresar`.
 - Una ruta desconocida vuelve a `/`.
-- El rol real y la funcion activa siguen siendo distintos; encargado/admin deben cambiar a funcion Cajero para entrar a rutas operativas.
+- El rol real y la funcion activa siguen siendo distintos. Encargado puede entrar como `ENCARGADO` solo a gastos y retiros/aportes de una caja abierta asignada; el resto de rutas operativas exige funcion Cajero.
 
 ## Rutas publicas
 
@@ -46,7 +46,7 @@ El contenido de `/panel` depende de la funcion activa.
 | Cerrar caja | `/caja/cerrar` | Si |
 | Resumen de recaudaciones | `/recaudaciones` | No |
 
-Las rutas operativas de caja solo admiten funcion activa `CAJERO`. `/recaudaciones` tambien admite Encargado y Administrador como consulta.
+`/caja/gastos` y `/caja/capital` admiten Cajero o Encargado y exigen caja abierta. Las demas rutas operativas admiten solo funcion `CAJERO`. `/recaudaciones` tambien admite Encargado y Administrador como consulta.
 
 ## Control, cierres y reportes
 

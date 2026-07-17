@@ -28,10 +28,13 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 ## Reglas
 
 - No opera caja desde la barra lateral.
-- Para operar caja usa Trabajar como cajero.
+- Desde `Operacion del local` puede registrar gastos y retiros/aportes en la caja abierta de su local sin cambiar de funcion.
+- Para apertura, contadores, transferencias, regalos, salarios y cierre usa `Trabajar como cajero`.
 - Puede consultar `Resumen de cajas` como encargado porque es una vista de auditoria sin comandos operativos.
 - Al cambiar a cajero conserva usuario real y registra funcion usada.
 - Puede revisar diferencias, gastos, cuentas corrientes, cierres periodicos, personal, salarios, clientes, reportes y auditoria.
+- Los comandos operativos del Encargado validan usuario activo, rol real, funcion `ENCARGADO`, local asignado, caja abierta, conciliacion y efectivo disponible.
+- El movimiento queda asociado al mismo `balanceId` y cuentas corrientes que usa el Cajero. Una pestana pasiva adopta el guardado de la otra; un cambio propio pendiente mantiene el bloqueo por conflicto.
 - En Diferencias, el encargado gestiona desde una pantalla de control con filtros y ventana flotante de detalle, no con formularios largos dentro de la tabla.
 - Control de gastos vive en `src/features/manager/Expenses.tsx`.
 - En Control de gastos la tabla permite ordenar por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision.
@@ -51,7 +54,7 @@ Con el dataset demo inicial, el panel del encargado muestra datos reales de prue
 
 - `Control financiero`: una banda compacta con diferencias, cuenta efectivo y cuenta banco.
 - `Resultado economico`: una banda compacta con ingreso total, salida total y resultado neto del mes.
-- Debajo hay una unica fila de accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
+- Debajo hay una zona compacta de operacion de caja activa con dos botones alineados y una fila separada de accesos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
 - En `Cierres y reportes` aparecen `Resumen de cajas`, `Cierre periodico` y `Reportes`; no aparece apertura de caja.
 - Las metricas no contienen botones para evitar duplicar destinos; los accesos rapidos no reemplazan al menu lateral.
 - La pantalla de Diferencias prioriza pendientes por defecto y permite buscar/filtrar antes de abrir el detalle de cada recaudacion.

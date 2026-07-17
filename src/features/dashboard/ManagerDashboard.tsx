@@ -8,16 +8,19 @@ import {
   cashDifferenceForBalance,
   differenceIsPending,
 } from "../../lib/differences";
+import { balanceVisibleId } from "../../lib/display";
 import { money } from "../../lib/money";
-import type { AppData, Local, Screen } from "../../types";
+import type { AppData, Balance, Local, Screen } from "../../types";
 
 export function ManagerDashboard({
   data,
   local,
+  openBalance,
   setScreen,
 }: {
   data: AppData;
   local: Local;
+  openBalance: Balance | undefined;
   setScreen: (screen: Screen) => void;
 }) {
   const localClosedBalances = data.balances
@@ -132,6 +135,27 @@ export function ManagerDashboard({
             ]}
           />
         </div>
+      </section>
+
+      <section className="manager-operation-section" aria-labelledby="manager-operation-title">
+        <div className="manager-section-heading manager-operation-heading">
+          <div>
+            <h2 id="manager-operation-title">Operacion de la caja activa</h2>
+            <p className="helper">
+              {openBalance
+                ? `${balanceVisibleId(data, openBalance)} · ${openBalance.operatingDate} · Efectivo disponible ${money(localBalances.cash)}`
+                : "No hay una caja abierta en Poseidon. Los movimientos operativos quedan deshabilitados."}
+            </p>
+          </div>
+        </div>
+        <nav className="manager-shortcuts manager-operation-shortcuts" aria-label="Movimientos de la caja activa">
+          <button className="button primary compact" type="button" disabled={!openBalance} onClick={() => setScreen("expenses")}>
+            Registrar gasto
+          </button>
+          <button className="button primary compact" type="button" disabled={!openBalance} onClick={() => setScreen("capital-movements")}>
+            Retiros / aportes
+          </button>
+        </nav>
       </section>
 
       <nav className="manager-shortcuts" aria-label="Accesos de revision del encargado">

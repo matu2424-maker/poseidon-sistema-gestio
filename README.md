@@ -19,6 +19,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Persistencia: snapshot JSON esquema 4 en `localStorage`, conservando la clave compatible `poseidon-sistema-gestion-v2`.
 - La carga separa normalizacion estructural de migraciones financieras incrementales. La migracion 3 -> 4 reconcilia de forma auditada el defecto historico de transferencias en efectivo solo cuando el delta tiene causalidad exacta.
 - La UI usa el puerto asincrono `AppDataRepository`; el adaptador activo sigue siendo `localStorage` y serializa escrituras para conservar su orden.
+- Una pestana pasiva del mismo navegador adopta automaticamente el ultimo snapshot guardado; una pestana con cambios propios conserva el bloqueo por conflicto.
 - Cada escritura compara la version leida. Si otra pestaña guardo antes, Poseidon no sobrescribe y ofrece descargar el intento o cargar la version vigente.
 - El administrador puede exportar e importar respaldos desde `Sistema > Datos locales`.
 - Si el snapshot esta corrupto, la aplicacion no lo reemplaza: ofrece descargarlo antes de iniciar datos nuevos.
@@ -30,7 +31,8 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Los comprobantes e imagenes guardan metadatos, no el archivo completo, para evitar superar el limite de `localStorage`.
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
-- Validacion automatizada actual: 155 casos en 29 archivos, mas 10 casos E2E en 5 archivos.
+- Un Encargado asignado puede registrar gastos y retiros/aportes en la caja activa desde su funcion real; apertura, contadores, transferencias, regalos, salarios y cierre siguen requiriendo funcion Cajero.
+- Validacion automatizada actual: 158 casos en 29 archivos, mas 11 casos E2E en 6 archivos.
 
 ## Ejecutar el proyecto
 

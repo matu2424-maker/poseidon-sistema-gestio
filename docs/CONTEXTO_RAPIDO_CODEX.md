@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a la tarea.
 
@@ -15,7 +15,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - `src/App.tsx` orquesta estado y sesion; `src/navigation/screens.ts` define ruta/pantalla/permisos y `src/navigation/lazyScreens.ts` carga las pantallas funcionales bajo demanda.
 - La URL conserva el modulo; `sessionStorage` conserva solo `userId` y funcion activa durante la pestaña. No reemplaza Auth real.
 - `src/data/normalizeData.ts` normaliza estructura; `src/data/migrateData.ts` aplica migraciones incrementales y `src/infrastructure/storage/` valida y persiste el esquema 4.
-- Pruebas actuales: 155 casos en 29 archivos, mas 10 E2E en 5 archivos: ciclo critico de cajero, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, rutas por rol, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- Pruebas actuales: 158 casos en 29 archivos, mas 11 E2E en 6 archivos: ciclo critico de cajero, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, operacion concurrente de Encargado/Cajero, rutas por rol, sincronizacion y conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Infraestructura Codex: `.codex/config.toml` conserva interrupciones visibles sin fijar hilos ni profundidad; `.codex/agents/` contiene perfiles de solo lectura para alcance, contabilidad e interfaz.
 - `pnpm run check:agents` valida 28 controles y cada delegacion se mide en `docs/REGISTRO_DELEGACIONES_AGENTES.md`.
 - `pnpm run check:workstreams` valida los chats permanentes Cajero, Encargado y Administrador, sus prompts, contextos, propietarios y contratos reservados.
@@ -37,6 +37,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Resultado economico = resultado maquinas - gastos - salarios - regalos.
 - Transferencias, aportes, retiros y saldos iniciales son financieros; no cambian resultado economico.
 - Ninguna nueva salida en efectivo puede dejar `Local / Efectivo` negativo; el cierre tambien se bloquea si el efectivo esperado es negativo hasta registrar un aporte real.
+- La caja abierta es una instancia sobre las cuentas del local. Encargado asignado puede registrar gastos y retiros/aportes desde funcion `ENCARGADO` sobre el mismo `balanceId`; el resto del flujo requiere Cajero.
 - Durante una caja abierta, `efectivo esperado` debe coincidir con `Local / Efectivo`. Un delta tecnico bloquea la operativa y no se corrige con un aporte ordinario.
 - La migracion esquema 3 -> 4 puede agregar un puente `MIGRACION` solo si las transferencias historicas reconstruidas explican exactamente el delta; no cambia banco ni resultado economico.
 - Diferencias no cambian resultado economico; si sincronizan las cuentas del local con lo declarado.
@@ -49,6 +50,7 @@ Leer `docs/INDICE_DOCUMENTACION.md` si no esta claro que documento corresponde a
 - Toda tabla de datos permite ordenar sus columnas visibles, excepto acciones/seleccion o excepcion documentada.
 - Solo existe una caja abierta por local; con caja abierta no se mueve/asigna maquina, no se ajustan sus contadores administrativos y no se cierra el local.
 - Una pestaña desactualizada no sobrescribe otra: el guardado se bloquea y conserva un respaldo pendiente.
+- Una pestana pasiva sin cambios propios adopta automaticamente el ultimo snapshot guardado por otra pestana del mismo navegador.
 - No publicar, desplegar ni conectar servicios externos sin confirmacion.
 
 Detalle completo: `docs/REGLAS_CONTABLES.md`, `docs/REGLAS_GENERALES.md` y `docs/REGLAS_VISUALES.md`.
@@ -97,4 +99,4 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Proxima prioridad tecnica
 
-Mantener todo local y enfocado en Poseidon. La prioridad es reforzar autorizacion dentro de comandos, extraer operaciones sensibles que aun viven en handlers React y completar al final la validacion runtime profunda del snapshot. La primera migracion incremental financiera y la reconciliacion caja/libro ya estan implementadas. Multi-local queda postergado. El detalle vigente esta en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MAPA_TECNICO.md`.
+Mantener todo local y enfocado en Poseidon. Movimientos operativos ya validan actor y local; la prioridad es extender esa politica a los comandos restantes, extraer operaciones sensibles que aun viven en handlers React y completar al final la validacion runtime profunda del snapshot. La primera migracion incremental financiera, la reconciliacion caja/libro y la sincronizacion pasiva entre pestanas ya estan implementadas. Multi-local queda postergado. El detalle vigente esta en `docs/PLAN_MEJORA_TECNICA_Y_TOKENS.md` y `docs/MAPA_TECNICO.md`.

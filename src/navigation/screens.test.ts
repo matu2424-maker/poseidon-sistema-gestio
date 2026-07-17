@@ -21,12 +21,18 @@ describe("screen registry", () => {
     });
   });
 
-  it("obliga a cambiar a funcion cajero para operar caja", () => {
+  it("reserva el ciclo de caja al cajero y habilita movimientos puntuales al encargado", () => {
     expect(canAccessScreen("open-cash", "ENCARGADO")).toBe(false);
     expect(canAccessScreen("close-cash", "ADMINISTRADOR")).toBe(false);
     expect(canAccessScreen("open-cash", "CAJERO")).toBe(true);
+    expect(canAccessScreen("expenses", "ENCARGADO")).toBe(true);
+    expect(canAccessScreen("capital-movements", "ENCARGADO")).toBe(true);
+    expect(canAccessScreen("transfers", "ENCARGADO")).toBe(false);
     expect(canAccessScreen("cashier-summary", "ENCARGADO")).toBe(true);
-    expect(menuGroupsForRole("ENCARGADO").flatMap((group) => group.items).some((item) => item.screen === "open-cash")).toBe(false);
+    const managerScreens = menuGroupsForRole("ENCARGADO").flatMap((group) => group.items).map((item) => item.screen);
+    expect(managerScreens).not.toContain("open-cash");
+    expect(managerScreens).toContain("expenses");
+    expect(managerScreens).toContain("capital-movements");
   });
 
   it("marca las operaciones que necesitan caja abierta", () => {

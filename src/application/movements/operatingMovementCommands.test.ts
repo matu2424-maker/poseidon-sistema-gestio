@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSeedData, POSEIDON_LOCAL_ID } from "../../data/appData";
+import { totalsForBalance } from "../../lib/cashTotals";
 import { accountTotals, localAccountBalances, TRANSFER_ACCOUNT_ID } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
 import { openCashCommand } from "../cash/openCash";
@@ -51,7 +52,141 @@ function setupOpenCash() {
   return { data: opened.data, balance: opened.value, context };
 }
 
+function managerContext(data: ReturnType<typeof createSeedData>, localIds = [POSEIDON_LOCAL_ID]) {
+  const manager = data.users.find((item) => item.username === "encargado")!;
+  let sequence = 0;
+  return commandContext({ ...manager, localIds }, "ENCARGADO", {
+    now: () => "2026-07-11T13:00:00.000Z",
+    id: (prefix) => `${prefix}-manager-${++sequence}`,
+  });
+}
+
 describe("comandos de movimientos operativos", () => {
+  it("permite al encargado asignado registrar un gasto sobre la misma caja y cuenta local", () => {
+    const setup = setupOpenCash();
+    const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
+    const result = createExpenseCommand(
+      setup.data,
+      {
+        balanceId: setup.balance.id,
+        category: category.name,
+        subcategory: category.subcategories[0],
+        amount: 10_000,
+        description: "Pago realizado por encargado",
+      },
+      managerContext(setup.data),
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.balanceId).toBe(setup.balance.id);
+    expect(result.value.userId).toBe("user-encargado");
+    expect(localAccountBalances(result.data, POSEIDON_LOCAL_ID).cash).toBe(0);
+    expect(totalsForBalance(result.data, setup.balance.id).expectedCash).toBe(0);
+    expect(result.data.audit[0]).toMatchObject({
+      userId: "user-encargado",
+      actualRole: "ENCARGADO",
+      actorRole: "ENCARGADO",
+      action: "Crear gasto",
+    });
+  });
+
+  it("permite al encargado aportar y retirar, pero rechaza una salida mayor al disponible", () => {
+    const setup = setupOpenCash();
+    const context = managerContext(setup.data);
+    const contribution = createCapitalMovementCommand(
+      setup.data,
+      {
+        balanceId: setup.balance.id,
+        type: "APORTE",
+        medium: "EFECTIVO",
+        person: "RICARDO",
+        amount: 2_000,
+        note: "Refuerzo del encargado",
+      },
+      context,
+    );
+    expect(contribution.ok).toBe(true);
+    if (!contribution.ok) return;
+
+    const withdrawal = createCapitalMovementCommand(
+      contribution.data,
+      {
+        balanceId: setup.balance.id,
+        type: "RETIRO",
+        medium: "EFECTIVO",
+        person: "MATHIAS",
+        amount: 12_000,
+        note: "Retiro total disponible",
+      },
+      context,
+    );
+    expect(withdrawal.ok).toBe(true);
+    if (!withdrawal.ok) return;
+    expect(localAccountBalances(withdrawal.data, POSEIDON_LOCAL_ID).cash).toBe(0);
+    expect(totalsForBalance(withdrawal.data, setup.balance.id).expectedCash).toBe(0);
+
+    const before = JSON.stringify(withdrawal.data);
+    const rejected = createCapitalMovementCommand(
+      withdrawal.data,
+      {
+        balanceId: setup.balance.id,
+        type: "RETIRO",
+        medium: "EFECTIVO",
+        person: "MATHIAS",
+        amount: 1,
+        note: "Sin fondos",
+      },
+      context,
+    );
+    expect(rejected).toMatchObject({ ok: false });
+    if (!rejected.ok) expect(rejected.error).toContain("No hay efectivo suficiente");
+    expect(JSON.stringify(withdrawal.data)).toBe(before);
+  });
+
+  it("rechaza al encargado no asignado y no amplía transferencias ni regalos", () => {
+    const setup = setupOpenCash();
+    const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
+    const unassigned = createExpenseCommand(
+      setup.data,
+      {
+        balanceId: setup.balance.id,
+        category: category.name,
+        subcategory: category.subcategories[0],
+        amount: 100,
+        description: "Local ajeno",
+      },
+      managerContext(setup.data, []),
+    );
+    expect(unassigned).toEqual({ ok: false, error: "El usuario no esta asignado al local de esta caja." });
+
+    const context = managerContext(setup.data);
+    const transfer = createTransferCommand(
+      setup.data,
+      {
+        balanceId: setup.balance.id,
+        receipt: "TRX-ENCARGADO",
+        name: "No permitido",
+        amount: 100,
+        account: "Banco",
+      },
+      context,
+    );
+    const gift = createGiftCommand(
+      setup.data,
+      {
+        balanceId: setup.balance.id,
+        clientIds: [setup.data.clients.find((item) => item.status === "ACTIVO")!.id],
+        amount: 100,
+        reference: "Encargado",
+        description: "",
+      },
+      context,
+    );
+    expect(transfer).toEqual({ ok: false, error: "Para operar movimientos hay que trabajar con la funcion Cajero." });
+    expect(gift).toEqual({ ok: false, error: "Para operar movimientos hay que trabajar con la funcion Cajero." });
+  });
+
   it("crea y elimina gasto/regalo manteniendo cuenta local y auditoria", () => {
     const setup = setupOpenCash();
     const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
@@ -202,7 +337,7 @@ describe("comandos de movimientos operativos", () => {
       },
       managerContext,
     );
-    expect(denied).toEqual({ ok: false, error: "Para operar movimientos hay que trabajar con la funcion Cajero." });
+    expect(denied).toEqual({ ok: false, error: "La funcion activa no corresponde al usuario autenticado." });
 
     const closedData = {
       ...setup.data,

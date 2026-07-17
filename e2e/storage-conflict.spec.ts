@@ -18,7 +18,7 @@ async function loginAdmin(page: Page) {
   await expect(page).toHaveURL(/\/panel$/);
 }
 
-test("evita que una pestana sobrescriba cambios guardados por otra", async ({ page, context }) => {
+test("sincroniza una pestana pasiva y conserva el bloqueo de una version realmente desactualizada", async ({ page, context }) => {
   await resetDemo(page);
   await loginAdmin(page);
   const secondPage = await context.newPage();
@@ -33,6 +33,13 @@ test("evita que una pestana sobrescriba cambios guardados por otra", async ({ pa
   await expect
     .poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey)?.includes("Cambio pestana principal") ?? false, STORAGE_KEY))
     .toBe(true);
+  await expect(secondPage.getByText("Cambio pestana principal", { exact: true })).toBeVisible();
+
+  await secondPage.evaluate((storageKey) => {
+    const snapshot = JSON.parse(localStorage.getItem(storageKey)!);
+    snapshot.data.locals[0].tenantName = "Cambio externo sin evento en la pestana activa";
+    localStorage.setItem(storageKey, JSON.stringify(snapshot));
+  }, STORAGE_KEY);
 
   await secondPage.getByPlaceholder("Nueva categoria").fill("Cambio pestana desactualizada");
   await secondPage.locator("form").getByRole("button", { name: "Agregar", exact: true }).click();

@@ -45,7 +45,8 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 
 - El rol real del usuario no se pierde cuando trabaja como cajero.
 - La funcion usada se registra en auditoria.
-- Encargado/administrador consultan resumen de cajas, pero deben cambiar a funcion Cajero para abrir, cargar o cerrar caja.
+- Encargado/administrador consultan resumen de cajas. Apertura, contadores, transferencias, regalos, salarios y cierre requieren funcion Cajero.
+- El Encargado asignado puede registrar gastos y retiros/aportes sobre una caja abierta desde su funcion propia; el Administrador conserva el cambio a Cajero para operar.
 - Navegar limpia avisos anteriores; el cierre puede preservar su confirmacion al abrir el resumen.
 - Recargar conserva usuario, funcion activa y modulo; cerrar sesion vuelve a `/ingresar` y limpia la sesion de pestaña.
 - No hay Auth real todavia.
@@ -55,6 +56,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - `Sistema > Datos locales` permite exportar/importar respaldo JSON validado.
 - Si el almacenamiento esta corrupto se conserva sin sobrescribir hasta que el usuario descargue respaldo o confirme iniciar datos nuevos.
 - Si existe conflicto entre pestañas o falla una escritura, la operacion se bloquea y el intento queda disponible como respaldo antes de reintentar o cargar la ultima version guardada.
+- Una pestana pasiva sin cambios propios se sincroniza automaticamente con el ultimo snapshot guardado por otra pestana.
 - Modales compartidos encierran el foco, cierran con `Escape` y restauran el foco anterior; avisos y tablas exponen estado accesible.
 - Localhost se levanta solo con `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.

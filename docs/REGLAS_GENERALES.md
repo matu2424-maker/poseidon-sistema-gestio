@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales del sistema
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Esta es la fuente canonica de reglas transversales de trabajo, documentacion y auditoria general. Aplica a todo el sistema, salvo que un modulo indique una excepcion explicita.
 
@@ -13,7 +13,8 @@ Esta es la fuente canonica de reglas transversales de trabajo, documentacion y a
 - Toda accion sensible requiere confirmacion antes de ejecutarse.
 - Las confirmaciones de interfaz usan la unica entrada `src/lib/confirmations.ts`; no se crean wrappers locales por pantalla.
 - Titulo, menu, roles permitidos y requisito de caja abierta de cada pantalla se definen en `src/navigation/screens.ts`.
-- Encargado y administrador pueden consultar `Resumen de cajas`, pero toda apertura, carga o cierre exige cambiar la funcion activa a `CAJERO`.
+- Encargado y administrador pueden consultar `Resumen de cajas`. Apertura, contadores, transferencias, regalos, pagos salariales y cierre exigen funcion activa `CAJERO`.
+- Como excepcion operativa explicita, el Encargado asignado al local puede registrar gastos y retiros/aportes sobre la caja abierta desde su propia funcion. Usa la misma recaudacion y cuentas del local, y conserva usuario real, rol real y funcion `ENCARGADO` en auditoria.
 - Los avisos se limpian al navegar para no quedar fuera de contexto; un aviso de exito que navega a su resumen puede preservarse de forma explicita.
 - Toda creacion, edicion, anulacion, baja, restauracion, eliminacion o ajuste importante debe registrarse en auditoria.
 - Las bajas operativas deben ser estado, anulacion o papelera antes de eliminacion definitiva.
@@ -22,6 +23,7 @@ Esta es la fuente canonica de reglas transversales de trabajo, documentacion y a
 - Los datos de prueba se guardan en un snapshot local versionado.
 - Un snapshot corrupto no se reemplaza automaticamente: debe ofrecerse descarga de recuperacion o reinicio confirmado.
 - Cada guardado local compara la version leida por la pestaña con la version almacenada. Ante conflicto no sobrescribe: bloquea nuevas escrituras, conserva un respaldo pendiente y permite cargar explicitamente la version guardada.
+- Una pestana sin cambios propios pendientes adopta automaticamente la ultima version guardada por otra pestana. Si ya tenia una mutacion local sin persistir, conserva la deteccion de conflicto y no mezcla snapshots.
 - Ante un fallo de escritura se conserva el intento serializado para descargar o reintentar; la aplicacion no debe continuar operando como si el dato estuviera persistido.
 - No recortar auditoria, movimientos ni historiales para forzar un guardado local. Si se supera la cuota, informar y pedir exportar respaldo.
 - No guardar archivos pesados/base64 en `localStorage`; solo metadatos.

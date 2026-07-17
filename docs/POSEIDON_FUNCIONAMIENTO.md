@@ -1,6 +1,6 @@
 # Poseidon Sistema de Gestion - Funcionamiento y reglas
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Este documento es la fuente canonica del comportamiento funcional transversal. Cada cambio funcional relevante debe actualizar este archivo en el mismo trabajo.
 Cuando el cambio afecte un panel o funcion concreta, tambien se debe actualizar el documento correspondiente en `docs/modulos/`.
@@ -24,6 +24,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - El esquema 4 separa normalizacion de migracion financiera: un snapshot vigente no reconstruye asientos silenciosamente; los snapshots anteriores pasan por una migracion versionada, determinista y auditada.
 - El snapshot se valida antes de leer o importar. Si esta corrupto no se sobrescribe y se ofrece descargar el contenido original.
 - Los guardados usan comparacion optimista contra la version leida por la pestaña. Si otra pestaña guardo antes, se detiene la escritura y se ofrece descargar el intento o cargar la version vigente.
+- Una pestana pasiva sin cambios propios se actualiza al guardado de otra pestana; si ya tenia cambios pendientes, se mantiene el bloqueo por conflicto.
 - Un fallo de escritura abre recuperacion con respaldo del intento y opciones de reintento o regreso a la ultima version guardada.
 - Administrador dispone de `Sistema > Datos locales` para exportar o importar un respaldo JSON validado.
 - No existe limpieza operativa automatica durante el arranque.
@@ -52,7 +53,8 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - `CAJERO`: opera caja diaria, contadores, gastos, transferencias, regalos, salarios y clientes desde el panel del cajero.
 - `ENCARGADO`: rol operativo superior para diferencias, gastos, cierres periodicos, personal/salarios, reportes, cuentas corrientes y auditoria. Su panel inicial esta reiniciado para redisenarlo por etapas y hoy muestra diferencias, cuenta efectivo y cuenta banco del local activo.
 - `ADMINISTRADOR`: gestiona locales, maquinas, usuarios, personal, liquidaciones, clientes, categorias, reportes y auditoria.
-- Un usuario encargado o administrador puede cambiar su funcion activa a `CAJERO` para operar el flujo de caja existente con su mismo usuario real. La auditoria guarda usuario real y funcion usada.
+- Un usuario encargado o administrador puede cambiar su funcion activa a `CAJERO` para operar el flujo completo de caja con su mismo usuario real. La auditoria guarda usuario real y funcion usada.
+- El Encargado tiene una excepcion limitada desde su funcion propia: puede registrar gastos y retiros/aportes sobre la caja activa de su local asignado, sin adquirir permiso para apertura, contadores, transferencias, regalos, salarios o cierre.
 
 ## Reglas generales
 
@@ -93,10 +95,11 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - No muestra accesos operativos de caja; para abrir/cerrar/cargar caja el administrador cambia a funcion `CAJERO`.
 - Encargado:
   - `Inicio`: Panel encargado.
-  - `Control y auditoria`: Diferencias, Gastos, Auditoria y Cuentas corrientes.
+  - `Operacion del local`: Registrar gastos y Retiros / aportes, disponibles solo con caja abierta.
+  - `Control y auditoria`: Diferencias, Control de gastos, Auditoria y Cuentas corrientes.
   - `Cierres y reportes`: Caja diaria, Cierre periodico y Reportes.
   - `Personas`: Personal, Liquidacion salarios y Clientes.
-- No muestra grupo `Caja operativa`; para operar como caja el encargado cambia a funcion `CAJERO`.
+- Para el resto del flujo de caja, el encargado cambia a funcion `CAJERO`.
 - `Resumen de cajas` es una consulta disponible para encargado y administrador sin cambiar de funcion; no permite operar la caja.
 
 ## Refactor tecnico
@@ -271,6 +274,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 
 - El encargado entra a una vista propia de revision operativa, no al panel visual del cajero.
 - Desde la cabecera puede pasar a `Trabajar como cajero`; al hacerlo usa el panel de cajero existente con su mismo nombre de usuario.
+- Mientras existe una caja abierta de su local, dispone de accesos propios a `Registrar gasto` y `Retiros / aportes`. Ambos operan la misma recaudacion y las mismas cuentas que ve el Cajero.
 - El panel inicial fue reiniciado para redisenarlo por etapas.
 - En esta etapa muestra solamente:
   - diferencias del local activo: pendientes, total con diferencia, diferencia de efectivo y diferencia de banco;
@@ -284,7 +288,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - El resultado neto mensual se calcula como ingreso total menos salida total.
 - Transferencias, retiros y aportes no se mezclan en ingreso/salida economica mensual; se revisan en cuentas corrientes y movimientos financieros.
 - Desde los recuadros principales se puede ir a `Diferencias` o `Cuentas corrientes`.
-- Debajo de las tarjetas principales hay accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
+- Debajo de las tarjetas principales hay una zona de operacion de la caja activa para gastos y capital, seguida de accesos rapidos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
 
 ## Panel del cajero
 
@@ -352,10 +356,11 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La referencia de regalos inicia por defecto en `Cajero`.
 - Regalos se pueden eliminar mientras la caja esta abierta, antes del cierre.
 - Toda alta que implique salida en efectivo valida previamente el saldo activo `Local / Efectivo`; el rechazo no altera tablas, cuentas ni auditoria.
+- El Encargado asignado puede cargar y eliminar gastos de la caja abierta desde su funcion `ENCARGADO`; el gasto conserva su usuario real, funcion, `balanceId` y efecto en la misma cuenta local.
 
 ## Retiros y aportes de capital
 
-- Los retiros y aportes se cargan con funcion activa `CAJERO`; encargado/administrador deben usar `Trabajar como cajero` para registrarlos con su usuario real.
+- Cajero y Encargado asignado pueden cargar retiros/aportes sobre la caja abierta. El Encargado permanece en funcion `ENCARGADO`; el Administrador sigue usando `Trabajar como cajero` para esta operacion.
 - Campos: tipo (`RETIRO` o `APORTE`), momento (`APERTURA`, `OPERATIVO` o `CIERRE`), medio (`EFECTIVO` o `TRANSFERENCIA`), persona (`RICARDO` o `MATHIAS`), monto y nota opcional.
 - En la pantalla operativa de `Retiros y aportes`, el tipo inicia vacio y es obligatorio seleccionar retiro o aporte.
 - El campo momento no se muestra en esa pantalla; se guarda internamente como `OPERATIVO`.
@@ -566,7 +571,7 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 ## Estado actual al 2026-07-16
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 155 pruebas en 29 archivos; existen ademas 10 casos E2E en 5 archivos para caja, efectivo negativo, desconciliacion caja/libro, diferencias/auditoria, rutas por rol, conflictos de guardado y cierre salarial correctivo.
+- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 158 pruebas en 29 archivos; existen ademas 11 casos E2E en 6 archivos para caja, efectivo negativo, desconciliacion caja/libro, diferencias/auditoria, operacion concurrente de Encargado/Cajero, rutas por rol, sincronizacion y conflictos entre pestañas y cierre salarial correctivo.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

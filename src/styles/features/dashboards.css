@@ -364,6 +364,21 @@
   gap: 10px;
 }
 
+.manager-operation-section {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid #dfe6ed;
+  padding-top: 16px;
+}
+
+.manager-operation-heading {
+  align-items: flex-start;
+}
+
+.manager-operation-heading .helper {
+  margin: 4px 0 0;
+}
+
 .manager-section-heading {
   display: flex;
   align-items: center;
@@ -492,6 +507,18 @@
   font-size: 0.78rem;
   font-weight: 600;
   white-space: normal;
+}
+
+.manager-operation-shortcuts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.manager-shortcuts .button:disabled {
+  border-color: #dce2e8;
+  background: #f2f4f6;
+  color: #8994a1;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .manager-shortcuts .button:hover,

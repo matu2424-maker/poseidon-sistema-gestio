@@ -1,6 +1,6 @@
 # Contexto Codex - Layout base y navegacion
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Leer este contexto antes de modificar pantalla inicial, login local, barra superior, menu lateral, layout de cajero o navegacion base.
 
@@ -30,7 +30,7 @@ Referencias asociadas:
 - Login local es por seleccion de usuario, sin contrasena.
 - Cajero usa `CashierWorkspace`, sin barra lateral.
 - Encargado y administrador usan `Shell` con menu lateral agrupado y desplegable.
-- Encargado/admin solo operan caja cambiando a funcion Cajero.
+- Encargado puede registrar gastos y retiros/aportes desde su funcion cuando existe caja abierta en su local. El resto de la operativa y toda operacion del Administrador requieren funcion Cajero.
 - Evitar repetir titulo/datos que ya aparecen en barra superior.
 - Botones deben quedar alineados y verse bien en 1080p.
 - Modales compartidos encierran/restauran foco y cierran con `Escape`; avisos usan region anunciable y filas clicables aceptan teclado.

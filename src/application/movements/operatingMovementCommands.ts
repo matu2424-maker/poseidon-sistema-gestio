@@ -7,6 +7,7 @@ import type {
   CapitalMovementType,
   Expense,
   Gift,
+  Role,
   Transfer,
 } from "../../types";
 import {
@@ -33,10 +34,31 @@ import {
   type CommandResult,
 } from "../command";
 
-function openCash(data: AppData, balanceId: string, context: CommandContext): Balance | string {
-  if (context.actorRole !== "CAJERO") return "Para operar movimientos hay que trabajar con la funcion Cajero.";
+const CASHIER_ONLY: readonly Role[] = ["CAJERO"];
+const CASHIER_OR_MANAGER: readonly Role[] = ["CAJERO", "ENCARGADO"];
+
+const actorRoleBelongsToUser = (context: CommandContext) =>
+  context.actorRole === context.user.role ||
+  (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role));
+
+function openCash(
+  data: AppData,
+  balanceId: string,
+  context: CommandContext,
+  allowedRoles: readonly Role[] = CASHIER_ONLY,
+): Balance | string {
+  if (!actorRoleBelongsToUser(context)) return "La funcion activa no corresponde al usuario autenticado.";
+  if (!allowedRoles.includes(context.actorRole)) {
+    return allowedRoles.includes("ENCARGADO")
+      ? "Esta operacion requiere funcion Cajero o Encargado."
+      : "Para operar movimientos hay que trabajar con la funcion Cajero.";
+  }
+  if (context.user.status !== "ACTIVO") return "El usuario no esta activo.";
   const balance = data.balances.find((item) => item.id === balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return "La caja ya no esta abierta.";
+  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(balance.localId)) {
+    return "El usuario no esta asignado al local de esta caja.";
+  }
   return balance;
 }
 
@@ -55,7 +77,7 @@ export function createExpenseCommand(
   input: CreateExpenseInput,
   context: CommandContext,
 ): CommandResult<Expense> {
-  const balance = openCash(data, input.balanceId, context);
+  const balance = openCash(data, input.balanceId, context, CASHIER_OR_MANAGER);
   if (typeof balance === "string") return commandError(balance);
   const category = data.expenseCategories.find(
     (item) => item.status === "ACTIVA" && item.name === input.category.trim(),
@@ -111,7 +133,7 @@ export function deleteExpenseCommand(
   expenseId: string,
   context: CommandContext,
 ): CommandResult<Expense> {
-  const balance = openCash(data, balanceId, context);
+  const balance = openCash(data, balanceId, context, CASHIER_OR_MANAGER);
   if (typeof balance === "string") return commandError("Solo se pueden eliminar gastos antes de cerrar la caja.");
   const expense = data.expenses.find((item) => item.id === expenseId && item.balanceId === balance.id);
   if (!expense) return commandError("No se encontro el gasto de esta caja.");
@@ -340,7 +362,7 @@ export function createCapitalMovementCommand(
   input: CreateCapitalMovementInput,
   context: CommandContext,
 ): CommandResult<CapitalMovement> {
-  const balance = openCash(data, input.balanceId, context);
+  const balance = openCash(data, input.balanceId, context, CASHIER_OR_MANAGER);
   if (typeof balance === "string") return commandError(balance);
   if (!(["RETIRO", "APORTE"] as string[]).includes(input.type)) {
     return commandError("Selecciona si es retiro o aporte.");
@@ -399,7 +421,7 @@ export function annulCapitalMovementCommand(
   movementId: string,
   context: CommandContext,
 ): CommandResult<CapitalMovement> {
-  const balance = openCash(data, balanceId, context);
+  const balance = openCash(data, balanceId, context, CASHIER_OR_MANAGER);
   if (typeof balance === "string") return commandError("Solo se pueden anular movimientos antes de cerrar la caja.");
   const previous = data.capitalMovements.find(
     (item) => item.id === movementId && item.balanceId === balance.id,

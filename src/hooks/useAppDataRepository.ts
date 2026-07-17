@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 import type { AppData } from "../types";
 import type { AppDataRepository } from "../application/ports/AppDataRepository";
 import { createAsyncOperationQueue } from "../application/ports/asyncOperationQueue";
@@ -16,20 +16,32 @@ export function useAppDataRepository(
   repository: AppDataRepository,
   setMessage: (message: string) => void,
 ) {
-  const [data, setData] = useState<AppData>(() => createSeedData());
+  const [data, setDataState] = useState<AppData>(() => createSeedData());
   const [storageIssue, setStorageIssue] = useState<StorageIssue>();
   const [storageReady, setStorageReady] = useState(false);
   const operationQueue = useRef(createAsyncOperationQueue());
   const persistedRaw = useRef<string | null | undefined>(undefined);
   const skipNextPersistence = useRef(false);
+  const localRevision = useRef(0);
+  const persistedRevision = useRef(0);
+
+  const setData = useCallback((action: SetStateAction<AppData>) => {
+    setDataState((current) => {
+      const nextData = typeof action === "function" ? (action as (value: AppData) => AppData)(current) : action;
+      if (Object.is(nextData, current)) return current;
+      localRevision.current += 1;
+      return nextData;
+    });
+  }, []);
 
   const enqueue = useCallback(<T,>(operation: () => Promise<T>): Promise<T> => operationQueue.current.run(operation), []);
 
   const persistNow = useCallback(
-    async (nextData: AppData) => {
+    async (nextData: AppData, revision = localRevision.current) => {
       const result = await enqueue(() => repository.save(nextData, persistedRaw.current));
       if (result.status === "ok") {
         persistedRaw.current = result.raw;
+        persistedRevision.current = Math.max(persistedRevision.current, revision);
       } else if (result.status === "conflict") {
         setStorageIssue({
           kind: "conflict",
@@ -53,7 +65,7 @@ export function useAppDataRepository(
         if (!active) return;
         if (stored.status === "empty") {
           persistedRaw.current = null;
-          setData(createSeedData());
+          setDataState(createSeedData());
         } else if (stored.status === "corrupt") {
           persistedRaw.current = undefined;
           setStorageIssue({ kind: "corrupt", raw: stored.raw, error: stored.error });
@@ -61,7 +73,7 @@ export function useAppDataRepository(
           try {
             persistedRaw.current = stored.raw;
             skipNextPersistence.current = !stored.needsRewrite;
-            setData(hydrateAppData(stored.data, stored.sourceVersion));
+            setDataState(hydrateAppData(stored.data, stored.sourceVersion));
             if (stored.needsRewrite) setMessage("Los datos locales se actualizaron al formato versionado.");
           } catch (error) {
             setStorageIssue({
@@ -94,7 +106,8 @@ export function useAppDataRepository(
       skipNextPersistence.current = false;
       return;
     }
-    void persistNow(data).catch((error) => {
+    const revision = localRevision.current;
+    void persistNow(data, revision).catch((error) => {
       setStorageIssue({
         kind: "write",
         raw: "",
@@ -102,6 +115,45 @@ export function useAppDataRepository(
       });
     });
   }, [data, persistNow, storageIssue, storageReady]);
+
+  useEffect(() => {
+    if (!storageReady || storageIssue || !repository.subscribe) return;
+    let active = true;
+    const unsubscribe = repository.subscribe(() => {
+      const revision = localRevision.current;
+      if (revision !== persistedRevision.current) return;
+      void enqueue(async () => {
+        const stored = await repository.load();
+        if (!active || localRevision.current !== revision || persistedRevision.current !== revision) return;
+        if (stored.status === "corrupt") {
+          persistedRaw.current = undefined;
+          setStorageIssue({ kind: "corrupt", raw: stored.raw, error: stored.error });
+          return;
+        }
+        if (stored.status === "empty") {
+          persistedRaw.current = null;
+          skipNextPersistence.current = true;
+          setDataState(createSeedData());
+          return;
+        }
+        try {
+          persistedRaw.current = stored.raw;
+          skipNextPersistence.current = !stored.needsRewrite;
+          setDataState(hydrateAppData(stored.data, stored.sourceVersion));
+        } catch (error) {
+          setStorageIssue({
+            kind: "corrupt",
+            raw: stored.raw,
+            error: error instanceof Error ? error.message : "No se pudo normalizar el almacenamiento local.",
+          });
+        }
+      });
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [enqueue, repository, storageIssue, storageReady]);
 
   const reloadStored = useCallback(async () => {
     const stored = await enqueue(() => repository.load());
@@ -113,12 +165,16 @@ export function useAppDataRepository(
     if (stored.status === "empty") {
       persistedRaw.current = null;
       skipNextPersistence.current = false;
-      setData(createSeedData());
+      localRevision.current += 1;
+      persistedRevision.current = localRevision.current;
+      setDataState(createSeedData());
     } else {
       try {
         persistedRaw.current = stored.raw;
         skipNextPersistence.current = true;
-        setData(hydrateAppData(stored.data, stored.sourceVersion));
+        localRevision.current += 1;
+        persistedRevision.current = localRevision.current;
+        setDataState(hydrateAppData(stored.data, stored.sourceVersion));
       } catch (error) {
         setStorageIssue({
           kind: "corrupt",
@@ -135,7 +191,7 @@ export function useAppDataRepository(
   }, [enqueue, repository, setMessage]);
 
   const retryPendingSave = useCallback(async () => {
-    const result = await persistNow(data);
+    const result = await persistNow(data, localRevision.current);
     if (result.status !== "ok") return false;
     skipNextPersistence.current = true;
     setStorageIssue(undefined);

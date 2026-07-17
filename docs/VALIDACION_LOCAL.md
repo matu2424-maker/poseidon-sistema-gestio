@@ -64,7 +64,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 3. Abrir `Cierres y reportes`: debe mostrar Resumen de cajas, Cierre periodico y Reportes; no apertura/cierre operativo.
 4. Abrir Resumen de cajas y comprobar tabla ordenable y detalle de recaudacion.
 5. En Liquidacion de salarios, abrir una foto cerrada y verificar bloqueo del periodo y flujo correctivo.
-6. Usar `Trabajar como cajero` solo para operaciones de caja; el usuario real debe seguir siendo Encargado.
+6. Con caja abierta, usar `Operacion del local` para registrar un gasto y un aporte/retiro sin cambiar de funcion; verificar caja, saldo y auditoria compartidos con Cajero.
+7. Usar `Trabajar como cajero` para apertura, contadores, transferencias, regalos, salarios y cierre; el usuario real debe seguir siendo Encargado.
 
 ### Administrador
 
@@ -82,8 +83,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-16
 
-- 29 archivos de pruebas y 155 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad y reconciliacion de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion incremental, snapshot, referencias y conflictos de escritura.
-- 10 casos E2E en 5 archivos aprobados para caja, efectivo negativo con aporte real, desconciliacion caja/libro, diferencias/auditoria, navegacion de roles, accesibilidad, conflicto entre pestañas y cierre salarial correctivo R1.
+- 29 archivos de pruebas y 158 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad y reconciliacion de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion incremental, snapshot, referencias, permisos del Encargado y conflictos de escritura.
+- 11 casos E2E en 6 archivos aprobados para caja, efectivo negativo con aporte real, desconciliacion caja/libro, diferencias/auditoria, operacion concurrente de Encargado/Cajero, navegacion de roles, accesibilidad, sincronizacion y conflicto entre pestañas y cierre salarial correctivo R1.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.
 - TypeScript aprobado.

@@ -1,6 +1,6 @@
 # Poseidon - Handoff tecnico
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Este documento permite continuar el proyecto desde otra cuenta o agente sin leer el chat. Las reglas completas viven en las fuentes canonicas enlazadas; no deben reconstruirse desde este resumen.
 
@@ -32,6 +32,7 @@ No cargar todos los documentos grandes por defecto.
 - Local principal de prueba: Poseidon.
 - Roles: Cajero, Encargado y Administrador.
 - Encargado/Administrador pueden trabajar con funcion Cajero manteniendo identidad real en auditoria.
+- Como excepcion controlada, un Encargado asignado puede registrar gastos y retiros/aportes en la caja activa desde funcion `ENCARGADO`; apertura, contadores, transferencias, regalos, salarios y cierre siguen requiriendo funcion Cajero.
 - Persistencia actual: `localStorage`.
 - Login actual: selector de usuario, sin contrasena.
 - Navegacion actual: React Router con URL estable por modulo y sesion de pestaña en `sessionStorage`.
@@ -67,6 +68,7 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - `src/data/schemaVersion.ts`: version canonica del snapshot.
 - `src/application/`: comandos de negocio y contratos de persistencia.
 - `src/infrastructure/storage/`: snapshot esquema 4 versionado y adaptador `localStorage`.
+- El adaptador local notifica cambios entre pestañas del mismo navegador: una pestaña pasiva se actualiza y una pestaña con cambios propios conserva la deteccion de conflicto. No sincroniza navegadores ni dispositivos diferentes.
 - `src/lib/`: reglas y helpers compartidos.
 - `src/components/`: UI transversal.
 - `src/features/`: pantallas por dominio/rol.
@@ -111,7 +113,7 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 155 pruebas aprobadas en 29 archivos, mas 10 casos E2E en 5 archivos para caja, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, rutas, conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- 158 pruebas aprobadas en 29 archivos, mas 11 casos E2E en 6 archivos para caja, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, operacion concurrente de Encargado/Cajero, rutas, sincronizacion y conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Tres perfiles Codex de solo lectura, cuatro chats permanentes coordinados, cuatro skills versionadas y validadores de agentes, workstreams, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 

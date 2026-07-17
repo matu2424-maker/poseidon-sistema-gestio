@@ -14,6 +14,7 @@ export interface AppDataRepository {
   load(): Promise<AppDataLoadResult>;
   save(data: AppData, expectedRaw?: string | null): Promise<AppDataSaveResult>;
   clear(): Promise<void>;
+  subscribe?(listener: () => void): () => void;
 }
 
 export interface AppDataBackupCodec {
