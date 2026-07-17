@@ -224,6 +224,9 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
   - antes de evaluar ese faltante, retiros o diferencias, el cierre exige que `efectivo esperado` coincida con `Local / Efectivo`;
   - una desconciliacion tecnica se informa con ambos saldos y el delta, bloquea el cierre y no crea diferencia, auditoria, movimiento ni aporte automatico;
   - el error de efectivo esperado negativo se muestra antes que el error de retiro final y no crea diferencia, cierre, auditoria ni cambio economico;
+  - antes del balance de control se muestran los gastos, aportes y retiros intervenidos con funcion Encargado en esa recaudacion, con usuario, hora, cuenta, importes, estado e impacto vigente en efectivo/banco;
+  - las intervenciones anuladas conservan su detalle con impacto cero; el bloque es informativo y no modifica saldos ni formulas;
+  - la tabla de intervenciones del Encargado permite ordenar todas sus columnas visibles;
   - los errores de cierre se muestran como avisos dentro de la pantalla de cierre.
 
 ## Diferencias de caja
@@ -568,10 +571,10 @@ La ruta de lectura y propiedad documental vive en `docs/INDICE_DOCUMENTACION.md`
 - La tabla permite ordenar todas sus columnas visibles de datos y `Ver` abre una ventana con el detalle completo.
 - En gestiones de diferencias, el detalle incluye saldos efectivo/banco antes y despues y cada movimiento nuevo con ID, cuenta, direccion, importe y cadena de ajuste.
 
-## Estado actual al 2026-07-16
+## Estado actual al 2026-07-17
 
 - Proyecto en prueba local, sin publicacion nueva.
-- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 158 pruebas en 29 archivos; existen ademas 11 casos E2E en 6 archivos para caja, efectivo negativo, desconciliacion caja/libro, diferencias/auditoria, operacion concurrente de Encargado/Cajero, rutas por rol, sincronizacion y conflictos entre pestañas y cierre salarial correctivo.
+- `pnpm run check` valida agentes, chats permanentes, skills, sistema visual, TypeScript, ESLint y 160 pruebas en 30 archivos; existen ademas 11 casos E2E en 6 archivos para caja, efectivo negativo, desconciliacion caja/libro, diferencias/auditoria, operacion concurrente de Encargado/Cajero, detalle de intervenciones en el cierre, rutas por rol, sincronizacion y conflictos entre pestañas y cierre salarial correctivo.
 - El servidor local debe levantarse solo con `iniciar-poseidon.bat` y probarse en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.
 - Contadores usan guardado manual con boton `Guardar contadores`.

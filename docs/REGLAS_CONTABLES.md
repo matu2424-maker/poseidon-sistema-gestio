@@ -76,6 +76,9 @@ No forman parte del resultado economico:
 - El Encargado no recibe por esta excepcion permiso para apertura, contadores, transferencias, regalos, pagos salariales ni cierre. Esas operaciones conservan funcion `CAJERO`.
 - Un gasto del Encargado resta resultado economico y `Local / Efectivo` igual que un gasto del Cajero. Un aporte o retiro conserva su naturaleza financiera y no modifica resultado economico.
 - Cada alta o anulacion guarda el usuario real, rol real, funcion activa, fecha/hora, `balanceId`, `localId`, cuenta y auditoria correspondientes.
+- Antes de cerrar, el Cajero ve un detalle de gastos, aportes y retiros que tuvieron una intervencion con funcion `ENCARGADO` en ese `balanceId`.
+- El detalle del cierre es informativo: obtiene el estado vigente desde las entidades y la identidad/funcion desde auditoria. Los anulados conservan trazabilidad, pero su impacto vigente es cero.
+- Los impactos efectivo/banco del bloque del Encargado son una explicacion de los movimientos existentes; no crean asientos, no recalculan cuentas y no alteran el resultado economico.
 - Si el efectivo no alcanza, el comando rechaza la operacion completa. No crea cuotas, deudas, pagos parciales ni movimientos pendientes; se requiere un aporte real previo, otro medio permitido o cancelar.
 - En almacenamiento local, una pestana pasiva y sin mutaciones propias adopta los cambios persistidos por otra pestana. Una pestana con cambios pendientes conserva el control optimista y no puede sobrescribir el snapshot vigente.
 - Esta sincronizacion local cubre pestanas del mismo navegador. Operacion simultanea entre equipos o navegadores requiere el backend transaccional pendiente y no se considera resuelta por `localStorage`.

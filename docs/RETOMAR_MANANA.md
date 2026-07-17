@@ -43,14 +43,15 @@ Este archivo registra continuidad inmediata. Las reglas permanentes viven en las
 - Paneles iniciales separados en `CashierDashboard`, `ManagerDashboard` y `AdminDashboard`, con selector compatible en `RoleDashboard`.
 - Poseidon Central, Cajero, Encargado y Administrador tienen prompts, workstreams, contratos y plantillas versionados.
 - Movimientos operativos validan usuario activo, rol real, funcion y local asignado dentro del comando. La interfaz compartida muestra caja, efectivo, banco y funcion activa.
-- 158 pruebas automatizadas en 29 archivos y 11 casos E2E en 6 archivos.
+- El cierre del Cajero muestra las intervenciones auditadas del Encargado en esa recaudacion, con impacto vigente por efectivo/banco y anulados sin impacto.
+- 160 pruebas automatizadas en 30 archivos y 11 casos E2E en 6 archivos.
 
 ## Bloque documental actual
 
 - Indice unico de documentacion.
 - Fuentes canonicas explicitadas.
 - Documentos de arranque/tecnica reducidos para evitar repeticion.
-- Metricas de validacion al 2026-07-17: 158 pruebas en 29 archivos y 11 casos E2E en 6 archivos.
+- Metricas de validacion al 2026-07-17: 160 pruebas en 30 archivos y 11 casos E2E en 6 archivos.
 - Referencias obsoletas a `WelcomeScreen.tsx` eliminadas y deuda tecnica sincronizada con el codigo actual.
 - Arquitectura objetivo online documentada sin implementacion.
 - Plan de migracion local a online documentado y sujeto a autorizacion futura.

@@ -128,6 +128,7 @@ src/
 | `salaryRules.ts` | Conceptos, base, periodos y limites salariales |
 | `balanceReferences.ts` | Recaudacion asociada por `balanceId` |
 | `sorting.ts` | Ordenamiento compartido e indicador accesible `aria-sort` |
+| `managerCashActivity.ts` | Reconstruccion de intervenciones del Encargado por `balanceId`, estado vigente e impacto informativo por cuenta |
 | `clients.ts`, `people.ts` | Reglas de clientes y personal |
 | `files.ts`, `export.ts` | Metadata local y exportaciones |
 | `machineHistory.ts` | Eventos de historial de maquinas |
@@ -154,6 +155,7 @@ src/
 - `components/ui.tsx`: `InfoCard`, `FormButtons`, `Modal` con gestion de foco/Escape y `ColumnChooser`.
 - `components/MonthlyPeriodSelector.tsx`: selector mensual comun.
 - `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
+- `features/cashier/ManagerCashActivity.tsx`: detalle ordenable de intervenciones del Encargado consumido por el cierre, sin escritura contable.
 - `features/clients/clientTable.ts`: orden y estados compartidos de clientes.
 
 ## Dependencias criticas

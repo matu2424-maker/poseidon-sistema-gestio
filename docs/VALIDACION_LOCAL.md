@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Este documento define la validacion tecnica y funcional minima. No reemplaza las pruebas especificas de cada modulo.
 
@@ -56,6 +56,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 2. Sin caja abierta, verificar que solo se pueda abrir caja, consultar clientes y ver resumen de cajas.
 3. Intentar una pantalla que requiera caja debe mostrar `Necesita abrir una nueva caja para poder operar.`.
 4. Con caja abierta, verificar contadores, gastos, transferencias, regalos, salarios, aportes/retiros y cierre.
+5. Tras un movimiento del Encargado, comprobar en el cierre usuario, movimiento, cuenta, importe, estado e impacto vigente; todas las columnas deben ordenar.
 
 ### Encargado
 
@@ -81,9 +82,9 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia vigente al 2026-07-16
+## Evidencia vigente al 2026-07-17
 
-- 29 archivos de pruebas y 158 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad y reconciliacion de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion incremental, snapshot, referencias, permisos del Encargado y conflictos de escritura.
+- 30 archivos de pruebas y 160 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad y reconciliacion de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion incremental, snapshot, referencias, permisos del Encargado, detalle de intervenciones en el cierre y conflictos de escritura.
 - 11 casos E2E en 6 archivos aprobados para caja, efectivo negativo con aporte real, desconciliacion caja/libro, diferencias/auditoria, operacion concurrente de Encargado/Cajero, navegacion de roles, accesibilidad, sincronizacion y conflicto entre pestañas y cierre salarial correctivo R1.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.

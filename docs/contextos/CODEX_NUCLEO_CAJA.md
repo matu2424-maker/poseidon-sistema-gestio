@@ -49,6 +49,7 @@ Estos archivos son contratos compartidos. Solo un chat recibe propiedad de escri
 - Esta regla no introduce estado pendiente ni modifica banco o resultado economico.
 - Una pestana pasiva se sincroniza con el ultimo guardado; si tiene una mutacion propia pendiente, conserva el conflicto en vez de mezclar versiones.
 - Una pestaña desactualizada no sobrescribe el snapshot vigente.
+- El cierre expone las intervenciones auditadas con funcion `ENCARGADO` del mismo `balanceId`. Los impactos de efectivo/banco son informativos y consideran solo entidades vigentes; no crean ni corrigen movimientos.
 
 ## Consumidores
 

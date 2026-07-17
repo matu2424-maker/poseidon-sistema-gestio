@@ -13,6 +13,7 @@ import { localAccountBalances } from "../../lib/currentAccounts";
 import { clearZeroMoneyInput, formatMoneyInput, money, normalizeMoneyInput, parseMoneyInput } from "../../lib/money";
 import { commandContext } from "../../application/command";
 import { closeCashCommand } from "../../application/cash/closeCash";
+import { ManagerCashActivity } from "./ManagerCashActivity";
 
 const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 export function CloseCash({
@@ -123,6 +124,8 @@ export function CloseCash({
           </button>
         </div>
       ) : null}
+
+      <ManagerCashActivity data={data} balanceId={balance.id} />
 
       <section className="close-workspace">
         <div className="close-breakdown">

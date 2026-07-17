@@ -32,7 +32,7 @@ El sistema esta en etapa de prueba local. No usa Supabase/Auth real ni storage r
 - Supabase/Auth real y storage real quedan pendientes para una etapa posterior.
 - No publicar ni desplegar sin confirmacion explicita.
 - Un Encargado asignado puede registrar gastos y retiros/aportes en la caja activa desde su funcion real; apertura, contadores, transferencias, regalos, salarios y cierre siguen requiriendo funcion Cajero.
-- Validacion automatizada actual: 158 casos en 29 archivos, mas 11 casos E2E en 6 archivos.
+- Validacion automatizada actual: 160 casos en 30 archivos, mas 11 casos E2E en 6 archivos.
 
 ## Ejecutar el proyecto
 

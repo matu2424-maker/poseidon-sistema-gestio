@@ -29,6 +29,27 @@ Debe mostrar:
 - efectivo declarado;
 - dinero banco declarado.
 
+## Movimientos del encargado
+
+Antes del balance de control, el Cajero ve las intervenciones realizadas con funcion `ENCARGADO` sobre la recaudacion activa:
+
+- hora;
+- usuario;
+- movimiento: gasto, aporte o retiro;
+- cuenta: efectivo o banco;
+- detalle;
+- entrada;
+- salida;
+- estado vigente.
+
+La tabla se construye con la auditoria y las entidades asociadas al mismo `balanceId`. Todas sus columnas son ordenables.
+
+- `Impacto efectivo` e `Impacto banco` suman solo movimientos vigentes.
+- Un movimiento anulado o un gasto eliminado conserva su detalle historico con estado `Anulado`, pero no integra el impacto.
+- Si el Encargado anula un movimiento creado por otro usuario, la intervencion queda visible con impacto vigente cero.
+- Si no hubo intervenciones, la pantalla confirma `Sin movimientos del encargado en esta recaudacion`.
+- Este bloque no crea asientos, no cambia saldos y no modifica ninguna formula del cierre.
+
 ## Resultado final
 
 Resultado economico, no financiero:

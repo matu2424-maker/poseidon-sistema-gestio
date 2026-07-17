@@ -187,6 +187,103 @@
   font-weight: 600;
 }
 
+.manager-cash-activity {
+  overflow: hidden;
+  border: 1px solid #d5e0ec;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.manager-cash-activity-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #e5ebf2;
+  padding: 16px 18px;
+}
+
+.manager-cash-activity-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.manager-cash-activity-header p,
+.manager-cash-activity-empty,
+.manager-cash-activity-count {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.manager-cash-activity-header p {
+  margin: 4px 0 0;
+}
+
+.manager-cash-impact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(130px, 1fr));
+  gap: 16px;
+}
+
+.manager-cash-impact div {
+  display: grid;
+  gap: 3px;
+}
+
+.manager-cash-impact span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.manager-cash-impact strong {
+  font-family: var(--font-data);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.manager-cash-impact .positive {
+  color: var(--green);
+}
+
+.manager-cash-impact .negative {
+  color: var(--red);
+}
+
+.manager-cash-impact .neutral {
+  color: var(--muted);
+}
+
+.manager-cash-activity-table {
+  min-width: 820px;
+}
+
+.manager-cash-activity-table th,
+.manager-cash-activity-table td {
+  padding: 9px 10px;
+}
+
+.manager-cash-activity-table td:nth-last-child(3),
+.manager-cash-activity-table td:nth-last-child(2) {
+  font-family: var(--font-data);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.manager-cash-activity-empty,
+.manager-cash-activity-count {
+  margin: 0;
+  padding: 14px 18px;
+}
+
+.manager-cash-activity-count {
+  border-top: 1px solid #e5ebf2;
+  text-align: right;
+}
+
 .close-alert.ok {
   border-color: #b9dfc4;
   background: #effaf2;

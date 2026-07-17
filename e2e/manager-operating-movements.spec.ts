@@ -53,6 +53,11 @@ test("encargado registra un gasto en la caja activa y el cajero recibe el movimi
     .toBe(true);
   await page.goto("/caja/gastos");
   await expect(page.getByText("Compra operativa del encargado", { exact: true })).toBeVisible();
+  await page.goto("/caja/cerrar");
+  const managerActivity = page.getByRole("region", { name: "Movimientos del encargado" });
+  await expect(managerActivity).toContainText("Compra operativa del encargado");
+  await expect(managerActivity).toContainText("Encargado");
+  await expect(managerActivity.getByText("-$ 1.000", { exact: true })).toBeVisible();
 
   const audit = await managerPage.evaluate((storageKey) => {
     const snapshot = JSON.parse(localStorage.getItem(storageKey)!);

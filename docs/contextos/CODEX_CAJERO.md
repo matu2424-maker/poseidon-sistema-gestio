@@ -1,6 +1,6 @@
 # Contexto Codex - Operacion del cajero
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-17
 
 Leer este contexto antes de modificar el panel, las pantallas o el flujo diario del cajero. Agregar `CODEX_NUCLEO_CAJA` cuando cambien comandos, calculos, saldos o auditoria.
 
@@ -19,6 +19,7 @@ Leer este contexto antes de modificar el panel, las pantallas o el flujo diario 
 - Si no hay caja abierta, solo puede abrir caja, consultar clientes y revisar cajas cerradas.
 - Con caja abierta puede cargar contadores, gastos, transferencias, regalos, salarios, aportes y retiros, y cerrar la recaudacion.
 - Despues del cierre navega al resumen de cajas.
+- Antes de confirmar el cierre ve las intervenciones del Encargado asociadas a esa recaudacion, incluidos anulados con impacto vigente cero.
 - Formularios, avisos, tablas, accesibilidad y navegacion pertenecen a este contexto.
 - Las tablas operativas ordenan todas sus columnas visibles de datos; acciones y seleccion son las excepciones.
 
@@ -52,5 +53,5 @@ Leer este contexto antes de modificar el panel, las pantallas o el flujo diario 
 1. Entrar como `cajero1`.
 2. Verificar estado sin caja y abrir una recaudacion.
 3. Cargar contadores y movimientos permitidos.
-4. Cerrar declarando efectivo y banco.
+4. Verificar el detalle ordenable de movimientos del Encargado y cerrar declarando efectivo y banco.
 5. Revisar resumen, cuentas y diferencias generadas.

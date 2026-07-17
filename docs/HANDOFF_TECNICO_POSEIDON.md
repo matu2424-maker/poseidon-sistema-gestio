@@ -88,6 +88,7 @@ No usar Python, `pnpm preview` ni servidores alternativos para localhost.
 - Salario, adelantos y descuentos respetan limites de base documentados.
 - IN/OUT actual nunca puede quedar por debajo del anterior.
 - Durante una caja abierta, `efectivo esperado` debe coincidir con `Local / Efectivo`; un delta tecnico bloquea operativa y cierre y no se corrige con un aporte ordinario.
+- Antes de cerrar, el Cajero ve las intervenciones con funcion Encargado del mismo `balanceId`; el detalle es informativo y los anulados no integran el impacto vigente.
 - La migracion 3 -> 4 solo agrega un puente `MIGRACION` si las transferencias reconstruidas explican exactamente el delta; conserva historial y no cambia resultado economico.
 - Cerrar un local envia sus maquinas al Taller con confirmacion/auditoria.
 - Maquina con recaudaciones no se elimina directamente.
@@ -113,7 +114,7 @@ Toda accion sensible debe registrar cuando corresponda:
 - Comandos extraidos para caja, contadores, diferencias, movimientos, salarios, locales y maquinas.
 - Puerto asincrono `AppDataRepository`, codec de respaldo, adaptador local y cola ordenada de escrituras.
 - Helpers de dinero, periodos, cuentas, diferencias, salarios, auditoria y ordenamiento compartidos.
-- 158 pruebas aprobadas en 29 archivos, mas 11 casos E2E en 6 archivos para caja, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, operacion concurrente de Encargado/Cajero, rutas, sincronizacion y conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
+- 160 pruebas aprobadas en 30 archivos, mas 11 casos E2E en 6 archivos para caja, efectivo negativo, desconciliacion caja/libro, disponibilidad de efectivo, diferencias/auditoria, operacion concurrente de Encargado/Cajero, detalle de intervenciones en el cierre, rutas, sincronizacion y conflicto entre pestañas, cierre salarial correctivo y coordinacion de chats.
 - Tres perfiles Codex de solo lectura, cuatro chats permanentes coordinados, cuatro skills versionadas y validadores de agentes, workstreams, skills y sistema visual.
 - Documentacion modular y `AGENTS.md` por feature.
 
