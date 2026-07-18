@@ -139,26 +139,10 @@ const managerMenu: MenuGroup[] = [
   },
 ];
 
-const cashierMenu: MenuGroup[] = [
-  {
-    title: "Caja diaria",
-    items: [
-      { label: "Panel cajero", screen: "panel" },
-      { label: "Caja diaria", screen: "open-cash" },
-      { label: "Contadores", screen: "counters" },
-      { label: "Gastos", screen: "expenses" },
-      { label: "Transferencias", screen: "transfers" },
-      { label: "Regalos", screen: "gifts" },
-      { label: "Caja y Principal", screen: "capital-movements" },
-      { label: "Cerrar caja", screen: "close-cash" },
-    ],
-  },
-];
-
 export function menuGroupsForRole(role: Role): MenuGroup[] {
   if (role === "ADMINISTRADOR") return adminMenu;
   if (role === "ENCARGADO") return managerMenu;
-  return cashierMenu;
+  return [];
 }
 
 export function titleForScreen(screen: Screen, role: Role): string {

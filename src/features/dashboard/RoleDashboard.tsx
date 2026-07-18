@@ -1,15 +1,12 @@
-import type { AppData, Balance, Local, Role, Screen, User } from "../../types";
+import type { AppData, Balance, Local, Role, Screen } from "../../types";
 import { AdminDashboard } from "./AdminDashboard";
-import { CashierDashboard } from "./CashierDashboard";
 import { ManagerDashboard } from "./ManagerDashboard";
 
 export type RoleDashboardProps = {
   data: AppData;
-  user: User;
   local: Local;
   openBalance: Balance | undefined;
   effectiveRole: Role;
-  modeStatus: string;
   setScreen: (screen: Screen) => void;
 };
 
@@ -18,7 +15,6 @@ export function Panel({
   local,
   openBalance,
   effectiveRole,
-  modeStatus,
   setScreen,
 }: RoleDashboardProps) {
   if (effectiveRole === "ADMINISTRADOR") {
@@ -29,13 +25,5 @@ export function Panel({
     return <ManagerDashboard data={data} local={local} openBalance={openBalance} setScreen={setScreen} />;
   }
 
-  return (
-    <CashierDashboard
-      data={data}
-      local={local}
-      openBalance={openBalance}
-      modeStatus={modeStatus}
-      setScreen={setScreen}
-    />
-  );
+  return null;
 }

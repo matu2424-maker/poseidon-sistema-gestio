@@ -1,6 +1,6 @@
 # Poseidon - Modularizacion y referencias cruzadas
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-18
 
 Fuente canonica del metodo para dividir o mover codigo sin romper asociaciones funcionales, contables, visuales o de auditoria. Git conserva los cortes ya completados; este documento describe el estado y los proximos cortes.
 
@@ -58,8 +58,9 @@ Evitar archivos `index.ts` generales que oculten ciclos. Preferir imports explic
 
 ## Propiedad para trabajo paralelo
 
-- `RoleDashboard.tsx` selecciona el panel y queda reservado al chat central.
-- `CashierDashboard.tsx`, `ManagerDashboard.tsx` y `AdminDashboard.tsx` permiten que cada chat de rol evolucione su experiencia sin editar el mismo componente.
+- `RoleDashboard.tsx` selecciona los paneles de Encargado y Administrador y queda reservado al chat central.
+- El Cajero usa directamente `features/cashier/CashierWorkspace.tsx`; no existe un segundo dashboard compatible.
+- `CashierWorkspace.tsx`, `ManagerDashboard.tsx` y `AdminDashboard.tsx` permiten que cada chat de rol evolucione su experiencia sin editar el mismo componente.
 - Los estilos nuevos de cada panel viven en `dashboard-cashier.css`, `dashboard-manager.css` y `dashboard-admin.css`; `dashboards.css` conserva reglas heredadas compartidas hasta una migracion mecanica posterior.
 - `src/application/`, `src/lib/`, tipos, persistencia, navegacion y estilos transversales son contratos compartidos y requieren propietario temporal unico.
 - La matriz completa vive en `docs/coordinacion/WORKSTREAMS.json`; no duplicar sus listas en contextos de modulo.

@@ -18,7 +18,8 @@ import {
   POSEIDON_LOCAL_ID,
 } from "./data/appData";
 import { hydrateAppData } from "./data/migrateData";
-import { CashierWorkspace, Login, Shell, Welcome } from "./features/layout/AppShell";
+import { Login, Shell, Welcome } from "./features/layout/AppShell";
+import { CashierWorkspace } from "./features/cashier/CashierWorkspace";
 import { EmptyState } from "./components/EmptyState";
 import { NoticeBanner } from "./components/NoticeBanner";
 import { StorageRecovery } from "./features/system/StorageRecovery";
@@ -486,11 +487,9 @@ function App({
       {screen === "panel" && (
         <Panel
           data={data}
-          user={user}
           local={activeLocal}
           openBalance={openBalance}
           effectiveRole={effectiveRole ?? user.role}
-          modeStatus="Prueba local"
           setScreen={goToScreen}
         />
       )}

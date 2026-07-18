@@ -99,9 +99,9 @@ src/
   hooks/                   estado UI compartido, como avisos
   navigation/screens.ts    rutas, titulos, menus, permisos y requisitos por pantalla
   features/
-    layout/                bienvenida, login, shell y menus
-    dashboard/             selector compatible y panel independiente por rol
-    cashier/               apertura, movimientos, contadores y cierre
+    layout/                bienvenida, login, shell lateral y menus de encargado/admin
+    dashboard/             selector de encargado/admin y sus paneles
+    cashier/               workspace canonico, apertura, movimientos, contadores y cierre
     manager/               diferencias y control de gastos
     accounts/              cuentas corrientes
     salaries/              liquidacion salarial
@@ -216,6 +216,7 @@ src/
 ## Estado de modularizacion
 
 - `App.tsx` ya no contiene las pantallas completas; conserva estado global, login, apertura de caja, navegacion y composicion.
+- Cajero entra directamente a `features/cashier/CashierWorkspace.tsx`; se elimino `CashierDashboard.tsx`, que era una compatibilidad sin ejecucion real.
 - La pantalla activa ya no vive en `useState`: se deriva de `location.pathname`; `navigate` actualiza el historial del navegador.
 - `sessionStorage` conserva usuario y funcion activa al recargar la pestaña; cerrar sesion elimina ese dato local.
 - Las reglas puras principales estan en `src/lib`.

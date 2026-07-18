@@ -39,7 +39,6 @@
       "context": "docs/contextos/CODEX_CAJERO.md",
       "writeScopes": [
         "src/features/cashier/",
-        "src/features/dashboard/CashierDashboard.tsx",
         "src/styles/features/dashboard-cashier.css",
         "docs/contextos/CODEX_CAJERO.md",
         "docs/modulos/01_panel_cajero.md"

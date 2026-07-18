@@ -1,6 +1,6 @@
 # Contexto Codex - Layout base y navegacion
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Leer este contexto antes de modificar pantalla inicial, login local, barra superior, menu lateral, layout de cajero o navegacion base.
 
@@ -17,12 +17,13 @@ Referencias asociadas:
 
 ## Codigo actual
 
-- Pantalla inicial, login, layout lateral de encargado/admin, layout del cajero y estado vacio operativo viven en `src/features/layout/AppShell.tsx`.
+- Pantalla inicial, login y layout lateral de encargado/admin viven en `src/features/layout/AppShell.tsx`.
+- El layout operativo del Cajero vive en `src/features/cashier/CashierWorkspace.tsx` y pertenece a esa experiencia de rol.
 - `src/App.tsx` conserva estado global, sesion, acciones y composicion; la pantalla se deriva de React Router.
 - `src/navigation/screens.ts` define la URL estable de cada pantalla; `docs/MAPA_RUTAS.md` documenta el contrato completo.
 - `src/infrastructure/session/localSession.ts` conserva `userId` y funcion activa durante la pestaña para soportar recarga.
 - Recuperacion y mantenimiento local viven en `src/features/system/`; el repositorio versionado vive en `src/infrastructure/storage/`.
-- `RoleDashboard.tsx` conserva la entrada compatible y delega en `CashierDashboard.tsx`, `ManagerDashboard.tsx` o `AdminDashboard.tsx` segun la funcion efectiva.
+- `RoleDashboard.tsx` selecciona solamente `ManagerDashboard.tsx` o `AdminDashboard.tsx`; Cajero sale antes desde `App.tsx` hacia `CashierWorkspace`.
 - Cada panel tiene contexto y propietario de chat separado; `DashboardActionCard.tsx` y la seleccion de rol siguen reservados al chat central.
 
 ## Reglas criticas
@@ -40,7 +41,7 @@ Referencias asociadas:
 ## Asociaciones
 
 - `Shell` usa grupos de menu segun rol efectivo.
-- `CashierWorkspace` muestra resumen operativo de caja abierta y abre las funciones de cajero como vistas internas o modal.
+- `CashierWorkspace` es el panel canonico del Cajero: muestra el resumen operativo de caja abierta y abre sus funciones como vistas internas o modal.
 - `titleForScreen` define el titulo de pantalla segun pantalla y rol.
 - `roleLabels` vive en `src/lib/display.ts` y se comparte con auditoria/exportaciones.
 
