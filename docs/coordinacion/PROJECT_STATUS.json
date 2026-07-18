@@ -11,17 +11,17 @@
   },
   "current": {
     "phase": "prueba-local",
-    "objective": "Incorporar una carga integral y recuperable de datos demo para pruebas compartidas en Chrome.",
-    "activeWorkOrders": ["2026-07-18-ADM-01"],
+    "objective": "Probar los flujos integrados con el escenario demo recuperable cargado en el Chrome canonico.",
+    "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-18-CEN-05",
-    "title": "Chrome como fuente canonica de validacion local",
+    "id": "2026-07-18-ADM-01",
+    "title": "Carga integral y recuperable de datos demo",
     "state": "INTEGRADA",
-    "evidence": "DEC-2026-005, AGENTS, reglas generales, validacion local, contexto rapido, README y skill de localhost actualizados."
+    "evidence": "Comando central auditado, interfaz Administrador integrada, respaldo previo descargado y escenario verificado en Chrome con 3 cajas cerradas, 1 diferencia pendiente y persistencia tras recarga."
   },
   "health": {
     "overall": "YELLOW",

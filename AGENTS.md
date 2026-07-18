@@ -85,6 +85,7 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 
 - El sistema esta en etapa de prueba local con persistencia en `localStorage`.
 - Chrome, en el perfil habitual del usuario y sobre `http://127.0.0.1:5173/`, es la unica fuente canonica para validaciones manuales y operaciones que dependan de los datos locales.
+- Al usar Chrome, iniciar un grupo nombrado `Poseidon - <tarea>`, crear alli las pestanas de trabajo necesarias y no reclamar pestanas personales del usuario. Al terminar, cerrar las temporales y conservar solo las utiles.
 - No usar el navegador integrado como sustituto de Chrome para cargar, editar o validar datos operativos. Si Chrome no esta disponible, informar la limitacion y no cambiar silenciosamente de navegador.
 - Playwright y otros controles automatizados conservan contextos aislados con datos descartables; su estado nunca se considera la base operativa de Chrome.
 - Supabase/Auth real y storage real de archivos quedan pendientes para una etapa posterior.

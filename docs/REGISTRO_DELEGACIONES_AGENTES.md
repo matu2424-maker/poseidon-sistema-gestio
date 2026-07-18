@@ -1,6 +1,6 @@
 # Poseidon - Registro de delegaciones Codex
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-18
 
 Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica vive en `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
 
@@ -24,6 +24,7 @@ Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica v
 | `2026-07-11-SAL-UI-01` | `poseidon_ui_reviewer` aplicado por explorer integrado | Revisar Liquidacion de salarios | `UTIL` | No medida por perfil | No disponible | Densidad del resumen, ocho metricas, estrategia movil, estado de cierre y detalle plano | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-11-ENC-UI-01` | `poseidon_ui_reviewer` aplicado por explorer integrado | Revisar Panel del encargado | `UTIL` | No medida por perfil | No disponible | Separacion financiera/economica, alcance temporal, jerarquia de acciones, accesos unicos y navegacion movil | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-16-CAJA-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar reconciliacion de caja y migracion de transferencias | `UTIL` | No medida por perfil | No disponible | Causalidad exacta del delta, orden de validacion, bloqueo de salarios/gastos historicos y migracion versionada | BAJA | Completado, cerrado, solo lectura |
+| `2026-07-18-DEMO-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar la carga integral del escenario demo | `NO_UTIL` | No disponible | No disponible | Ninguno: no entrego un resultado util dentro del tiempo de la tarea | BAJA | Interrumpido, cerrado, solo lectura |
 
 ## Evaluacion de perfiles nuevos
 

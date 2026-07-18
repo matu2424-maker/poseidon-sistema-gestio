@@ -27,6 +27,7 @@ import { localDate } from "./lib/dates";
 import { commandContext } from "./application/command";
 import { openCashCommand } from "./application/cash/openCash";
 import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
+import { loadDemoDataCommand } from "./application/system/loadDemoData";
 import { resetOperationalDataCommand } from "./application/system/resetOperationalData";
 import { canAccessScreen, pathForScreen, screenForPath, screenRequiresOpenCash } from "./navigation/screens";
 import { useNotice } from "./hooks/useNotice";
@@ -202,6 +203,38 @@ function App({
     }
     setData(result.data);
     setMessage("Base operativa limpia creada. Las cuentas, contadores y operaciones quedaron en cero.");
+  };
+
+  const loadDemoData = async () => {
+    if (!user || !effectiveRole) return;
+    if (
+      !confirmAction(
+        "Cargar el escenario integral de pruebas? Se descargara un respaldo y luego se reemplazaran todos los datos actuales de este navegador sin mezclarlos.",
+      )
+    ) {
+      return;
+    }
+    downloadFile(
+      `poseidon-respaldo-antes-demo-${localDate()}.json`,
+      backupCodec.serialize(data),
+      "application/json;charset=utf-8",
+    );
+    const result = loadDemoDataCommand(data, commandContext(user, effectiveRole));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    const saveResult = await persistNow(result.data);
+    if (saveResult.status !== "ok") {
+      setMessage(`Los datos demo son validos pero no pudieron guardarse: ${saveResult.error}`);
+      return;
+    }
+    setData(result.data);
+    setUser(null);
+    setActingRole(null);
+    clearLocalSession();
+    setMessage("Escenario de pruebas cargado. Ingresa nuevamente con el usuario que quieras probar.");
+    navigate(pathForScreen("login"), { replace: true });
   };
 
   const exportLocalBackup = () => {
@@ -537,7 +570,12 @@ function App({
       {screen === "admin-trash" && <AdminTrash data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-expense-categories" && <AdminExpenseCategories data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-local-data" && (
-        <LocalDataMaintenance onExport={exportLocalBackup} onImport={importLocalBackup} onReset={resetOperationalData} />
+        <LocalDataMaintenance
+          onExport={exportLocalBackup}
+          onImport={importLocalBackup}
+          onLoadDemo={loadDemoData}
+          onReset={resetOperationalData}
+        />
       )}
       {screen === "admin-machines" && (
         <AdminMachines
