@@ -42,6 +42,32 @@ type LedgerRow = {
   userName: string;
 };
 
+const ACCOUNT_SELECTOR_KIND_PRIORITY: Record<CurrentAccount["kind"], number> = {
+  LOCAL_EFECTIVO: 0,
+  LOCAL_BANCO: 1,
+  PRINCIPAL_EFECTIVO: 2,
+  PRINCIPAL_BANCO: 3,
+  SOCIO: 4,
+  TRANSFERENCIAS: 5,
+  PERSONAL: 6,
+};
+
+export function filterAndOrderAccountSelector(accounts: CurrentAccount[], query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
+  return accounts
+    .filter((account) =>
+      normalizedQuery
+        ? [account.name, account.kind, account.status, account.entityId ?? ""].join(" ").toLowerCase().includes(normalizedQuery)
+        : true,
+    )
+    .sort(
+      (a, b) =>
+        ACCOUNT_SELECTOR_KIND_PRIORITY[a.kind] - ACCOUNT_SELECTOR_KIND_PRIORITY[b.kind] ||
+        a.name.localeCompare(b.name, "es-UY") ||
+        a.id.localeCompare(b.id, "es-UY"),
+    );
+}
+
 export function AdminCurrentAccounts({
   data,
   user,
@@ -113,15 +139,8 @@ export function AdminCurrentAccounts({
     const totals = totalsForVisibleAccount(accountId);
     return openingBalanceForAccount(accountId) + totals.income - totals.outcome;
   };
-  const normalizedQuery = query.trim().toLowerCase();
   const scopedAccounts = data.currentAccounts.filter(accountInScope);
-  const accounts = [...scopedAccounts]
-    .filter((account) =>
-      normalizedQuery
-        ? [account.name, account.kind, account.status, account.entityId ?? ""].join(" ").toLowerCase().includes(normalizedQuery)
-        : true,
-    )
-    .sort((a, b) => accountKindLabel(a.kind).localeCompare(accountKindLabel(b.kind), "es-UY") || a.name.localeCompare(b.name, "es-UY"));
+  const accounts = filterAndOrderAccountSelector(scopedAccounts, query);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(accounts[0]?.id ?? null);
   useEffect(() => {
     if (!accounts.length) {

@@ -31,6 +31,8 @@ Mostrar saldos derivados de asientos y ofrecer un unico lugar administrativo par
 
 Las cuentas de Personal se consultan dentro de Liquidacion de salarios.
 
+El selector conserva los grupos Caja, Principal, Socios y Otras. Dentro de Caja y Principal muestra Efectivo antes que Banco mediante una prioridad explicita, independiente de las etiquetas; la busqueda mantiene ese orden relativo y la primera cuenta visible determina la seleccion inicial.
+
 ## Periodos
 
 - Abre en mes corriente.

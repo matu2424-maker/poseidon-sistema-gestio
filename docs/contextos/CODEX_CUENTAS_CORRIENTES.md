@@ -19,6 +19,7 @@ Leer junto con `docs/REGLAS_CONTABLES.md` y `docs/modulos/11_cuentas_corrientes.
 - Principal: Efectivo y Banco de la empresa.
 - Socios: Mathias y Ricardo.
 - Otras: Transferencias.
+- En Caja y Principal, Efectivo aparece antes que Banco mediante una prioridad explicita; la busqueda conserva ese orden y la seleccion inicial toma la primera cuenta visible.
 - Las cuentas personales no aparecen aqui; se consultan dentro de Liquidacion de salarios.
 
 ## Operaciones
