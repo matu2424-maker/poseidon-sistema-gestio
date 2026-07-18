@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { commandContext } from "../application/command";
 import { openCashCommand } from "../application/cash/openCash";
+import { createExpenseCommand } from "../application/movements/operatingMovementCommands";
 import {
-  annulCapitalMovementCommand,
-  createCapitalMovementCommand,
-  createExpenseCommand,
-  deleteExpenseCommand,
-} from "../application/movements/operatingMovementCommands";
+  annulTreasuryTransferCommand,
+  createPartnerMovementCommand,
+  createTreasuryTransferCommand,
+} from "../application/treasury/treasuryCommands";
 import { createSeedData, POSEIDON_LOCAL_ID } from "../data/appData";
 import type { AppData, Role } from "../types";
 import { managerCashActivityForBalance } from "./managerCashActivity";
@@ -30,6 +30,8 @@ function setupOpenCash() {
     transfers: [],
     gifts: [],
     capitalMovements: [],
+    treasuryTransfers: [],
+    partnerMovements: [],
     accountMovements: [],
     audit: [],
   };
@@ -51,46 +53,46 @@ function setupOpenCash() {
 }
 
 describe("actividad del encargado durante una caja", () => {
-  it("resume gastos, aportes y retiros vigentes por cuenta", () => {
+  it("resume los traspasos vigentes entre Caja y Principal por cuenta", () => {
     const setup = setupOpenCash();
-    const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
     const manager = actorContext(setup.data, "encargado", "ENCARGADO", "2026-07-17T13:00:00.000Z");
-    const expense = createExpenseCommand(
+    const principalFunding = createPartnerMovementCommand(
       setup.data,
       {
-        balanceId: setup.balanceId,
-        category: category.name,
-        subcategory: category.subcategories[0],
-        amount: 1_000,
-        description: "Compra del encargado",
+        localId: POSEIDON_LOCAL_ID,
+        partner: "RICARDO",
+        type: "APORTE_SOCIO",
+        medium: "BANCO",
+        amount: 500,
+        note: "Fondos para Caja / Banco",
       },
       manager,
     );
-    expect(expense.ok).toBe(true);
-    if (!expense.ok) return;
-    const bankContribution = createCapitalMovementCommand(
-      expense.data,
+    expect(principalFunding.ok).toBe(true);
+    if (!principalFunding.ok) return;
+    const bankContribution = createTreasuryTransferCommand(
+      principalFunding.data,
       {
+        localId: POSEIDON_LOCAL_ID,
         balanceId: setup.balanceId,
-        type: "APORTE",
-        medium: "TRANSFERENCIA",
-        person: "RICARDO",
+        type: "APORTE_CAJA",
+        medium: "BANCO",
         amount: 500,
-        note: "Aporte bancario",
+        note: "Principal a Caja",
       },
       manager,
     );
     expect(bankContribution.ok).toBe(true);
     if (!bankContribution.ok) return;
-    const cashWithdrawal = createCapitalMovementCommand(
+    const cashWithdrawal = createTreasuryTransferCommand(
       bankContribution.data,
       {
+        localId: POSEIDON_LOCAL_ID,
         balanceId: setup.balanceId,
-        type: "RETIRO",
+        type: "RETIRO_CAJA",
         medium: "EFECTIVO",
-        person: "MATHIAS",
         amount: 2_000,
-        note: "Retiro operativo",
+        note: "Caja a Principal",
       },
       manager,
     );
@@ -98,61 +100,40 @@ describe("actividad del encargado durante una caja", () => {
     if (!cashWithdrawal.ok) return;
 
     const activity = managerCashActivityForBalance(cashWithdrawal.data, setup.balanceId);
-    expect(activity).toMatchObject({ cashNet: -3_000, bankNet: 500, activeCount: 3, annulledCount: 0 });
-    expect(activity.items.map((item) => item.kind).sort()).toEqual(["APORTE", "GASTO", "RETIRO"]);
+    expect(activity).toMatchObject({ cashNet: -2_000, bankNet: 500, activeCount: 2, annulledCount: 0 });
+    expect(activity.items.map((item) => item.kind).sort()).toEqual(["CAJA_A_PRINCIPAL", "PRINCIPAL_A_CAJA"]);
     expect(activity.items.every((item) => item.userName === "Encargado")).toBe(true);
   });
 
-  it("conserva intervenciones anuladas sin sumarlas y excluye movimientos solo del cajero", () => {
+  it("conserva un traspaso anulado y excluye movimientos hechos solo por el cajero", () => {
     const setup = setupOpenCash();
-    const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
     const cashier = actorContext(setup.data, "cajero1", "CAJERO", "2026-07-17T13:00:00.000Z");
     const manager = actorContext(setup.data, "encargado", "ENCARGADO", "2026-07-17T14:00:00.000Z");
-    const managerWithdrawal = createCapitalMovementCommand(
+    const managerWithdrawal = createTreasuryTransferCommand(
       setup.data,
       {
+        localId: POSEIDON_LOCAL_ID,
         balanceId: setup.balanceId,
-        type: "RETIRO",
+        type: "RETIRO_CAJA",
         medium: "EFECTIVO",
-        person: "MATHIAS",
         amount: 1_000,
-        note: "Luego anulado por cajero",
+        note: "Luego anulado",
       },
       manager,
     );
     expect(managerWithdrawal.ok).toBe(true);
     if (!managerWithdrawal.ok) return;
-    const annulledWithdrawal = annulCapitalMovementCommand(
+    const annulledWithdrawal = annulTreasuryTransferCommand(
       managerWithdrawal.data,
-      setup.balanceId,
       managerWithdrawal.value.id,
-      cashier,
+      manager,
+      "Operacion cancelada",
     );
     expect(annulledWithdrawal.ok).toBe(true);
     if (!annulledWithdrawal.ok) return;
-    const cashierExpense = createExpenseCommand(
-      annulledWithdrawal.data,
-      {
-        balanceId: setup.balanceId,
-        category: category.name,
-        subcategory: category.subcategories[0],
-        amount: 600,
-        description: "Eliminado por encargado",
-      },
-      cashier,
-    );
-    expect(cashierExpense.ok).toBe(true);
-    if (!cashierExpense.ok) return;
-    const removedByManager = deleteExpenseCommand(
-      cashierExpense.data,
-      setup.balanceId,
-      cashierExpense.value.id,
-      manager,
-    );
-    expect(removedByManager.ok).toBe(true);
-    if (!removedByManager.ok) return;
+    const category = annulledWithdrawal.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
     const cashierOnlyExpense = createExpenseCommand(
-      removedByManager.data,
+      annulledWithdrawal.data,
       {
         balanceId: setup.balanceId,
         category: category.name,
@@ -166,9 +147,9 @@ describe("actividad del encargado durante una caja", () => {
     if (!cashierOnlyExpense.ok) return;
 
     const activity = managerCashActivityForBalance(cashierOnlyExpense.data, setup.balanceId);
-    expect(activity).toMatchObject({ cashNet: 0, bankNet: 0, activeCount: 0, annulledCount: 2 });
-    expect(activity.items).toHaveLength(2);
-    expect(activity.items.every((item) => item.status === "ANULADO")).toBe(true);
+    expect(activity).toMatchObject({ cashNet: 0, bankNet: 0, activeCount: 0, annulledCount: 1 });
+    expect(activity.items).toHaveLength(1);
+    expect(activity.items[0]).toMatchObject({ kind: "CAJA_A_PRINCIPAL", status: "ANULADO" });
     expect(activity.items.some((item) => item.detail.includes("Solo cajero"))).toBe(false);
   });
 });

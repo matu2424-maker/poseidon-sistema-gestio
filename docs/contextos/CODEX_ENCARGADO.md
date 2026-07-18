@@ -1,52 +1,50 @@
 # Contexto Codex - Encargado
 
-Ultima actualizacion: 2026-07-17
+Leer junto con `docs/REGLAS_CONTABLES.md`, `docs/modulos/07_panel_encargado.md`, modulos 04/06/10/11/12 y los contextos de diferencias, cuentas y salarios.
 
-Leer este contexto antes de modificar panel del encargado, diferencias, control de gastos, cuentas corrientes o cierres periodicos. Referencias asociadas:
+## Propiedad
 
-- `docs/REGLAS_CONTABLES.md`
-- `docs/REGLAS_VISUALES.md`
-- `docs/modulos/07_panel_encargado.md`
-- `docs/modulos/06_diferencias_caja.md`
-- `docs/modulos/11_cuentas_corrientes.md`
-- `docs/modulos/12_auditoria.md`
-- `docs/contextos/CODEX_DIFERENCIAS.md`
-- `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`
+- Panel: `src/features/dashboard/ManagerDashboard.tsx`.
+- Layout/menu: `src/features/layout/AppShell.tsx`.
+- Gastos: `src/features/manager/Expenses.tsx`.
+- Cuentas/Tesoreria: `src/features/accounts/CurrentAccounts.tsx`.
+- Cierre periodico: `src/features/reports/Periodic.tsx`.
 
-## Codigo actual
+## Alcance
 
-- Panel del encargado vive en `src/features/dashboard/ManagerDashboard.tsx`; `RoleDashboard.tsx` conserva la seleccion por funcion.
-- Menu y layout del encargado viven en `src/features/layout/AppShell.tsx`.
-- Control de gastos vive en `src/features/manager/Expenses.tsx`.
-- Cierre periodico vive en `src/features/reports/Periodic.tsx`.
-- Diferencias usan helpers de `src/lib/differences.ts`.
-- Movimientos de cuenta usan `src/lib/accountMovements.ts`.
-- Saldos de local usan `src/lib/currentAccounts.ts`.
-- Gastos y retiros/aportes operativos reutilizan `src/features/cashier/Movements.tsx`; su autorizacion compartida vive en `src/application/movements/operatingMovementCommands.ts`.
+- Ve solamente locales asignados; demo: Poseidon.
+- Revisa diferencias, recaudaciones, cuentas, auditoria, reportes y cierres.
+- Registra gastos y salarios desde Principal/Efectivo o Principal/Banco.
+- Mueve fondos Caja <-> Principal.
+- Registra aportes y retiros patrimoniales de Mathias/Ricardo.
+- Para operar contadores, movimientos de Caja o cierre cambia expresamente a funcion Cajero.
+- Auditoria siempre conserva rol real Encargado y funcion utilizada.
 
-## Reglas criticas
+## Reglas financieras
 
-- Encargado ve solo locales asignados.
-- Encargado asignado puede registrar gastos y retiros/aportes sobre la caja abierta desde su funcion propia.
-- Apertura, contadores, transferencias, regalos, salarios y cierre requieren cambiar a funcion Cajero.
-- Panel del encargado no debe repetir titulos que ya muestra la barra superior.
-- Diferencias se revisan, corrigen, verifican o anulan con auditoria completa.
-- Cierres periodicos son fotos auditadas; no borran cajas ni movimientos.
-- Toda tabla visible debe ordenar por cada columna de datos.
+- Un gasto administrativo no usa caja abierta ni `balanceId`.
+- Un salario administrativo no usa caja abierta ni `balanceId`.
+- Caja solo cambia mediante operaciones de Cajero, diferencias o traspasos explicitos.
+- Principal no puede quedar negativo por una nueva salida.
+- Un traspaso interno no cambia resultado economico.
+- Un aporte/retiro de socio no cambia resultado economico y no es custodia.
+- Las diferencias se verifican, corrigen o anulan con observacion y asientos append-only.
+- Cierres periodicos incluyen cajas cerradas y movimientos de Principal del rango.
 
-## Asociaciones
+## Interfaz
 
-- Diferencias impactan cuentas local efectivo/banco.
-- Control de gastos impacta caja, cuenta local efectivo y auditoria. Su tabla debe ordenar por todas las columnas visibles de datos.
-- Cuentas corrientes deben permitir rastrear movimientos hasta la recaudacion.
-- Salarios se revisan en `CODEX_SALARIOS`, aunque el encargado pueda gestionarlos.
+- No repetir titulos de la barra superior.
+- Mostrar Caja, Principal y liquidez por medio.
+- Todas las columnas visibles de datos ordenan.
+- Los errores se muestran dentro del modal/pantalla donde ocurren.
 
-## Pruebas manuales
+## Prueba minima
 
 1. Entrar como `encargado`.
-2. Revisar panel inicial con local Poseidon.
-3. Abrir Diferencias y gestionar una recaudacion.
-4. Abrir Cuentas corrientes y verificar efectivo/banco.
-5. Abrir Control de gastos y revisar/anular un gasto.
-6. Con una caja abierta, registrar un gasto y un aporte/retiro desde `Operacion del local`.
-7. Confirmar que Cajero ve el mismo movimiento y que auditoria registra usuario real, rol y funcion `ENCARGADO`.
+2. Ver Caja, Principal y resultado mensual del local.
+3. Registrar un gasto desde Principal y comprobar que Caja no cambia.
+4. Registrar una liquidacion desde Principal.
+5. Hacer un traspaso Caja/Principal.
+6. Registrar aporte y retiro real de socio.
+7. Revisar cuentas, auditoria y cierre periodico.
+8. Cambiar a Cajero y comprobar que la identidad real se conserva.

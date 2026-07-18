@@ -30,7 +30,7 @@ Referencias asociadas:
 - Login local es por seleccion de usuario, sin contrasena.
 - Cajero usa `CashierWorkspace`, sin barra lateral.
 - Encargado y administrador usan `Shell` con menu lateral agrupado y desplegable.
-- Encargado puede registrar gastos y retiros/aportes desde su funcion cuando existe caja abierta en su local. El resto de la operativa y toda operacion del Administrador requieren funcion Cajero.
+- Encargado y Administrador operan Principal, gastos, salarios y socios desde su funcion administrativa. Para operar la recaudacion y sus cuentas de Caja cambian expresamente a funcion Cajero.
 - Evitar repetir titulo/datos que ya aparecen en barra superior.
 - Botones deben quedar alineados y verse bien en 1080p.
 - Modales compartidos encierran/restauran foco y cierran con `Escape`; avisos usan region anunciable y filas clicables aceptan teclado.

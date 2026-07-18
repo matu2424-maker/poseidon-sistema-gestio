@@ -136,7 +136,7 @@ Comparar local y online por local/periodo:
 - cantidad de cajas y lecturas;
 - resultado de maquinas;
 - gastos, salarios y regalos;
-- transferencias, aportes y retiros;
+- transferencias de Caja, traspasos Caja/Principal y movimientos de socios;
 - efectivo/banco esperado y declarado;
 - diferencias y estados;
 - saldos de cuentas corrientes;

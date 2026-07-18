@@ -1,134 +1,112 @@
-# Poseidon - Reglas generales del sistema
+# Poseidon - Reglas generales
 
 Ultima actualizacion: 2026-07-17
 
-Esta es la fuente canonica de reglas transversales de trabajo, documentacion y auditoria general. Aplica a todo el sistema, salvo que un modulo indique una excepcion explicita.
+Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditoria. Las formulas y movimientos de cuentas viven en `docs/REGLAS_CONTABLES.md`.
 
-## Reglas de funcionamiento
+## Trabajo y alcance
 
 - Trabajar por modulos cerrados y comprobables.
-- No agregar funcionalidades no solicitadas.
-- Mantener preparacion multi-local.
+- Antes de editar, explicar alcance, archivos, riesgos y pruebas, salvo orden literal de ejecutar u objetivo activo.
+- No agregar funciones no solicitadas ni resolver por inferencia una decision de producto ambigua.
+- Mantener preparacion multi-local, aunque el foco actual sea Poseidon.
+- No hacer push, publicar, desplegar ni conectar servicios externos sin autorizacion expresa.
+- Un bloque estable se valida, documenta y cierra con commit local.
+- Antes del commit ejecutar `pnpm run check:commit`.
+- Para localhost usar exclusivamente `iniciar-poseidon.bat`; liberar el puerto con `detener-poseidon.bat`.
+
+## Historial y persistencia
+
 - No borrar historial operativo.
-- Toda accion sensible requiere confirmacion antes de ejecutarse.
-- Las confirmaciones de interfaz usan la unica entrada `src/lib/confirmations.ts`; no se crean wrappers locales por pantalla.
-- Titulo, menu, roles permitidos y requisito de caja abierta de cada pantalla se definen en `src/navigation/screens.ts`.
-- Encargado y administrador pueden consultar `Resumen de cajas`. Apertura, contadores, transferencias, regalos, pagos salariales y cierre exigen funcion activa `CAJERO`.
-- Como excepcion operativa explicita, el Encargado asignado al local puede registrar gastos y retiros/aportes sobre la caja abierta desde su propia funcion. Usa la misma recaudacion y cuentas del local, y conserva usuario real, rol real y funcion `ENCARGADO` en auditoria.
-- Los avisos se limpian al navegar para no quedar fuera de contexto; un aviso de exito que navega a su resumen puede preservarse de forma explicita.
-- Toda creacion, edicion, anulacion, baja, restauracion, eliminacion o ajuste importante debe registrarse en auditoria.
-- Las bajas operativas deben ser estado, anulacion o papelera antes de eliminacion definitiva.
-- Una entidad con referencias operativas no se elimina fisicamente; queda cerrada, inactiva o en papelera para conservar trazabilidad.
-- Clientes con regalos o transferencias, personal con liquidaciones/historial salarial y locales con operaciones asociadas permanecen en papelera o estado cerrado.
-- Los datos de prueba se guardan en un snapshot local versionado.
-- Un snapshot corrupto no se reemplaza automaticamente: debe ofrecerse descarga de recuperacion o reinicio confirmado.
-- Cada guardado local compara la version leida por la pestaña con la version almacenada. Ante conflicto no sobrescribe: bloquea nuevas escrituras, conserva un respaldo pendiente y permite cargar explicitamente la version guardada.
-- Una pestana sin cambios propios pendientes adopta automaticamente la ultima version guardada por otra pestana. Si ya tenia una mutacion local sin persistir, conserva la deteccion de conflicto y no mezcla snapshots.
-- Ante un fallo de escritura se conserva el intento serializado para descargar o reintentar; la aplicacion no debe continuar operando como si el dato estuviera persistido.
-- No recortar auditoria, movimientos ni historiales para forzar un guardado local. Si se supera la cuota, informar y pedir exportar respaldo.
-- No guardar archivos pesados/base64 en `localStorage`; solo metadatos.
-- No conectar Supabase/Auth/Storage real hasta que se reactive esa etapa.
-- No publicar ni desplegar sin autorizacion explicita del usuario.
-- Solo puede existir una caja `EN_PROCESO` por local, sin importar la fecha operativa.
-- Con caja abierta no se puede cerrar el local, trasladar o asignar maquinas ni ajustar sus contadores administrativos.
-- Para levantar localhost se usa solo `iniciar-poseidon.bat`. Si el puerto queda ocupado, usar `detener-poseidon.bat`. No probar Python, `pnpm preview` ni servidores alternativos.
-- Cuando el usuario marque un objetivo activo para ejecutar mejoras del sistema, Codex trabaja con autonomia dentro de ese objetivo: implementa, valida, documenta y commitea bloques locales estables sin pedir permiso paso a paso.
-- Con objetivo activo, Codex solo se detiene a pedir confirmacion ante push, publicacion, despliegue, conexion externa, cambios destructivos amplios, credenciales o decisiones de producto ambiguas.
-- Hacer commits locales cuando un bloque funcional quede estable, validado y sea correcto cerrar el punto de control.
-- Aplicar una skill versionada cuando exista un procedimiento repetible adecuado; la skill debe referenciar fuentes canonicas y no copiar reglas de producto.
-- Antes de cada commit ejecutar `pnpm run check:commit`, que selecciona la validacion proporcional a las rutas preparadas.
-- Cuando existan pruebas automatizadas para el modulo afectado, ejecutar `pnpm test` antes del build final.
-- No hacer push, publicacion ni despliegue sin confirmacion explicita del usuario.
-- Para modularizar, leer `docs/MODULARIZACION_REFERENCIAS.md` y dejar referencias cruzadas porque muchos modulos estan asociados.
-- Para trabajo paralelo entre chats, usar `docs/coordinacion/README.md`: rama/worktree por chat, propiedad exclusiva de archivos, contratos compartidos asignados por Central y entrega estructurada.
-- Los chats de rol pueden commitear en su rama aislada; solo Poseidon Central integra en `main`.
-- No asumir memoria compartida entre chats. Codigo, documentacion, orden de trabajo y commit son las fuentes de sincronizacion.
+- Bajas y correcciones se resuelven con estado, anulacion, contramovimiento, papelera o ajuste auditado.
+- Una entidad referenciada por operaciones no se elimina fisicamente.
+- El snapshot local es versionado y no recorta auditoria ni movimientos para ahorrar espacio.
+- Un snapshot corrupto no se sobrescribe automaticamente.
+- Cada guardado compara la version leida; un conflicto entre pestanas bloquea la escritura y conserva el intento.
+- Una pestana pasiva puede adoptar el ultimo snapshot; una con cambios propios no mezcla estados.
+- Un fallo de escritura debe detener la operacion y ofrecer recuperacion.
+- Los archivos pesados no se guardan en `localStorage`; solo sus metadatos.
 
-## Regla obligatoria de documentacion
+## Navegacion, roles y permisos
 
-Cada modificacion del sistema debe quedar documentada antes de cerrar el trabajo.
+- `src/navigation/screens.ts` es la fuente de rutas, titulos, menus, roles y requisito de caja abierta.
+- Rol real y funcion activa son distintos y ambos se auditan.
+- Encargado y Administrador pueden consultar recaudaciones y trabajar como Cajero mediante un cambio explicito de funcion.
+- Apertura, contadores, movimientos propios de Caja y cierre exigen funcion Cajero.
+- Desde funcion administrativa, Encargado y Administrador operan gastos, salarios y tesoreria desde Principal.
+- Un Encargado solo accede a sus locales asignados.
+- Los avisos se limpian al navegar, salvo una confirmacion que deba llegar al destino.
 
-- Si cambia una regla global, actualizar `docs/REGLAS_GENERALES.md`.
-- Si cambia una regla contable, actualizar `docs/REGLAS_CONTABLES.md`.
-- Si cambia una regla visual, actualizar `docs/REGLAS_VISUALES.md`.
-- Si cambia una asociacion tecnica entre modulos o se mueve codigo, actualizar `docs/MODULARIZACION_REFERENCIAS.md` o `docs/MAPA_TECNICO.md`.
-- Si cambia una regla funcional, flujo, calculo o campo, actualizar `docs/POSEIDON_FUNCIONAMIENTO.md`.
-- Si cambia una pantalla, funcion o modulo concreto, actualizar el archivo correspondiente en `docs/modulos/`.
-- Si cambia la estructura tecnica, clases principales, deuda tecnica o ubicacion de codigo, actualizar `docs/MAPA_TECNICO.md`.
-- Si cambia el estado para retomar trabajo, actualizar `docs/RETOMAR_MANANA.md`.
-- Si cambia la forma de ejecutar, validar o publicar, actualizar `README.md`.
+## Caja y operacion
 
-No se considera cerrado un cambio si la documentacion relacionada quedo desactualizada.
+- Solo puede existir una caja `EN_PROCESO` por local.
+- Con caja abierta no se cierra el local, no se trasladan/asignan maquinas y no se ajustan sus contadores administrativos.
+- Toda operacion de Caja debe asociarse a la caja activa mediante `balanceId` cuando corresponda.
+- Un gasto o salario administrativo pagado desde Principal no usa `balanceId` y no altera el efectivo esperado de Caja.
+- Un traspaso operativo Caja <-> Principal durante una caja abierta queda asociado a ese `balanceId`.
+- Los traspasos automaticos de apertura y cierre son inmutables.
+- El alta legacy de capital esta deshabilitada; los registros anteriores se conservan para lectura y anulacion compatible.
 
-## Reglas contables globales
+## Reglas contables resumidas
 
-- Resultado economico = resultado de maquinas - gastos - salarios - regalos.
-- El resultado economico no incluye transferencias, aportes, retiros, efectivo inicial, banco inicial ni diferencias.
-- Las diferencias de efectivo o banco son eventos de control y auditoria.
-- Una diferencia no se convierte automaticamente en ganancia, perdida, gasto ni ajuste de caja.
-- Al cerrar caja, una diferencia de efectivo o banco mueve la cuenta corriente del local para que la siguiente apertura tome el saldo real declarado.
-- Ese movimiento de diferencia no modifica el resultado economico.
-- Encargado o administrador deben gestionar diferencias con accion y observacion.
-- Si encargado/admin anula una diferencia, se anulan sus movimientos de cuenta y el saldo vuelve al calculo previo.
-- Si encargado/admin verifica una diferencia, el movimiento de cuenta queda activo como diferencia auditada.
-- Si encargado/admin corrige una diferencia, se editan los importes declarados de efectivo/banco, se recalculan diferencias y se sincronizan movimientos de cuenta.
-- Cualquier correccion adicional posterior debe hacerse con ajuste explicito y auditado.
-- Los pagos de salario desde caja afectan la caja por `balanceId`, pero la liquidacion y cuenta personal se imputan por periodo trabajado (`period`).
-- El cajero solo carga nuevos pagos de salario con `SALARIO` o `ADELANTO`; conceptos administrativos quedan para encargado/admin.
-- En salarios, del dia 1 al 10 se sugiere trabajar mes anterior; desde el dia 11 se sugiere mes actual. En liquidacion es solo periodo inicial sugerido y puede cambiarse manualmente.
-- En salarios, descuento reduce pendiente/base cubierta, pero no es dinero entregado ni salida de caja.
-- `Pagado / Entregado` = salario pagado + adelantos + premio/gratificacion + horas extras + bonos. No resta descuentos.
-- `Cubierto base` = salario pagado + adelantos + descuentos. No puede superar el salario base del periodo.
-- `EXTRA` queda como codigo tecnico interno y en interfaz se muestra como `Premio / Gratificacion`.
-- Los cambios de salario base son prospectivos: no pueden afectar cierres de liquidacion ya cerrados; si afectan periodos abiertos con liquidaciones activas, requieren reconfirmacion.
-- Los cierres salariales definitivos y sus snapshots no se editan ni se anulan. Toda correccion crea una revision enlazada y auditada.
-- Personal o locales incluidos en una foto salarial cerrada conservan esa referencia y no se eliminan definitivamente.
+- Resultado economico = resultado maquinas - gastos - salarios - regalos.
+- Traspasos Caja/Principal, aportes/retiros de socios, saldos iniciales y diferencias no cambian el resultado economico.
+- Las diferencias son eventos de control. Encargado o Administrador las verifica, corrige o anula con observacion y auditoria.
+- Una diferencia anulada conserva asientos originales y agrega contramovimientos.
+- Los pagos salariales se imputan por periodo trabajado; la salida de dinero se asocia a Caja o Principal segun la cuenta elegida.
+- Descuento salarial cubre base pero no entrega dinero.
+- Los cierres salariales son fotos inmutables; una modificacion posterior requiere revision correctiva enlazada.
 
-## Reglas visuales globales
+## Documentacion obligatoria
 
-- Disenar para una pantalla 1080p.
-- Evitar scroll horizontal innecesario en paneles principales.
-- Tablas administrativas densas, claras y compactas.
-- Las tablas nuevas deben permitir ordenar por sus columnas visibles por defecto, salvo que haya una razon funcional clara para no hacerlo.
-- Regla permanente de tablas: toda tabla nueva o existente que se modifique debe poder ordenarse por cada columna/concepto visible. Las columnas de acciones/comandos no requieren ordenamiento.
-- Si una columna visible no va a ser ordenable, debe explicarse el motivo y pedir aprobacion antes de implementar.
-- Botones de una misma zona con tamano y alineacion consistentes.
-- En tarjetas, acciones al borde inferior y preferentemente a la derecha.
-- No repetir datos que ya aparecen en la barra superior.
-- En pantallas administrativas, no repetir como `h2` interno el nombre exacto de la pantalla si ya aparece en la barra superior.
-- Mantener tarjetas de radio bajo, colores sobrios y foco en datos.
-- Los recuadros con colores laterales se reservan principalmente para botones o tarjetas de accion.
-- Las pantallas operativas deben priorizar flujo, rapidez y baja confusion.
-- Los mensajes de error deben aparecer en la misma pantalla donde ocurre el problema.
+Cada cambio actualiza las fuentes afectadas antes de cerrarse:
 
-## Reglas de formularios
+- regla transversal: `docs/REGLAS_GENERALES.md`;
+- contabilidad: `docs/REGLAS_CONTABLES.md`;
+- flujo: `docs/POSEIDON_FUNCIONAMIENTO.md`;
+- modulo: archivo de `docs/modulos/`;
+- arquitectura: `docs/MAPA_TECNICO.md`;
+- rutas: `docs/MAPA_RUTAS.md`;
+- continuidad: `docs/RETOMAR_MANANA.md`;
+- ejecucion: `README.md` o `docs/VALIDACION_LOCAL.md`.
 
-- Campos monetarios se escriben como numeros simples y se formatean con punto de miles.
-- Si un monto esta en `0`, al hacer foco se limpia para escribir.
-- Si el usuario deja vacio un monto, vuelve a `0`.
-- Excepcion: en la correccion de diferencias, efectivo y banco son obligatorios; un campo vacio permanece vacio y genera error, nunca se interpreta como cero.
-- Donde corresponde solo numeros, validar entrada numerica.
-- Las acciones destructivas o sensibles no se ejecutan sin reconfirmacion.
-- Los formularios deben marcar claramente los campos obligatorios; en Personal se usa nota visible y `*` en cada campo requerido.
+No se considera terminado un cambio con documentacion contradictoria.
 
-## Reglas de auditoria global
+## Interfaz
 
-Cada evento debe registrar, cuando aplique:
+- Diseñar para 1080p y revisar movil cuando cambie layout.
+- Evitar scroll horizontal innecesario, solapamientos y texto fuera de controles.
+- No repetir el titulo de la barra superior dentro del contenido.
+- Botones de una misma zona deben tener tamaño y alineacion consistentes.
+- Tablas densas y legibles.
+- Toda columna visible de datos es ordenable; Acciones/Seleccion son la excepcion.
+- Una columna de datos no ordenable requiere explicacion y aprobacion previa.
+- Los errores se muestran en la pantalla y contexto donde ocurren.
+- Acciones sensibles requieren reconfirmacion mediante `src/lib/confirmations.ts`.
+
+## Formularios
+
+- Importes se escriben como numeros simples y se muestran con punto de miles.
+- Un monto `0` se limpia al recibir foco; vacio vuelve a `0`, salvo campos obligatorios de diferencias.
+- Campos numericos rechazan caracteres no validos.
+- Campos obligatorios se identifican claramente.
+- Los adjuntos aceptados conservan nombre y tipo; la interfaz no debe prometer contenido persistente.
+
+## Auditoria
+
+Cuando aplique, todo evento sensible registra:
 
 - fecha y hora;
 - usuario real;
 - rol real;
-- funcion usada;
-- accion;
-- entidad;
-- id de entidad;
-- valor anterior;
-- valor nuevo;
-- motivo u observacion.
-- local asociado, cuando la entidad o el movimiento pertenece a un local.
+- funcion activa;
+- accion y entidad;
+- identificador;
+- valor anterior y nuevo;
+- motivo u observacion;
+- local y recaudacion asociados.
 
-- Administrador puede consultar la auditoria completa; encargado solo puede consultar eventos resueltos a uno de sus `localIds`.
-- Cada evento nuevo congela sus `localIds` al momento de la accion para que cambios posteriores de ubicacion no alteren su alcance historico.
-- La auditoria omite contraseñas y contenido inline de archivos; conserva metadatos y valores operativos necesarios.
-- No se generan filas sinteticas con la hora del render: los logs visibles deben provenir de eventos persistidos.
-- Un evento sin contexto local resoluble no se muestra al encargado.
+- Administrador ve auditoria global; Encargado solo la de sus locales.
+- El alcance local se congela al crear el evento.
+- No se registran contraseñas ni contenido inline de archivos.
+- No se generan logs sinteticos durante el render.

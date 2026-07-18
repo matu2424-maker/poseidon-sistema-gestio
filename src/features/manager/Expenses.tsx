@@ -1,19 +1,31 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import type { AppData, Balance, Expense, ExpenseReviewStatus, MovementStatus, User } from "../../types";
 import { formatDateTime, nowIso } from "../../lib/dates";
 import { balanceVisibleId, localName, userDisplayName } from "../../lib/display";
-import { money } from "../../lib/money";
+import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal, type TableColumn } from "../../components/ui";
 import { reverseSourceAccountMovements } from "../../lib/accountMovements";
 import { historicalCashMutationError } from "../../lib/cashAvailability";
 import { confirmAction } from "../../lib/confirmations";
+import { readUploadFile } from "../../lib/files";
+import {
+  PRINCIPAL_BANK_ACCOUNT_ID,
+  PRINCIPAL_CASH_ACCOUNT_ID,
+  principalAccountBalances,
+} from "../../lib/currentAccounts";
+import { commandContext } from "../../application/command";
+import {
+  annulPrincipalExpenseCommand,
+  createPrincipalExpenseCommand,
+} from "../../application/expenses/principalExpenseCommands";
 
-type ExpenseRow = { expense: Expense; balance: Balance };
+type ExpenseRow = { expense: Expense; balance?: Balance };
 type ExpenseColumnKey =
   | "createdAt"
   | "balance"
   | "local"
+  | "account"
   | "category"
   | "subcategory"
   | "description"
@@ -26,8 +38,9 @@ type ExpenseColumnKey =
 
 const expenseColumns: TableColumn<ExpenseColumnKey>[] = [
   { key: "createdAt", label: "Fecha", sortable: true },
-  { key: "balance", label: "Caja", sortable: true },
+  { key: "balance", label: "Recaudacion", sortable: true },
   { key: "local", label: "Local", sortable: true },
+  { key: "account", label: "Cuenta", sortable: true },
   { key: "category", label: "Categoria", sortable: true },
   { key: "subcategory", label: "Subcategoria", sortable: true },
   { key: "description", label: "Descripcion", sortable: true },
@@ -60,15 +73,24 @@ export function ManagerExpenses({
   const [draftReviewNote, setDraftReviewNote] = useState("");
   const [sort, setSort] = useState<SortState<ExpenseColumnKey>>({ key: "createdAt", direction: "desc" });
   const [error, setError] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const activeCategories = data.expenseCategories.filter((category) => category.status === "ACTIVA");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(activeCategories[0]?.id ?? "");
+  const selectedCategory = activeCategories.find((category) => category.id === selectedCategoryId) ?? activeCategories[0];
+  const availableLocals = data.locals.filter(
+    (item) => item.status === "ACTIVO" && (user.role === "ADMINISTRADOR" || user.localIds.includes(item.id)),
+  );
+  const [createLocalId, setCreateLocalId] = useState(availableLocals[0]?.id ?? "");
+  const principalBalances = principalAccountBalances(data);
   const allowedLocalIds = user.role === "ADMINISTRADOR" ? null : new Set(user.localIds);
   const rows: ExpenseRow[] = data.expenses
     .map((expense) => {
       const balance = data.balances.find((item) => item.id === expense.balanceId);
-      return balance ? { expense, balance } : null;
+      return { expense, balance };
     })
-    .filter((row): row is ExpenseRow => {
-      if (!row) return false;
-      return !allowedLocalIds || allowedLocalIds.has(row.balance.localId);
+    .filter((row) => {
+      return !allowedLocalIds || allowedLocalIds.has(row.expense.localId);
     });
   const normalizedQuery = query.trim().toLowerCase();
   const filteredRows = rows
@@ -83,8 +105,9 @@ export function ManagerExpenses({
         expense.description,
         expense.receiptFileName,
         expense.receipt,
-        balanceVisibleId(data, balance),
-        localName(data, balance.localId),
+        balance ? balanceVisibleId(data, balance) : "Principal",
+        localName(data, expense.localId),
+        data.currentAccounts.find((account) => account.id === expense.paymentAccountId)?.name,
         userDisplayName(data, expense.userId),
       ]
         .join(" ")
@@ -96,7 +119,12 @@ export function ManagerExpenses({
       return sort.direction === "asc" ? result : -result;
     });
   const selectedRow = rows.find(({ expense }) => expense.id === selectedExpenseId) ?? null;
-  const activeTotal = rows.filter(({ expense }) => expense.status === "ACTIVO").reduce((total, { expense }) => total + expense.amount, 0);
+  const activeCashierTotal = rows
+    .filter(({ expense }) => expense.status === "ACTIVO" && ![PRINCIPAL_CASH_ACCOUNT_ID, PRINCIPAL_BANK_ACCOUNT_ID].includes(expense.paymentAccountId))
+    .reduce((total, { expense }) => total + expense.amount, 0);
+  const activePrincipalTotal = rows
+    .filter(({ expense }) => expense.status === "ACTIVO" && [PRINCIPAL_CASH_ACCOUNT_ID, PRINCIPAL_BANK_ACCOUNT_ID].includes(expense.paymentAccountId))
+    .reduce((total, { expense }) => total + expense.amount, 0);
   const pendingCount = rows.filter(({ expense }) => expense.status === "ACTIVO" && (expense.reviewStatus ?? "PENDIENTE") === "PENDIENTE").length;
   const observedCount = rows.filter(({ expense }) => expense.status === "ACTIVO" && expense.reviewStatus === "OBSERVADO").length;
   const reviewedCount = rows.filter(({ expense }) => expense.status === "ACTIVO" && expense.reviewStatus === "REVISADO").length;
@@ -120,6 +148,37 @@ export function ManagerExpenses({
     const reviewStatus = expense.reviewStatus ?? "PENDIENTE";
     const className = reviewStatus === "REVISADO" ? "ok" : reviewStatus === "OBSERVADO" ? "danger" : "warning";
     return <span className={`status-pill ${className}`}>{reviewStatus}</span>;
+  };
+
+  const createExpense = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setCreateError("");
+    const form = new FormData(event.currentTarget);
+    const receiptFile = form.get("receiptFile");
+    const uploadedReceipt = receiptFile instanceof File && receiptFile.size > 0 ? readUploadFile(receiptFile) : undefined;
+    patchData((current) => {
+      const result = createPrincipalExpenseCommand(
+        current,
+        {
+          localId: createLocalId,
+          paymentAccountId: String(form.get("paymentAccountId") ?? PRINCIPAL_CASH_ACCOUNT_ID),
+          category: selectedCategory?.name ?? "",
+          subcategory: String(form.get("subcategory") ?? ""),
+          amount: parseMoneyInput(form.get("amount")),
+          description: String(form.get("description") ?? ""),
+          receiptFileName: uploadedReceipt?.name,
+          receiptFileType: uploadedReceipt?.type,
+        },
+        commandContext(user, user.role),
+      );
+      if (!result.ok) {
+        setCreateError(result.error);
+        return current;
+      }
+      setMessage("Gasto registrado desde la cuenta Principal.");
+      setCreateOpen(false);
+      return result.data;
+    });
   };
 
   const saveReview = () => {
@@ -157,16 +216,38 @@ export function ManagerExpenses({
       setError("Para anular un gasto tenes que escribir el motivo.");
       return;
     }
-    const mutationError = historicalCashMutationError(
-      data,
-      selectedRow.balance.localId,
-      selectedRow.balance.id,
+    if (!confirmAction("Anular este gasto? El movimiento queda auditado y no se borra.")) return;
+    const principalExpense = [PRINCIPAL_CASH_ACCOUNT_ID, PRINCIPAL_BANK_ACCOUNT_ID].includes(
+      selectedRow.expense.paymentAccountId,
     );
+    if (principalExpense) {
+      patchData((current) => {
+        const result = annulPrincipalExpenseCommand(
+          current,
+          selectedRow.expense.id,
+          note,
+          commandContext(user, user.role),
+        );
+        if (!result.ok) {
+          setError(result.error);
+          return current;
+        }
+        setMessage("Gasto anulado y auditado.");
+        setSelectedExpenseId(null);
+        setError("");
+        return result.data;
+      });
+      return;
+    }
+    if (!selectedRow.balance) {
+      setError("El gasto no tiene una caja asociada valida.");
+      return;
+    }
+    const mutationError = historicalCashMutationError(data, selectedRow.expense.localId, selectedRow.balance.id);
     if (mutationError) {
       setError(mutationError);
       return;
     }
-    if (!confirmAction("Anular este gasto? El movimiento queda auditado y no se borra.")) return;
     const reviewedAt = nowIso();
     patchData((current) => {
       const previous = current.expenses.find((expense) => expense.id === selectedRow.expense.id);
@@ -206,10 +287,14 @@ export function ManagerExpenses({
         </div>
         <div className="admin-header-actions">
           <span>{rows.length} gasto(s)</span>
+          <button className="button primary compact" type="button" onClick={() => setCreateOpen(true)}>
+            Agregar gasto
+          </button>
         </div>
       </div>
-      <div className="card-grid three cashier-status-grid">
-        <InfoCard tone="green" title="Gastos activos" lines={[money(activeTotal), `${rows.filter(({ expense }) => expense.status === "ACTIVO").length} movimiento(s)`]} />
+      <div className="card-grid four cashier-status-grid">
+        <InfoCard tone="blue" title="Gastos desde Caja" lines={[money(activeCashierTotal), "Asociados a recaudacion"]} />
+        <InfoCard tone="green" title="Gastos desde Principal" lines={[money(activePrincipalTotal), "Efectivo y banco principal"]} />
         <InfoCard tone={pendingCount > 0 ? "orange" : "green"} title="Pendientes" lines={[`${pendingCount} pendiente(s)`, "Requieren revision"]} />
         <InfoCard tone={observedCount > 0 ? "red" : "blue"} title="Control" lines={[`${reviewedCount} revisado(s)`, `${observedCount} observado(s)`]} />
       </div>
@@ -268,7 +353,11 @@ export function ManagerExpenses({
         </table>
       </div>
       {selectedRow && (
-        <Modal title={`Gasto ${balanceVisibleId(data, selectedRow.balance)}`} onClose={() => setSelectedExpenseId(null)} wide>
+        <Modal
+          title={selectedRow.balance ? `Gasto ${balanceVisibleId(data, selectedRow.balance)}` : "Gasto desde Principal"}
+          onClose={() => setSelectedExpenseId(null)}
+          wide
+        >
           <div className="detail-grid">
             <InfoCard
               tone={selectedRow.expense.status === "ACTIVO" ? "blue" : "red"}
@@ -286,8 +375,9 @@ export function ManagerExpenses({
               title="Origen"
               variant="cash"
               lines={[
-                `Caja: ${balanceVisibleId(data, selectedRow.balance)}`,
-                `Local: ${localName(data, selectedRow.balance.localId)}`,
+                `Caja: ${selectedRow.balance ? balanceVisibleId(data, selectedRow.balance) : "Sin caja asociada"}`,
+                `Local: ${localName(data, selectedRow.expense.localId)}`,
+                `Cuenta: ${data.currentAccounts.find((account) => account.id === selectedRow.expense.paymentAccountId)?.name ?? "-"}`,
                 `Usuario: ${userDisplayName(data, selectedRow.expense.userId)}`,
                 `Fecha: ${formatDateTime(selectedRow.expense.createdAt)}`,
               ]}
@@ -348,6 +438,89 @@ export function ManagerExpenses({
           </form>
         </Modal>
       )}
+      {createOpen && (
+        <Modal
+          title="Agregar gasto desde Principal"
+          onClose={() => {
+            setCreateOpen(false);
+            setCreateError("");
+          }}
+          wide
+        >
+          <form className="form-grid" onSubmit={createExpense}>
+            {createError && <p className="validation error span-2">{createError}</p>}
+            <label>
+              Local
+              <select value={createLocalId} onChange={(event) => setCreateLocalId(event.target.value)} required>
+                {availableLocals.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Categoria
+              <select
+                value={selectedCategory?.id ?? ""}
+                onChange={(event) => setSelectedCategoryId(event.target.value)}
+                required
+              >
+                {activeCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Subcategoria
+              <select name="subcategory" required>
+                {(selectedCategory?.subcategories ?? []).map((subcategory) => (
+                  <option key={subcategory} value={subcategory}>
+                    {subcategory}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Cuenta de pago
+              <select name="paymentAccountId" defaultValue={PRINCIPAL_CASH_ACCOUNT_ID}>
+                <option value={PRINCIPAL_CASH_ACCOUNT_ID}>Principal / Efectivo - {money(principalBalances.cash)}</option>
+                <option value={PRINCIPAL_BANK_ACCOUNT_ID}>Principal / Banco - {money(principalBalances.bank)}</option>
+              </select>
+            </label>
+            <label>
+              Monto
+              <input
+                name="amount"
+                inputMode="numeric"
+                defaultValue="0"
+                onFocus={handleMoneyFocus}
+                onChange={handleMoneyInput}
+                onBlur={handleMoneyBlur}
+                required
+              />
+            </label>
+            <label className="span-2">
+              Descripcion
+              <input name="description" placeholder="Descripcion opcional" />
+            </label>
+            <label className="span-2">
+              Comprobante
+              <input name="receiptFile" type="file" accept="image/*,.pdf,application/pdf" />
+            </label>
+            <div className="form-actions span-2">
+              <div className="button-row end">
+                <button className="button muted" type="button" onClick={() => setCreateOpen(false)}>
+                  Cancelar
+                </button>
+                <button className="button success" type="submit" disabled={!activeCategories.length}>
+                  Guardar gasto
+                </button>
+              </div>
+            </div>
+          </form>
+        </Modal>
+      )}
     </section>
   );
 }
@@ -355,8 +528,9 @@ export function ManagerExpenses({
 function expenseSortValue(data: AppData, row: ExpenseRow, key: ExpenseColumnKey): string | number {
   const { expense, balance } = row;
   if (key === "createdAt") return expense.createdAt;
-  if (key === "balance") return balanceVisibleId(data, balance);
-  if (key === "local") return localName(data, balance.localId);
+  if (key === "balance") return balance ? balanceVisibleId(data, balance) : "Sin recaudacion";
+  if (key === "local") return localName(data, expense.localId);
+  if (key === "account") return data.currentAccounts.find((account) => account.id === expense.paymentAccountId)?.name ?? "";
   if (key === "category") return expense.category || "";
   if (key === "subcategory") return expense.subcategory || "";
   if (key === "description") return expense.description || "";
@@ -377,8 +551,9 @@ function renderExpenseCell(
 ) {
   const { expense, balance } = row;
   if (key === "createdAt") return formatDateTime(expense.createdAt);
-  if (key === "balance") return balanceVisibleId(data, balance);
-  if (key === "local") return localName(data, balance.localId);
+  if (key === "balance") return balance ? balanceVisibleId(data, balance) : "Sin recaudacion";
+  if (key === "local") return localName(data, expense.localId);
+  if (key === "account") return data.currentAccounts.find((account) => account.id === expense.paymentAccountId)?.name ?? "-";
   if (key === "category") return expense.category || "-";
   if (key === "subcategory") return expense.subcategory || "-";
   if (key === "description") return <span className="long-cell">{expense.description || "-"}</span>;

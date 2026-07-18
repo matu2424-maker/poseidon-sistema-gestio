@@ -209,7 +209,7 @@ export function OpenCash({
                 <h2>Nueva caja diaria</h2>
                 <p>La apertura toma una foto de las maquinas activas del local.</p>
               </div>
-              <span>{firstOpening ? "Primer aporte de capital" : `Saldo heredado ${money(localBalances.cash)}`}</span>
+              <span>{firstOpening ? "Primer aporte de socio" : `Saldo Caja / Efectivo ${money(localBalances.cash)}`}</span>
             </div>
             <form onSubmit={submit} className="open-cash-form">
               <label>
@@ -238,7 +238,7 @@ export function OpenCash({
               </label>
               {firstOpening && (
                 <label>
-                  Responsable aporte inicial
+                  Socio que realiza el aporte inicial
                   <select name="openingCapitalPerson" defaultValue="MATHIAS">
                     {CAPITAL_PEOPLE.map((person) => (
                       <option key={person} value={person}>
@@ -252,7 +252,7 @@ export function OpenCash({
                 <div className="open-cash-rule">
                   <strong>Saldos heredados</strong>
                   <span>
-                    Efectivo {money(localBalances.cash)} / Banco {money(localBalances.bank)}. Estos saldos vienen de la cuenta corriente del local.
+                    Efectivo {money(localBalances.cash)} / Banco {money(localBalances.bank)}. Estos saldos vienen de las cuentas de Caja.
                   </span>
                 </div>
               )}
@@ -262,7 +262,7 @@ export function OpenCash({
               </label>
               <div className="open-cash-rule">
                 <strong>Regla clave</strong>
-                <span>{firstOpening ? "El primer aporte abre las cuentas del local." : "La caja abre con el saldo que quedo del cierre anterior."} Apertura: {user.name}</span>
+                <span>{firstOpening ? "El aporte del socio ingresa a Principal y se asigna a Caja." : "La caja abre con los saldos vigentes de Caja / Efectivo y Caja / Banco."} Apertura: {user.name}</span>
               </div>
               <div className="form-actions open-cash-actions">
                 <button className="button success compact" type="submit">

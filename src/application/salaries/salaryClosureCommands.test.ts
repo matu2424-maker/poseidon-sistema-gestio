@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AccountMovement, AppData } from "../../types";
 import { clearOperationalData, createSeedData } from "../../data/appData";
-import { localCashAccountId } from "../../lib/currentAccounts";
+import { PRINCIPAL_CASH_ACCOUNT_ID } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
 import { openCashCommand } from "../cash/openCash";
 import {
@@ -21,17 +21,17 @@ const testContext = (data: ReturnType<typeof createSeedData>) => {
   });
 };
 
-const withLocalCash = (data: AppData, amount: number): AppData => {
-  const localId = data.staff.find((item) => item.status === "ACTIVO")!.localId;
+const withPrincipalCash = (data: AppData, amount: number): AppData => {
   const movement: AccountMovement = {
     id: "account-movement-test-cash",
-    accountId: localCashAccountId(localId),
+    accountId: PRINCIPAL_CASH_ACCOUNT_ID,
     sourceType: "APORTE",
     sourceId: "test-cash",
     direction: "ENTRADA",
     concept: "APORTE_PRUEBA",
     amount,
-    detail: "Fondo de prueba salarial",
+    currency: "UYU",
+    detail: "Fondo principal de prueba salarial",
     status: "ACTIVO",
     userId: "user-admin",
     createdAt: "2026-08-01T12:00:00.000Z",
@@ -41,7 +41,7 @@ const withLocalCash = (data: AppData, amount: number): AppData => {
 
 describe("cierre salarial definitivo", () => {
   it("congela importes por empleado y bloquea operaciones ordinarias", () => {
-    const data = withLocalCash(clearOperationalData(createSeedData()), 5_000);
+    const data = withPrincipalCash(clearOperationalData(createSeedData()), 5_000);
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = testContext(data);
     const cashier = data.users.find((item) => item.role === "CAJERO")!;
@@ -91,7 +91,7 @@ describe("cierre salarial definitivo", () => {
   });
 
   it("encadena una correccion sin modificar la foto original", () => {
-    const data = withLocalCash(clearOperationalData(createSeedData()), 5_000);
+    const data = withPrincipalCash(clearOperationalData(createSeedData()), 5_000);
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = testContext(data);
     const closed = closeSalaryPeriodCommand(data, { period: "2026-07" }, context);
@@ -191,6 +191,11 @@ describe("cierre salarial definitivo", () => {
     const data = clearOperationalData(createSeedData());
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = testContext(data);
+    const cashier = data.users.find((item) => item.role === "CAJERO")!;
+    const cashierContext = commandContext(cashier, "CAJERO", {
+      now: () => "2026-08-05T14:00:00.000Z",
+      id: (prefix) => `${prefix}-cashier`,
+    });
     const opened = openCashCommand(
       data,
       {
@@ -202,7 +207,7 @@ describe("cierre salarial definitivo", () => {
         openingCapitalPerson: "MATHIAS",
         firstOpening: true,
       },
-      context,
+      cashierContext,
     );
     expect(opened.ok).toBe(true);
     if (!opened.ok) return;
@@ -217,7 +222,7 @@ describe("cierre salarial definitivo", () => {
         origin: "CAJA",
         balanceId: opened.value.id,
       },
-      context,
+      cashierContext,
     );
     expect(payment.ok).toBe(true);
     if (!payment.ok) return;

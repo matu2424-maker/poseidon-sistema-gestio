@@ -55,8 +55,9 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 1. Entrar como `Cajero 1`.
 2. Sin caja abierta, verificar que solo se pueda abrir caja, consultar clientes y ver resumen de cajas.
 3. Intentar una pantalla que requiera caja debe mostrar `Necesita abrir una nueva caja para poder operar.`.
-4. Con caja abierta, verificar contadores, gastos, transferencias, regalos, salarios, aportes/retiros y cierre.
-5. Tras un movimiento del Encargado, comprobar en el cierre usuario, movimiento, cuenta, importe, estado e impacto vigente; todas las columnas deben ordenar.
+4. Con caja abierta, verificar contadores, gastos, transferencias, regalos, salarios, Caja/Principal y cierre.
+5. Verificar que un traspaso Principal -> Caja actualice ambos libros y el efectivo esperado sin cambiar el resultado economico.
+6. En cierre, registrar un traspaso Caja -> Principal y comprobar que la proxima apertura herede solo el remanente de Caja.
 
 ### Encargado
 
@@ -65,8 +66,9 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 3. Abrir `Cierres y reportes`: debe mostrar Resumen de cajas, Cierre periodico y Reportes; no apertura/cierre operativo.
 4. Abrir Resumen de cajas y comprobar tabla ordenable y detalle de recaudacion.
 5. En Liquidacion de salarios, abrir una foto cerrada y verificar bloqueo del periodo y flujo correctivo.
-6. Con caja abierta, usar `Operacion del local` para registrar un gasto y un aporte/retiro sin cambiar de funcion; verificar caja, saldo y auditoria compartidos con Cajero.
-7. Usar `Trabajar como cajero` para apertura, contadores, transferencias, regalos, salarios y cierre; el usuario real debe seguir siendo Encargado.
+6. Registrar un gasto y una liquidacion desde Principal sin caja abierta; comprobar que Caja no cambie.
+7. En Cuentas corrientes, registrar Caja/Principal y un aporte/retiro real de socio; verificar asientos y auditoria.
+8. Usar `Trabajar como cajero` para apertura, contadores, movimientos y cierre; el usuario real debe seguir siendo Encargado.
 
 ### Administrador
 
@@ -84,8 +86,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-17
 
-- 30 archivos de pruebas y 160 casos aprobados, incluidos contratos de agentes, chats permanentes, skills, control previo al commit, gobierno visual, disponibilidad y reconciliacion de efectivo, ciclo financiero, cierres salariales, rutas/sesion, diferencias, finitud, migracion incremental, snapshot, referencias, permisos del Encargado, detalle de intervenciones en el cierre y conflictos de escritura.
-- 11 casos E2E en 6 archivos aprobados para caja, efectivo negativo con aporte real, desconciliacion caja/libro, diferencias/auditoria, operacion concurrente de Encargado/Cajero, navegacion de roles, accesibilidad, sincronizacion y conflicto entre pestañas y cierre salarial correctivo R1.
+- 33 archivos de pruebas y 175 casos aprobados, incluidos tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, rutas, snapshot y conflictos de escritura.
+- La suite E2E en 6 archivos aprobo 11 de 11 casos: caja, fondos Principal -> Caja, desacople caja/libro, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto y cierre salarial correctivo.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.
 - TypeScript aprobado.
@@ -97,6 +99,9 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Cierre desconciliado: aviso con caja/libro/delta visible, aporte ordinario ausente y cierre deshabilitado; QA visual aprobada en 1280 x 720 y 390 x 844 sin overflow horizontal.
+- Cuentas corrientes: grupos Caja, Principal, Socios y Otras; selector, movimientos y tabla ordenable aprobados en 1024 x 768 y 390 x 844 sin overflow global.
+- Control de gastos: alta desde Principal con selector Efectivo/Banco, saldos disponibles, tabla ordenable y modal aprobados en 1366 x 768 y 390 x 844 sin errores de consola.
+- Cierre con Caja/Efectivo negativo: bloqueo, importe faltante, detalle de movimientos del encargado y acceso a Mover fondos aprobados en 1366 x 768 y 390 x 844.
 - Viewports 1920 x 1080 y 390 x 844 sin overflow horizontal en panel administrativo.
 - CSS final mantuvo el mismo hash de salida tras separarlo por capas.
 

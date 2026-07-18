@@ -1,19 +1,18 @@
 import type {
   AppData,
   Balance,
-  CapitalMovement,
-  CapitalMovementPerson,
   MachineLocalHistory,
+  TreasuryTransfer,
 } from "../../types";
 import {
-  capitalAccountMovement,
   syncDifferenceAccountMovements,
   syncMachineResultAccountMovement,
+  treasuryTransferAccountMovements,
   upsertAccountMovement,
 } from "../../lib/accountMovements";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { balanceCashReconciliationError } from "../../lib/cashAvailability";
-import { ensureLocalCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
+import { ensureFinancialCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
 import { balanceVisibleId } from "../../lib/display";
 import { machineHistoryEvent } from "../../lib/machineHistory";
 import { counter, money } from "../../lib/money";
@@ -23,21 +22,27 @@ export type CloseCashInput = {
   balanceId: string;
   declaredCash: number;
   declaredBank: number;
-  finalWithdrawalCash: number;
-  finalWithdrawalBank: number;
-  withdrawalCashPerson: CapitalMovementPerson;
-  withdrawalBankPerson: CapitalMovementPerson;
+  transferToPrincipalCash: number;
+  transferToPrincipalBank: number;
   differenceNote: string;
 };
 
 export function closeCashCommand(data: AppData, input: CloseCashInput, context: CommandContext): CommandResult<Balance> {
   const balance = data.balances.find((item) => item.id === input.balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return commandError("La caja ya no esta abierta.");
+  const canActAsCashier =
+    context.actorRole === "CAJERO" &&
+    (context.user.role === "CAJERO" || ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role));
+  if (!canActAsCashier) return commandError("La caja solo se cierra desde la funcion Cajero.");
+  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
+  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(balance.localId)) {
+    return commandError("El usuario no esta asignado al local de la caja.");
+  }
   const inputAmounts = [
     input.declaredCash,
     input.declaredBank,
-    input.finalWithdrawalCash,
-    input.finalWithdrawalBank,
+    input.transferToPrincipalCash,
+    input.transferToPrincipalBank,
     balance.initialFund,
     balance.initialBankFund ?? 0,
   ];
@@ -49,7 +54,9 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
   );
   if (pendingInvalid.length) return commandError("No se puede cerrar: hay maquinas activas pendientes sin observacion.");
   if (input.declaredCash < 0 || input.declaredBank < 0) return commandError("Los importes declarados no pueden ser negativos.");
-  if (input.finalWithdrawalCash < 0 || input.finalWithdrawalBank < 0) return commandError("Los retiros finales no pueden ser negativos.");
+  if (input.transferToPrincipalCash < 0 || input.transferToPrincipalBank < 0) {
+    return commandError("Los retiros de caja a las cuentas principales no pueden ser negativos.");
+  }
 
   const totals = totalsForBalance(data, balance.id);
   const localBalances = localAccountBalances(data, balance.localId);
@@ -66,18 +73,18 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
       `No se puede cerrar la caja porque el efectivo esperado es negativo (${money(totals.expectedCash)}). Registra un aporte real en efectivo para cubrir el faltante antes de cerrar.`,
     );
   }
-  if (input.finalWithdrawalCash > totals.expectedCash) {
-    return commandError("El retiro final en efectivo no puede superar el efectivo esperado antes del retiro.");
+  if (input.transferToPrincipalCash > totals.expectedCash) {
+    return commandError("El retiro de caja en efectivo no puede superar el efectivo esperado antes del retiro.");
   }
-  if (input.finalWithdrawalBank > localBalances.bank) {
-    return commandError("El retiro final por transferencia no puede superar el saldo banco del local.");
+  if (input.transferToPrincipalBank > localBalances.bank) {
+    return commandError("El retiro de caja por banco no puede superar el saldo banco de la caja.");
   }
 
-  const expectedCashAfterWithdrawal = totals.expectedCash - input.finalWithdrawalCash;
-  const expectedBankAfterWithdrawal = localBalances.bank - input.finalWithdrawalBank;
-  const cashDifference = input.declaredCash - expectedCashAfterWithdrawal;
-  const bankDifference = input.declaredBank - expectedBankAfterWithdrawal;
-  if (![expectedCashAfterWithdrawal, expectedBankAfterWithdrawal, cashDifference, bankDifference].every((amount) => Number.isFinite(amount))) {
+  const expectedCashAfterTransfer = totals.expectedCash - input.transferToPrincipalCash;
+  const expectedBankAfterTransfer = localBalances.bank - input.transferToPrincipalBank;
+  const cashDifference = input.declaredCash - expectedCashAfterTransfer;
+  const bankDifference = input.declaredBank - expectedBankAfterTransfer;
+  if (![expectedCashAfterTransfer, expectedBankAfterTransfer, cashDifference, bankDifference].every((amount) => Number.isFinite(amount))) {
     return commandError("Los importes del cierre deben ser numeros finitos.");
   }
   const differenceNote = input.differenceNote.trim();
@@ -86,45 +93,46 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
   }
 
   const timestamp = context.now();
-  const closingCapitalCandidates: Array<CapitalMovement | null> = [
-    input.finalWithdrawalCash > 0
+  const closingTransferCandidates: Array<TreasuryTransfer | null> = [
+    input.transferToPrincipalCash > 0
       ? {
-          id: context.id("capital-close-cash"),
+          id: context.id("treasury-close-cash"),
           balanceId: balance.id,
           localId: balance.localId,
-          type: "RETIRO" as const,
+          type: "RETIRO_CAJA" as const,
           medium: "EFECTIVO" as const,
           timing: "CIERRE" as const,
-          person: input.withdrawalCashPerson,
-          amount: input.finalWithdrawalCash,
-          note: `Retiro final caja ${balanceVisibleId(data, balance)}`,
+          amount: input.transferToPrincipalCash,
+          currency: "UYU" as const,
+          note: `Traspaso final de caja a Principal ${balanceVisibleId(data, balance)}`,
           status: "ACTIVO" as const,
           userId: context.user.id,
           createdAt: timestamp,
         }
       : null,
-    input.finalWithdrawalBank > 0
+    input.transferToPrincipalBank > 0
       ? {
-          id: context.id("capital-close-bank"),
+          id: context.id("treasury-close-bank"),
           balanceId: balance.id,
           localId: balance.localId,
-          type: "RETIRO" as const,
-          medium: "TRANSFERENCIA" as const,
+          type: "RETIRO_CAJA" as const,
+          medium: "BANCO" as const,
           timing: "CIERRE" as const,
-          person: input.withdrawalBankPerson,
-          amount: input.finalWithdrawalBank,
-          note: `Retiro final banco caja ${balanceVisibleId(data, balance)}`,
+          amount: input.transferToPrincipalBank,
+          currency: "UYU" as const,
+          note: `Traspaso final de banco a Principal ${balanceVisibleId(data, balance)}`,
           status: "ACTIVO" as const,
           userId: context.user.id,
           createdAt: timestamp,
         }
       : null,
   ];
-  const closingCapitalMovements = closingCapitalCandidates.filter((movement): movement is CapitalMovement => movement !== null);
-  const accountMovements = closingCapitalMovements.reduce(
-    (movements, movement) => upsertAccountMovement(movements, capitalAccountMovement(movement)),
-    data.accountMovements,
+  const closingTreasuryTransfers = closingTransferCandidates.filter(
+    (transfer): transfer is TreasuryTransfer => transfer !== null,
   );
+  const accountMovements = closingTreasuryTransfers
+    .flatMap(treasuryTransferAccountMovements)
+    .reduce(upsertAccountMovement, data.accountMovements);
   const next: Balance = {
     ...balance,
     status: "CERRADO",
@@ -135,9 +143,11 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
     declaredBank: input.declaredBank,
     nextBase: input.declaredCash,
     nextBankBase: input.declaredBank,
-    withdrawal: input.finalWithdrawalCash,
-    finalWithdrawalCash: input.finalWithdrawalCash,
-    finalWithdrawalBank: input.finalWithdrawalBank,
+    withdrawal: input.transferToPrincipalCash,
+    finalWithdrawalCash: input.transferToPrincipalCash,
+    finalWithdrawalBank: input.transferToPrincipalBank,
+    finalTransferToPrincipalCash: input.transferToPrincipalCash,
+    finalTransferToPrincipalBank: input.transferToPrincipalBank,
     cashDifference,
     bankDifference,
     differenceNote,
@@ -169,9 +179,9 @@ export function closeCashCommand(data: AppData, input: CloseCashInput, context: 
   let synced = syncMachineResultAccountMovement(
     {
       ...data,
-      currentAccounts: ensureLocalCurrentAccounts(data, balance.localId),
+      currentAccounts: ensureFinancialCurrentAccounts(data, balance.localId),
       accountMovements,
-      capitalMovements: [...closingCapitalMovements, ...data.capitalMovements],
+      treasuryTransfers: [...closingTreasuryTransfers, ...data.treasuryTransfers],
       balances,
       machines,
       machineLocalHistory: [...historyEvents, ...data.machineLocalHistory],

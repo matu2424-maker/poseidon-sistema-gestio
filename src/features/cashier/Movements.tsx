@@ -2,11 +2,10 @@ import { useState, type FormEvent } from "react";
 import type {
   AppData,
   Balance,
-  CapitalMovementMedium,
-  CapitalMovementPerson,
-  CapitalMovementType,
   Client,
+  FinancialMedium,
   Role,
+  TreasuryTransferType,
   User,
 } from "../../types";
 import { clientDocumentLabel, clientDocumentSearchText } from "../../lib/clients";
@@ -22,19 +21,20 @@ import { CashierMovementPanel, MovementTable } from "./MovementTable";
 import { clientSortValue, type ClientTableColumn } from "../clients/clientTable";
 import { commandContext } from "../../application/command";
 import {
-  annulCapitalMovementCommand,
   annulTransferCommand,
-  createCapitalMovementCommand,
   createExpenseCommand,
   createGiftCommand,
   createTransferCommand,
   deleteExpenseCommand,
   deleteGiftCommand,
 } from "../../application/movements/operatingMovementCommands";
+import {
+  annulTreasuryTransferCommand,
+  createTreasuryTransferCommand,
+} from "../../application/treasury/treasuryCommands";
 export { CashierClients } from "./CashierClients";
 export { CashierSalaryPayments } from "./CashierSalaryPayments";
 
-const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 const clientNameWithDocument = (data: AppData, clientId: string | undefined) => {
   const client = data.clients.find((item) => item.id === clientId);
   return client ? `${client.name} - ${clientDocumentLabel(client)}` : "";
@@ -497,48 +497,49 @@ export function CapitalMovements({
   setMessage: (message: string) => void;
   onBack?: () => void;
 }) {
-  const items = data.capitalMovements.filter((item) => item.balanceId === balance.id);
+  const items = data.treasuryTransfers.filter((item) => item.balanceId === balance.id);
   const activeItems = items.filter((item) => item.status === "ACTIVO");
-  const totalWithdrawals = activeItems.filter((item) => item.type === "RETIRO").reduce((total, item) => total + item.amount, 0);
-  const totalContributions = activeItems.filter((item) => item.type === "APORTE").reduce((total, item) => total + item.amount, 0);
+  const totalWithdrawals = activeItems.filter((item) => item.type === "RETIRO_CAJA").reduce((total, item) => total + item.amount, 0);
+  const totalContributions = activeItems.filter((item) => item.type === "APORTE_CAJA").reduce((total, item) => total + item.amount, 0);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const type = String(form.get("type") ?? "") as CapitalMovementType;
-    if (type !== "RETIRO" && type !== "APORTE") {
-      setMessage("Selecciona si es retiro o aporte.");
+    const type = String(form.get("type") ?? "") as TreasuryTransferType;
+    if (type !== "RETIRO_CAJA" && type !== "APORTE_CAJA") {
+      setMessage("Selecciona el movimiento entre Caja y Principal.");
       return;
     }
     const input = {
+      localId: balance.localId,
       balanceId: balance.id,
       type,
-      medium: String(form.get("medium") ?? "EFECTIVO") as CapitalMovementMedium,
-      person: String(form.get("person") ?? "RICARDO") as CapitalMovementPerson,
+      medium: String(form.get("medium") ?? "EFECTIVO") as FinancialMedium,
+      timing: "OPERATIVO" as const,
       amount: parseMoneyInput(form.get("amount")),
       note: String(form.get("note") ?? "").trim(),
     };
     patchData((current) => {
-      const result = createCapitalMovementCommand(current, input, commandContext(user, actorRole));
-      setMessage(result.ok ? (type === "RETIRO" ? "Retiro registrado." : "Aporte de capital registrado.") : result.error);
+      const result = createTreasuryTransferCommand(current, input, commandContext(user, actorRole));
+      setMessage(result.ok ? (type === "RETIRO_CAJA" ? "Fondos enviados a Principal." : "Fondos aportados a Caja.") : result.error);
       return result.ok ? result.data : current;
     });
     event.currentTarget.reset();
   };
 
   const annulMovement = (id: string) => {
-    if (!confirmAction("Anular este retiro/aporte?")) return;
+    if (!confirmAction("Anular este traspaso entre Caja y Principal?")) return;
     patchData((current) => {
-      const result = annulCapitalMovementCommand(current, balance.id, id, commandContext(user, actorRole));
-      setMessage(result.ok ? "Movimiento anulado." : result.error);
+      const result = annulTreasuryTransferCommand(current, id, commandContext(user, actorRole), "Anulado antes del cierre");
+      setMessage(result.ok ? "Traspaso anulado." : result.error);
       return result.ok ? result.data : current;
     });
   };
 
   return (
     <CashierMovementPanel
-      title="Retiros y aportes"
-      detail="Movimientos de capital del local en efectivo o por transferencia."
+      title="Caja y Principal"
+      detail="Traspasos internos de fondos en pesos. No son ingresos ni egresos economicos."
       totalLabel="movimientos"
       total={items.length}
       onBack={onBack}
@@ -547,24 +548,24 @@ export function CapitalMovements({
       <OperatingMovementContext data={data} balance={balance} actorRole={actorRole} />
       <div className="account-summary-grid movement-summary-grid">
         <div>
-          <span>Retiros</span>
+          <span>Enviado a Principal</span>
           <strong>{money(totalWithdrawals)}</strong>
         </div>
         <div>
-          <span>Aportes</span>
+          <span>Recibido desde Principal</span>
           <strong>{money(totalContributions)}</strong>
         </div>
         <div>
-          <span>Neto capital</span>
+          <span>Neto en Caja</span>
           <strong>{money(totalContributions - totalWithdrawals)}</strong>
         </div>
       </div>
       <MovementTable
-        columns={["Tipo", "Medio", "Persona", "Monto", "Fecha", "Nota", "Accion"]}
+        columns={["Movimiento", "Medio", "Monto", "Fecha", "Nota", "Accion"]}
         rows={items.map((item) => ({
           id: item.id,
-          cells: [item.type, item.medium === "EFECTIVO" ? "Efectivo" : "Transferencia", item.person, money(item.amount), formatDateTime(item.createdAt), item.note || "-"],
-          sortValues: [item.type, item.medium, item.person, item.amount, item.createdAt, item.note || ""],
+          cells: [item.type === "RETIRO_CAJA" ? "Caja a Principal" : "Principal a Caja", item.medium === "EFECTIVO" ? "Efectivo" : "Banco", money(item.amount), formatDateTime(item.createdAt), item.note || "-"],
+          sortValues: [item.type, item.medium, item.amount, item.createdAt, item.note || ""],
           status: item.status,
         }))}
         onAnnul={annulMovement}
@@ -575,23 +576,14 @@ export function CapitalMovements({
                 <option value="" disabled>
                   Seleccionar
                 </option>
-                <option value="RETIRO">Retiro</option>
-                <option value="APORTE">Aporte</option>
+                <option value="RETIRO_CAJA">Caja a Principal</option>
+                <option value="APORTE_CAJA">Principal a Caja</option>
               </select>
             </td>
             <td>
               <select form="capital-create-form" name="medium" defaultValue="EFECTIVO">
                 <option value="EFECTIVO">Efectivo</option>
-                <option value="TRANSFERENCIA">Transferencia</option>
-              </select>
-            </td>
-            <td>
-              <select form="capital-create-form" name="person" defaultValue="RICARDO">
-                {CAPITAL_PEOPLE.map((person) => (
-                  <option key={person} value={person}>
-                    {person}
-                  </option>
-                ))}
+                <option value="BANCO">Banco</option>
               </select>
             </td>
             <td>

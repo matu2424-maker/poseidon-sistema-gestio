@@ -23,10 +23,21 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
   const salaryPayments = data.salarySettlements.filter((settlement) => settlement.balanceId === balance.id && settlement.status !== "ANULADA");
   const capitalMovements = data.capitalMovements.filter((movement) => movement.balanceId === balance.id && movement.status === "ACTIVO");
   const operatingCapitalMovements = capitalMovements.filter((movement) => movement.timing !== "APERTURA");
-  const cashWithdrawals = operatingCapitalMovements.filter((movement) => movement.type === "RETIRO" && movement.medium === "EFECTIVO");
-  const bankWithdrawals = operatingCapitalMovements.filter((movement) => movement.type === "RETIRO" && movement.medium === "TRANSFERENCIA");
-  const cashContributions = operatingCapitalMovements.filter((movement) => movement.type === "APORTE" && movement.medium === "EFECTIVO");
-  const bankContributions = operatingCapitalMovements.filter((movement) => movement.type === "APORTE" && movement.medium === "TRANSFERENCIA");
+  const treasuryTransfers = data.treasuryTransfers.filter(
+    (transfer) => transfer.balanceId === balance.id && transfer.status === "ACTIVO" && transfer.timing !== "APERTURA",
+  );
+  const cashWithdrawalCount =
+    operatingCapitalMovements.filter((movement) => movement.type === "RETIRO" && movement.medium === "EFECTIVO").length +
+    treasuryTransfers.filter((transfer) => transfer.type === "RETIRO_CAJA" && transfer.medium === "EFECTIVO").length;
+  const bankWithdrawalCount =
+    operatingCapitalMovements.filter((movement) => movement.type === "RETIRO" && movement.medium === "TRANSFERENCIA").length +
+    treasuryTransfers.filter((transfer) => transfer.type === "RETIRO_CAJA" && transfer.medium === "BANCO").length;
+  const cashContributionCount =
+    operatingCapitalMovements.filter((movement) => movement.type === "APORTE" && movement.medium === "EFECTIVO").length +
+    treasuryTransfers.filter((transfer) => transfer.type === "APORTE_CAJA" && transfer.medium === "EFECTIVO").length;
+  const bankContributionCount =
+    operatingCapitalMovements.filter((movement) => movement.type === "APORTE" && movement.medium === "TRANSFERENCIA").length +
+    treasuryTransfers.filter((transfer) => transfer.type === "APORTE_CAJA" && transfer.medium === "BANCO").length;
   const loadedReadings = readings.filter((reading) => reading.status === "CARGADA").length;
   const local = localName(data, balance.localId);
   const totalCashOutflows = totals.totalExpenses + totals.totalSalaries + totals.giftCash;
@@ -38,10 +49,10 @@ export function ClosedBalanceSummary({ data, balance }: { data: AppData; balance
   const differenceStatus = hasDifferenceControl ? balance.differenceStatus ?? "PENDIENTE" : "SIN DIFERENCIA";
   const financialRows = [
     { concept: "Transferencias", count: String(transfers.length), amount: money(totals.totalTransfers), detail: "Entran a banco / descuentan efectivo" },
-    { concept: "Aportes efectivo", count: String(cashContributions.length), amount: money(totals.capitalContributionsCash), detail: "Suman al efectivo de caja" },
-    { concept: "Aportes transferencia", count: String(bankContributions.length), amount: money(totals.capitalContributionsBank), detail: "Suman a banco" },
-    { concept: "Retiros efectivo", count: String(cashWithdrawals.length), amount: money(totals.withdrawalsCash), detail: "Salen del efectivo de caja" },
-    { concept: "Retiros transferencia", count: String(bankWithdrawals.length), amount: money(totals.withdrawalsBank), detail: "Salen de banco" },
+    { concept: "Principal a Caja / Efectivo", count: String(cashContributionCount), amount: money(totals.capitalContributionsCash), detail: "Traspaso interno hacia Caja" },
+    { concept: "Principal a Caja / Banco", count: String(bankContributionCount), amount: money(totals.capitalContributionsBank), detail: "Traspaso interno hacia Caja" },
+    { concept: "Caja a Principal / Efectivo", count: String(cashWithdrawalCount), amount: money(totals.withdrawalsCash), detail: "Traspaso interno hacia Principal" },
+    { concept: "Caja a Principal / Banco", count: String(bankWithdrawalCount), amount: money(totals.withdrawalsBank), detail: "Traspaso interno hacia Principal" },
   ];
   const outflowRows = [
     { concept: "Gastos", count: String(expenses.length), amount: money(totals.totalExpenses) },

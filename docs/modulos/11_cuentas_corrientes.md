@@ -1,70 +1,94 @@
-# Modulo 11 - Cuentas corrientes
+# Modulo 11 - Cuentas corrientes y tesoreria
+
+Pantalla: `src/features/accounts/CurrentAccounts.tsx`.
+
+Reglas: `src/lib/currentAccounts.ts`, `src/lib/accountMovements.ts` y `src/application/treasury/treasuryCommands.ts`.
 
 ## Objetivo
 
-Llevar libro interno de saldos y movimientos sin cargar saldos manuales.
+Mostrar saldos derivados de asientos y ofrecer un unico lugar administrativo para mover fondos entre Caja, Principal y socios.
 
-## Codigo actual
+## Cuentas visibles
 
-- La pantalla principal vive en `src/features/accounts/CurrentAccounts.tsx`.
-- Los helpers de cuentas viven en `src/lib/currentAccounts.ts`.
-- Los movimientos y totales derivados viven en `src/lib/accountMovements.ts`.
-- El selector mensual vive en `src/components/MonthlyPeriodSelector.tsx` y sus reglas en `src/lib/periods.ts`.
-- La resolucion de recaudaciones asociadas por `balanceId` vive en `src/lib/balanceReferences.ts`.
+### Caja
 
-## Tipos de cuenta
+- `Caja / Efectivo` por local.
+- `Caja / Banco` por local.
+
+### Principal
+
+- `Principal / Efectivo`.
+- `Principal / Banco`.
+
+### Socios
+
+- Mathias / UYU.
+- Ricardo / UYU.
+
+### Otras
 
 - Transferencias.
-- Local / Efectivo.
-- Local / Banco.
 
-Nota: las cuentas `Personal` existen internamente para registrar salarios y adelantos, pero se consultan desde `Liquidacion de salarios`, no desde esta pantalla.
-En el detalle de cada empleado, la cuenta corriente personal muestra fecha, concepto, monto, total, pendiente y usuario, con todas sus columnas ordenables.
-La cuenta personal se filtra por periodo trabajado de la liquidacion. Un pago cargado desde caja en febrero para el periodo trabajado enero se ve en enero y mantiene referencia a la recaudacion/caja de febrero.
-En cuenta personal, `Total` sigue la obligacion del periodo: salario base + premio/gratificacion + horas extras + bonos - descuentos. `Pendiente` sigue el saldo de salario base pendiente despues de salario pagado, adelantos y descuentos.
+Las cuentas de Personal se consultan dentro de Liquidacion de salarios.
 
-## Reglas
+## Periodos
 
-- Los saldos se calculan desde movimientos.
-- Los movimientos persistidos no se reescriben al iniciar la aplicacion.
-- Anulaciones posteriores generan contramovimientos; correcciones de diferencias agregan el delta necesario.
-- Cada local tiene cuenta de efectivo y cuenta banco.
-- Existe cuenta unica de transferencias.
-- La pantalla no muestra cuentas personales; esas cuentas se ven dentro de `Liquidacion de salarios`.
-- La pantalla no repite el titulo `Cuentas corrientes` dentro del contenido, porque ya aparece en la barra superior.
-- El encabezado interno muestra una descripcion operativa y contadores de cuentas/movimientos.
-- El encargado ve solamente cuentas y movimientos de sus locales asignados. En la demo actual ve Poseidon.
-- Al abrir la pantalla se muestra siempre el mes corriente.
-- Se puede alternar entre el mes anterior, el mes actual y `Consulta historica`.
-- Los botones de mes muestran el nombre del mes para evitar ambiguedad.
-- En `Consulta historica` se selecciona mes y ano, no un intervalo libre de fechas.
-- Los saldos, entradas, salidas, listado de cuentas y movimientos respetan el periodo seleccionado.
-- La tabla de movimientos muestra: fecha, tipo, detalle, usuario, debito, credito y saldo.
-- La tabla de movimientos permite ordenar por fecha, tipo, detalle, usuario, debito, credito y saldo.
-- `Debito` representa salidas de la cuenta y `Credito` representa entradas.
-- El saldo es corrido: toma el saldo activo anterior al rango y acumula los movimientos visibles.
-- El saldo corrido se calcula con `accountLedgerRows()` para compartir una sola regla comprobable.
-- El listado lateral y el resumen de la cuenta muestran `Saldo final`, calculado como saldo anterior al rango + entradas - salidas del periodo visible.
-- Al hacer clic en un movimiento se abre una ventana flotante con el detalle completo.
-- Si el movimiento esta asociado a una recaudacion, la ventana muestra la recaudacion asociada y permite abrir el resumen completo de esa recaudacion.
+- Abre en mes corriente.
+- Permite mes anterior, mes actual y consulta por mes/año.
+- Saldos, entradas, salidas y movimientos respetan el periodo.
+- El saldo corrido parte del saldo anterior al rango y acumula los movimientos visibles.
 
-## Impactos
+## Tabla
 
-- Resultado maquinas positivo -> entrada Local / Efectivo.
-- Resultado maquinas negativo -> salida Local / Efectivo.
-- Gastos -> salida Local / Efectivo.
-- Regalos -> salida Local / Efectivo.
-- Salarios -> salida Local / Efectivo por caja/balanceId y movimiento en cuenta personal por periodo trabajado.
-- Descuentos de salarios -> movimiento de cuenta personal que reduce pendiente/base cubierta, pero no genera salida Local / Efectivo ni cuenta como dinero entregado.
-- Transferencias -> salida Local / Efectivo, entrada Local / Banco y entrada en cuenta Transferencias.
-- Retiros -> salida Local / Efectivo o Local / Banco.
-- Aportes -> entrada Local / Efectivo o Local / Banco.
-- Diferencias de caja -> entrada o salida Local / Efectivo y/o Local / Banco, segun diferencia positiva o negativa, para reflejar el saldo real declarado.
-- Anular una diferencia desde `Diferencias` anula tambien sus movimientos de cuenta.
-- La pantalla no muestra tarjetas superiores de entrada/salida/saldo local; el foco queda en periodo, cuentas y movimientos.
-- Selector de cuentas, resumen y tabla mantienen tipografia compacta, importes monoespaciados y encabezado claro.
+Muestra:
 
-## Auditoria
+- fecha;
+- tipo/concepto;
+- detalle;
+- usuario;
+- debito;
+- credito;
+- saldo.
 
-- Cada movimiento debe registrar origen, usuario, fecha, concepto, monto, direccion y estado.
-- Si se anula un origen, se conserva el asiento y se agrega un contramovimiento. En salarios, transferencias, capital, gastos revisados y diferencias el impacto neto queda en cero sin perder historial.
+Debito es salida y Credito es entrada. Todas las columnas visibles ordenan. Al seleccionar una fila se abre el detalle completo y, si existe, la recaudacion asociada.
+
+## Traspasos Caja/Principal
+
+- `Caja a Principal`: sale de Caja y entra en Principal.
+- `Principal a Caja`: sale de Principal y entra en Caja.
+- El medio se conserva.
+- No cambia el resultado economico.
+- Si existe caja abierta, el traspaso debe asociarse a ella.
+- Los traspasos de apertura y cierre no se anulan.
+- Los operativos pueden anularse con motivo si la caja asociada sigue abierta y el reverso tiene fondos.
+
+## Socios
+
+- Aporte: cuenta del socio -> Principal.
+- Retiro: Principal -> cuenta del socio.
+- Solo Mathias y Ricardo.
+- No existe custodia.
+- No cambia resultado economico.
+- Cada alta o anulacion genera asientos dobles y auditoria.
+
+## Impactos principales
+
+| Operacion | Cuenta financiera | Resultado economico |
+| --- | --- | --- |
+| Resultado de maquinas | Caja/Efectivo | Si |
+| Gasto del Cajero | Caja/Efectivo | Si |
+| Regalo | Caja/Efectivo | Si |
+| Salario del Cajero | Caja/Efectivo | Si |
+| Transferencia del Cajero | Caja/Efectivo -> Caja/Banco | No |
+| Gasto administrativo | Principal/Efectivo o Banco | Si |
+| Salario administrativo | Principal/Efectivo o Banco | Si |
+| Caja <-> Principal | Ambas cuentas, mismo medio | No |
+| Aporte/retiro socio | Principal <-> Socio | No |
+| Diferencia | Caja/Efectivo o Banco | No |
+
+## Historial
+
+- Los asientos no se reescriben.
+- Una anulacion agrega contramovimientos.
+- Cada asiento conserva origen, usuario, fecha, cuenta, local, `balanceId` cuando aplica, monto, direccion y estado.
+- Los movimientos legacy siguen siendo consultables.

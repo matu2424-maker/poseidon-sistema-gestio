@@ -13,7 +13,7 @@ Antes de tocar esta carpeta, leer:
 
 Reglas locales:
 
-- Reportes consolidan cajas, diferencias, retiros/aportes, salidas, maquinas y auditoria.
+- Reportes consolidan cajas, movimientos de Principal, traspasos Caja/Principal, socios, diferencias, salidas, maquinas y auditoria.
 - No recalcular con formulas duplicadas si existe helper compartido en `src/lib`.
 - Exportaciones deben coincidir con lo visible y auditado.
 - Toda tabla operativa debe ordenar por cada columna visible de datos. Las columnas de acciones son la excepcion.

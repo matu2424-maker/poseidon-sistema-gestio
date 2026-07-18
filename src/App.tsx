@@ -518,7 +518,16 @@ function App({
       {screen === "admin-users" && <AdminUsers data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-staff" && <AdminStaff data={data} user={user} patchData={patchData} audit={audit} />}
       {screen === "admin-salary-settlements" && <AdminSalarySettlements data={data} user={user} patchData={patchData} />}
-      {screen === "admin-current-accounts" && <AdminCurrentAccounts data={data} user={user} effectiveRole={effectiveRole ?? user.role} local={activeLocal} />}
+      {screen === "admin-current-accounts" && (
+        <AdminCurrentAccounts
+          data={data}
+          user={user}
+          effectiveRole={effectiveRole ?? user.role}
+          local={activeLocal}
+          patchData={patchData}
+          setMessage={setMessage}
+        />
+      )}
       {screen === "admin-clients" && <AdminClients data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-trash" && <AdminTrash data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-expense-categories" && <AdminExpenseCategories data={data} patchData={patchData} audit={audit} />}

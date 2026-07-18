@@ -293,6 +293,12 @@ select:disabled {
   background: var(--blue);
 }
 
+.button.secondary {
+  background: #e8eef5;
+  color: #24364a;
+  border: 1px solid #cbd6e2;
+}
+
 .button.success {
   background: var(--green);
 }

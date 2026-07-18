@@ -16,6 +16,7 @@ const movement = (patch: Partial<AccountMovement>): AccountMovement => ({
   direction: "ENTRADA",
   concept: "PRUEBA",
   amount: 0,
+  currency: "UYU",
   detail: "",
   status: "ACTIVO",
   userId: "user-1",

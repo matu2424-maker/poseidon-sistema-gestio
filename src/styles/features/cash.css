@@ -854,6 +854,24 @@
   gap: 10px;
 }
 
+.account-selector-group {
+  display: grid;
+  gap: 7px;
+}
+
+.account-selector-group + .account-selector-group {
+  padding-top: 8px;
+  border-top: 1px solid #dce3eb;
+}
+
+.account-selector-group h3 {
+  margin: 0;
+  color: #68778a;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .account-selector {
   display: grid;
   gap: 4px;

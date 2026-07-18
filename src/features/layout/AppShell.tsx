@@ -261,7 +261,7 @@ export function CashierWorkspace({
           </div>
           {hasCashReconciliationError && (
             <div className="cashier-reconciliation-alert" role="alert">
-              El efectivo de la caja no coincide con Local / Efectivo. Caja: {money(cashReconciliation?.expectedCash)}. Cuenta corriente: {money(cashReconciliation?.accountCash)}. Diferencia tecnica: {money(cashReconciliation?.delta)}. Las operaciones quedan bloqueadas hasta una reconciliacion auditada.
+              El efectivo calculado no coincide con Caja / Efectivo. Caja: {money(cashReconciliation?.expectedCash)}. Cuenta corriente: {money(cashReconciliation?.accountCash)}. Diferencia tecnica: {money(cashReconciliation?.delta)}. Las operaciones quedan bloqueadas hasta una reconciliacion auditada.
             </div>
           )}
           {openBalance && !showInline && (
@@ -281,12 +281,12 @@ export function CashierWorkspace({
               <div className="cashier-metric passive neutral">
                 <span>Efectivo en caja</span>
                 <strong>{hasCashReconciliationError ? "No conciliado" : money(cashReconciliation?.expectedCash)}</strong>
-                <small>{hasCashReconciliationError ? "Saldo bloqueado" : "Saldo conciliado con la cuenta local"}</small>
+                <small>{hasCashReconciliationError ? "Saldo bloqueado" : "Saldo conciliado con Caja / Efectivo"}</small>
               </div>
               <div className="cashier-metric passive neutral">
                 <span>Dinero en banco</span>
                 <strong>{money(localBalances.bank)}</strong>
-                <small>Saldo cuenta banco del local</small>
+                <small>Saldo Caja / Banco</small>
               </div>
               <button className="cashier-metric bank" type="button" onClick={() => setScreen("transfers")}>
                 <span>Transferencias</span>
@@ -294,14 +294,14 @@ export function CashierWorkspace({
                 <small>Movimientos registrados en banco</small>
               </button>
               <button className="cashier-metric cash" type="button" onClick={() => setScreen("capital-movements")}>
-                <span>Aportes efectivo</span>
+                <span>Principal a Caja</span>
                 <strong>{money(totals?.capitalContributionsCash)}</strong>
-                <small>Capital ingresado en caja</small>
+                <small>Fondos recibidos en Caja</small>
               </button>
               <button className="cashier-metric out" type="button" onClick={() => setScreen("capital-movements")}>
-                <span>Retiros</span>
+                <span>Caja a Principal</span>
                 <strong>{money(totals?.totalWithdrawals)}</strong>
-                <small>Efectivo y banco</small>
+                <small>Traspasos en efectivo y banco</small>
               </button>
               <button className="cashier-metric out" type="button" onClick={() => setScreen("expenses")}>
                 <span>Gastos</span>

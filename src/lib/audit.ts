@@ -95,6 +95,9 @@ function collectEntityLocalIds(data: AppData, event: AuditEvent, target: Set<str
 
   const directSources = [
     data.capitalMovements.find((item) => item.id === event.entityId)?.localId,
+    data.treasuryTransfers.find((item) => item.id === event.entityId)?.localId,
+    data.partnerMovements.find((item) => item.id === event.entityId)?.localId,
+    data.expenses.find((item) => item.id === event.entityId)?.localId,
     data.salarySettlements.find((item) => item.id === event.entityId)?.localId,
     data.staff.find((item) => item.id === event.entityId)?.localId,
     data.clients.find((item) => item.id === event.entityId)?.localId,

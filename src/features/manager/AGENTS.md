@@ -16,7 +16,7 @@ Antes de tocar esta carpeta, leer:
 
 Reglas locales:
 
-- Encargado supervisa el local asignado y puede registrar gastos y retiros/aportes en su caja abierta desde funcion propia; para el resto puede trabajar como Cajero solo desde el cambio de funcion.
+- Encargado supervisa el local asignado, paga gastos/salarios desde Principal y gestiona tesoreria/socios. Para operar una recaudacion trabaja como Cajero mediante el cambio explicito de funcion.
 - Diferencias deben mostrar historial completo y permitir gestionar, corregir, anular o confirmar con auditoria.
 - Gestionar diferencias puede impactar cuentas; revisar `src/lib/differences.ts` y `src/lib/accountMovements.ts`.
 - Toda tabla operativa debe ordenar por cada columna visible de datos. Las columnas de acciones son la excepcion.

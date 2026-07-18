@@ -2,9 +2,16 @@ import { describe, expect, it } from "vitest";
 import { clearOperationalData, createSeedData } from "../../data/appData";
 import { accountTotalsFromMovements } from "../../lib/accountMovements";
 import { totalsForBalance } from "../../lib/cashTotals";
-import { localAccountBalances } from "../../lib/currentAccounts";
+import {
+  localAccountBalances,
+  partnerAccountBalance,
+  principalAccountBalances,
+} from "../../lib/currentAccounts";
 import { commandContext } from "../command";
-import { createCapitalMovementCommand } from "../movements/operatingMovementCommands";
+import {
+  createPartnerMovementCommand,
+  createTreasuryTransferCommand,
+} from "../treasury/treasuryCommands";
 import { closeCashCommand } from "./closeCash";
 import { openCashCommand } from "./openCash";
 import { saveReadingCommand } from "./saveReading";
@@ -38,7 +45,8 @@ describe("comandos de caja", () => {
     if (!result.ok) return;
     expect(result.data.balances[0]).toMatchObject({ status: "EN_PROCESO", initialFund: 1000, openedByRole: "CAJERO" });
     expect(result.data.readings.filter((item) => item.balanceId === result.value.id)).toHaveLength(3);
-    expect(result.data.capitalMovements).toHaveLength(2);
+    expect(result.data.partnerMovements).toHaveLength(2);
+    expect(result.data.treasuryTransfers).toHaveLength(2);
     expect(result.data.audit[0]).toMatchObject({ action: "Abrir caja", actorRole: "CAJERO" });
   });
 
@@ -81,10 +89,8 @@ describe("comandos de caja", () => {
         balanceId: opened.value.id,
         declaredCash: 1500,
         declaredBank: 0,
-        finalWithdrawalCash: 0,
-        finalWithdrawalBank: 0,
-        withdrawalCashPerson: "MATHIAS",
-        withdrawalBankPerson: "MATHIAS",
+        transferToPrincipalCash: 0,
+        transferToPrincipalBank: 0,
         differenceNote: "",
       },
       context,
@@ -95,6 +101,75 @@ describe("comandos de caja", () => {
     expect(closed.data.machineLocalHistory.filter((item) => item.action === "CONTADORES")).toHaveLength(3);
     expect(accountTotalsFromMovements(closed.data.accountMovements.filter((item) => item.accountId === "account-local-1-efectivo")).balance).toBe(1500);
     expect(closed.data.audit[0].action).toBe("Cerrar caja");
+  });
+
+  it("traspasa fondos del cierre a Principal y reabre con el remanente de Caja", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const opened = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 1_000,
+        initialBankFund: 500,
+        initialNote: "Apertura con traspaso final",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    if (!opened.ok) throw new Error(opened.error);
+    const ready = {
+      ...opened.data,
+      readings: opened.data.readings.map((reading) => ({
+        ...reading,
+        status: "SIN_LECTURA" as const,
+        observation: "Sin actividad",
+      })),
+    };
+    const closed = closeCashCommand(
+      ready,
+      {
+        balanceId: opened.value.id,
+        declaredCash: 400,
+        declaredBank: 300,
+        transferToPrincipalCash: 600,
+        transferToPrincipalBank: 200,
+        differenceNote: "",
+      },
+      context,
+    );
+    expect(closed.ok).toBe(true);
+    if (!closed.ok) return;
+    expect(closed.value).toMatchObject({
+      status: "CERRADO",
+      finalTransferToPrincipalCash: 600,
+      finalTransferToPrincipalBank: 200,
+      cashDifference: 0,
+      bankDifference: 0,
+    });
+    expect(localAccountBalances(closed.data, "1")).toEqual({ cash: 400, bank: 300 });
+    expect(principalAccountBalances(closed.data)).toEqual({ cash: 600, bank: 200 });
+    expect(partnerAccountBalance(closed.data, "MATHIAS")).toBe(1_500);
+    expect(totalsForBalance(closed.data, opened.value.id).commercialResult).toBe(0);
+    expect(closed.data.treasuryTransfers.filter((transfer) => transfer.timing === "CIERRE")).toHaveLength(2);
+
+    const reopened = openCashCommand(
+      closed.data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-11",
+        initialFund: 400,
+        initialBankFund: 300,
+        initialNote: "Remanente heredado",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: false,
+      },
+      context,
+    );
+    expect(reopened.ok).toBe(true);
+    if (reopened.ok) expect(reopened.value).toMatchObject({ initialFund: 400, initialBankFund: 300 });
   });
 
   it("rechaza un cierre con diferencia sin observacion", () => {
@@ -117,10 +192,8 @@ describe("comandos de caja", () => {
           balanceId: opened.value.id,
           declaredCash: 100,
           declaredBank: 0,
-          finalWithdrawalCash: 0,
-          finalWithdrawalBank: 0,
-          withdrawalCashPerson: "MATHIAS",
-          withdrawalBankPerson: "MATHIAS",
+          transferToPrincipalCash: 0,
+          transferToPrincipalBank: 0,
           differenceNote: "",
         },
         context,
@@ -174,10 +247,8 @@ describe("comandos de caja", () => {
         balanceId: opened.value.id,
         declaredCash: 0,
         declaredBank: 0,
-        finalWithdrawalCash: 0,
-        finalWithdrawalBank: 0,
-        withdrawalCashPerson: "MATHIAS",
-        withdrawalBankPerson: "MATHIAS",
+        transferToPrincipalCash: 0,
+        transferToPrincipalBank: 0,
         differenceNote: "",
       },
       context,
@@ -185,23 +256,42 @@ describe("comandos de caja", () => {
     expect(rejected).toMatchObject({ ok: false });
     if (!rejected.ok) {
       expect(rejected.error).toContain("efectivo esperado es negativo");
-      expect(rejected.error).not.toContain("retiro final");
+      expect(rejected.error).not.toContain("no puede superar");
     }
     expect(JSON.stringify(negative)).toBe(before);
     expect(negative.balances.find((item) => item.id === opened.value.id)?.status).toBe("EN_PROCESO");
     expect(negative.accountMovements.some((item) => item.sourceType === "DIFERENCIA_CAJA")).toBe(false);
 
-    const contribution = createCapitalMovementCommand(
+    const manager = negative.users.find((item) => item.role === "ENCARGADO")!;
+    const managerContext = commandContext(manager, "ENCARGADO", {
+      now: () => "2026-07-10T20:30:00.000Z",
+      id: (prefix) => `${prefix}-manager`,
+    });
+    const partnerContribution = createPartnerMovementCommand(
       negative,
       {
-        balanceId: opened.value.id,
-        type: "APORTE",
+        localId: opened.value.localId,
+        type: "APORTE_SOCIO",
         medium: "EFECTIVO",
-        person: "RICARDO",
+        partner: "RICARDO",
         amount: 500,
-        note: "Cubre resultado negativo",
+        note: "Fondos reales para cubrir resultado negativo",
       },
-      context,
+      managerContext,
+    );
+    expect(partnerContribution.ok).toBe(true);
+    if (!partnerContribution.ok) return;
+    const contribution = createTreasuryTransferCommand(
+      partnerContribution.data,
+      {
+        balanceId: opened.value.id,
+        localId: opened.value.localId,
+        type: "APORTE_CAJA",
+        medium: "EFECTIVO",
+        amount: 500,
+        note: "Principal a Caja",
+      },
+      managerContext,
     );
     expect(contribution.ok).toBe(true);
     if (!contribution.ok) return;
@@ -213,10 +303,8 @@ describe("comandos de caja", () => {
         balanceId: opened.value.id,
         declaredCash: 0,
         declaredBank: 0,
-        finalWithdrawalCash: 0,
-        finalWithdrawalBank: 0,
-        withdrawalCashPerson: "MATHIAS",
-        withdrawalBankPerson: "MATHIAS",
+        transferToPrincipalCash: 0,
+        transferToPrincipalBank: 0,
         differenceNote: "",
       },
       context,
@@ -261,6 +349,7 @@ describe("comandos de caja", () => {
           direction: "SALIDA" as const,
           concept: "INCONSISTENCIA_TECNICA",
           amount: 14_000,
+          currency: "UYU" as const,
           detail: "Desacople de prueba",
           status: "ACTIVO" as const,
           userId: "system",
@@ -276,36 +365,39 @@ describe("comandos de caja", () => {
         balanceId: opened.value.id,
         declaredCash: 0,
         declaredBank: 0,
-        finalWithdrawalCash: 0,
-        finalWithdrawalBank: 0,
-        withdrawalCashPerson: "MATHIAS",
-        withdrawalBankPerson: "MATHIAS",
+        transferToPrincipalCash: 0,
+        transferToPrincipalBank: 0,
         differenceNote: "",
       },
       context,
     );
     expect(rejected).toMatchObject({ ok: false });
     if (!rejected.ok) {
-      expect(rejected.error).toContain("no coincide con Local / Efectivo");
+      expect(rejected.error).toContain("no coincide con Caja / Efectivo");
       expect(rejected.error).toContain("Diferencia tecnica");
-      expect(rejected.error).not.toContain("retiro final");
+      expect(rejected.error).not.toContain("no puede superar");
     }
     expect(JSON.stringify(inconsistent)).toBe(before);
 
-    const fakeContribution = createCapitalMovementCommand(
+    const manager = inconsistent.users.find((item) => item.role === "ENCARGADO")!;
+    const managerContext = commandContext(manager, "ENCARGADO", {
+      now: () => "2026-07-10T20:45:00.000Z",
+      id: (prefix) => `${prefix}-manager`,
+    });
+    const fakeContribution = createTreasuryTransferCommand(
       inconsistent,
       {
+        localId: opened.value.localId,
         balanceId: opened.value.id,
-        type: "APORTE",
+        type: "APORTE_CAJA",
         medium: "EFECTIVO",
-        person: "MATHIAS",
         amount: 14_000,
         note: "No debe ocultar el desacople",
       },
-      context,
+      managerContext,
     );
     expect(fakeContribution).toMatchObject({ ok: false });
-    if (!fakeContribution.ok) expect(fakeContribution.error).toContain("un aporte comun no corrige");
+    if (!fakeContribution.ok) expect(fakeContribution.error).toContain("un traspaso comun no corrige");
     expect(JSON.stringify(inconsistent)).toBe(before);
   });
 
@@ -316,12 +408,12 @@ describe("comandos de caja", () => {
     ["declaredBank", Number.NaN],
     ["declaredBank", Number.POSITIVE_INFINITY],
     ["declaredBank", Number.NEGATIVE_INFINITY],
-    ["finalWithdrawalCash", Number.NaN],
-    ["finalWithdrawalCash", Number.POSITIVE_INFINITY],
-    ["finalWithdrawalCash", Number.NEGATIVE_INFINITY],
-    ["finalWithdrawalBank", Number.NaN],
-    ["finalWithdrawalBank", Number.POSITIVE_INFINITY],
-    ["finalWithdrawalBank", Number.NEGATIVE_INFINITY],
+    ["transferToPrincipalCash", Number.NaN],
+    ["transferToPrincipalCash", Number.POSITIVE_INFINITY],
+    ["transferToPrincipalCash", Number.NEGATIVE_INFINITY],
+    ["transferToPrincipalBank", Number.NaN],
+    ["transferToPrincipalBank", Number.POSITIVE_INFINITY],
+    ["transferToPrincipalBank", Number.NEGATIVE_INFINITY],
   ] as const)("rechaza %s no finito antes de cerrar", (field, invalidAmount) => {
     const data = clearOperationalData(createSeedData());
     const context = fixedContext();
@@ -343,10 +435,8 @@ describe("comandos de caja", () => {
       balanceId: opened.value.id,
       declaredCash: 0,
       declaredBank: 0,
-      finalWithdrawalCash: 0,
-      finalWithdrawalBank: 0,
-      withdrawalCashPerson: "MATHIAS" as const,
-      withdrawalBankPerson: "MATHIAS" as const,
+      transferToPrincipalCash: 0,
+      transferToPrincipalBank: 0,
       differenceNote: "",
       [field]: invalidAmount,
     };
@@ -391,10 +481,8 @@ describe("comandos de caja", () => {
           balanceId: opened.value.id,
           declaredCash: 0,
           declaredBank: 0,
-          finalWithdrawalCash: 0,
-          finalWithdrawalBank: 0,
-          withdrawalCashPerson: "MATHIAS",
-          withdrawalBankPerson: "MATHIAS",
+          transferToPrincipalCash: 0,
+          transferToPrincipalBank: 0,
           differenceNote: "",
         },
         context,
@@ -475,7 +563,7 @@ describe("comandos de caja", () => {
     );
     expect(rejected).toEqual({
       ok: false,
-      error: "La caja debe abrir con los saldos vigentes de Local / Efectivo y Local / Banco.",
+      error: "La caja debe abrir con los saldos vigentes de Caja / Efectivo y Caja / Banco.",
     });
   });
 

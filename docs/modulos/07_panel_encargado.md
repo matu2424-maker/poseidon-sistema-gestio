@@ -1,69 +1,69 @@
 # Modulo 07 - Panel del encargado
 
+Panel: `src/features/dashboard/ManagerDashboard.tsx`.
+
+Layout y cambio de funcion: `src/features/layout/AppShell.tsx`.
+
 ## Objetivo
 
-Vista de revision operativa y control, separada del flujo visual del cajero.
+Dar al Encargado control financiero y operativo del local asignado sin mezclar su funcion administrativa con la operacion del Cajero.
 
-## Estado actual
+## Informacion principal
 
-El layout lateral, cabecera y cambio de funcion viven en `src/features/layout/AppShell.tsx`.
-El panel del encargado vive en `src/features/dashboard/ManagerDashboard.tsx`; `RoleDashboard.tsx` solo selecciona el panel por funcion efectiva.
+- Diferencias pendientes.
+- Saldos de `Caja / Efectivo` y `Caja / Banco`.
+- Saldos de `Principal / Efectivo` y `Principal / Banco`.
+- Liquidez total por medio.
+- Ingreso, salida y resultado economico del mes actual hasta hoy.
 
-El encargado entra directo a su panel y ve:
+## Funciones administrativas
 
-- diferencias del local activo;
-- cuenta efectivo;
-- cuenta banco;
-- ingreso total del mes actual hasta hoy;
-- salida total del mes actual hasta hoy;
-- resultado neto economico del mes actual hasta hoy.
+- Gestionar diferencias.
+- Consultar recaudaciones.
+- Registrar, revisar y anular gastos desde Principal.
+- Registrar liquidaciones desde Principal.
+- Mover fondos Caja <-> Principal.
+- Registrar aportes/retiros reales de socios.
+- Consultar cuentas corrientes.
+- Cerrar periodos y revisar reportes.
+- Gestionar personal, salarios y clientes.
+- Consultar auditoria del local asignado.
 
-Con el dataset demo inicial, el panel del encargado muestra datos reales de prueba:
+## Separacion con Cajero
 
-- cajas cerradas de julio 2026;
-- una diferencia pendiente;
-- saldos de cuentas de efectivo/banco;
-- ingreso, salida y resultado neto mensual.
+- Encargado no carga contadores, transferencias de Caja, regalos ni cierre desde su funcion administrativa.
+- Para operar la recaudacion usa `Trabajar como cajero`.
+- La identidad real sigue siendo Encargado y la auditoria registra funcion `CAJERO`.
+- Gastos y salarios desde funcion Encargado se pagan desde Principal y no necesitan caja abierta.
+- Caja solo cambia si se registra un traspaso explicito Principal -> Caja o Caja -> Principal.
 
-## Reglas
+## Cuentas corrientes
 
-- No opera caja desde la barra lateral.
-- Desde `Operacion del local` puede registrar gastos y retiros/aportes en la caja abierta de su local sin cambiar de funcion.
-- Para apertura, contadores, transferencias, regalos, salarios y cierre usa `Trabajar como cajero`.
-- Puede consultar `Resumen de cajas` como encargado porque es una vista de auditoria sin comandos operativos.
-- Al cambiar a cajero conserva usuario real y registra funcion usada.
-- Puede revisar diferencias, gastos, cuentas corrientes, cierres periodicos, personal, salarios, clientes, reportes y auditoria.
-- Los comandos operativos del Encargado validan usuario activo, rol real, funcion `ENCARGADO`, local asignado, caja abierta, conciliacion y efectivo disponible.
-- El movimiento queda asociado al mismo `balanceId` y cuentas corrientes que usa el Cajero. Una pestana pasiva adopta el guardado de la otra; un cambio propio pendiente mantiene el bloqueo por conflicto.
-- En Diferencias, el encargado gestiona desde una pantalla de control con filtros y ventana flotante de detalle, no con formularios largos dentro de la tabla.
-- Control de gastos vive en `src/features/manager/Expenses.tsx`.
-- En Control de gastos la tabla permite ordenar por fecha, caja, local, categoria, subcategoria, descripcion, comprobante, monto, usuario, estado y revision.
-- Revisar, observar o anular un gasto queda auditado; anular no borra el movimiento.
-- Reportes vive en `src/features/reports/Reports.tsx` y comparte exportaciones desde `src/lib/export.ts`.
-- Cierre periodico vive en `src/features/reports/Periodic.tsx`.
-- En Cierre periodico, las tablas de cajas incluidas y cierres guardados son ordenables por columnas visibles.
+Es la pantalla central de tesoreria:
 
-## Calculos mensuales
+- consulta Caja, Principal y socios;
+- registra traspasos internos;
+- registra aportes/retiros patrimoniales;
+- permite rastrear cada asiento y su recaudacion cuando existe `balanceId`.
 
-- Ingreso total: resultado positivo de maquinas en cajas cerradas del mes.
-- Salida total: gastos + salarios + regalos + resultado negativo de maquinas.
-- Resultado neto: ingreso total - salida total.
-- Transferencias, aportes y retiros se revisan aparte como movimientos financieros.
+## Control de gastos
 
-## Estructura visual actual
+- La tabla contiene gastos de Caja y Principal.
+- La columna Cuenta distingue el origen financiero.
+- Agregar gasto siempre usa Principal/Efectivo o Principal/Banco.
+- Revisar, observar o anular conserva historial y auditoria.
+- Todas las columnas de datos son ordenables.
 
-- `Control financiero`: una banda compacta con diferencias, cuenta efectivo y cuenta banco.
-- `Resultado economico`: una banda compacta con ingreso total, salida total y resultado neto del mes.
-- Debajo hay una zona compacta de operacion de caja activa con dos botones alineados y una fila separada de accesos a diferencias, cuentas corrientes, control de gastos, salarios y resumen de cajas.
-- En `Cierres y reportes` aparecen `Resumen de cajas`, `Cierre periodico` y `Reportes`; no aparece apertura de caja.
-- Las metricas no contienen botones para evitar duplicar destinos; los accesos rapidos no reemplazan al menu lateral.
-- La pantalla de Diferencias prioriza pendientes por defecto y permite buscar/filtrar antes de abrir el detalle de cada recaudacion.
+## Cierre periodico
+
+- Consolida cajas cerradas y movimientos administrativos de Principal.
+- Incluye gastos y liquidaciones sin `balanceId` dentro del periodo/local.
+- Separa resultado economico, traspasos Caja/Principal y movimientos de socios.
+- La foto periodica no borra ni reinicia operaciones.
 
 ## Estetica
 
-- Tarjetas estilo Datos de caja.
-- No repetir datos de barra superior.
-- Tipografia de interfaz Segoe UI/Aptos y tipografia monoespaciada solo para importes e identificadores.
-- Pesos moderados: texto secundario regular, etiquetas medias y valores principales semibold.
-- Metricas en superficies neutras separadas por lineas, sin colores laterales.
-- Accesos rapidos con color lateral, alineados en una grilla compacta y con el mismo ancho y altura estable.
+- No repetir el titulo de la barra superior.
+- Metricas compactas con tipografia moderada.
+- Accesos rapidos alineados y de tamaño estable.
+- Tablas densas; todas las columnas visibles de datos ordenan.

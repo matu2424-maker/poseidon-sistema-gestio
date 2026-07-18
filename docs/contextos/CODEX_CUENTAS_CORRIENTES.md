@@ -1,54 +1,54 @@
 # Contexto Codex - Cuentas corrientes
 
-Ultima actualizacion: 2026-07-10
+Ultima actualizacion: 2026-07-17
 
-Leer este contexto antes de modificar cuentas, saldos, movimientos o detalle de movimientos. Referencias asociadas:
+Leer junto con `docs/REGLAS_CONTABLES.md` y `docs/modulos/11_cuentas_corrientes.md`.
 
-- `docs/REGLAS_CONTABLES.md`
-- `docs/modulos/11_cuentas_corrientes.md`
-- `docs/contextos/CODEX_NUCLEO_CAJA.md`
-- `docs/contextos/CODEX_DIFERENCIAS.md`
-- `docs/contextos/CODEX_SALARIOS.md`
-- `docs/modulos/12_auditoria.md`
+## Codigo
 
-## Codigo actual
+- Pantalla: `src/features/accounts/CurrentAccounts.tsx`.
+- Comandos: `src/application/treasury/treasuryCommands.ts`.
+- Cuentas y saldos: `src/lib/currentAccounts.ts`.
+- Asientos, reversos y saldo corrido: `src/lib/accountMovements.ts`.
+- Referencias de recaudacion: `src/lib/balanceReferences.ts`.
+- Periodos: `src/lib/periods.ts` y `src/components/MonthlyPeriodSelector.tsx`.
 
-- Pantalla: `AdminCurrentAccounts` en `src/features/accounts/CurrentAccounts.tsx`.
-- Tipos: `CurrentAccount`, `AccountMovement`, `CurrentAccountKind`, `AccountMovementSource`.
-- Helpers extraidos: ids de cuenta local/personal/transferencias, creacion/asegurado de cuentas, `accountTotals` y `localAccountBalances` viven en `src/lib/currentAccounts.ts`.
-- Movimientos por origen, sincronizacion, `accountTotalsFromMovements` y saldo corrido `accountLedgerRows` viven en `src/lib/accountMovements.ts`.
-- Periodo mensual compartido: `src/lib/periods.ts` y `src/components/MonthlyPeriodSelector.tsx`.
-- Referencias de recaudacion por `balanceId`: `src/lib/balanceReferences.ts`.
-- La tabla de movimientos es ordenable por fecha, tipo, detalle, usuario, debito, credito y saldo.
+## Grupos visibles
 
-## Reglas criticas
+- Caja: Efectivo y Banco del local.
+- Principal: Efectivo y Banco de la empresa.
+- Socios: Mathias y Ricardo.
+- Otras: Transferencias.
+- Las cuentas personales no aparecen aqui; se consultan dentro de Liquidacion de salarios.
 
-- Saldos se calculan desde movimientos activos.
-- No se cargan saldos manuales.
-- Encargado ve solo locales asignados.
-- Pantalla general no muestra cuentas personales; estas viven dentro de Liquidacion de salarios.
-- Tabla muestra fecha, tipo, detalle, usuario, debito, credito y saldo.
-- Saldo es corrido e incluye saldo anterior al rango.
-- El listado lateral y el resumen de cuenta muestran `Saldo final`: saldo anterior + entradas - salidas del periodo.
-- Diferencias de caja impactan cuentas local efectivo/banco, no resultado economico.
+## Operaciones
 
-## Asociaciones
+- `Mover fondos`: Caja a Principal o Principal a Caja, mismo medio, sin resultado economico.
+- `Movimiento de socio`: aporte o retiro real, con socio obligatorio.
+- Si hay caja abierta, el traspaso se asocia automaticamente a esa recaudacion.
+- Sin caja abierta, Encargado/Admin pueden mover Caja y Principal sin crear una caja ficticia.
+- Un movimiento activo puede anularse con motivo y reversos si no pertenece a apertura, cierre o caja historica cerrada.
 
-- Apertura de caja usa saldo local efectivo/banco.
-- Cierre de caja crea retiros finales y diferencias.
-- Gastos, regalos y salarios salen de efectivo.
-- Transferencias entran en banco y cuenta transferencias.
-- Retiros/aportes mueven efectivo o banco segun medio.
-- Salarios mueven cuenta personal y local efectivo cuando corresponda.
+## Tabla y detalle
 
-## Pruebas manuales
+- Periodos: mes actual, mes anterior e historico por mes/ano.
+- Columnas: fecha, tipo, detalle, usuario, debito, credito y saldo.
+- Todas las columnas de datos son ordenables; Accion es la unica excepcion.
+- El saldo es corrido e incluye el saldo anterior al rango.
+- El detalle muestra cuenta, moneda, usuario, entidad origen y recaudacion cuando existe.
+- Los movimientos nuevos guardan `localId`; los historicos se resuelven por caja u origen.
 
-1. Entrar como `encargado` o `admin`.
-2. Ir a `Cuentas corrientes`.
-3. Consultar mes actual, mes anterior y consulta historica por mes/ano.
-4. Abrir cuenta `Local / Efectivo`.
-5. Abrir cuenta `Local / Banco`.
-6. Hacer clic en movimiento con recaudacion asociada.
-7. Verificar debito/credito/saldo corrido.
-8. Abrir la recaudacion completa desde el detalle del movimiento.
-9. Ejecutar `pnpm test` para validar saldo corrido y referencias.
+## Alcance
+
+- Encargado ve solamente movimientos de sus locales.
+- Administrador ve todas las cuentas disponibles.
+- Hoy se opera solo Poseidon; `localId` preserva la frontera para la etapa multi-local futura.
+
+## Validacion
+
+1. Probar ambos sentidos y medios.
+2. Probar disponible exacto y exceso sin mutacion.
+3. Probar aporte/retiro de Mathias y Ricardo.
+4. Anular un movimiento operativo y comprobar dos reversos.
+5. Confirmar que apertura/cierre no se anulan.
+6. Ordenar cada columna y abrir una recaudacion asociada.

@@ -8,17 +8,17 @@ import {
 import { money } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 
-type SortKey = "Hora" | "Usuario" | "Movimiento" | "Cuenta" | "Detalle" | "Entrada" | "Salida" | "Estado";
+type SortKey = "Hora" | "Usuario" | "Movimiento" | "Medio" | "Detalle" | "Entrada" | "Salida" | "Estado";
 
 const kindLabels: Record<ManagerCashActivityItem["kind"], string> = {
   GASTO: "Gasto",
-  APORTE: "Aporte",
-  RETIRO: "Retiro",
+  PRINCIPAL_A_CAJA: "Principal a Caja",
+  CAJA_A_PRINCIPAL: "Caja a Principal",
 };
 
 const mediumLabels: Record<ManagerCashActivityItem["medium"], string> = {
   EFECTIVO: "Efectivo",
-  TRANSFERENCIA: "Banco",
+  BANCO: "Banco",
 };
 
 const sortValue = (item: ManagerCashActivityItem, key: SortKey) => {
@@ -29,7 +29,7 @@ const sortValue = (item: ManagerCashActivityItem, key: SortKey) => {
       return item.userName;
     case "Movimiento":
       return kindLabels[item.kind];
-    case "Cuenta":
+    case "Medio":
       return mediumLabels[item.medium];
     case "Detalle":
       return item.detail;
@@ -47,7 +47,7 @@ const signedMoney = (value: number) => (value > 0 ? `+ ${money(value)}` : money(
 export function ManagerCashActivity({ data, balanceId }: { data: AppData; balanceId: string }) {
   const activity = managerCashActivityForBalance(data, balanceId);
   const [sort, setSort] = useState<SortState<SortKey>>({ key: "Hora", direction: "desc" });
-  const columns: SortKey[] = ["Hora", "Usuario", "Movimiento", "Cuenta", "Detalle", "Entrada", "Salida", "Estado"];
+  const columns: SortKey[] = ["Hora", "Usuario", "Movimiento", "Medio", "Detalle", "Entrada", "Salida", "Estado"];
   const sortedItems = [...activity.items].sort((left, right) => {
     const result = compareValues(sortValue(left, sort.key), sortValue(right, sort.key));
     return sort.direction === "asc" ? result : -result;
@@ -59,7 +59,7 @@ export function ManagerCashActivity({ data, balanceId }: { data: AppData; balanc
         <div>
           <h3 id="manager-cash-activity-title">Movimientos del encargado</h3>
           <p>
-            Intervenciones registradas durante esta recaudacion. Los movimientos anulados conservan el detalle historico y no integran el impacto.
+            Traspasos entre Caja y Principal registrados durante esta recaudacion. Los anulados conservan el detalle historico y no integran el impacto.
           </p>
         </div>
         <div className="manager-cash-impact" aria-label="Impacto vigente de los movimientos del encargado">
@@ -114,12 +114,12 @@ export function ManagerCashActivity({ data, balanceId }: { data: AppData; balanc
           </table>
         </div>
       ) : (
-        <p className="manager-cash-activity-empty">Sin movimientos del encargado en esta recaudacion.</p>
+        <p className="manager-cash-activity-empty">Sin traspasos del encargado en esta recaudacion.</p>
       )}
 
       {activity.items.length > 0 && (
         <p className="manager-cash-activity-count">
-          {activity.activeCount} vigentes · {activity.annulledCount} anulados
+          {activity.activeCount} vigentes &middot; {activity.annulledCount} anulados
         </p>
       )}
     </section>

@@ -1,4 +1,5 @@
 import type { AppData, Reading } from "../types";
+import { localCashAccountId } from "./currentAccounts";
 import { salarySettlementAmount } from "./salaryRules";
 
 export function calcReading(reading: Pick<Reading, "inPrevious" | "inActual" | "outPrevious" | "outActual">) {
@@ -12,6 +13,10 @@ export function totalsForBalance(data: AppData, balanceId: string) {
   const transfers = data.transfers.filter((transfer) => transfer.balanceId === balanceId && transfer.status === "ACTIVO");
   const gifts = data.gifts.filter((gift) => gift.balanceId === balanceId && gift.status === "ACTIVO");
   const capitalMovements = data.capitalMovements.filter((movement) => movement.balanceId === balanceId && movement.status === "ACTIVO");
+  const treasuryTransfers = data.treasuryTransfers.filter(
+    (transfer) => transfer.balanceId === balanceId && transfer.status === "ACTIVO",
+  );
+  const operatingTreasuryTransfers = treasuryTransfers.filter((transfer) => transfer.timing !== "APERTURA");
   const operatingCapitalMovements = capitalMovements.filter((movement) => movement.timing !== "APERTURA");
   const openingCapitalMovements = capitalMovements.filter((movement) => movement.timing === "APERTURA");
   const balance = data.balances.find((item) => item.id === balanceId);
@@ -24,18 +29,45 @@ export function totalsForBalance(data: AppData, balanceId: string) {
   const giftCash = gifts.reduce((total, gift) => total + gift.cashAmount, 0);
   const giftCredit = gifts.reduce((total, gift) => total + gift.creditAmount, 0);
   const totalSalaries = salaryPayments.reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
-  const withdrawalsCash = operatingCapitalMovements
+  const balanceCashAccountId = balance ? localCashAccountId(balance.localId) : "";
+  const cashExpenses = expenses
+    .filter((expense) => (expense.paymentAccountId || balanceCashAccountId) === balanceCashAccountId)
+    .reduce((total, expense) => total + expense.amount, 0);
+  const cashSalaries = salaryPayments
+    .filter((settlement) => (settlement.paymentAccountId ?? balanceCashAccountId) === balanceCashAccountId)
+    .reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
+  const legacyWithdrawalsCash = operatingCapitalMovements
     .filter((movement) => movement.type === "RETIRO" && movement.medium === "EFECTIVO")
     .reduce((total, movement) => total + movement.amount, 0);
-  const withdrawalsBank = operatingCapitalMovements
+  const legacyWithdrawalsBank = operatingCapitalMovements
     .filter((movement) => movement.type === "RETIRO" && movement.medium === "TRANSFERENCIA")
     .reduce((total, movement) => total + movement.amount, 0);
-  const capitalContributionsCash = operatingCapitalMovements
+  const legacyCapitalContributionsCash = operatingCapitalMovements
     .filter((movement) => movement.type === "APORTE" && movement.medium === "EFECTIVO")
     .reduce((total, movement) => total + movement.amount, 0);
-  const capitalContributionsBank = operatingCapitalMovements
+  const legacyCapitalContributionsBank = operatingCapitalMovements
     .filter((movement) => movement.type === "APORTE" && movement.medium === "TRANSFERENCIA")
     .reduce((total, movement) => total + movement.amount, 0);
+  const withdrawalsCash =
+    legacyWithdrawalsCash +
+    operatingTreasuryTransfers
+      .filter((transfer) => transfer.type === "RETIRO_CAJA" && transfer.medium === "EFECTIVO")
+      .reduce((total, transfer) => total + transfer.amount, 0);
+  const withdrawalsBank =
+    legacyWithdrawalsBank +
+    operatingTreasuryTransfers
+      .filter((transfer) => transfer.type === "RETIRO_CAJA" && transfer.medium === "BANCO")
+      .reduce((total, transfer) => total + transfer.amount, 0);
+  const capitalContributionsCash =
+    legacyCapitalContributionsCash +
+    operatingTreasuryTransfers
+      .filter((transfer) => transfer.type === "APORTE_CAJA" && transfer.medium === "EFECTIVO")
+      .reduce((total, transfer) => total + transfer.amount, 0);
+  const capitalContributionsBank =
+    legacyCapitalContributionsBank +
+    operatingTreasuryTransfers
+      .filter((transfer) => transfer.type === "APORTE_CAJA" && transfer.medium === "BANCO")
+      .reduce((total, transfer) => total + transfer.amount, 0);
   const openingCapitalCash = openingCapitalMovements
     .filter((movement) => movement.type === "APORTE" && movement.medium === "EFECTIVO")
     .reduce((total, movement) => total + movement.amount, 0);
@@ -43,7 +75,7 @@ export function totalsForBalance(data: AppData, balanceId: string) {
     .filter((movement) => movement.type === "APORTE" && movement.medium === "TRANSFERENCIA")
     .reduce((total, movement) => total + movement.amount, 0);
   const expectedCash =
-    (balance?.initialFund ?? 0) + resultMachines + capitalContributionsCash - totalExpenses - totalSalaries - giftCash - totalTransfers - withdrawalsCash;
+    (balance?.initialFund ?? 0) + resultMachines + capitalContributionsCash - cashExpenses - cashSalaries - giftCash - totalTransfers - withdrawalsCash;
   const commercialResult = resultMachines - totalExpenses - totalSalaries - giftCash - giftCredit;
   const withdrawal = (balance?.declaredCash ?? 0) - (balance?.nextBase ?? 0);
   const difference = (balance?.declaredCash ?? 0) - expectedCash;
@@ -54,6 +86,8 @@ export function totalsForBalance(data: AppData, balanceId: string) {
     resultMachines,
     totalExpenses,
     totalSalaries,
+    cashExpenses,
+    cashSalaries,
     totalTransfers,
     giftCash,
     giftCredit,

@@ -59,18 +59,18 @@ export function exportDailyExcel(data: AppData, balance: Balance) {
         ["Regalos efectivo", String(totals.giftCash)],
         ["Regalos credito", String(totals.giftCredit)],
         ["Transferencias", String(totals.totalTransfers)],
-        ["Retiros efectivo", String(totals.withdrawalsCash)],
-        ["Retiros transferencia", String(totals.withdrawalsBank)],
-        ["Aportes efectivo", String(totals.capitalContributionsCash)],
-        ["Aportes transferencia", String(totals.capitalContributionsBank)],
+        ["Caja a Principal / Efectivo", String(totals.withdrawalsCash)],
+        ["Caja a Principal / Banco", String(totals.withdrawalsBank)],
+        ["Principal a Caja / Efectivo", String(totals.capitalContributionsCash)],
+        ["Principal a Caja / Banco", String(totals.capitalContributionsBank)],
         ["Efectivo esperado", String(totals.expectedCash)],
         ["Efectivo declarado", String(balance.declaredCash ?? 0)],
         ["Efectivo proxima caja", String(balance.nextBase ?? 0)],
         ["Banco esperado", String(expectedBank)],
         ["Banco declarado", String(declaredBank)],
         ["Banco proxima caja", String(balance.nextBankBase ?? 0)],
-        ["Retiro final efectivo", String(balance.finalWithdrawalCash ?? 0)],
-        ["Retiro final banco", String(balance.finalWithdrawalBank ?? 0)],
+        ["Traspaso final a Principal / Efectivo", String(balance.finalTransferToPrincipalCash ?? balance.finalWithdrawalCash ?? 0)],
+        ["Traspaso final a Principal / Banco", String(balance.finalTransferToPrincipalBank ?? balance.finalWithdrawalBank ?? 0)],
         ["Diferencia efectivo", String(balance.cashDifference ?? totals.difference)],
         ["Diferencia banco", String(bankDifference)],
       ])}</table>
@@ -88,6 +88,9 @@ export function exportDailyExcel(data: AppData, balance: Balance) {
         ...data.capitalMovements
           .filter((movement) => movement.balanceId === balance.id)
           .map((movement) => [movement.type, `${movement.person} - ${movement.medium} - ${movement.note}`, String(movement.amount), movement.status]),
+        ...data.treasuryTransfers
+          .filter((transfer) => transfer.balanceId === balance.id)
+          .map((transfer) => [transfer.type, `${transfer.medium} - ${transfer.note}`, String(transfer.amount), transfer.status]),
       ])}</table>
     </body></html>
   `;

@@ -1,71 +1,76 @@
-# Contexto Codex - Nucleo de caja y control financiero
+# Contexto Codex - Nucleo de caja y tesoreria
 
 Ultima actualizacion: 2026-07-17
 
-Leer este contexto antes de modificar comandos, formulas, cuentas, diferencias, saldos o auditoria asociados a una recaudacion. La interfaz del cajero se consulta en `CODEX_CAJERO`.
+Leer antes de modificar comandos, formulas, cuentas, saldos, cierre, diferencias o auditoria financiera. La experiencia visual del cajero vive en `CODEX_CAJERO.md`; las reglas completas, en `docs/REGLAS_CONTABLES.md`.
 
-## Propiedad central o especializada
+## Propiedad compartida
 
 - `src/application/cash/`
 - `src/application/movements/`
+- `src/application/treasury/`
+- `src/application/expenses/`
 - `src/application/differences/`
 - `src/lib/cashTotals.ts`
-- `src/lib/accountMovements.ts`
-- `src/lib/currentAccounts.ts`
 - `src/lib/cashAvailability.ts`
-- `src/lib/differences.ts`
+- `src/lib/currentAccounts.ts`
+- `src/lib/accountMovements.ts`
+- `src/lib/periodicTotals.ts`
 - `src/data/migrateData.ts`
-- `src/data/schemaVersion.ts`
-- Contratos relacionados en `src/types.ts`, persistencia y normalizacion.
+- `src/data/normalizeData.ts`
+- contratos de `src/types.ts` y persistencia.
 
-Estos archivos son contratos compartidos. Solo un chat recibe propiedad de escritura por bloque y el chat central integra el resultado.
+Central asigna propietario temporal unico antes de editar estos contratos desde otro chat.
 
-## Comandos actuales
+## Modelo vigente
 
-- `openCash.ts`: abre una unica caja por local, toma saldos iniciales y registra auditoria.
-- `saveReading.ts`: valida IN/OUT, guarda lectura, resultado y movimiento asociado.
-- `operatingMovementCommands.ts`: crea y anula movimientos operativos con cuenta y auditoria.
-- `cashAvailability.ts`: obtiene el saldo activo `Local / Efectivo`, valida nuevas salidas y compara la caja abierta con el libro local.
-- `migrateData.ts`: hidrata por version y ejecuta reconciliaciones financieras causales, auditadas e idempotentes.
-- `closeCash.ts`: cierra, registra retiros, diferencias, cuentas e historial.
-- `manageDifference.ts`: verifica, corrige o anula diferencias sin alterar resultado economico.
+- Moneda unica: UYU.
+- Caja: Efectivo y Banco.
+- Principal: Efectivo y Banco.
+- Socios: Mathias y Ricardo como cuentas patrimoniales, no monetarias.
+- No existe custodia.
+- Resultado economico: maquinas - gastos - salarios - regalos.
+
+## Comandos
+
+- `openCash.ts`: primera apertura Socio -> Principal -> Caja; aperturas siguientes heredan Caja.
+- `saveReading.ts`: valida contadores y sincroniza resultado de maquinas.
+- `operatingMovementCommands.ts`: operaciones exclusivas del Cajero; el alta de capital legacy esta bloqueada.
+- `treasuryCommands.ts`: Caja <-> Principal y movimientos reales de socios.
+- `principalExpenseCommands.ts`: gastos administrativos desde Principal.
+- `salarySettlementCommands.ts`: Caja para Cajero y Principal para liquidacion administrativa.
+- `closeCash.ts`: traspaso final Caja -> Principal, declaracion, diferencias y foto cerrada.
+- `manageDifference.ts`: verificar, corregir o anular diferencias con deltas append-only.
 
 ## Invariantes
 
-- Resultado economico = resultado de maquinas - gastos - salarios - regalos.
-- Transferencias, aportes, retiros, saldos iniciales y diferencias son financieros.
-- Solo existe una caja abierta por local.
-- Una caja cerrada y su auditoria no se borran.
-- Las diferencias sincronizan cuentas con lo declarado, pero no cambian resultado economico.
-- Los movimientos asociados conservan `balanceId`, `localId`, cuenta, usuario y estado.
-- Gastos, transferencias desde efectivo, regalos, retiros operativos en efectivo y pagos salariales no pueden dejar `Local / Efectivo` por debajo de cero.
-- El limite exacto se acepta; un aporte previo aumenta el disponible y una correccion salarial consume solo su incremento neto.
-- Anulaciones y reversos siguen permitidos. Un resultado de maquinas negativo se registra, pero bloquea nuevas salidas y cierre hasta que un aporte cubra el faltante.
-- Un cierre con efectivo esperado negativo falla antes de comparar retiros o crear diferencias, auditoria y movimientos.
-- Durante una caja abierta debe cumplirse `efectivo esperado === Local / Efectivo`. Un delta es una desconciliacion tecnica, no una diferencia declarada por el cajero.
-- Una desconciliacion bloquea contadores, movimientos, salarios, aportes ordinarios y cierre. El aviso debe mostrar ambos saldos y el delta sin ofrecer un aporte como solucion.
-- La migracion esquema 3 -> 4 puede agregar un puente `MIGRACION` solo si las transferencias historicas reconstruidas explican exactamente el delta. No cambia banco ni resultado economico y no borra movimientos previos.
-- Una mutacion historica de efectivo se bloquea si hay otra caja abierta del mismo local; los reversos de la caja vigente siguen permitidos.
-- Esta regla no introduce estado pendiente ni modifica banco o resultado economico.
-- Una pestana pasiva se sincroniza con el ultimo guardado; si tiene una mutacion propia pendiente, conserva el conflicto en vez de mezclar versiones.
-- Una pestaña desactualizada no sobrescribe el snapshot vigente.
-- El cierre expone las intervenciones auditadas con funcion `ENCARGADO` del mismo `balanceId`. Los impactos de efectivo/banco son informativos y consideran solo entidades vigentes; no crean ni corrigen movimientos.
+- Una sola caja abierta por local.
+- Caja abierta: `efectivo esperado === Caja / Efectivo`.
+- Toda salida valida la cuenta monetaria real antes de mutar.
+- Caja y Principal no admiten una nueva salida que deje saldo negativo.
+- Un resultado de maquinas negativo se registra, pero bloquea nuevas salidas y cierre hasta financiar Principal y traspasar a Caja.
+- Si existe caja abierta, todo traspaso Caja/Principal se asocia a su `balanceId`.
+- Gastos y salarios administrativos usan Principal sin `balanceId` y no alteran efectivo esperado.
+- Apertura y cierre generan traspasos automaticos inmutables.
+- Traspasos y socios no modifican resultado economico.
+- Diferencias ajustan Caja, no resultado.
+- No se borran movimientos contabilizados; las anulaciones agregan reversos.
 
-## Consumidores
+## Migraciones
 
-- Cajero: ejecuta operaciones diarias mediante la interfaz.
-- Encargado: revisa cuentas, gastos y diferencias; ademas puede registrar gastos y retiros/aportes en la caja abierta de su local desde funcion `ENCARGADO`.
-- Administrador: controla y audita; los ajustes usan comandos explicitos.
-- Salarios, maquinas y reportes consumen identificadores y resultados de caja.
+- Esquema actual: 5.
+- 3 -> 4: salida historica de transferencias y puente causal exacto.
+- 4 -> 5: contrapartidas Principal para retiros legacy y cuentas patrimoniales para aportes legacy.
+- Retiro legacy se interpreta como Caja -> Principal, no retiro de socio.
+- Toda migracion es idempotente y auditada.
 
-## Pruebas obligatorias
+## Pruebas minimas
 
-- Caso valido, validacion rechazada y auditoria de cada comando modificado.
-- Limite exacto, exceso sin mutacion, aporte previo, correccion salarial neta y saldo negativo heredado.
-- Snapshot esquema 3 con transferencias reconstruidas, puente causal exacto, idempotencia y esquema 4 sin reconstruccion financiera silenciosa.
-- Caja/libro desconciliados: bloqueos sin mutacion, aviso visible y rechazo del cierre antes de diferencias o retiros.
-- Saldos antes y despues, movimiento y contramovimiento cuando corresponda.
-- Asociacion con `balanceId` y `localId`.
-- Dos pestanas: alta del Encargado visible para Cajero sin recarga manual y conflicto preservado ante una version local realmente desactualizada.
-- Apertura, cierre y diferencia en efectivo y banco.
-- `pnpm test`, `pnpm run build` y smoke por los roles afectados.
+- Primera apertura en ambos medios.
+- Caja <-> Principal en ambos sentidos y medios: exacto, exceso, sin asociacion y anulacion.
+- Aporte/retiro de ambos socios sin concepto de custodia.
+- Gasto y salario desde Caja y desde Principal.
+- Cierre con traspasos no cero, remanente, diferencias y reapertura.
+- Rechazo por rol, usuario inactivo, local ajeno y suplantacion de funcion.
+- Migracion 4 -> 5 e idempotencia.
+- `pnpm run check`, `pnpm run build`, E2E y smoke por roles afectados.

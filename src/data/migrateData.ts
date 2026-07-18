@@ -1,13 +1,20 @@
 import type { AccountMovement, AppData, Balance } from "../types";
 import { appendAuditEvent } from "../lib/audit";
 import { totalsForBalance } from "../lib/cashTotals";
-import { localAccountBalances, localCashAccountId } from "../lib/currentAccounts";
+import {
+  localAccountBalances,
+  localCashAccountId,
+  partnerAccountId,
+  principalAccountIdForMedium,
+} from "../lib/currentAccounts";
 import { nowIso } from "../lib/dates";
 import { money } from "../lib/money";
 import { normalizeData } from "./appData";
 
 export const CASH_TRANSFER_RECONCILIATION_MIGRATION_ID = "schema-v4-transfer-cash-reconciliation";
 const CASH_TRANSFER_RECONCILIATION_SCHEMA_VERSION = 4;
+export const PRINCIPAL_ACCOUNTS_MIGRATION_ID = "schema-v5-principal-accounts";
+const PRINCIPAL_ACCOUNTS_SCHEMA_VERSION = 5;
 
 type MigrationOptions = {
   now?: () => string;
@@ -76,12 +83,14 @@ function migrationMovement(
   return {
     id: `account-movement-${sourceId}`,
     accountId: localCashAccountId(balance.localId),
+    localId: balance.localId,
     balanceId: balance.id,
     sourceType: "MIGRACION",
     sourceId,
     direction: "ENTRADA",
     concept: "RECONCILIACION_MIGRACION",
     amount,
+    currency: "UYU",
     detail: `Puente tecnico para conservar el saldo aceptado de la caja ${balance.visibleId ?? balance.id} despues de reconstruir transferencias historicas: ${transferIds}.`,
     status: "ACTIVO",
     userId: "system",
@@ -141,16 +150,85 @@ export function reconcileLegacyTransferCashMigration(
   }, data);
 }
 
+export function migrateLegacyCapitalToPrincipalAccounts(
+  data: AppData,
+  options: MigrationOptions = {},
+) {
+  const createdAt = options.now?.() ?? nowIso();
+  const additions: AccountMovement[] = [];
+  data.capitalMovements
+    .filter((movement) => movement.status === "ACTIVO")
+    .forEach((movement) => {
+      if (movement.type === "RETIRO") {
+        additions.push({
+          id: `account-movement-${PRINCIPAL_ACCOUNTS_MIGRATION_ID}-retiro-${movement.id}`,
+          accountId: principalAccountIdForMedium(movement.medium === "EFECTIVO" ? "EFECTIVO" : "BANCO"),
+          localId: movement.localId,
+          balanceId: movement.balanceId,
+          sourceType: "MIGRACION",
+          sourceId: `${PRINCIPAL_ACCOUNTS_MIGRATION_ID}-${movement.id}`,
+          direction: "ENTRADA",
+          concept: "RETIRO_CAJA_LEGACY_A_PRINCIPAL",
+          amount: movement.amount,
+          currency: "UYU",
+          detail: `Contrapartida principal del retiro historico de caja ${movement.id}. No es retiro de socio.`,
+          status: "ACTIVO",
+          userId: "system",
+          createdAt: movement.createdAt,
+        });
+        return;
+      }
+      additions.push({
+        id: `account-movement-${PRINCIPAL_ACCOUNTS_MIGRATION_ID}-aporte-${movement.id}`,
+        accountId: partnerAccountId(movement.person),
+        localId: movement.localId,
+        balanceId: movement.balanceId,
+        sourceType: "MIGRACION",
+        sourceId: `${PRINCIPAL_ACCOUNTS_MIGRATION_ID}-${movement.id}`,
+        direction: "ENTRADA",
+        concept: "APORTE_SOCIO_LEGACY",
+        amount: movement.amount,
+        currency: "UYU",
+        detail: `Registro patrimonial del aporte historico de ${movement.person}.`,
+        status: "ACTIVO",
+        userId: "system",
+        createdAt: movement.createdAt,
+      });
+    });
+  const newMovements = additions.filter(
+    (movement) => !data.accountMovements.some((existing) => existing.id === movement.id),
+  );
+  if (!newMovements.length) return data;
+  const withMovements = { ...data, accountMovements: [...newMovements, ...data.accountMovements] };
+  const auditId = `audit-${PRINCIPAL_ACCOUNTS_MIGRATION_ID}`;
+  if (withMovements.audit.some((event) => event.id === auditId)) return withMovements;
+  return appendAuditEvent(
+    withMovements,
+    {},
+    "Migrar cuentas principales y de socios",
+    "MigracionDatos",
+    PRINCIPAL_ACCOUNTS_MIGRATION_ID,
+    { schemaVersion: 4 },
+    { schemaVersion: 5, movementIds: newMovements.map((movement) => movement.id) },
+    "Se agregaron contrapartidas principales para retiros historicos activos y registros patrimoniales para aportes historicos activos, sin modificar cuentas locales ni resultado economico.",
+    { id: auditId, createdAt },
+  );
+}
+
 export function hydrateAppData(
   data: AppData,
   sourceVersion: number,
   options: MigrationOptions = {},
 ) {
   const needsTransferCashReconciliation = sourceVersion < CASH_TRANSFER_RECONCILIATION_SCHEMA_VERSION;
+  const needsPrincipalAccountsMigration = sourceVersion < PRINCIPAL_ACCOUNTS_SCHEMA_VERSION;
   const normalized = normalizeData(data, {
     rebuildDerivedAccountMovements: needsTransferCashReconciliation,
   });
-  return needsTransferCashReconciliation
+  const reconciled = needsTransferCashReconciliation
     ? reconcileLegacyTransferCashMigration(normalized, options)
     : normalized;
+  return needsPrincipalAccountsMigration
+    ? migrateLegacyCapitalToPrincipalAccounts(reconciled, options)
+    : reconciled;
 }

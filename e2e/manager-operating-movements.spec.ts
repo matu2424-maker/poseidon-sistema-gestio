@@ -18,7 +18,7 @@ async function login(page: Page, userId: string) {
   await expect(page).toHaveURL(/\/panel$/);
 }
 
-test("encargado registra un gasto en la caja activa y el cajero recibe el movimiento", async ({ page, context }) => {
+test("encargado paga un gasto desde Principal sin alterar la Caja activa", async ({ page, context }) => {
   await resetDemo(page);
   await login(page, "user-cajero1");
   await expect
@@ -28,44 +28,62 @@ test("encargado registra un gasto en la caja activa y el cajero recibe el movimi
   const managerPage = await context.newPage();
   await managerPage.goto("/");
   await login(managerPage, "user-encargado");
-  await expect(managerPage.getByRole("button", { name: "Registrar gasto", exact: true })).toBeDisabled();
 
   await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
   await page.getByLabel("Fecha operativa").fill("2026-07-17");
   await page.locator("form.open-cash-form").getByRole("button", { name: "Abrir caja", exact: true }).click();
   await expect(page.getByText("Caja abierta correctamente.")).toBeVisible();
 
-  const registerExpense = managerPage.getByRole("button", { name: "Registrar gasto", exact: true });
-  await expect(registerExpense).toBeEnabled();
-  await registerExpense.click();
-  await expect(managerPage).toHaveURL(/\/caja\/gastos$/);
-  await expect(managerPage.getByLabel("Contexto de la caja activa")).toContainText("Encargado");
+  const balancesBefore = await page.evaluate((storageKey) => {
+    const snapshot = JSON.parse(localStorage.getItem(storageKey)!);
+    const localId = snapshot.data.balances.find((item: { status: string }) => item.status === "EN_PROCESO").localId;
+    const total = (accountId: string) => snapshot.data.accountMovements
+      .filter((movement: { accountId: string; status: string }) => movement.accountId === accountId && movement.status === "ACTIVO")
+      .reduce((sum: number, movement: { direction: string; amount: number }) => sum + (movement.direction === "ENTRADA" ? movement.amount : -movement.amount), 0);
+    return {
+      cash: total(`account-local-${localId}-efectivo`),
+      principal: total("account-principal-efectivo-uyu"),
+    };
+  }, STORAGE_KEY);
 
-  const createRow = managerPage.locator("tr.create-row");
-  await createRow.locator('input[name="description"]').fill("Compra operativa del encargado");
-  await createRow.locator('input[name="amount"]').fill("1000");
-  await createRow.getByRole("button", { name: "Agregar", exact: true }).click();
-  await expect(managerPage.getByText("Gasto guardado.")).toBeVisible();
-  await expect(managerPage.getByText("Compra operativa del encargado", { exact: true })).toBeVisible();
+  await managerPage.goto("/control/gastos");
+  await managerPage.getByRole("button", { name: "Agregar gasto", exact: true }).click();
+  const expenseModal = managerPage.getByRole("dialog", { name: "Agregar gasto desde Principal" });
+  await expenseModal.getByLabel("Cuenta de pago").selectOption("account-principal-efectivo-uyu");
+  await expenseModal.getByLabel("Monto").fill("1000");
+  await expenseModal.getByLabel("Descripcion").fill("Compra administrativa desde Principal");
+  await expenseModal.getByRole("button", { name: "Guardar gasto", exact: true }).click();
+  await expect(managerPage.getByText("Gasto registrado desde la cuenta Principal.")).toBeVisible();
+  await expect(managerPage.getByText("Compra administrativa desde Principal", { exact: true })).toBeVisible();
 
   await expect
-    .poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey)?.includes("Compra operativa del encargado") ?? false, STORAGE_KEY))
+    .poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey)?.includes("Compra administrativa desde Principal") ?? false, STORAGE_KEY))
     .toBe(true);
-  await page.goto("/caja/gastos");
-  await expect(page.getByText("Compra operativa del encargado", { exact: true })).toBeVisible();
-  await page.goto("/caja/cerrar");
-  const managerActivity = page.getByRole("region", { name: "Movimientos del encargado" });
-  await expect(managerActivity).toContainText("Compra operativa del encargado");
-  await expect(managerActivity).toContainText("Encargado");
-  await expect(managerActivity.getByText("-$ 1.000", { exact: true })).toBeVisible();
 
-  const audit = await managerPage.evaluate((storageKey) => {
+  const result = await managerPage.evaluate((storageKey) => {
     const snapshot = JSON.parse(localStorage.getItem(storageKey)!);
-    return snapshot.data.audit.find((event: { action: string }) => event.action === "Crear gasto");
+    const expense = snapshot.data.expenses.find((item: { description: string }) => item.description === "Compra administrativa desde Principal");
+    const total = (accountId: string) => snapshot.data.accountMovements
+      .filter((movement: { accountId: string; status: string }) => movement.accountId === accountId && movement.status === "ACTIVO")
+      .reduce((sum: number, movement: { direction: string; amount: number }) => sum + (movement.direction === "ENTRADA" ? movement.amount : -movement.amount), 0);
+    const localId = snapshot.data.balances.find((item: { status: string }) => item.status === "EN_PROCESO").localId;
+    return {
+      expense,
+      audit: snapshot.data.audit.find((event: { action: string; entityId: string }) => event.action === "Crear gasto desde Principal" && event.entityId === expense.id),
+      cash: total(`account-local-${localId}-efectivo`),
+      principal: total("account-principal-efectivo-uyu"),
+    };
   }, STORAGE_KEY);
-  expect(audit).toMatchObject({
+  expect(result.expense).toMatchObject({
+    paymentAccountId: "account-principal-efectivo-uyu",
+    userId: "user-encargado",
+  });
+  expect(result.expense.balanceId).toBeUndefined();
+  expect(result.audit).toMatchObject({
     userId: "user-encargado",
     actualRole: "ENCARGADO",
     actorRole: "ENCARGADO",
   });
+  expect(result.cash).toBe(balancesBefore.cash);
+  expect(result.principal).toBe(balancesBefore.principal - 1_000);
 });

@@ -1,6 +1,6 @@
 # Modulo 10 - Clientes, personal y salarios
 
-Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries/salarySettlementCommands.ts` y actualizan cuenta personal/local, adelantos y auditoria en conjunto.
+Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries/salarySettlementCommands.ts` y actualizan cuenta personal, cuenta de pago y auditoria en conjunto.
 
 ## Clientes
 
@@ -39,8 +39,9 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - El periodo debe respetar `AAAA-MM` con mes real entre `01` y `12`; valores como `2026-00` o `2026-99` se rechazan.
 - Sugerencia de periodo desde cajero: con fecha operativa entre dia 1 y 10 inclusive se sugiere mes anterior; desde dia 11 se sugiere mes actual.
 - El pago del cajero sale de la caja actual por `balanceId`, pero se muestra en liquidacion y cuenta personal segun el periodo trabajado elegido.
-- Si existe caja abierta, una liquidacion administrativa que entrega efectivo tambien debe asociarse a esa recaudacion para mover caja y libro en conjunto.
-- Un pago historico en efectivo no se corrige, anula ni traslada a la caja actual mientras otra caja esta abierta; se bloquea antes de mutar para preservar la conciliacion.
+- Una liquidacion administrativa se paga desde `Principal / Efectivo` o `Principal / Banco`, no usa `balanceId` y puede registrarse aunque no exista caja abierta.
+- Una liquidacion cargada por el Cajero se paga desde `Caja / Efectivo`, exige caja abierta y usa su `balanceId`.
+- Corregir una liquidacion con entrega de dinero conserva la cuenta original y valida fondos solo por el incremento neto.
 - `EXTRA` queda como codigo tecnico interno; en la interfaz se muestra `Premio / Gratificacion` y no pertenece al modulo Regalos de clientes.
 - HORAS_EXTRAS significa pago por horas trabajadas fuera del horario/base.
 - Admin/encargado ven la liquidacion por periodo mensual.
@@ -81,7 +82,7 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - El estado no se carga manualmente: al guardar, la liquidacion queda `CONFIRMADA`.
 - Eliminar una liquidacion o un pago de salario desde cajero es una baja logica auditada: cambia su estado a `ANULADA`, deja de impactar caja, totales y cuenta personal, pero no borra el historial.
 - Impacto por concepto: salario suma a salario pagado; adelanto suma a adelantos; aguinaldo y salario vacacional suman a bonos; premio/gratificacion suma como reconocimiento interno del empleado; horas extras suma como pago de horas trabajadas fuera de horario; descuento resta directo del salario base y no genera salida de caja.
-- Cada liquidacion guarda origen (`CAJA` o `LIQUIDACION`), usuario creador, usuario aprobador, fecha de aprobacion y, si se elimina, usuario/fecha de anulacion.
+- Cada liquidacion guarda origen (`CAJA` o `LIQUIDACION`), cuenta de pago, moneda UYU, usuario creador, usuario aprobador, fecha de aprobacion y, si se elimina, usuario/fecha de anulacion.
 - Los movimientos de cuenta generados por liquidaciones usan el usuario real que ejecuto la accion; no deben quedar como `system` salvo datos migrados sin usuario.
 - La pantalla permite exportar el resumen del periodo en formato CSV compatible con Excel.
 - La cuenta corriente del empleado se consulta dentro del detalle de cada empleado.
@@ -104,7 +105,7 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - Las cuentas personales no se muestran en `Cuentas corrientes`; se consultan desde este modulo.
 - Cajero carga pago simple desde caja abierta.
 - Salarios de una caja nueva siempre inician en 0.
-- Anular salario antes de cerrar caja conserva el movimiento original y agrega contramovimientos que dejan el impacto neto en cero.
+- Anular conserva el movimiento original y agrega contramovimientos que dejan el impacto neto en cero; si el pago era de Caja, solo puede anularse dentro de su caja abierta.
 
 ## Papelera
 

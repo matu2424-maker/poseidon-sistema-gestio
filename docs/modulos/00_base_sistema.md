@@ -25,7 +25,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
   - 3 maquinas activas asignadas a Poseidon;
   - 3 cajas cerradas en julio 2026;
   - 1 caja con diferencia pendiente de efectivo/banco;
-  - gastos, transferencias, regalos, pagos de salario, aportes y retiros;
+  - gastos, transferencias, regalos, pagos de salario, traspasos Caja/Principal y movimientos de socios;
   - movimientos de cuentas corrientes y auditoria demo.
 
 ## Usuarios
@@ -45,8 +45,9 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 
 - El rol real del usuario no se pierde cuando trabaja como cajero.
 - La funcion usada se registra en auditoria.
-- Encargado/administrador consultan resumen de cajas. Apertura, contadores, transferencias, regalos, salarios y cierre requieren funcion Cajero.
-- El Encargado asignado puede registrar gastos y retiros/aportes sobre una caja abierta desde su funcion propia; el Administrador conserva el cambio a Cajero para operar.
+- Encargado/administrador consultan resumen de cajas y operan Principal desde su funcion administrativa.
+- Apertura, contadores, movimientos propios de Caja y cierre requieren funcion Cajero.
+- Gastos y salarios administrativos usan Principal; los traspasos Caja/Principal y movimientos reales de socios se gestionan desde Cuentas corrientes.
 - Navegar limpia avisos anteriores; el cierre puede preservar su confirmacion al abrir el resumen.
 - Recargar conserva usuario, funcion activa y modulo; cerrar sesion vuelve a `/ingresar` y limpia la sesion de pestaña.
 - No hay Auth real todavia.

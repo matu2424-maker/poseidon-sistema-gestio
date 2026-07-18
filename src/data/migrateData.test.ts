@@ -1,14 +1,21 @@
 import { describe, expect, it } from "vitest";
+import type { CapitalMovement } from "../types";
 import { commandContext } from "../application/command";
 import { closeCashCommand } from "../application/cash/closeCash";
 import { openCashCommand } from "../application/cash/openCash";
 import { createTransferCommand } from "../application/movements/operatingMovementCommands";
-import { localAccountBalances } from "../lib/currentAccounts";
+import { capitalAccountMovement, upsertAccountMovement } from "../lib/accountMovements";
+import {
+  localAccountBalances,
+  partnerAccountBalance,
+  principalAccountBalances,
+} from "../lib/currentAccounts";
 import { totalsForBalance } from "../lib/cashTotals";
 import { clearOperationalData, createSeedData } from "./appData";
 import {
   CASH_TRANSFER_RECONCILIATION_MIGRATION_ID,
   hydrateAppData,
+  PRINCIPAL_ACCOUNTS_MIGRATION_ID,
 } from "./migrateData";
 
 function context() {
@@ -66,10 +73,8 @@ function legacySnapshotWithOpenBoundary() {
       balanceId: first.value.id,
       declaredCash: 6_000,
       declaredBank: 14_000,
-      finalWithdrawalCash: 0,
-      finalWithdrawalBank: 0,
-      withdrawalCashPerson: "MATHIAS",
-      withdrawalBankPerson: "MATHIAS",
+      transferToPrincipalCash: 0,
+      transferToPrincipalBank: 0,
       differenceNote: "",
     },
     cashierContext,
@@ -189,6 +194,7 @@ describe("migracion financiera versionada", () => {
       direction: "SALIDA" as const,
       concept: "INCONSISTENCIA_NO_EXPLICADA",
       amount: 5_000,
+      currency: "UYU" as const,
       detail: "No pertenece a la migracion de transferencias",
       status: "ACTIVO" as const,
       userId: "system",
@@ -204,9 +210,89 @@ describe("migracion financiera versionada", () => {
     expect(localAccountBalances(migrated, "1").cash).toBe(1_000);
   });
 
+  it("migra capital legacy a Principal y socios sin alterar Caja ni resultado economico", () => {
+    const cashierContext = context();
+    const clean = clearOperationalData(createSeedData());
+    const opened = openCashCommand(
+      clean,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 1_000,
+        initialBankFund: 500,
+        initialNote: "Snapshot previo a cuentas principales",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      cashierContext,
+    );
+    if (!opened.ok) throw new Error(opened.error);
+    const legacyMovements: CapitalMovement[] = [
+      {
+        id: "capital-legacy-aporte",
+        balanceId: opened.value.id,
+        localId: "1",
+        type: "APORTE",
+        medium: "EFECTIVO",
+        timing: "OPERATIVO",
+        person: "RICARDO",
+        amount: 300,
+        note: "Aporte historico",
+        status: "ACTIVO",
+        userId: "user-cajero1",
+        createdAt: "2026-07-10T18:00:00.000Z",
+      },
+      {
+        id: "capital-legacy-retiro",
+        balanceId: opened.value.id,
+        localId: "1",
+        type: "RETIRO",
+        medium: "TRANSFERENCIA",
+        timing: "OPERATIVO",
+        person: "MATHIAS",
+        amount: 200,
+        note: "Retiro historico de caja",
+        status: "ACTIVO",
+        userId: "user-cajero1",
+        createdAt: "2026-07-10T19:00:00.000Z",
+      },
+    ];
+    const legacyData = {
+      ...opened.data,
+      capitalMovements: [...legacyMovements, ...opened.data.capitalMovements],
+      accountMovements: legacyMovements.reduce(
+        (movements, movement) => upsertAccountMovement(movements, capitalAccountMovement(movement)),
+        opened.data.accountMovements,
+      ),
+    };
+    const localBefore = localAccountBalances(legacyData, "1");
+    const partnerBefore = partnerAccountBalance(legacyData, "RICARDO");
+    const resultBefore = totalsForBalance(legacyData, opened.value.id).commercialResult;
+
+    const migrated = hydrateAppData(legacyData, 4, {
+      now: () => "2026-07-11T19:00:00.000Z",
+    });
+    expect(localAccountBalances(migrated, "1")).toEqual(localBefore);
+    expect(principalAccountBalances(migrated).bank).toBe(200);
+    expect(partnerAccountBalance(migrated, "RICARDO")).toBe(partnerBefore + 300);
+    expect(totalsForBalance(migrated, opened.value.id).commercialResult).toBe(resultBefore);
+    expect(
+      migrated.accountMovements.filter((movement) => movement.sourceId.startsWith(PRINCIPAL_ACCOUNTS_MIGRATION_ID)),
+    ).toHaveLength(2);
+    expect(migrated.audit.filter((event) => event.entityId === PRINCIPAL_ACCOUNTS_MIGRATION_ID)).toHaveLength(1);
+
+    const migratedAgain = hydrateAppData(migrated, 4, {
+      now: () => "2026-07-11T20:00:00.000Z",
+    });
+    expect(
+      migratedAgain.accountMovements.filter((movement) => movement.sourceId.startsWith(PRINCIPAL_ACCOUNTS_MIGRATION_ID)),
+    ).toHaveLength(2);
+    expect(migratedAgain.audit.filter((event) => event.entityId === PRINCIPAL_ACCOUNTS_MIGRATION_ID)).toHaveLength(1);
+  });
+
   it("no reconstruye asientos faltantes silenciosamente en un snapshot del esquema vigente", () => {
     const legacy = legacySnapshotWithOpenBoundary();
-    const hydrated = hydrateAppData(legacy.data, 4);
+    const hydrated = hydrateAppData(legacy.data, 5);
     expect(
       legacy.transferCashMovementIds.some((movementId) =>
         hydrated.accountMovements.some((movement) => movement.id === movementId),

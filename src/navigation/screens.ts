@@ -21,11 +21,11 @@ export const screenDefinitions: Record<Screen, ScreenDefinition> = {
   },
   "open-cash": { path: "/caja/abrir", title: "Caja diaria", roles: ["CAJERO"] },
   counters: { path: "/caja/contadores", title: "Cargar contadores", roles: ["CAJERO"], requiresOpenCash: true },
-  expenses: { path: "/caja/gastos", title: "Cargar gastos", roles: ["CAJERO", "ENCARGADO"], requiresOpenCash: true },
+  expenses: { path: "/caja/gastos", title: "Cargar gastos", roles: ["CAJERO"], requiresOpenCash: true },
   transfers: { path: "/caja/transferencias", title: "Cargar transferencias", roles: ["CAJERO"], requiresOpenCash: true },
   gifts: { path: "/caja/regalos", title: "Cargar regalos", roles: ["CAJERO"], requiresOpenCash: true },
   "salary-payments": { path: "/caja/salarios", title: "Pago de salarios", roles: ["CAJERO"], requiresOpenCash: true },
-  "capital-movements": { path: "/caja/capital", title: "Retiros y aportes", roles: ["CAJERO", "ENCARGADO"], requiresOpenCash: true },
+  "capital-movements": { path: "/caja/fondos", title: "Caja y Principal", roles: ["CAJERO"], requiresOpenCash: true },
   "cashier-clients": { path: "/caja/clientes", title: "Clientes", roles: ["CAJERO"] },
   "cashier-summary": { path: "/recaudaciones", title: "Resumen de cajas", roles: ["CAJERO", "ENCARGADO", "ADMINISTRADOR"] },
   "close-cash": { path: "/caja/cerrar", title: "Cerrar caja diaria", roles: ["CAJERO"], requiresOpenCash: true },
@@ -113,13 +113,6 @@ const adminMenu: MenuGroup[] = [
 const managerMenu: MenuGroup[] = [
   { title: "Inicio", items: [{ label: "Panel encargado", screen: "panel" }] },
   {
-    title: "Operacion del local",
-    items: [
-      { label: "Registrar gastos", screen: "expenses" },
-      { label: "Retiros / aportes", screen: "capital-movements" },
-    ],
-  },
-  {
     title: "Control y auditoria",
     items: [
       { label: "Diferencias", screen: "differences" },
@@ -156,7 +149,7 @@ const cashierMenu: MenuGroup[] = [
       { label: "Gastos", screen: "expenses" },
       { label: "Transferencias", screen: "transfers" },
       { label: "Regalos", screen: "gifts" },
-      { label: "Retiros / aportes", screen: "capital-movements" },
+      { label: "Caja y Principal", screen: "capital-movements" },
       { label: "Cerrar caja", screen: "close-cash" },
     ],
   },

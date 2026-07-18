@@ -24,7 +24,7 @@ Leer este contexto antes de modificar Diferencias. Referencias asociadas:
 ## Reglas criticas
 
 - Diferencias no cambian resultado economico.
-- Diferencias si mueven `Local / Efectivo` o `Local / Banco` para que la siguiente caja abra con saldo real declarado.
+- Diferencias si mueven `Caja / Efectivo` o `Caja / Banco` para que la siguiente caja abra con saldo real declarado.
 - `CORREGIDA` permite editar efectivo/banco declarado, recalcular diferencias y resincronizar movimientos.
 - `ANULADA` anula movimientos de diferencia, deja la diferencia efectiva en cero y ajusta los campos de base de la recaudacion objetivo al valor esperado.
 - Estados canónicos: `PENDIENTE`, `VERIFICADA`, `CORREGIDA` y `ANULADA`.

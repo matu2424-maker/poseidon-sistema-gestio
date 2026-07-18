@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { clearOperationalData, createSeedData } from "../../data/appData";
 import { accountTotalsFromMovements } from "../../lib/accountMovements";
-import { localAccountBalances, staffAccountId } from "../../lib/currentAccounts";
+import { localAccountBalances, principalAccountBalances, staffAccountId } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
-import { closeCashCommand } from "../cash/closeCash";
 import { openCashCommand } from "../cash/openCash";
+import { totalsForBalance } from "../../lib/cashTotals";
+import { createPartnerMovementCommand } from "../treasury/treasuryCommands";
 import { annulSalarySettlementCommand, saveSalarySettlementCommand } from "./salarySettlementCommands";
 
 const contextFor = (data: ReturnType<typeof createSeedData>) => {
@@ -36,18 +37,34 @@ const dataWithCash = (initialFund: number) => {
     }),
   );
   if (!opened.ok) throw new Error(opened.error);
-  return opened.data;
+  const manager = opened.data.users.find((item) => item.role === "ENCARGADO")!;
+  const funded = createPartnerMovementCommand(
+    opened.data,
+    {
+      localId: "1",
+      partner: "RICARDO",
+      type: "APORTE_SOCIO",
+      medium: "EFECTIVO",
+      amount: initialFund,
+      note: "Fondo Principal para salarios",
+    },
+    commandContext(manager, "ENCARGADO", {
+      now: () => "2026-08-05T14:30:00.000Z",
+      id: (prefix) => `${prefix}-principal-funding`,
+    }),
+  );
+  if (!funded.ok) throw new Error(funded.error);
+  return funded.data;
 };
 
 describe("comandos salariales", () => {
   it("crea, corrige y anula sin perder asientos anteriores", () => {
     const data = dataWithCash(1_500);
-    const balanceId = data.balances.find((item) => item.status === "EN_PROCESO")!.id;
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = contextFor(data);
     const created = saveSalarySettlementCommand(
       data,
-      { staffId: staff.id, period: "2026-08", concept: "ADELANTO", amount: 1000, notes: "Primer adelanto", origin: "LIQUIDACION", balanceId },
+      { staffId: staff.id, period: "2026-08", concept: "ADELANTO", amount: 1000, notes: "Primer adelanto", origin: "LIQUIDACION" },
       context,
     );
     expect(created.ok).toBe(true);
@@ -65,7 +82,8 @@ describe("comandos salariales", () => {
     expect(corrected.data.accountMovements.some((item) => item.reversalOf === `account-movement-salary-${created.value.id}`)).toBe(true);
     const staffBalance = accountTotalsFromMovements(corrected.data.accountMovements.filter((item) => item.accountId === staffAccountId(staff.id))).balance;
     expect(staffBalance).toBe(-1500);
-    expect(localAccountBalances(corrected.data, staff.localId).cash).toBe(0);
+    expect(localAccountBalances(corrected.data, staff.localId).cash).toBe(1_500);
+    expect(principalAccountBalances(corrected.data).cash).toBe(0);
 
     const beforeRejectedCorrection = JSON.stringify(corrected.data);
     const rejectedCorrection = saveSalarySettlementCommand(
@@ -74,7 +92,7 @@ describe("comandos salariales", () => {
       context,
     );
     expect(rejectedCorrection).toMatchObject({ ok: false });
-    if (!rejectedCorrection.ok) expect(rejectedCorrection.error).toContain("No hay efectivo suficiente");
+    if (!rejectedCorrection.ok) expect(rejectedCorrection.error).toContain("No hay fondos suficientes en Principal / Efectivo");
     expect(JSON.stringify(corrected.data)).toBe(beforeRejectedCorrection);
 
     const annulled = annulSalarySettlementCommand(corrected.data, corrected.value.id, context);
@@ -83,128 +101,118 @@ describe("comandos salariales", () => {
     expect(accountTotalsFromMovements(annulled.data.accountMovements.filter((item) => item.accountId === staffAccountId(staff.id))).balance).toBe(0);
     expect(annulled.data.staff.find((item) => item.id === staff.id)?.salaryAdvanceBalance).toBe(0);
     expect(localAccountBalances(annulled.data, staff.localId).cash).toBe(1_500);
+    expect(principalAccountBalances(annulled.data).cash).toBe(1_500);
   });
 
   it("acepta un pago salarial igual al efectivo disponible y rechaza una nueva salida", () => {
     const data = dataWithCash(1_000);
-    const balanceId = data.balances.find((item) => item.status === "EN_PROCESO")!.id;
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
     const context = contextFor(data);
     const exact = saveSalarySettlementCommand(
       data,
-      { staffId: staff.id, period: "2026-08", concept: "SALARIO", amount: 1000, notes: "Pago total disponible", origin: "LIQUIDACION", balanceId },
+      { staffId: staff.id, period: "2026-08", concept: "SALARIO", amount: 1000, notes: "Pago total disponible", origin: "LIQUIDACION" },
       context,
     );
     expect(exact.ok).toBe(true);
     if (!exact.ok) return;
-    expect(localAccountBalances(exact.data, staff.localId).cash).toBe(0);
+    expect(localAccountBalances(exact.data, staff.localId).cash).toBe(1_000);
+    expect(principalAccountBalances(exact.data).cash).toBe(0);
 
     const before = JSON.stringify(exact.data);
     const rejected = saveSalarySettlementCommand(
       exact.data,
-      { staffId: staff.id, period: "2026-08", concept: "EXTRA", amount: 1, notes: "Sin fondos", origin: "LIQUIDACION", balanceId },
+      { staffId: staff.id, period: "2026-08", concept: "EXTRA", amount: 1, notes: "Sin fondos", origin: "LIQUIDACION" },
       context,
     );
     expect(rejected).toMatchObject({ ok: false });
-    if (!rejected.ok) expect(rejected.error).toContain("No hay efectivo suficiente");
+    if (!rejected.ok) expect(rejected.error).toContain("No hay fondos suficientes en Principal / Efectivo");
     expect(JSON.stringify(exact.data)).toBe(before);
   });
 
-  it("bloquea un pago administrativo sin asociacion mientras existe una caja abierta", () => {
+  it("permite un pago administrativo desde Principal aunque exista una caja abierta", () => {
     const data = dataWithCash(1_000);
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;
-    const before = JSON.stringify(data);
-    const rejected = saveSalarySettlementCommand(
+    const balance = data.balances.find((item) => item.status === "EN_PROCESO")!;
+    const result = saveSalarySettlementCommand(
       data,
       {
         staffId: staff.id,
         period: "2026-08",
         concept: "ADELANTO",
         amount: 100,
-        notes: "No asociado a la caja vigente",
+        notes: "Pago desde Principal",
         origin: "LIQUIDACION",
       },
       contextFor(data),
     );
-    expect(rejected).toMatchObject({ ok: false });
-    if (!rejected.ok) expect(rejected.error).toContain("movimiento historico de efectivo");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.value.balanceId).toBeUndefined();
+    expect(localAccountBalances(result.data, staff.localId).cash).toBe(1_000);
+    expect(principalAccountBalances(result.data).cash).toBe(900);
+    expect(totalsForBalance(result.data, balance.id).expectedCash).toBe(1_000);
+  });
+
+  it("rechaza asociar una liquidacion de Principal a la caja abierta", () => {
+    const data = dataWithCash(1_000);
+    const staff = data.staff.find((item) => item.status === "ACTIVO")!;
+    const balance = data.balances.find((item) => item.status === "EN_PROCESO")!;
+    const before = JSON.stringify(data);
+    const result = saveSalarySettlementCommand(
+      data,
+      {
+        staffId: staff.id,
+        period: "2026-08",
+        concept: "ADELANTO",
+        amount: 100,
+        notes: "Asociacion invalida",
+        origin: "LIQUIDACION",
+        balanceId: balance.id,
+      },
+      contextFor(data),
+    );
+    expect(result).toEqual({
+      ok: false,
+      error: "Las liquidaciones desde Principal no se asocian a una caja operativa.",
+    });
     expect(JSON.stringify(data)).toBe(before);
   });
 
-  it("bloquea corregir y trasladar a la caja actual un pago salarial historico", () => {
-    const firstOpen = dataWithCash(2_000);
-    const firstBalance = firstOpen.balances.find((item) => item.status === "EN_PROCESO")!;
-    const staff = firstOpen.staff.find((item) => item.status === "ACTIVO")!;
-    const managerContext = contextFor(firstOpen);
-    const historical = saveSalarySettlementCommand(
-      firstOpen,
+  it("corrige un pago administrativo validando solo el incremento neto en Principal", () => {
+    const data = dataWithCash(2_000);
+    const balance = data.balances.find((item) => item.status === "EN_PROCESO")!;
+    const staff = data.staff.find((item) => item.status === "ACTIVO")!;
+    const managerContext = contextFor(data);
+    const original = saveSalarySettlementCommand(
+      data,
       {
         staffId: staff.id,
         period: "2026-07",
         concept: "ADELANTO",
         amount: 500,
-        notes: "Pago de la caja anterior",
+        notes: "Pago original",
         origin: "LIQUIDACION",
-        balanceId: firstBalance.id,
       },
       managerContext,
     );
-    if (!historical.ok) throw new Error(historical.error);
-    const readyToClose = {
-      ...historical.data,
-      readings: historical.data.readings.map((reading) =>
-        reading.balanceId === firstBalance.id
-          ? { ...reading, status: "SIN_LECTURA" as const, observation: "Sin actividad" }
-          : reading,
-      ),
-    };
-    const closed = closeCashCommand(
-      readyToClose,
+    if (!original.ok) throw new Error(original.error);
+    const corrected = saveSalarySettlementCommand(
+      original.data,
       {
-        balanceId: firstBalance.id,
-        declaredCash: 1_500,
-        declaredBank: 0,
-        finalWithdrawalCash: 0,
-        finalWithdrawalBank: 0,
-        withdrawalCashPerson: "MATHIAS",
-        withdrawalBankPerson: "MATHIAS",
-        differenceNote: "",
-      },
-      managerContext,
-    );
-    if (!closed.ok) throw new Error(closed.error);
-    const openedAgain = openCashCommand(
-      closed.data,
-      {
-        localId: "1",
-        operatingDate: "2026-08-06",
-        initialFund: 1_500,
-        initialBankFund: 0,
-        initialNote: "Caja siguiente",
-        openingCapitalPerson: "MATHIAS",
-        firstOpening: false,
-      },
-      managerContext,
-    );
-    if (!openedAgain.ok) throw new Error(openedAgain.error);
-    const currentBalance = openedAgain.data.balances.find((item) => item.status === "EN_PROCESO")!;
-    const before = JSON.stringify(openedAgain.data);
-    const rejected = saveSalarySettlementCommand(
-      openedAgain.data,
-      {
-        settlementId: historical.value.id,
+        settlementId: original.value.id,
         staffId: staff.id,
         period: "2026-07",
         concept: "ADELANTO",
         amount: 700,
-        notes: "No debe trasladarse a la caja actual",
+        notes: "Incremento de 200",
         origin: "LIQUIDACION",
-        balanceId: currentBalance.id,
       },
       managerContext,
     );
-    expect(rejected).toMatchObject({ ok: false });
-    if (!rejected.ok) expect(rejected.error).toContain("movimiento historico de efectivo");
-    expect(JSON.stringify(openedAgain.data)).toBe(before);
+    expect(corrected.ok).toBe(true);
+    if (!corrected.ok) return;
+    expect(principalAccountBalances(corrected.data).cash).toBe(1_300);
+    expect(localAccountBalances(corrected.data, staff.localId).cash).toBe(2_000);
+    expect(totalsForBalance(corrected.data, balance.id).expectedCash).toBe(2_000);
   });
 });

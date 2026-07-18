@@ -2,60 +2,56 @@
 
 Ultima actualizacion: 2026-07-17
 
-Fuente canonica de URLs de la aplicacion. `src/navigation/screens.ts` conserva la implementacion tipada de ruta, titulo, roles permitidos y requisito de caja abierta de cada pantalla.
+`src/navigation/screens.ts` es la implementacion tipada de este contrato.
 
 ## Reglas
 
-- Cada `Screen` tiene una ruta unica y estable.
-- Las rutas usan minusculas, palabras en espanol sin tildes y guiones cuando son necesarios.
-- `screenDefinitions` sigue siendo la matriz central de navegacion y permisos.
-- Una URL no autorizada redirige al panel y muestra un aviso.
-- Una URL operativa sin caja abierta redirige al panel y muestra el aviso de apertura requerida.
-- Actualizar o abrir una URL directa conserva el modulo solicitado despues de seleccionar un usuario autorizado.
+- Cada pantalla tiene una URL unica.
+- Una ruta no autorizada vuelve al panel con aviso.
+- Una ruta de Caja sin recaudacion abierta vuelve al panel con aviso.
+- Una URL directa se conserva durante la identificacion del usuario cuando el rol tiene permiso.
 - Cerrar sesion vuelve a `/ingresar`.
-- Una ruta desconocida vuelve a `/`.
-- El rol real y la funcion activa siguen siendo distintos. Encargado puede entrar como `ENCARGADO` solo a gastos y retiros/aportes de una caja abierta asignada; el resto de rutas operativas exige funcion Cajero.
+- Rol real y funcion activa son distintos.
+- Encargado y Administrador operan Caja solo al cambiar expresamente a funcion Cajero.
 
-## Rutas publicas
+## Publicas
 
 | Pantalla | URL |
 | --- | --- |
 | Inicio | `/` |
 | Ingreso local | `/ingresar` |
 
-## Ruta comun por rol
+## Comun
 
 | Pantalla | URL | Roles |
 | --- | --- | --- |
-| Panel | `/panel` | Cajero, Encargado, Administrador |
-
-El contenido de `/panel` depende de la funcion activa.
+| Panel por funcion | `/panel` | Cajero, Encargado, Administrador |
+| Resumen de recaudaciones | `/recaudaciones` | Cajero, Encargado, Administrador |
 
 ## Caja diaria
 
-| Pantalla | URL | Requiere caja abierta |
+| Pantalla | URL | Caja abierta |
 | --- | --- | --- |
-| Abrir caja / caja diaria | `/caja/abrir` | No |
+| Caja diaria / apertura | `/caja/abrir` | No |
 | Contadores | `/caja/contadores` | Si |
-| Gastos | `/caja/gastos` | Si |
+| Gastos de Caja | `/caja/gastos` | Si |
 | Transferencias | `/caja/transferencias` | Si |
 | Regalos | `/caja/regalos` | Si |
-| Salarios | `/caja/salarios` | Si |
-| Retiros y aportes | `/caja/capital` | Si |
-| Clientes desde caja | `/caja/clientes` | No |
-| Cerrar caja | `/caja/cerrar` | Si |
-| Resumen de recaudaciones | `/recaudaciones` | No |
+| Salarios desde Caja | `/caja/salarios` | Si |
+| Caja y Principal | `/caja/fondos` | Si |
+| Clientes | `/caja/clientes` | No |
+| Cierre | `/caja/cerrar` | Si |
 
-`/caja/gastos` y `/caja/capital` admiten Cajero o Encargado y exigen caja abierta. Las demas rutas operativas admiten solo funcion `CAJERO`. `/recaudaciones` tambien admite Encargado y Administrador como consulta.
+Estas rutas operativas exigen funcion `CAJERO`.
 
-## Control, cierres y reportes
+## Control y tesoreria
 
 | Pantalla | URL | Roles |
 | --- | --- | --- |
-| Diferencias de caja | `/diferencias` | Encargado, Administrador |
-| Control de gastos | `/control/gastos` | Encargado, Administrador |
+| Diferencias | `/diferencias` | Encargado, Administrador |
+| Control de gastos desde Principal | `/control/gastos` | Encargado, Administrador |
 | Auditoria | `/auditoria` | Encargado, Administrador |
-| Cuentas corrientes | `/cuentas-corrientes` | Encargado, Administrador |
+| Cuentas corrientes y tesoreria | `/cuentas-corrientes` | Encargado, Administrador |
 | Reportes | `/reportes` | Encargado, Administrador |
 | Cierres periodicos | `/cierres-periodicos` | Encargado, Administrador |
 
@@ -79,20 +75,12 @@ El contenido de `/panel` depende de la funcion activa.
 | Datos locales | `/administracion/datos-locales` | Administrador |
 | Papelera | `/administracion/papelera` | Administrador |
 
-## Validacion obligatoria
+## Validacion
 
-- Prueba unitaria de unicidad y conversion `Screen` <-> URL.
-- URL directa y recarga en una pantalla autorizada por rol.
-- URL rechazada por rol.
-- URL de caja rechazada sin caja abierta.
-- Navegacion Atrás/Adelante entre panel y modulo.
-- Cierre de caja navega a `/recaudaciones` y conserva el aviso.
-
-## Evidencia vigente
-
-- Conversión `Screen` <-> URL y unicidad cubiertas por Vitest.
-- Ruta directa antes del login retoma el modulo autorizado.
-- Cajero bloqueado al abrir contadores sin caja.
-- Encargado validado con recarga, Atrás/Adelante y rechazo de Locales.
-- Administrador validado en Locales con recarga y cambio persistente a funcion Cajero.
-- Cierre completo de caja validado con destino `/recaudaciones` y aviso preservado.
+- Unicidad y conversion `Screen` <-> URL.
+- Ruta directa y recarga por rol.
+- Rechazo por rol.
+- Rechazo de ruta operativa sin caja.
+- Navegacion Atras/Adelante.
+- Cierre navega a `/recaudaciones` y conserva el aviso.
+- Encargado no entra a `/caja/gastos` o `/caja/fondos` sin cambiar a Cajero.

@@ -18,7 +18,12 @@ import {
   salarySettlementDisplayAmount,
 } from "../../lib/salaryRules";
 import { openSalaryCorrection } from "../../lib/salaryClosures";
-import type { AppData, User } from "../../types";
+import {
+  PRINCIPAL_BANK_ACCOUNT_ID,
+  PRINCIPAL_CASH_ACCOUNT_ID,
+  principalAccountBalances,
+} from "../../lib/currentAccounts";
+import type { AppData, SalaryConcept, User } from "../../types";
 
 export function SalarySettlementEditor({
   data,
@@ -42,6 +47,7 @@ export function SalarySettlementEditor({
   const [staffId, setStaffId] = useState(existing?.staffId ?? fixedStaffId ?? activeStaff[0]?.id ?? "");
   const selectedStaff = data.staff.find((staff) => staff.id === staffId);
   const defaultConcept = normalizeSalaryConcept(existing?.concept ?? "SALARIO");
+  const [concept, setConcept] = useState<SalaryConcept>(defaultConcept);
   const defaultAmount = existing ? salarySettlementDisplayAmount(existing) : 0;
   const staffLocked = Boolean(fixedStaffId);
   const correctionClosure = openSalaryCorrection(data, existing?.period ?? defaultPeriod);
@@ -49,13 +55,19 @@ export function SalarySettlementEditor({
   const periodLocked = Boolean(correctionClosureId);
   const isNew = !existing;
   const [formError, setFormError] = useState("");
+  const principalBalances = principalAccountBalances(data);
+  const isCashierSettlement = existing?.origin === "CAJA";
+  const defaultPaymentAccountId =
+    existing?.paymentAccountId === PRINCIPAL_BANK_ACCOUNT_ID || existing?.paymentAccountId === PRINCIPAL_CASH_ACCOUNT_ID
+      ? existing.paymentAccountId
+      : PRINCIPAL_CASH_ACCOUNT_ID;
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const staff = data.staff.find((item) => item.id === (fixedStaffId ?? String(form.get("staffId"))));
     if (!staff) return;
-    const concept = normalizeSalaryConcept(form.get("concept") ?? "SALARIO");
+    const selectedConcept = normalizeSalaryConcept(form.get("concept") ?? "SALARIO");
     const amount = parseMoneyInput(form.get("amount"));
     if (!amount) {
       setFormError("Ingresa un monto para guardar la liquidacion.");
@@ -68,11 +80,12 @@ export function SalarySettlementEditor({
         settlementId: existing?.id,
         staffId: staff.id,
         period,
-        concept,
+        concept: selectedConcept,
         amount,
         notes: String(form.get("notes") ?? ""),
         origin: existing?.origin ?? "LIQUIDACION",
-        balanceId: existing?.balanceId,
+        balanceId: existing?.origin === "CAJA" ? existing.balanceId : undefined,
+        paymentAccountId: String(form.get("paymentAccountId") || defaultPaymentAccountId),
         correctionClosureId,
       },
       commandContext(user, user.role),
@@ -120,13 +133,26 @@ export function SalarySettlementEditor({
         </label>
         <label>
           Concepto principal
-          <select name="concept" defaultValue={defaultConcept}>
+          <select name="concept" value={concept} onChange={(event) => setConcept(event.target.value as SalaryConcept)}>
             {salaryConceptOptions.map((concept) => (
               <option key={concept} value={concept}>
                 {salaryConceptLabel(concept)}
               </option>
             ))}
           </select>
+        </label>
+        <label>
+          Cuenta de pago
+          {isCashierSettlement ? (
+            <input value="Caja / Efectivo (registrado por cajero)" disabled readOnly />
+          ) : concept === "DESCUENTO" ? (
+            <input value="No mueve fondos" disabled readOnly />
+          ) : (
+            <select name="paymentAccountId" defaultValue={defaultPaymentAccountId}>
+              <option value={PRINCIPAL_CASH_ACCOUNT_ID}>Principal / Efectivo - {money(principalBalances.cash)}</option>
+              <option value={PRINCIPAL_BANK_ACCOUNT_ID}>Principal / Banco - {money(principalBalances.bank)}</option>
+            </select>
+          )}
         </label>
         <label>
           Monto

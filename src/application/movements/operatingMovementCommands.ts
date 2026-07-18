@@ -11,7 +11,6 @@ import type {
   Transfer,
 } from "../../types";
 import {
-  capitalAccountMovement,
   localExpenseAccountMovement,
   localGiftAccountMovement,
   localTransferCashAccountMovement,
@@ -23,6 +22,7 @@ import {
 import {
   createTransferCurrentAccount,
   ensureLocalCurrentAccounts,
+  localCashAccountId,
   TRANSFER_ACCOUNT_ID,
 } from "../../lib/currentAccounts";
 import { balanceCashReconciliationError, localCashOutflowError } from "../../lib/cashAvailability";
@@ -35,7 +35,6 @@ import {
 } from "../command";
 
 const CASHIER_ONLY: readonly Role[] = ["CAJERO"];
-const CASHIER_OR_MANAGER: readonly Role[] = ["CAJERO", "ENCARGADO"];
 
 const actorRoleBelongsToUser = (context: CommandContext) =>
   context.actorRole === context.user.role ||
@@ -77,7 +76,7 @@ export function createExpenseCommand(
   input: CreateExpenseInput,
   context: CommandContext,
 ): CommandResult<Expense> {
-  const balance = openCash(data, input.balanceId, context, CASHIER_OR_MANAGER);
+  const balance = openCash(data, input.balanceId, context, CASHIER_ONLY);
   if (typeof balance === "string") return commandError(balance);
   const category = data.expenseCategories.find(
     (item) => item.status === "ACTIVA" && item.name === input.category.trim(),
@@ -95,6 +94,9 @@ export function createExpenseCommand(
   const expense: Expense = {
     id: context.id("expense"),
     balanceId: balance.id,
+    localId: balance.localId,
+    paymentAccountId: localCashAccountId(balance.localId),
+    currency: "UYU",
     category: category.name,
     subcategory: input.subcategory.trim(),
     amount: input.amount,
@@ -133,7 +135,7 @@ export function deleteExpenseCommand(
   expenseId: string,
   context: CommandContext,
 ): CommandResult<Expense> {
-  const balance = openCash(data, balanceId, context, CASHIER_OR_MANAGER);
+  const balance = openCash(data, balanceId, context, CASHIER_ONLY);
   if (typeof balance === "string") return commandError("Solo se pueden eliminar gastos antes de cerrar la caja.");
   const expense = data.expenses.find((item) => item.id === expenseId && item.balanceId === balance.id);
   if (!expense) return commandError("No se encontro el gasto de esta caja.");
@@ -362,56 +364,11 @@ export function createCapitalMovementCommand(
   input: CreateCapitalMovementInput,
   context: CommandContext,
 ): CommandResult<CapitalMovement> {
-  const balance = openCash(data, input.balanceId, context, CASHIER_OR_MANAGER);
-  if (typeof balance === "string") return commandError(balance);
-  if (!(["RETIRO", "APORTE"] as string[]).includes(input.type)) {
-    return commandError("Selecciona si es retiro o aporte.");
-  }
-  if (!(["EFECTIVO", "TRANSFERENCIA"] as string[]).includes(input.medium)) {
-    return commandError("Selecciona un medio valido.");
-  }
-  if (!(["RICARDO", "MATHIAS"] as string[]).includes(input.person)) {
-    return commandError("Selecciona una persona valida.");
-  }
-  if (!Number.isFinite(input.amount) || input.amount <= 0) {
-    return commandError("El monto es obligatorio y debe ser un numero finito mayor a cero.");
-  }
-  const reconciliationError = balanceCashReconciliationError(data, balance.id);
-  if (reconciliationError) return commandError(reconciliationError);
-  if (input.type === "RETIRO" && input.medium === "EFECTIVO") {
-    const cashError = localCashOutflowError(data, balance.localId, input.amount);
-    if (cashError) return commandError(cashError);
-  }
-  const movement: CapitalMovement = {
-    id: context.id("capital"),
-    balanceId: balance.id,
-    localId: balance.localId,
-    type: input.type,
-    medium: input.medium,
-    timing: "OPERATIVO",
-    person: input.person,
-    amount: input.amount,
-    note: input.note.trim(),
-    status: "ACTIVO",
-    userId: context.user.id,
-    createdAt: context.now(),
-  };
-  return commandSuccess(
-    auditCommand(
-      {
-        ...data,
-        currentAccounts: ensureLocalCurrentAccounts(data, balance.localId),
-        accountMovements: upsertAccountMovement(data.accountMovements, capitalAccountMovement(movement)),
-        capitalMovements: [movement, ...data.capitalMovements],
-      },
-      context,
-      movement.type === "RETIRO" ? "Crear retiro" : "Crear aporte de capital",
-      "MovimientoCapital",
-      movement.id,
-      "",
-      movement,
-    ),
-    movement,
+  void data;
+  void input;
+  void context;
+  return commandError(
+    "El alta legacy de aportes y retiros esta deshabilitada. Usa Caja / Principal o un movimiento real de socio.",
   );
 }
 
@@ -421,7 +378,7 @@ export function annulCapitalMovementCommand(
   movementId: string,
   context: CommandContext,
 ): CommandResult<CapitalMovement> {
-  const balance = openCash(data, balanceId, context, CASHIER_OR_MANAGER);
+  const balance = openCash(data, balanceId, context, CASHIER_ONLY);
   if (typeof balance === "string") return commandError("Solo se pueden anular movimientos antes de cerrar la caja.");
   const previous = data.capitalMovements.find(
     (item) => item.id === movementId && item.balanceId === balance.id,

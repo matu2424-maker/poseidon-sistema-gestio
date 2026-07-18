@@ -9,7 +9,7 @@
 
 ## Locales
 
-- Un local con recaudaciones, maquinas, personal, clientes, usuarios, liquidaciones, capital, cierres, cuentas o historial no se elimina fisicamente; debe pasar a `CERRADO`.
+- Un local con recaudaciones, maquinas, personal, clientes, usuarios, liquidaciones, tesoreria, movimientos de socios, cierres, cuentas o historial no se elimina fisicamente; debe pasar a `CERRADO`.
 
 - ID numerico corto.
 - Estados: ACTIVO, INACTIVO, CERRADO.

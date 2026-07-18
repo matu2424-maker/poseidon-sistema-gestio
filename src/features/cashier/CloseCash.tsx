@@ -2,7 +2,6 @@
 import type {
   AppData,
   Balance,
-  CapitalMovementPerson,
   Role,
   Screen,
   User,
@@ -15,7 +14,6 @@ import { commandContext } from "../../application/command";
 import { closeCashCommand } from "../../application/cash/closeCash";
 import { ManagerCashActivity } from "./ManagerCashActivity";
 
-const CAPITAL_PEOPLE: CapitalMovementPerson[] = ["RICARDO", "MATHIAS"];
 export function CloseCash({
   data,
   balance,
@@ -38,10 +36,8 @@ export function CloseCash({
   const totals = totalsForBalance(data, balance.id);
   const [declaredCashDraft, setDeclaredCashDraft] = useState("0");
   const [declaredBankDraft, setDeclaredBankDraft] = useState("0");
-  const [finalWithdrawalCashDraft, setFinalWithdrawalCashDraft] = useState("0");
-  const [finalWithdrawalBankDraft, setFinalWithdrawalBankDraft] = useState("0");
-  const [finalWithdrawalCashPerson, setFinalWithdrawalCashPerson] = useState<CapitalMovementPerson>("MATHIAS");
-  const [finalWithdrawalBankPerson, setFinalWithdrawalBankPerson] = useState<CapitalMovementPerson>("MATHIAS");
+  const [transferToPrincipalCashDraft, setTransferToPrincipalCashDraft] = useState("0");
+  const [transferToPrincipalBankDraft, setTransferToPrincipalBankDraft] = useState("0");
   const [closeError, setCloseError] = useState("");
   const localBalances = localAccountBalances(data, balance.localId);
   const balanceReadings = data.readings.filter((reading) => reading.balanceId === balance.id);
@@ -53,21 +49,19 @@ export function CloseCash({
   const finalEconomicResult = totals.commercialResult;
   const declaredCashPreview = parseMoneyInput(declaredCashDraft);
   const declaredBankPreview = parseMoneyInput(declaredBankDraft);
-  const finalWithdrawalCashPreview = parseMoneyInput(finalWithdrawalCashDraft);
-  const finalWithdrawalBankPreview = parseMoneyInput(finalWithdrawalBankDraft);
-  const cashWithdrawalPersonDisabled = finalWithdrawalCashPreview <= 0;
-  const bankWithdrawalPersonDisabled = finalWithdrawalBankPreview <= 0;
+  const transferToPrincipalCashPreview = parseMoneyInput(transferToPrincipalCashDraft);
+  const transferToPrincipalBankPreview = parseMoneyInput(transferToPrincipalBankDraft);
   const totalCashOutflows = totals.totalExpenses + totals.totalSalaries + totals.giftCash;
   const hasDeclaredCash = declaredCashDraft.trim() !== "";
   const hasDeclaredBank = declaredBankDraft.trim() !== "";
   const hasNegativeExpectedCash = totals.expectedCash < 0;
   const cashReconciliation = balanceCashReconciliation(data, balance.id);
   const hasCashReconciliationError = !cashReconciliation?.isConsistent;
-  const expectedCashAfterFinalWithdrawal = totals.expectedCash - finalWithdrawalCashPreview;
-  const expectedBankAfterFinalWithdrawal = localBalances.bank - finalWithdrawalBankPreview;
+  const expectedCashAfterTransfer = totals.expectedCash - transferToPrincipalCashPreview;
+  const expectedBankAfterTransfer = localBalances.bank - transferToPrincipalBankPreview;
   const nextBankPreview = declaredBankPreview;
-  const differencePreview = declaredCashPreview - expectedCashAfterFinalWithdrawal;
-  const bankDifferencePreview = declaredBankPreview - expectedBankAfterFinalWithdrawal;
+  const differencePreview = declaredCashPreview - expectedCashAfterTransfer;
+  const bankDifferencePreview = declaredBankPreview - expectedBankAfterTransfer;
   const differenceClass = !hasDeclaredCash ? "neutral" : differencePreview === 0 ? "positive" : "negative";
   const bankDifferenceClass = !hasDeclaredBank ? "neutral" : bankDifferencePreview === 0 ? "positive" : "negative";
 
@@ -82,10 +76,8 @@ export function CloseCash({
           balanceId: balance.id,
           declaredCash: parseMoneyInput(form.get("declaredCash")),
           declaredBank: parseMoneyInput(form.get("declaredBank")),
-          finalWithdrawalCash: parseMoneyInput(form.get("finalWithdrawalCash")),
-          finalWithdrawalBank: parseMoneyInput(form.get("finalWithdrawalBank")),
-          withdrawalCashPerson: String(form.get("finalWithdrawalCashPerson") ?? "MATHIAS") as CapitalMovementPerson,
-          withdrawalBankPerson: String(form.get("finalWithdrawalBankPerson") ?? "MATHIAS") as CapitalMovementPerson,
+          transferToPrincipalCash: parseMoneyInput(form.get("transferToPrincipalCash")),
+          transferToPrincipalBank: parseMoneyInput(form.get("transferToPrincipalBank")),
           differenceNote: String(form.get("differenceNote") ?? ""),
         },
         commandContext(user, actorRole),
@@ -114,13 +106,13 @@ export function CloseCash({
 
       {hasCashReconciliationError ? (
         <div className="close-alert danger" role="alert">
-          La caja no esta conciliada: el efectivo calculado es {money(cashReconciliation?.expectedCash)} y Local / Efectivo muestra {money(cashReconciliation?.accountCash)}. Diferencia tecnica: {money(cashReconciliation?.delta)}. El cierre queda bloqueado hasta aplicar una reconciliacion auditada; un aporte comun no corrige este desacople.
+          La caja no esta conciliada: el efectivo calculado es {money(cashReconciliation?.expectedCash)} y Caja / Efectivo muestra {money(cashReconciliation?.accountCash)}. Diferencia tecnica: {money(cashReconciliation?.delta)}. El cierre queda bloqueado hasta aplicar una reconciliacion auditada; un traspaso comun no corrige este desacople.
         </div>
       ) : hasNegativeExpectedCash ? (
         <div className="close-alert danger" role="alert">
-          No se puede cerrar: el efectivo esperado es {money(totals.expectedCash)}. Registra un aporte real en efectivo que cubra el faltante y vuelve a esta pantalla.{" "}
+          No se puede cerrar: el efectivo esperado es {money(totals.expectedCash)}. Ingresa fondos reales en Principal y traspasalos a Caja antes de volver a esta pantalla.{" "}
           <button className="link-button" type="button" onClick={() => setScreen("capital-movements")}>
-            Registrar aporte
+            Mover fondos
           </button>
         </div>
       ) : null}
@@ -160,15 +152,19 @@ export function CloseCash({
               <dd>- {money(totals.totalTransfers)}</dd>
             </div>
             <div>
-              <dt>Aportes efectivo</dt>
+              <dt>Principal a Caja / Efectivo</dt>
               <dd>+ {money(totals.capitalContributionsCash)}</dd>
             </div>
             <div>
-              <dt>Retiros efectivo</dt>
+              <dt>Principal a Caja / Banco</dt>
+              <dd>+ {money(totals.capitalContributionsBank)}</dd>
+            </div>
+            <div>
+              <dt>Caja a Principal / Efectivo</dt>
               <dd>- {money(totals.withdrawalsCash)}</dd>
             </div>
             <div>
-              <dt>Retiros transferencia</dt>
+              <dt>Caja a Principal / Banco</dt>
               <dd>- {money(totals.withdrawalsBank)}</dd>
             </div>
             <div>
@@ -181,11 +177,11 @@ export function CloseCash({
             </div>
             <div className="total">
               <dt>Efectivo esperado</dt>
-              <dd>{money(expectedCashAfterFinalWithdrawal)}</dd>
+              <dd>{money(expectedCashAfterTransfer)}</dd>
             </div>
             <div className="total">
               <dt>Dinero en banco esperado</dt>
-              <dd>{money(expectedBankAfterFinalWithdrawal)}</dd>
+              <dd>{money(expectedBankAfterTransfer)}</dd>
             </div>
             <div className="total">
               <dt>Efectivo</dt>
@@ -202,64 +198,26 @@ export function CloseCash({
           <h3>Declaracion final</h3>
           <div className="close-form-grid">
             <label>
-              Retiro final efectivo
+              Traspaso a Principal / Efectivo
               <input
-                name="finalWithdrawalCash"
+                name="transferToPrincipalCash"
                 inputMode="numeric"
-                value={finalWithdrawalCashDraft}
-                onFocus={() => setFinalWithdrawalCashDraft(clearZeroMoneyInput(finalWithdrawalCashDraft))}
-                onChange={(event) => setFinalWithdrawalCashDraft(formatMoneyInput(event.target.value))}
-                onBlur={(event) => setFinalWithdrawalCashDraft(normalizeMoneyInput(event.target.value))}
+                value={transferToPrincipalCashDraft}
+                onFocus={() => setTransferToPrincipalCashDraft(clearZeroMoneyInput(transferToPrincipalCashDraft))}
+                onChange={(event) => setTransferToPrincipalCashDraft(formatMoneyInput(event.target.value))}
+                onBlur={(event) => setTransferToPrincipalCashDraft(normalizeMoneyInput(event.target.value))}
               />
             </label>
             <label>
-              Retiro final banco
+              Traspaso a Principal / Banco
               <input
-                name="finalWithdrawalBank"
+                name="transferToPrincipalBank"
                 inputMode="numeric"
-                value={finalWithdrawalBankDraft}
-                onFocus={() => setFinalWithdrawalBankDraft(clearZeroMoneyInput(finalWithdrawalBankDraft))}
-                onChange={(event) => setFinalWithdrawalBankDraft(formatMoneyInput(event.target.value))}
-                onBlur={(event) => setFinalWithdrawalBankDraft(normalizeMoneyInput(event.target.value))}
+                value={transferToPrincipalBankDraft}
+                onFocus={() => setTransferToPrincipalBankDraft(clearZeroMoneyInput(transferToPrincipalBankDraft))}
+                onChange={(event) => setTransferToPrincipalBankDraft(formatMoneyInput(event.target.value))}
+                onBlur={(event) => setTransferToPrincipalBankDraft(normalizeMoneyInput(event.target.value))}
               />
-            </label>
-            <label>
-              Quien retira efectivo
-              <select
-                name="finalWithdrawalCashPerson"
-                value={cashWithdrawalPersonDisabled ? "SIN_RETIROS" : finalWithdrawalCashPerson}
-                onChange={(event) => setFinalWithdrawalCashPerson(event.target.value as CapitalMovementPerson)}
-                disabled={cashWithdrawalPersonDisabled}
-              >
-                {cashWithdrawalPersonDisabled ? (
-                  <option value="SIN_RETIROS">Sin retiros finales</option>
-                ) : (
-                  CAPITAL_PEOPLE.map((person) => (
-                    <option key={person} value={person}>
-                      {person}
-                    </option>
-                  ))
-                )}
-              </select>
-            </label>
-            <label>
-              Quien retira banco
-              <select
-                name="finalWithdrawalBankPerson"
-                value={bankWithdrawalPersonDisabled ? "SIN_RETIROS" : finalWithdrawalBankPerson}
-                onChange={(event) => setFinalWithdrawalBankPerson(event.target.value as CapitalMovementPerson)}
-                disabled={bankWithdrawalPersonDisabled}
-              >
-                {bankWithdrawalPersonDisabled ? (
-                  <option value="SIN_RETIROS">Sin retiros finales</option>
-                ) : (
-                  CAPITAL_PEOPLE.map((person) => (
-                    <option key={person} value={person}>
-                      {person}
-                    </option>
-                  ))
-                )}
-              </select>
             </label>
             <label>
               Efectivo declarado final
@@ -295,11 +253,11 @@ export function CloseCash({
             </label>
             <label>
               Efectivo esperado final
-              <input value={money(expectedCashAfterFinalWithdrawal)} disabled readOnly />
+              <input value={money(expectedCashAfterTransfer)} disabled readOnly />
             </label>
             <label>
               Dinero en banco esperado final
-              <input value={money(expectedBankAfterFinalWithdrawal)} disabled readOnly />
+              <input value={money(expectedBankAfterTransfer)} disabled readOnly />
             </label>
             <label>
               Diferencia efectivo

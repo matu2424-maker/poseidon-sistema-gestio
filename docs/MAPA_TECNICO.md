@@ -73,6 +73,11 @@ src/
   App.tsx                  orquestacion global y composicion
   navigation/lazyScreens  carga diferida por pantalla/feature
   application/             comandos atomicos, contexto y resultados tipados
+    cash/                   apertura, lecturas y cierre
+    treasury/               Caja/Principal y movimientos de socios
+    expenses/               gastos administrativos desde Principal
+    movements/              movimientos operativos de Caja
+    salaries/               liquidaciones y cierres salariales
     ports/                  contrato de repositorio y cola asincrona ordenada
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed demo, reset y fachada de normalizacion
@@ -114,16 +119,17 @@ src/
 | `ids.ts` | IDs locales actuales |
 | `audit.ts` | Construccion de eventos, resolucion de local y visibilidad por rol |
 | `lib/storage.ts` | Preferencias locales de columnas |
-| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 4 separa migracion financiera de normalizacion |
+| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 5 separa migracion financiera de normalizacion |
 | `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo, suscripcion opcional a cambios y codec de respaldo |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
 | `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, sincronizacion pasiva entre pestanas, bloqueo y recuperacion sin acoplar App al adaptador |
 | `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, eventos de cambio, comparacion optimista, importacion y exportacion local |
-| `currentAccounts.ts` | IDs, creacion y saldos de cuentas |
-| `accountMovements.ts` | Movimientos derivados, saldo corrido y ajustes de diferencias append-only encadenados |
-| `cashTotals.ts` | Totales por caja y resultado de lecturas |
-| `cashAvailability.ts` | Saldo activo Local / Efectivo, rechazo atomico de salidas y reconciliacion caja/libro |
-| `data/migrateData.ts` | Migraciones por `schemaVersion`, puente tecnico causal, idempotente y auditado |
+| `currentAccounts.ts` | IDs, creacion y saldos de Caja, Principal, socios, personal y transferencias |
+| `accountMovements.ts` | Asientos dobles, saldo corrido, contramovimientos y ajustes append-only |
+| `cashTotals.ts` | Totales de Caja por recaudacion, excluyendo pagos administrativos desde Principal |
+| `periodicTotals.ts` | Consolidacion periodica de cajas cerradas y operaciones de Principal sin `balanceId` |
+| `cashAvailability.ts` | Disponibilidad por cuenta, rechazo atomico y reconciliacion Caja/libro |
+| `data/migrateData.ts` | Migraciones por `schemaVersion`; esquema 5 agrega Principal/socios preservando Caja y resultado |
 | `differences.ts` | Estados y calculos de diferencias |
 | `salaryRules.ts` | Conceptos, base, periodos y limites salariales |
 | `balanceReferences.ts` | Recaudacion asociada por `balanceId` |
@@ -140,14 +146,16 @@ src/
 
 | Archivo | Operacion atomica |
 | --- | --- |
-| `application/cash/openCash.ts` | Apertura, verificacion de saldos heredados, aportes iniciales, lecturas, cuentas y auditoria |
+| `application/cash/openCash.ts` | Apertura; primera caja crea aporte de socio y traspaso Principal -> Caja; siguientes heredan Caja |
 | `application/cash/saveReading.ts` | Validacion/guardado de contador, reconciliacion previa, resultado, cuenta y auditoria |
-| `application/movements/operatingMovementCommands.ts` | Altas/anulaciones de gastos, transferencias, regalos y capital con autorizacion por actor/local, reconciliacion, efectivo, cuenta y auditoria |
+| `application/movements/operatingMovementCommands.ts` | Gastos, transferencias y regalos de Caja; alta legacy de capital deshabilitada |
+| `application/treasury/treasuryCommands.ts` | Traspasos Caja/Principal y aportes/retiros de socios con fondos, permisos, asientos y auditoria |
+| `application/expenses/principalExpenseCommands.ts` | Alta/anulacion de gastos desde Principal/Efectivo o Principal/Banco, sin `balanceId` |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
 | `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
-| `application/cash/closeCash.ts` | Cierre, reconciliacion caja/libro, bloqueo por efectivo negativo, retiros, maquinas, diferencias, cuentas, historial y auditoria |
+| `application/cash/closeCash.ts` | Cierre, traspasos Caja -> Principal, remanente declarado, diferencias, maquinas e historial |
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
-| `application/salaries/salarySettlementCommands.ts` | Alta, correccion neta y anulacion salarial con disponibilidad de efectivo, cuentas y auditoria |
+| `application/salaries/salarySettlementCommands.ts` | Caja/Efectivo para Cajero y Principal para Encargado/Admin; correccion neta, anulacion y auditoria |
 | `application/salaries/salaryClosureCommands.ts` | Cierre mensual definitivo y ciclo de revisiones correctivas |
 
 ## Componentes compartidos
@@ -162,17 +170,21 @@ src/
 
 | Modulo | Lee | Produce o modifica | Referencias obligatorias |
 | --- | --- | --- | --- |
-| Caja | locales, maquinas, cuentas, usuarios | balances, readings, movimientos, auditoria | `CODEX_NUCLEO_CAJA`, modulos 02/05 |
+| Caja | locales, maquinas, cuentas, usuarios, tesoreria | balances, readings, traspasos, movimientos y auditoria | `CODEX_NUCLEO_CAJA`, modulos 02/04/05 |
 | Diferencias | balances, cuentas, auditoria | declarados, estados, movimientos de cuenta | `CODEX_DIFERENCIAS`, modulos 06/11/12 |
-| Cuentas | cuentas, movimientos, balances | vistas y saldo corrido | `CODEX_CUENTAS_CORRIENTES`, modulo 11 |
+| Cuentas/Tesoreria | cuentas, movimientos, balances, socios | vistas, saldo corrido, traspasos y movimientos patrimoniales | `CODEX_CUENTAS_CORRIENTES`, modulos 04/11 |
 | Salarios | personal, historial, caja, cuentas | liquidaciones, cierres y movimientos | `CODEX_SALARIOS`, modulos 10/11/12 |
 | Locales/maquinas | locales, maquinas, readings, balances | asociaciones, contadores e historial | `CODEX_LOCALES_MAQUINAS`, modulos 03/09 |
-| Movimientos cajero | caja, clientes, personal, categorias | gastos, regalos, transferencias, salarios, capital | `CODEX_CAJERO`, `CODEX_NUCLEO_CAJA`, modulos 01/04 |
+| Movimientos cajero | caja, clientes, personal, categorias, Principal | gastos, regalos, transferencias, salarios y traspasos | `CODEX_CAJERO`, `CODEX_NUCLEO_CAJA`, modulos 01/04 |
+| Periodico | cajas, Principal, socios, gastos y salarios | resumen y foto del rango | modulos 07/11/12 |
 | Auditoria | todos los comandos sensibles | eventos append-only conceptuales | `CODEX_AUDITORIA`, modulo 12 |
 
 ## Asociaciones transversales
 
 - `balanceId` vincula movimientos, salarios y lecturas con una recaudacion.
+- Gastos/salarios administrativos desde Principal no tienen `balanceId`; `localId` y periodo conservan su alcance.
+- Traspasos Caja/Principal operativos usan `balanceId` cuando existe caja abierta; apertura/cierre lo generan automaticamente.
+- `paymentAccountId` identifica la cuenta que entrego dinero.
 - `localId` determina alcance operativo y permisos futuros.
 - `staffId`, `clientId` y `machineId` vinculan historiales con maestros.
 - `parentClosureId` encadena revisiones salariales y `correctionClosureId` vincula cada movimiento con su ajuste abierto.
@@ -195,7 +207,7 @@ src/
 - Features cuentan con `AGENTS.md` cortos de referencia.
 - `LocationsMachines.tsx` ya separa editores, historiales y helpers en `features/admin/locationsMachines/`.
 - `Movements.tsx` ya separa clientes, salarios y tabla/panel compartido.
-- `Movements.tsx` reutiliza gastos y capital entre Cajero y Encargado; recibe la funcion activa y no replica reglas de autorizacion.
+- `Movements.tsx` contiene movimientos propios del Cajero. Encargado/Admin usan `manager/Expenses`, `accounts/CurrentAccounts` y `salaries/SalarySettlementEditor` sobre Principal.
 - `SalarySettlements.tsx` ya separa su editor de escritura.
 - El cierre salarial y sus revisiones ya se ejecutan mediante comandos; `salaryClosures.ts` comparte calculo, snapshot y bloqueo entre dominio e interfaz.
 - `appData.ts` delega la normalizacion estructural en `data/normalizeData.ts`; `data/migrateData.ts` hidrata segun la version y evita reconstrucciones financieras silenciosas en snapshots vigentes.
@@ -229,11 +241,11 @@ Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de pl
 
 ### Alta
 
-- Movimientos operativos ya validan actor, funcion y local dentro del comando. Apertura, contadores, cierre y salarios todavia no aplican una politica uniforme equivalente; parte de ese control depende de navegacion/UI.
+- Los comandos nuevos de Caja, tesoreria, gastos Principal y salarios validan actor, funcion, usuario, local y fondos. Operaciones sensibles que aun viven en handlers React deben extraerse con la misma politica.
 - El local operativo de `App.tsx` sigue resolviendose como Poseidon o el primer local; la estructura de datos es multi-local, pero el contexto operativo multi-local aun no esta completo.
 - La apertura ya rechaza cualquier segunda caja abierta del mismo local, sin depender de la fecha. Traslados/asignaciones de maquinas, ajustes administrativos de contadores y cierre de local tambien se bloquean durante esa caja.
-- Cierres periodicos, revision/anulacion administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
-- Cobertura automatizada insuficiente para cierre periodico, formularios administrativos y todos los flujos completos del encargado.
+- Guardado de cierres periodicos, revision administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
+- Cobertura E2E todavia es insuficiente para todo el ciclo de tesoreria, cierre periodico y formularios administrativos.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales y conserva el intento fallido para descargar o reintentar.
 - El adaptador local compara el snapshot esperado con el almacenado y evita que una pestaña desactualizada sobrescriba otra.
 
@@ -243,7 +255,7 @@ Completado en integridad local: los movimientos persistidos se conservan, las an
 
 ### Media
 
-- La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales. La primera migracion incremental ya esta separada por `schemaVersion`, pero falta validacion profunda de campos, enums y relaciones.
+- La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales. Las migraciones 3 -> 4 y 4 -> 5 estan separadas, pero falta validacion profunda de campos, enums y relaciones.
 - El cierre salarial inmutable esta implementado con snapshot por empleado, bloqueo del periodo, revision correctiva enlazada y migracion explicita de cierres heredados.
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.

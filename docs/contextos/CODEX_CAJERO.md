@@ -1,57 +1,45 @@
-# Contexto Codex - Operacion del cajero
+# Contexto Codex - Cajero
 
-Ultima actualizacion: 2026-07-17
+Leer junto con `docs/contextos/CODEX_NUCLEO_CAJA.md`, `docs/REGLAS_CONTABLES.md` y modulos 01, 02, 04 y 05.
 
-Leer este contexto antes de modificar el panel, las pantallas o el flujo diario del cajero. Agregar `CODEX_NUCLEO_CAJA` cuando cambien comandos, calculos, saldos o auditoria.
+## Propiedad
 
-## Propiedad principal
+- UI de Caja: `src/features/cashier/`.
+- Panel: `src/features/dashboard/CashierDashboard.tsx`.
+- Rutas/permisos: `src/navigation/screens.ts`.
+- Comandos compartidos: `src/application/cash/`, `src/application/movements/`, `src/application/treasury/` y `src/application/salaries/`.
 
-- `src/features/cashier/`
-- `src/features/dashboard/CashierDashboard.tsx`
-- `docs/modulos/01_panel_cajero.md`
-- Pruebas E2E del flujo de cajero que el chat central asigne de forma exclusiva.
+El chat Cajero es propietario de su experiencia, no de los contratos contables compartidos. Central integra cambios de dominio.
 
-`src/features/layout/AppShell.tsx`, estilos globales, rutas y contratos compartidos quedan reservados al chat central salvo asignacion explicita.
+## Flujo
 
-## Experiencia operativa
+- Sin caja abierta: Abrir caja, Clientes y Resumen de cajas.
+- Con caja abierta: contadores, gastos, transferencias, regalos, salarios, Caja/Principal y cierre.
+- Cada movimiento operativo usa el `balanceId` activo.
+- Cajero opera `Caja / Efectivo` y `Caja / Banco`.
+- `Caja y Principal` permite traspasos internos; no selecciona socio y no cambia resultado economico.
+- Los aportes/retiros patrimoniales de socios no pertenecen al panel Cajero.
+- Tras cerrar navega a `/recaudaciones`.
 
-- El cajero trabaja sin barra lateral.
-- Si no hay caja abierta, solo puede abrir caja, consultar clientes y revisar cajas cerradas.
-- Con caja abierta puede cargar contadores, gastos, transferencias, regalos, salarios, aportes y retiros, y cerrar la recaudacion.
-- Despues del cierre navega al resumen de cajas.
-- Antes de confirmar el cierre ve las intervenciones del Encargado asociadas a esa recaudacion, incluidos anulados con impacto vigente cero.
-- Formularios, avisos, tablas, accesibilidad y navegacion pertenecen a este contexto.
-- Las tablas operativas ordenan todas sus columnas visibles de datos; acciones y seleccion son las excepciones.
+## Reglas
 
-## Dependencias obligatorias
-
-- Apertura, guardado de lecturas, movimientos y cierre consumen comandos de `src/application/`.
-- Totales, cuentas y diferencias se leen desde helpers compartidos; no se duplican formulas en React.
-- Salarios se imputan al periodo trabajado y a la caja por `balanceId`.
-- Maquinas y locales se consultan, pero sus reglas administrativas pertenecen a su dominio.
-- Toda accion sensible conserva usuario real, rol real y funcion usada.
-
-## Limites del chat Cajero
-
-- No modifica por iniciativa propia `src/types.ts`, `src/data/`, `src/infrastructure/`, `src/application/`, `src/navigation/` ni helpers contables.
-- Cuando una necesidad cruza esos limites, entrega una solicitud al chat central con regla, contrato requerido, archivos candidatos y pruebas afectadas.
-- No cambia permisos de Encargado o Administrador.
-
-## Referencias
-
-- `docs/contextos/CODEX_NUCLEO_CAJA.md`
-- `docs/REGLAS_CONTABLES.md`
-- `docs/REGLAS_VISUALES.md`
-- `docs/modulos/01_panel_cajero.md`
-- `docs/modulos/02_caja_diaria.md`
-- `docs/modulos/03_contadores.md`
-- `docs/modulos/04_movimientos_operativos.md`
-- `docs/modulos/05_cierre_caja.md`
+- No duplicar formulas en React; usar helpers y comandos compartidos.
+- Contadores IN/OUT no retroceden.
+- Gastos, regalos y salarios del Cajero salen de Caja/Efectivo.
+- Transferencias mueven Caja/Efectivo a Caja/Banco.
+- Una salida sin fondos se rechaza atomicamente.
+- Efectivo esperado debe coincidir con Caja/Efectivo.
+- Si el efectivo esperado es negativo, se cubre con fondos reales de Principal y un traspaso Principal -> Caja.
+- El cierre puede traspasar Caja -> Principal y compara el remanente con lo declarado.
+- No existe selector de persona ni custodia en traspasos de Caja.
+- Todas las columnas visibles de datos ordenan; Acciones/Seleccion no.
 
 ## Prueba minima
 
-1. Entrar como `cajero1`.
-2. Verificar estado sin caja y abrir una recaudacion.
-3. Cargar contadores y movimientos permitidos.
-4. Verificar el detalle ordenable de movimientos del Encargado y cerrar declarando efectivo y banco.
-5. Revisar resumen, cuentas y diferencias generadas.
+1. Ingresar como `cajero1`.
+2. Abrir caja.
+3. Cargar las tres maquinas.
+4. Registrar movimientos de Caja.
+5. Mover fondos entre Caja y Principal.
+6. Cerrar declarando efectivo/banco y traspaso final.
+7. Verificar resumen, cuentas y auditoria.

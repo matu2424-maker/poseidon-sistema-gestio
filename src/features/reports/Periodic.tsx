@@ -9,6 +9,7 @@ import { money } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard } from "../../components/ui";
 import { confirmAction } from "../../lib/confirmations";
+import { summarizePeriodicRange } from "../../lib/periodicTotals";
 
 const POSEIDON_LOCAL_ID = "1";
 
@@ -82,7 +83,14 @@ export function Periodic({
       const result = compareValues(balanceSortValue(data, a, balanceSort.key), balanceSortValue(data, b, balanceSort.key));
       return balanceSort.direction === "asc" ? result : -result;
     });
-  const totals = summarizeBalances(data, closedBalances);
+  const scopedLocalIds = allowedLocalIds ? [...allowedLocalIds] : data.locals.map((item) => item.id);
+  const totals = summarizePeriodicRange(data, {
+    balances: closedBalances,
+    localIds: scopedLocalIds,
+    startDate,
+    endDate,
+    type: closureType,
+  });
   const savedClosures = data.periodicClosures
     .filter((closure) => !allowedLocalIds || allowedLocalIds.has(closure.localId))
     .sort((a, b) => {
@@ -122,7 +130,13 @@ export function Periodic({
           const date = balance.closedAt?.slice(0, 10) ?? balance.operatingDate;
           return date >= startDate && date <= endDate;
         });
-      const currentTotals = summarizeBalances(current, currentBalances);
+      const currentTotals = summarizePeriodicRange(current, {
+        balances: currentBalances,
+        localIds: scopedLocalIds,
+        startDate,
+        endDate,
+        type: closureType,
+      });
       const localId = user.localIds[0] ?? POSEIDON_LOCAL_ID;
       const closure: PeriodicClosure = {
         id: uid("periodic"),
@@ -207,7 +221,8 @@ export function Periodic({
         <InfoCard tone="blue" title="Resultado maquinas" lines={[money(totals.resultMachines), `${closedBalances.length} recaudacion(es)`]} />
         <InfoCard tone="red" title="Salida total" lines={[money(totals.totalOutflows), `Gastos ${money(totals.totalExpenses)} / Salarios ${money(totals.totalSalaries)} / Regalos ${money(totals.totalGifts)}`]} />
         <InfoCard tone="blue" title="Transferencias" lines={[money(totals.totalTransfers), "Movimientos bancarios"]} />
-        <InfoCard tone="orange" title="Retiros / aportes" lines={[`Retiros ${money(totals.totalWithdrawals)}`, `Aportes ${money(totals.totalContributions)}`]} />
+        <InfoCard tone="orange" title="Caja / Principal" lines={[`Caja a Principal ${money(totals.totalCajaToPrincipal)}`, `Principal a Caja ${money(totals.totalPrincipalToCaja)}`]} />
+        <InfoCard tone="blue" title="Socios" lines={[`Aportes ${money(totals.totalPartnerContributions)}`, `Retiros ${money(totals.totalPartnerWithdrawals)}`]} />
         <InfoCard
           tone={totals.pendingDifferences > 0 || totals.cashDifference !== 0 || totals.bankDifference !== 0 ? "red" : "green"}
           title="Diferencias"
@@ -265,6 +280,11 @@ export function Periodic({
               </tbody>
             </table>
           </div>
+          {(totals.principalExpenseIds.length > 0 || totals.principalSalarySettlementIds.length > 0) && (
+            <p className="helper">
+              El consolidado tambien incluye {totals.principalExpenseIds.length} gasto(s) y {totals.principalSalarySettlementIds.length} liquidacion(es) pagados desde Principal.
+            </p>
+          )}
         </section>
         <section className="periodic-panel">
           <div className="section-toolbar">
@@ -324,43 +344,6 @@ export function Periodic({
         </section>
       </div>
     </section>
-  );
-}
-
-function summarizeBalances(sourceData: AppData, balances: Balance[]) {
-  return balances.reduce(
-    (acc, balance) => {
-      const totals = totalsForBalance(sourceData, balance.id);
-      const gifts = totals.giftCash + totals.giftCredit;
-      return {
-        resultMachines: acc.resultMachines + totals.resultMachines,
-        totalExpenses: acc.totalExpenses + totals.totalExpenses,
-        totalSalaries: acc.totalSalaries + totals.totalSalaries,
-        totalGifts: acc.totalGifts + gifts,
-        totalOutflows: acc.totalOutflows + totals.totalExpenses + totals.totalSalaries + gifts,
-        commercialResult: acc.commercialResult + totals.commercialResult,
-        totalTransfers: acc.totalTransfers + totals.totalTransfers,
-        totalWithdrawals: acc.totalWithdrawals + totals.totalWithdrawals,
-        totalContributions: acc.totalContributions + totals.totalCapitalContributions,
-        cashDifference: acc.cashDifference + cashDifferenceForBalance(sourceData, balance),
-        bankDifference: acc.bankDifference + bankDifferenceForBalance(balance),
-        pendingDifferences: acc.pendingDifferences + (balanceHasDifference(sourceData, balance) && differenceIsPending(balance) ? 1 : 0),
-      };
-    },
-    {
-      resultMachines: 0,
-      totalExpenses: 0,
-      totalSalaries: 0,
-      totalGifts: 0,
-      totalOutflows: 0,
-      commercialResult: 0,
-      totalTransfers: 0,
-      totalWithdrawals: 0,
-      totalContributions: 0,
-      cashDifference: 0,
-      bankDifference: 0,
-      pendingDifferences: 0,
-    },
   );
 }
 

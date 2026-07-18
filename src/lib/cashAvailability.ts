@@ -1,6 +1,12 @@
 import type { AppData } from "../types";
 import { totalsForBalance } from "./cashTotals";
-import { localAccountBalances, localCashAccountId } from "./currentAccounts";
+import {
+  accountKindLabel,
+  accountTotals,
+  isMoneyAccount,
+  localAccountBalances,
+  localCashAccountId,
+} from "./currentAccounts";
 import { money } from "./money";
 
 export type BalanceCashReconciliation = {
@@ -38,7 +44,7 @@ export function balanceCashReconciliationError(data: AppData, balanceId: string)
     return "No se puede operar porque la conciliacion de efectivo contiene importes no validos.";
   }
   if (reconciliation.isConsistent) return "";
-  return `No se puede operar porque el efectivo calculado de la caja (${money(reconciliation.expectedCash)}) no coincide con Local / Efectivo (${money(reconciliation.accountCash)}). Diferencia tecnica: ${money(reconciliation.delta)}. Requiere una reconciliacion auditada; un aporte comun no corrige este desacople.`;
+  return `No se puede operar porque el efectivo calculado de la caja (${money(reconciliation.expectedCash)}) no coincide con Caja / Efectivo (${money(reconciliation.accountCash)}). Diferencia tecnica: ${money(reconciliation.delta)}. Requiere una reconciliacion auditada; un traspaso comun no corrige este desacople.`;
 }
 
 export function historicalCashMutationError(
@@ -58,7 +64,10 @@ export function localCashAvailable(data: AppData, localId: string) {
 }
 
 export function activeLocalCashSourceOutflow(data: AppData, localId: string, sourceId: string) {
-  const accountId = localCashAccountId(localId);
+  return activeAccountSourceOutflow(data, localCashAccountId(localId), sourceId);
+}
+
+export function activeAccountSourceOutflow(data: AppData, accountId: string, sourceId: string) {
   const netOutflow = data.accountMovements
     .filter((movement) => movement.accountId === accountId && movement.sourceId === sourceId && movement.status === "ACTIVO")
     .reduce(
@@ -68,17 +77,21 @@ export function activeLocalCashSourceOutflow(data: AppData, localId: string, sou
   return Math.max(0, netOutflow);
 }
 
-export function localCashOutflowError(data: AppData, localId: string, requestedAmount: number) {
+export function accountOutflowError(data: AppData, accountId: string, requestedAmount: number) {
   if (!Number.isFinite(requestedAmount)) return "El monto de la salida debe ser un numero finito.";
   if (requestedAmount <= 0) return "";
-
-  const available = localCashAvailable(data, localId);
-  if (!Number.isFinite(available)) return "El saldo disponible de Local / Efectivo no es valido.";
+  const account = data.currentAccounts.find((item) => item.id === accountId);
+  if (!account || !isMoneyAccount(account)) return "La cuenta de dinero seleccionada no es valida.";
+  const available = accountTotals(data, accountId).balance;
+  const label = accountKindLabel(account.kind);
+  if (!Number.isFinite(available)) return `El saldo disponible de ${label} no es valido.`;
   if (requestedAmount <= available) return "";
-
   if (available < 0) {
-    return `No se puede registrar una nueva salida de efectivo: el saldo Local / Efectivo es negativo (${money(available)}). Registra un aporte real en efectivo para cubrir el faltante.`;
+    return `No se puede registrar una nueva salida: el saldo ${label} es negativo (${money(available)}). Primero hay que ingresar o transferir fondos reales.`;
   }
+  return `No hay fondos suficientes en ${label}. Disponible: ${money(available)}. Salida solicitada: ${money(requestedAmount)}.`;
+}
 
-  return `No hay efectivo suficiente en el local. Disponible: ${money(available)}. Salida solicitada: ${money(requestedAmount)}. Registra un aporte real, elige otro medio o cancela la operacion.`;
+export function localCashOutflowError(data: AppData, localId: string, requestedAmount: number) {
+  return accountOutflowError(data, localCashAccountId(localId), requestedAmount);
 }

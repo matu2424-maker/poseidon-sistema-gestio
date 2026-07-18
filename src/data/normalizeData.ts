@@ -8,7 +8,9 @@ import {
   localTransferCashAccountMovement,
   localTransferAccountMovement,
   machineResultAccountMovement,
+  partnerMovementAccountMovements,
   salaryAccountMovement,
+  treasuryTransferAccountMovements,
   transferAccountMovement,
 } from "../lib/accountMovements";
 import { normalizeClientDocument, normalizeClientDocumentType } from "../lib/clients";
@@ -16,11 +18,17 @@ import { auditEventLocalIds } from "../lib/audit";
 import {
   createLocalBankCurrentAccount,
   createLocalCashCurrentAccount,
+  createPartnerCurrentAccount,
+  createPrincipalBankCurrentAccount,
+  createPrincipalCashCurrentAccount,
   createStaffCurrentAccount,
   createTransferCurrentAccount,
   localAccountIdForMedium,
   localBankAccountId,
   localCashAccountId,
+  partnerAccountId,
+  PRINCIPAL_BANK_ACCOUNT_ID,
+  PRINCIPAL_CASH_ACCOUNT_ID,
   staffAccountId,
   TRANSFER_ACCOUNT_ID,
 } from "../lib/currentAccounts";
@@ -56,6 +64,8 @@ export function normalizeDataFromSeed(
     currentAccounts: Array.isArray(data.currentAccounts) ? data.currentAccounts : seed.currentAccounts,
     accountMovements: Array.isArray(data.accountMovements) ? data.accountMovements : seed.accountMovements,
     capitalMovements: Array.isArray(data.capitalMovements) ? data.capitalMovements : seed.capitalMovements,
+    treasuryTransfers: Array.isArray(data.treasuryTransfers) ? data.treasuryTransfers : [],
+    partnerMovements: Array.isArray(data.partnerMovements) ? data.partnerMovements : [],
     locals: Array.isArray(data.locals) && data.locals.length ? data.locals : seed.locals,
     machines: Array.isArray(data.machines) ? data.machines : seed.machines,
     balances: Array.isArray(data.balances) ? data.balances : [],
@@ -218,6 +228,13 @@ export function normalizeDataFromSeed(
     const balancePeriod = item.balanceId
       ? source.balances.find((balance) => balance.id === item.balanceId)?.operatingDate?.slice(0, 7)
       : undefined;
+    const settlementLocalId = mapLocalId(item.localId ?? POSEIDON_LOCAL_ID);
+    const recordedPaymentAccountId = source.accountMovements.find(
+      (movement) =>
+        movement.sourceType === "SUELDO" &&
+        movement.sourceId === item.id &&
+        (movement.accountId.startsWith("account-local-") || movement.accountId.startsWith("account-principal-")),
+    )?.accountId;
     return {
       ...item,
       period: isValidSalaryPeriod(item.period ?? "") ? item.period : balancePeriod ?? today().slice(0, 7),
@@ -225,7 +242,9 @@ export function normalizeDataFromSeed(
       staffName:
         item.staffName ??
         staffFullName(staff.find((staffItem) => staffItem.id === item.staffId) ?? { firstName: "", lastName: "" }),
-      localId: mapLocalId(item.localId ?? POSEIDON_LOCAL_ID),
+      localId: settlementLocalId,
+      paymentAccountId: item.paymentAccountId ?? recordedPaymentAccountId ?? localCashAccountId(settlementLocalId),
+      currency: "UYU" as const,
       baseSalary: isSalaryPaymentConcept(normalizeSalaryConcept(item.concept)) ? 0 : Number(item.baseSalary ?? 0),
       advances: Number(item.advances ?? 0),
       extraAmount: Number(item.extraAmount ?? 0),
@@ -276,6 +295,8 @@ export function normalizeDataFromSeed(
     nextBankBase: balance.nextBankBase === undefined ? undefined : Number(balance.nextBankBase),
     finalWithdrawalCash: Number(balance.finalWithdrawalCash ?? 0),
     finalWithdrawalBank: Number(balance.finalWithdrawalBank ?? 0),
+    finalTransferToPrincipalCash: Number(balance.finalTransferToPrincipalCash ?? balance.finalWithdrawalCash ?? 0),
+    finalTransferToPrincipalBank: Number(balance.finalTransferToPrincipalBank ?? balance.finalWithdrawalBank ?? 0),
     bankDifference: Number(balance.bankDifference ?? 0),
     differenceStatus: normalizeDifferenceStatus(balance),
     differenceReviewedBy: balance.differenceReviewedBy,
@@ -287,6 +308,11 @@ export function normalizeDataFromSeed(
   const expenses = source.expenses.map((expense) => ({
     ...expense,
     balanceId: expense.balanceId,
+    localId: mapLocalId(expense.localId ?? (expense.balanceId ? balanceLocalId(expense.balanceId) : POSEIDON_LOCAL_ID)),
+    paymentAccountId:
+      expense.paymentAccountId ??
+      localCashAccountId(mapLocalId(expense.localId ?? (expense.balanceId ? balanceLocalId(expense.balanceId) : POSEIDON_LOCAL_ID))),
+    currency: "UYU" as const,
     category: expense.category ?? "",
     subcategory: expense.subcategory ?? "",
     amount: Number(expense.amount ?? 0),
@@ -339,6 +365,34 @@ export function normalizeDataFromSeed(
     userId: movement.userId ?? "system",
     createdAt: movement.createdAt ?? nowIso(),
   }));
+  const treasuryTransfers = source.treasuryTransfers.map((transfer) => ({
+    ...transfer,
+    balanceId: transfer.balanceId,
+    localId: mapLocalId(transfer.localId ?? (transfer.balanceId ? balanceLocalId(transfer.balanceId) : POSEIDON_LOCAL_ID)),
+    type: transfer.type ?? "RETIRO_CAJA",
+    medium: transfer.medium ?? "EFECTIVO",
+    timing: transfer.timing ?? "OPERATIVO",
+    amount: Number(transfer.amount ?? 0),
+    currency: "UYU" as const,
+    note: transfer.note ?? "",
+    status: transfer.status ?? "ACTIVO",
+    userId: transfer.userId ?? "system",
+    createdAt: transfer.createdAt ?? nowIso(),
+  }));
+  const partnerMovements = source.partnerMovements.map((movement) => ({
+    ...movement,
+    balanceId: movement.balanceId,
+    localId: mapLocalId(movement.localId ?? (movement.balanceId ? balanceLocalId(movement.balanceId) : POSEIDON_LOCAL_ID)),
+    partner: movement.partner ?? "MATHIAS",
+    type: movement.type ?? "APORTE_SOCIO",
+    medium: movement.medium ?? "EFECTIVO",
+    amount: Number(movement.amount ?? 0),
+    currency: "UYU" as const,
+    note: movement.note ?? "",
+    status: movement.status ?? "ACTIVO",
+    userId: movement.userId ?? "system",
+    createdAt: movement.createdAt ?? nowIso(),
+  }));
   const periodicClosures = source.periodicClosures.map((closure, index) => ({
     ...closure,
     visibleId: closure.visibleId ?? `PER-${index + 1}`,
@@ -347,6 +401,10 @@ export function normalizeDataFromSeed(
     startDate: closure.startDate ?? today(),
     endDate: closure.endDate ?? today(),
     balanceIds: Array.isArray(closure.balanceIds) ? closure.balanceIds : [],
+    principalExpenseIds: Array.isArray(closure.principalExpenseIds) ? closure.principalExpenseIds : [],
+    principalSalarySettlementIds: Array.isArray(closure.principalSalarySettlementIds) ? closure.principalSalarySettlementIds : [],
+    treasuryTransferIds: Array.isArray(closure.treasuryTransferIds) ? closure.treasuryTransferIds : [],
+    partnerMovementIds: Array.isArray(closure.partnerMovementIds) ? closure.partnerMovementIds : [],
     resultMachines: Number(closure.resultMachines ?? 0),
     totalExpenses: Number(closure.totalExpenses ?? 0),
     totalSalaries: Number(closure.totalSalaries ?? 0),
@@ -356,6 +414,10 @@ export function normalizeDataFromSeed(
     totalTransfers: Number(closure.totalTransfers ?? 0),
     totalWithdrawals: Number(closure.totalWithdrawals ?? 0),
     totalContributions: Number(closure.totalContributions ?? 0),
+    totalCajaToPrincipal: Number(closure.totalCajaToPrincipal ?? closure.totalWithdrawals ?? 0),
+    totalPrincipalToCaja: Number(closure.totalPrincipalToCaja ?? closure.totalContributions ?? 0),
+    totalPartnerContributions: Number(closure.totalPartnerContributions ?? 0),
+    totalPartnerWithdrawals: Number(closure.totalPartnerWithdrawals ?? 0),
     cashDifference: Number(closure.cashDifference ?? 0),
     bankDifference: Number(closure.bankDifference ?? 0),
     pendingDifferences: Number(closure.pendingDifferences ?? 0),
@@ -445,12 +507,24 @@ export function normalizeDataFromSeed(
       kind: account.kind ?? "PERSONAL",
       entityId: account.entityId,
       name: account.name ?? account.id,
+      currency: "UYU",
       status: account.status ?? "ACTIVA",
       createdAt: account.createdAt ?? nowIso(),
       updatedAt: account.updatedAt ?? nowIso(),
     });
   });
   accountById.set(TRANSFER_ACCOUNT_ID, createTransferCurrentAccount(accountById.get(TRANSFER_ACCOUNT_ID)));
+  accountById.set(
+    PRINCIPAL_CASH_ACCOUNT_ID,
+    createPrincipalCashCurrentAccount(accountById.get(PRINCIPAL_CASH_ACCOUNT_ID)),
+  );
+  accountById.set(
+    PRINCIPAL_BANK_ACCOUNT_ID,
+    createPrincipalBankCurrentAccount(accountById.get(PRINCIPAL_BANK_ACCOUNT_ID)),
+  );
+  (["MATHIAS", "RICARDO"] as const).forEach((partner) => {
+    accountById.set(partnerAccountId(partner), createPartnerCurrentAccount(partner, accountById.get(partnerAccountId(partner))));
+  });
   locals.forEach((local) => {
     accountById.set(
       localCashAccountId(local.id),
@@ -472,15 +546,24 @@ export function normalizeDataFromSeed(
   const movementById = new Map<string, AccountMovement>();
   source.accountMovements.forEach((movement) => {
     if (!accountIds.has(movement.accountId)) return;
+    const inferredLocalId =
+      movement.localId ??
+      (movement.balanceId ? balanceLocalId(movement.balanceId) : undefined) ??
+      expenses.find((expense) => expense.id === movement.sourceId)?.localId ??
+      salarySettlements.find((settlement) => settlement.id === movement.sourceId)?.localId ??
+      treasuryTransfers.find((transfer) => transfer.id === movement.sourceId)?.localId ??
+      partnerMovements.find((partnerMovement) => partnerMovement.id === movement.sourceId)?.localId;
     movementById.set(movement.id, {
       id: movement.id,
       accountId: movement.accountId,
+      localId: inferredLocalId ? mapLocalId(inferredLocalId) : undefined,
       balanceId: movement.balanceId,
       sourceType: movement.sourceType ?? "AJUSTE",
       sourceId: movement.sourceId ?? movement.id,
       direction: movement.direction ?? "SALIDA",
       concept: movement.concept ?? "",
       amount: Number(movement.amount ?? 0),
+      currency: "UYU",
       detail: movement.detail ?? "",
       status: movement.status ?? "ACTIVO",
       userId: movement.userId ?? "system",
@@ -503,8 +586,7 @@ export function normalizeDataFromSeed(
       }
     });
     expenses.forEach((expense) => {
-      const localId = balanceLocalId(expense.balanceId);
-      if (accountIds.has(localCashAccountId(localId))) addDerivedMovement(localExpenseAccountMovement(expense, localId));
+      if (accountIds.has(expense.paymentAccountId)) addDerivedMovement(localExpenseAccountMovement(expense, expense.localId));
     });
     transfers.forEach((transfer) => {
       addDerivedMovement(transferAccountMovement(transfer));
@@ -520,6 +602,8 @@ export function normalizeDataFromSeed(
       const accountId = localAccountIdForMedium(movement.localId, movement.medium);
       if (accountIds.has(accountId)) addDerivedMovement(capitalAccountMovement(movement));
     });
+    treasuryTransfers.forEach((transfer) => treasuryTransferAccountMovements(transfer).forEach(addDerivedMovement));
+    partnerMovements.forEach((movement) => partnerMovementAccountMovements(movement).forEach(addDerivedMovement));
     balances.forEach((balance) => {
       const result = source.readings
         .filter((reading) => reading.balanceId === balance.id && reading.status === "CARGADA")
@@ -557,6 +641,8 @@ export function normalizeDataFromSeed(
     currentAccounts,
     accountMovements,
     capitalMovements,
+    treasuryTransfers,
+    partnerMovements,
     locals,
     machines,
     balances,

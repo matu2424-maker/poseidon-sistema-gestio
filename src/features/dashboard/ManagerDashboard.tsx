@@ -1,6 +1,6 @@
 import { InfoCard } from "../../components/ui";
 import { totalsForBalance } from "../../lib/cashTotals";
-import { localAccountBalances } from "../../lib/currentAccounts";
+import { companyLiquidity, localAccountBalances, principalAccountBalances } from "../../lib/currentAccounts";
 import { today } from "../../lib/dates";
 import {
   balanceHasDifference,
@@ -10,6 +10,7 @@ import {
 } from "../../lib/differences";
 import { balanceVisibleId } from "../../lib/display";
 import { money } from "../../lib/money";
+import { salarySettlementAmount } from "../../lib/salaryRules";
 import type { AppData, Balance, Local, Screen } from "../../types";
 
 export function ManagerDashboard({
@@ -37,6 +38,8 @@ export function ManagerDashboard({
     0,
   );
   const localBalances = localAccountBalances(data, local.id);
+  const principalBalances = principalAccountBalances(data);
+  const liquidity = companyLiquidity(data, local.id);
   const currentDate = today();
   const currentMonthStart = `${currentDate.slice(0, 7)}-01`;
   const currentMonthName = new Date(`${currentMonthStart}T00:00:00`).toLocaleDateString("es-UY", {
@@ -47,22 +50,31 @@ export function ManagerDashboard({
     const balanceDate = balance.closedAt?.slice(0, 10) ?? balance.operatingDate;
     return balanceDate >= currentMonthStart && balanceDate <= currentDate;
   });
-  const monthlyEconomicTotals = monthlyClosedBalances.reduce(
-    (acc, balance) => {
-      const balanceTotals = totalsForBalance(data, balance.id);
-      const gifts = balanceTotals.giftCash + balanceTotals.giftCredit;
-      return {
-        income: acc.income + Math.max(balanceTotals.resultMachines, 0),
-        outcome:
-          acc.outcome +
-          Math.max(-balanceTotals.resultMachines, 0) +
-          balanceTotals.totalExpenses +
-          balanceTotals.totalSalaries +
-          gifts,
-      };
-    },
-    { income: 0, outcome: 0 },
+  const monthlyMachineResult = monthlyClosedBalances.reduce(
+    (total, balance) => total + totalsForBalance(data, balance.id).resultMachines,
+    0,
   );
+  const isCurrentMonth = (createdAt: string) =>
+    createdAt.slice(0, 10) >= currentMonthStart && createdAt.slice(0, 10) <= currentDate;
+  const monthlyExpenses = data.expenses
+    .filter((expense) => expense.localId === local.id && expense.status === "ACTIVO" && isCurrentMonth(expense.createdAt))
+    .reduce((total, expense) => total + expense.amount, 0);
+  const monthlySalaries = data.salarySettlements
+    .filter(
+      (settlement) =>
+        settlement.localId === local.id &&
+        settlement.status !== "ANULADA" &&
+        settlement.period === currentDate.slice(0, 7),
+    )
+    .reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
+  const monthlyGifts = data.gifts
+    .filter((gift) => gift.status === "ACTIVO" && isCurrentMonth(gift.createdAt))
+    .filter((gift) => data.balances.find((balance) => balance.id === gift.balanceId)?.localId === local.id)
+    .reduce((total, gift) => total + gift.cashAmount + gift.creditAmount, 0);
+  const monthlyEconomicTotals = {
+    income: Math.max(monthlyMachineResult, 0),
+    outcome: Math.max(-monthlyMachineResult, 0) + monthlyExpenses + monthlySalaries + monthlyGifts,
+  };
   const monthlyNetResult = monthlyEconomicTotals.income - monthlyEconomicTotals.outcome;
 
   return (
@@ -85,15 +97,27 @@ export function ManagerDashboard({
           />
           <InfoCard
             tone={localBalances.cash < 0 ? "red" : "green"}
-            title="Cuenta efectivo"
+            title="Caja / Efectivo"
             variant="cash"
-            lines={[`*Saldo actual: ${money(localBalances.cash)}`, "Cuenta corriente de efectivo"]}
+            lines={[`*Saldo actual: ${money(localBalances.cash)}`, "Fondos operativos del local"]}
           />
           <InfoCard
             tone={localBalances.bank < 0 ? "red" : "blue"}
-            title="Cuenta banco"
+            title="Caja / Banco"
             variant="cash"
-            lines={[`*Saldo actual: ${money(localBalances.bank)}`, "Cuenta corriente de banco"]}
+            lines={[`*Saldo actual: ${money(localBalances.bank)}`, "Fondos bancarios del local"]}
+          />
+          <InfoCard
+            tone={principalBalances.cash < 0 ? "red" : "green"}
+            title="Principal / Efectivo"
+            variant="cash"
+            lines={[`*Saldo actual: ${money(principalBalances.cash)}`, "Pagos y fondos centrales"]}
+          />
+          <InfoCard
+            tone={principalBalances.bank < 0 ? "red" : "blue"}
+            title="Principal / Banco"
+            variant="cash"
+            lines={[`*Saldo actual: ${money(principalBalances.bank)}`, `Liquidez total: ${money(liquidity.total)}`]}
           />
         </div>
       </section>
@@ -140,20 +164,20 @@ export function ManagerDashboard({
       <section className="manager-operation-section" aria-labelledby="manager-operation-title">
         <div className="manager-section-heading manager-operation-heading">
           <div>
-            <h2 id="manager-operation-title">Operacion de la caja activa</h2>
+            <h2 id="manager-operation-title">Operacion financiera</h2>
             <p className="helper">
               {openBalance
                 ? `${balanceVisibleId(data, openBalance)} · ${openBalance.operatingDate} · Efectivo disponible ${money(localBalances.cash)}`
-                : "No hay una caja abierta en Poseidon. Los movimientos operativos quedan deshabilitados."}
+                : "No hay una caja abierta en Poseidon. Principal sigue disponible para pagos autorizados."}
             </p>
           </div>
         </div>
         <nav className="manager-shortcuts manager-operation-shortcuts" aria-label="Movimientos de la caja activa">
-          <button className="button primary compact" type="button" disabled={!openBalance} onClick={() => setScreen("expenses")}>
-            Registrar gasto
+          <button className="button primary compact" type="button" onClick={() => setScreen("manager-expenses")}>
+            Gastos desde Principal
           </button>
-          <button className="button primary compact" type="button" disabled={!openBalance} onClick={() => setScreen("capital-movements")}>
-            Retiros / aportes
+          <button className="button primary compact" type="button" onClick={() => setScreen("admin-current-accounts")}>
+            Mover Caja / Principal
           </button>
         </nav>
       </section>

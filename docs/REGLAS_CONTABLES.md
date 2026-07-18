@@ -2,7 +2,24 @@
 
 Ultima actualizacion: 2026-07-17
 
-Esta es la fuente canonica de reglas economicas, financieras y de cuentas corrientes. Antes de modificar caja, cierre, diferencias, cuentas corrientes, salarios, gastos, transferencias, regalos, retiros o aportes, leer este archivo y el contexto del modulo afectado.
+Fuente canonica de reglas economicas, financieras y de cuentas corrientes. Antes de modificar caja, cierre, diferencias, cuentas, salarios, gastos, transferencias, regalos, aportes o retiros, leer este archivo y el contexto del modulo afectado.
+
+## Modelo monetario vigente
+
+Poseidon opera por ahora solamente en pesos uruguayos (`UYU`) y distingue cuatro cuentas monetarias:
+
+- `Caja / Efectivo`: efectivo asignado a la operacion diaria del local.
+- `Caja / Banco`: dinero bancario asignado a la operacion diaria del local.
+- `Principal / Efectivo`: efectivo central disponible para pagos administrativos y movimientos patrimoniales.
+- `Principal / Banco`: dinero bancario central disponible para pagos administrativos y movimientos patrimoniales.
+
+Ademas existen:
+
+- `Socio / Mathias` y `Socio / Ricardo`: cuentas patrimoniales; no son dinero disponible.
+- cuentas personales de empleados;
+- cuenta informativa de transferencias.
+
+No existe cuenta, rol ni concepto de custodia. Mathias y Ricardo se seleccionan solamente cuando hay un aporte o retiro real de socio.
 
 ## Regla madre
 
@@ -12,145 +29,154 @@ resultado economico = resultado maquinas - gastos - salarios - regalos
 
 No forman parte del resultado economico:
 
-- transferencias;
-- aportes de capital;
-- retiros;
-- efectivo inicial;
-- banco inicial;
-- diferencias de efectivo;
-- diferencias de banco.
+- transferencias entre efectivo y banco de Caja;
+- traspasos entre Caja y Principal;
+- aportes o retiros de socios;
+- efectivo o banco inicial;
+- diferencias de efectivo o banco;
+- reconciliaciones tecnicas y reversos.
 
 ## Matriz de impacto
 
-| Evento | Resultado economico | Local / Efectivo | Local / Banco | Cuenta personal | Cuenta transferencias | Referencias |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Resultado maquinas positivo | Suma | Entrada | No | No | No | Caja, contadores, cuentas |
-| Resultado maquinas negativo | Resta | Salida | No | No | No | Caja, contadores, cuentas |
-| Gasto | Resta | Salida | No | No | No | Movimientos, cuentas, auditoria |
-| Regalo | Resta | Salida | No | No | No | Movimientos, clientes, cuentas |
-| Salario pagado desde caja | Resta | Salida | No | Salida | No | Caja, salarios, cuentas |
-| Adelanto desde caja | No suma al total salarial | Salida | No | Salida | No | Caja, salarios, cuentas |
-| Descuento salarial | No es salida de caja | No | No | Ajusta pendiente | No | Salarios |
-| Transferencia registrada | No | Salida | Entrada | No | Entrada | Caja, transferencias, cuentas |
-| Retiro efectivo | No | Salida | No | No | No | Capital, cuentas |
-| Retiro banco | No | No | Salida | No | No | Capital, cuentas |
-| Aporte efectivo | No | Entrada | No | No | No | Capital, cuentas |
-| Aporte banco | No | No | Entrada | No | No | Capital, cuentas |
-| Diferencia efectivo positiva | No | Entrada | No | No | No | Diferencias, cierre, cuentas |
-| Diferencia efectivo negativa | No | Salida | No | No | No | Diferencias, cierre, cuentas |
-| Diferencia banco positiva | No | No | Entrada | No | No | Diferencias, cierre, cuentas |
-| Diferencia banco negativa | No | No | Salida | No | No | Diferencias, cierre, cuentas |
-| Reconciliacion tecnica de migracion | No | Ajuste tecnico auditado | No | No | No | Migracion versionada, cuentas, auditoria |
+| Evento | Resultado | Caja | Principal | Socio / otra cuenta |
+| --- | ---: | --- | --- | --- |
+| Maquinas positivo | Suma | Entra efectivo | No cambia | No cambia |
+| Maquinas negativo | Resta | Sale efectivo | No cambia | No cambia |
+| Gasto de Cajero | Resta | Sale efectivo | No cambia | No cambia |
+| Gasto de Encargado/Admin | Resta | No cambia | Sale de efectivo o banco elegido | No cambia |
+| Regalo | Resta | Sale efectivo | No cambia | Cliente queda referenciado |
+| Salario/adelanto de Cajero | Segun concepto | Sale efectivo | No cambia | Cuenta del empleado |
+| Liquidacion de Encargado/Admin | Segun concepto | No cambia | Sale de efectivo o banco elegido | Cuenta del empleado |
+| Descuento salarial | Ajusta salario | No cambia | No cambia | Reduce pendiente del empleado |
+| Transferencia de recaudacion | No | Efectivo a banco | No cambia | Cuenta Transferencias |
+| Caja a Principal | No | Sale del medio elegido | Entra al mismo medio | No cambia |
+| Principal a Caja | No | Entra al medio elegido | Sale del mismo medio | No cambia |
+| Aporte de socio | No | No cambia | Entra al medio elegido | Aumenta cuenta del socio |
+| Retiro de socio | No | No cambia | Sale del medio elegido | Disminuye cuenta del socio |
+| Diferencia positiva | No | Entra al medio declarado | No cambia | Queda auditada |
+| Diferencia negativa | No | Sale del medio declarado | No cambia | Queda auditada |
+
+## Disponibilidad y no negatividad
+
+- Toda salida se valida contra la cuenta monetaria que realmente paga.
+- Una salida igual al disponible se acepta.
+- Una salida superior se rechaza antes de crear IDs, entidades, asientos o auditoria.
+- `Caja / Efectivo`, `Caja / Banco`, `Principal / Efectivo` y `Principal / Banco` no pueden quedar por debajo de cero por una nueva salida.
+- Un resultado de maquinas negativo puede dejar `Caja / Efectivo` negativo porque representa un hecho real. En ese caso se bloquean nuevas salidas y el cierre hasta registrar un aporte real de socio a Principal y un traspaso Principal a Caja.
+- Las anulaciones y correcciones restitutivas se hacen con reversos append-only y no borran el movimiento original.
 
 ## Caja diaria
 
-- Solo puede existir una caja abierta por local, independientemente de la fecha operativa.
-- La caja abierta es una instancia operativa y de auditoria sobre las cuentas corrientes del local; no es dinero separado ni propiedad exclusiva del cajero que la abrio.
-- La caja abre con el saldo activo de `Local / Efectivo` y `Local / Banco`.
-- Una transferencia mueve el importe de `Local / Efectivo` a `Local / Banco`; no cambia el resultado economico y tambien queda reflejada en la cuenta de transferencias.
-- La primera caja de un local exige declarar aporte inicial efectivo y banco.
-- El saldo final declarado por el cajero define el saldo real para la siguiente apertura.
-- Mientras una caja esta abierta, su `efectivo esperado` y el saldo activo `Local / Efectivo` deben ser exactamente iguales. Son dos vistas del mismo efectivo y no pueden evolucionar por separado.
-- Una caja posterior solo abre si los saldos iniciales recibidos coinciden exactamente con `Local / Efectivo` y `Local / Banco`; el comando deriva del historial si es realmente la primera apertura.
-- El cierre registra usuario real y funcion usada.
-- Mientras la caja permanece abierta no se mueve ni asigna una maquina del local, no se ajustan sus contadores administrativos y no se cierra el local.
+- Solo puede existir una caja abierta por local.
+- La caja es una instancia operativa y de auditoria sobre `Caja / Efectivo` y `Caja / Banco`; no crea dinero separado.
+- El Cajero opera contadores, gastos, transferencias, regalos, salarios y traspasos Caja/Principal desde una caja abierta.
+- Encargado y Administrador no registran gastos o liquidaciones directamente sobre Caja desde su funcion administrativa. Para operar como Cajero deben cambiar expresamente a funcion `CAJERO`.
+- Encargado y Administrador pueden mover Caja/Principal desde Cuentas corrientes. Si existe caja abierta, el traspaso debe asociarse obligatoriamente a ese `balanceId` para actualizar la misma recaudacion.
+- Sin caja abierta, Encargado y Administrador pueden mover saldos entre Caja y Principal sin crear una recaudacion ficticia.
+- Durante una caja abierta debe cumplirse `efectivo esperado === Caja / Efectivo`. Un delta es una inconsistencia tecnica, no una diferencia declarada.
+- Si ambos valores no coinciden, se bloquean contadores, movimientos de Caja, salarios de Caja, traspasos asociados y cierre. Un traspaso comun no repara el delta.
 
-## Disponibilidad de efectivo
+## Primera apertura y aperturas siguientes
 
-- La unica fuente para autorizar una nueva salida en efectivo es el saldo activo de la cuenta `Local / Efectivo` del local correspondiente.
-- Antes de crear IDs, entidades, movimientos o auditoria, el comando calcula si la salida dejaria ese saldo por debajo de cero.
-- Una salida igual al disponible se acepta. Una salida superior se rechaza sin mutar el snapshot.
-- Esta regla se aplica a gastos, transferencias desde efectivo, regalos en efectivo, retiros operativos en efectivo y pagos salariales.
-- Un aporte real en efectivo aumenta la disponibilidad. El usuario tambien puede elegir otro medio cuando la operacion lo permita o cancelar la operacion; no existe un nuevo estado `PENDIENTE` para forzarla.
-- En una correccion salarial del mismo local se valida solo el incremento neto de efectivo respecto del pago reemplazado. Una reduccion o anulacion sigue permitida.
-- Las anulaciones y reversos no se bloquean porque restituyen o corrigen saldo y conservan el historial append-only.
-- Un resultado de maquinas negativo se registra normalmente. Si deja `Local / Efectivo` negativo, bloquea nuevas salidas y el cierre hasta que un aporte real cubra el faltante.
-- Si `efectivo esperado` y `Local / Efectivo` ya estan desconciliados, se bloquean contadores, movimientos, salarios y cierre antes de mutar. Un aporte ordinario tambien se bloquea porque moveria ambos saldos por igual y no corregiria el delta tecnico.
-- Una anulacion o correccion historica con impacto en efectivo no se ejecuta mientras haya otra caja abierta del mismo local. Los reversos de la caja abierta siguen permitidos.
-- El saldo banco es independiente y queda fuera de esta validacion de efectivo.
+- La primera apertura exige un aporte real de Mathias o Ricardo por cada medio con importe mayor a cero.
+- Internamente se registran dos pasos: `Socio -> Principal` y `Principal -> Caja`.
+- La apertura no cambia resultado economico.
+- Las aperturas siguientes usan exactamente los saldos vigentes de `Caja / Efectivo` y `Caja / Banco`.
+- No se permite declarar un saldo inicial distinto al libro.
+- Los traspasos de apertura son automaticos e inmutables.
 
-## Actores sobre una caja abierta
+## Gastos y salarios administrativos
 
-- Cajero y Encargado autorizado operan sobre el mismo `balanceId`, `Local / Efectivo` y `Local / Banco`; no se crea una segunda caja ni un saldo paralelo por usuario.
-- El Encargado, manteniendo funcion `ENCARGADO`, puede registrar gastos y retiros/aportes solo en una caja `EN_PROCESO` de un local incluido en sus `localIds`.
-- El Encargado no recibe por esta excepcion permiso para apertura, contadores, transferencias, regalos, pagos salariales ni cierre. Esas operaciones conservan funcion `CAJERO`.
-- Un gasto del Encargado resta resultado economico y `Local / Efectivo` igual que un gasto del Cajero. Un aporte o retiro conserva su naturaleza financiera y no modifica resultado economico.
-- Cada alta o anulacion guarda el usuario real, rol real, funcion activa, fecha/hora, `balanceId`, `localId`, cuenta y auditoria correspondientes.
-- Antes de cerrar, el Cajero ve un detalle de gastos, aportes y retiros que tuvieron una intervencion con funcion `ENCARGADO` en ese `balanceId`.
-- El detalle del cierre es informativo: obtiene el estado vigente desde las entidades y la identidad/funcion desde auditoria. Los anulados conservan trazabilidad, pero su impacto vigente es cero.
-- Los impactos efectivo/banco del bloque del Encargado son una explicacion de los movimientos existentes; no crean asientos, no recalculan cuentas y no alteran el resultado economico.
-- Si el efectivo no alcanza, el comando rechaza la operacion completa. No crea cuotas, deudas, pagos parciales ni movimientos pendientes; se requiere un aporte real previo, otro medio permitido o cancelar.
-- En almacenamiento local, una pestana pasiva y sin mutaciones propias adopta los cambios persistidos por otra pestana. Una pestana con cambios pendientes conserva el control optimista y no puede sobrescribir el snapshot vigente.
-- Esta sincronizacion local cubre pestanas del mismo navegador. Operacion simultanea entre equipos o navegadores requiere el backend transaccional pendiente y no se considera resuelta por `localStorage`.
+- El Encargado y el Administrador pagan gastos desde `Principal / Efectivo` o `Principal / Banco`.
+- Las liquidaciones administrativas se pagan desde una cuenta Principal y no llevan `balanceId` de caja.
+- Estos movimientos pueden registrarse aunque no exista una caja abierta.
+- Un gasto o salario pagado desde Principal modifica resultado economico, la cuenta Principal elegida y su cuenta auxiliar correspondiente, pero no modifica el efectivo esperado de la caja abierta.
+- Los gastos se imputan al periodo por fecha real del movimiento.
+- En un cierre mensual, los salarios administrativos se imputan por `period` trabajado. En cierres semanales, quincenales o personalizados se consideran por fecha real del movimiento para evitar duplicarlos entre cortes.
 
-## Libro de movimientos
+## Traspasos Caja / Principal
 
-- Los movimientos contables persistidos no se reescriben durante la normalizacion.
-- Una anulacion posterior genera un contramovimiento activo de direccion opuesta; no borra ni modifica el movimiento original.
-- Una correccion de diferencia agrega solo el delta necesario para alcanzar el nuevo saldo auditado.
-- Los ajustes de una misma diferencia/medio son append-only: cada delta tiene ID propio y enlaza el ajuste anterior mediante `previousAdjustmentId`.
-- Operaciones aun no cerradas pueden quitarse antes de contabilizarse definitivamente cuando la regla funcional lo permite.
+- `RETIRO_CAJA`: Caja a Principal, siempre en el mismo medio.
+- `APORTE_CAJA`: Principal a Caja, siempre en el mismo medio.
+- Son movimientos internos de dos piernas; la liquidez total no cambia.
+- No se selecciona socio ni persona.
+- Un traspaso operativo puede anularse mediante reversos si no pertenece a una caja cerrada.
+- Los traspasos automaticos de apertura y cierre forman parte de la foto auditada y no se anulan.
+- El alta legacy de `MovimientoCapital` esta deshabilitada. Los objetos antiguos se conservan solo para lectura, migracion y anulacion compatible.
 
-## Migraciones financieras
+## Socios
 
-- El esquema actual del snapshot es `4`. `src/data/migrateData.ts` aplica migraciones incrementales antes de entregar los datos al runtime; `src/data/normalizeData.ts` completa forma y compatibilidad estructural.
-- Un snapshot que ya esta en la version actual no reconstruye silenciosamente asientos financieros faltantes durante una normalizacion ordinaria.
-- La migracion de esquema 3 a 4 reconstruye la salida de efectivo historica de transferencias que antes solo impactaban banco y cuenta Transferencias.
-- Si esa reconstruccion explica exactamente el desacople con la ultima frontera operativa, se agrega un unico movimiento `MIGRACION / RECONCILIACION_MIGRACION`, determinista, append-only y auditado por `Sistema`.
-- El puente tecnico conserva el saldo ya aceptado por la caja. No representa aporte, retiro, diferencia de caja, ingreso, gasto ni resultado economico, y no modifica banco.
-- La reparacion automatica exige causalidad exacta: el delta debe ser finito, positivo y coincidir con la suma de las transferencias historicas reconstruidas. Si no puede demostrarse, no se inventa un ajuste; el sistema conserva los datos, muestra la desconciliacion y bloquea la operativa hasta una correccion tecnica auditada.
-- La migracion es idempotente: repetir la hidratacion no duplica ni el movimiento ni la auditoria.
+- Solo existen `MATHIAS` y `RICARDO`.
+- `APORTE_SOCIO`: aumenta Principal y la cuenta patrimonial del socio.
+- `RETIRO_SOCIO`: disminuye Principal y la cuenta patrimonial del socio.
+- El retiro se limita por fondos disponibles en Principal; la cuenta patrimonial puede expresar saldo deudor o acreedor y no forma parte de la liquidez.
+- Aportes y retiros patrimoniales no son ganancia ni perdida.
+- No se usa el nombre del socio en traspasos internos Caja/Principal.
 
 ## Cierre de caja
 
-- Efectivo esperado se calcula desde el flujo de caja del balance.
-- Banco esperado se calcula desde la cuenta banco del local y retiros finales de banco.
-- Si hay diferencia, la observacion del cajero es obligatoria.
-- Al cerrar, las diferencias crean movimientos `DIFERENCIA_CAJA` para que las cuentas del local reflejen el saldo declarado.
-- Esos movimientos no cambian resultado economico.
-- Los importes directos y derivados del cierre deben ser numeros finitos; `NaN` e infinitos se rechazan antes de persistir.
-- Antes de evaluar faltantes, retiros o diferencias, el cierre exige que `efectivo esperado` coincida con `Local / Efectivo`. Si no coincide, devuelve un error de reconciliacion tecnica y no crea diferencia, cierre, auditoria ni movimiento.
-- Si el efectivo esperado es negativo, el cierre devuelve primero un error especifico que exige cubrir el faltante con un aporte real. No crea diferencia, cierre, auditoria ni ajuste economico.
+- El cierre se ejecuta solamente desde funcion `CAJERO` y registra usuario real, rol real, funcion, local y recaudacion.
+- El cajero puede declarar un traspaso final de Caja a Principal en efectivo y/o banco.
+- Primero se calcula el saldo esperado antes del traspaso; luego se resta el traspaso y se compara el remanente con lo declarado.
+- `diferencia = declarado - esperado posterior al traspaso`.
+- No se selecciona responsable para el traspaso final.
+- El remanente declarado queda en Caja y sera la base de la apertura siguiente.
+- Los importes deben ser finitos y no negativos.
+- El traspaso final no puede superar el saldo disponible del medio.
+- Si el efectivo esperado es negativo, se muestra un error especifico y no se crea cierre, diferencia, auditoria ni ajuste economico.
+- Si `efectivo esperado !== Caja / Efectivo`, se devuelve primero el error tecnico de reconciliacion.
+- Antes del balance de control se muestran los traspasos asociados que hizo el Encargado durante esa recaudacion; es informacion auditada y no genera asientos adicionales.
 
 ## Diferencias
 
 - `PENDIENTE`: requiere gestion.
-- `VERIFICADA`: confirma que la diferencia existe y mantiene movimientos activos.
-- `CORREGIDA`: permite editar efectivo/banco declarado, recalcula diferencias, actualiza los campos de base de la recaudacion objetivo y agrega el ajuste contable necesario sin borrar el movimiento anterior.
-- `ANULADA`: conserva el asiento original y agrega un contramovimiento activo por el delta que revierte su impacto; deja la diferencia efectiva en cero y ajusta los campos de base de la recaudacion objetivo al valor esperado.
-- Matriz obligatoria: `PENDIENTE -> VERIFICADA/CORREGIDA/ANULADA`; `VERIFICADA -> CORREGIDA/ANULADA`; `CORREGIDA -> CORREGIDA/ANULADA`; `ANULADA` no admite nuevas acciones.
-- Estos cuatro son los unicos estados vigentes. `REVISADA`, `RESUELTA` y `AJUSTADA` son valores heredados y se normalizan al leer datos antiguos, conservando auditoria.
-- Las diferencias deben conservar observacion original del cajero e historial auditado de gestion.
-- La gestion se bloquea si hay una caja abierta del mismo local. Una caja abierta de otro local no bloquea.
-- Una correccion o anulacion historica no modifica cajas posteriores ni `initialFund`/`initialBankFund`; el delta entra al libro con fecha de gestion.
-- Todo importe de cierre o correccion debe ser finito. Ausencia, `NaN` e infinitos son errores y no equivalen a cero.
+- `VERIFICADA`: confirma que la diferencia existe y mantiene sus asientos.
+- `CORREGIDA`: actualiza lo declarado y agrega solamente el delta auditado necesario.
+- `ANULADA`: agrega un contramovimiento que revierte el impacto vigente.
+- Las diferencias mueven `Caja / Efectivo` o `Caja / Banco` para reflejar el saldo real, pero no cambian resultado economico.
+- La gestion se bloquea si existe otra caja abierta del mismo local.
+- No se reescriben cajas posteriores ni saldos iniciales historicos.
+
+## Libro y auditoria
+
+- El libro es append-only: no se borran asientos ya contabilizados.
+- Una anulacion genera movimientos opuestos con `reversalOf`.
+- Cada alta, correccion o anulacion guarda usuario, rol real, funcion, fecha/hora, local, entidad, cuenta y referencias disponibles.
+- Los asientos nuevos guardan `localId`; los historicos lo reconstruyen por `balanceId` o entidad origen cuando es posible.
+- Ninguna normalizacion de lectura inventa asientos financieros en un snapshot vigente.
+
+## Migraciones financieras
+
+- El esquema actual es `5`.
+- Esquema 3 a 4: reconstruye la salida historica de efectivo de transferencias y agrega un puente tecnico solamente cuando la causalidad explica exactamente el delta.
+- Esquema 4 a 5: agrega contrapartida en Principal para retiros legacy de Caja y registro patrimonial para aportes legacy.
+- Un retiro legacy se interpreta como Caja a Principal; la persona historica se conserva como dato del objeto antiguo, no se transforma en retiro de socio.
+- Las migraciones conservan Caja y resultado economico, son idempotentes, append-only y auditadas por Sistema.
 
 ## Salarios
 
-- El salario base nace de Personal y su historial salarial.
-- El pago de salario desde cajero sale de caja por `balanceId`.
-- La liquidacion/cuenta personal se imputa por `period` trabajado.
+- El salario base nace de Personal y su historial efectivo.
 - Salario pagado no puede superar salario base.
 - Salario pagado + adelantos no puede superar salario base.
 - Salario pagado + adelantos + descuentos no puede superar salario base.
-- Descuento reduce pendiente/base cubierta, pero no es dinero entregado ni salida de caja.
-- `Pagado / Entregado` = salario pagado + adelantos + premio/gratificacion + horas extras + bonos.
-- `Cubierto base` = salario pagado + adelantos + descuentos.
+- `Pagado / Entregado` = salario + adelantos + premio/gratificacion + horas extras + bonos.
+- `Cubierto base` = salario + adelantos + descuentos.
 - `Pendiente` = salario base - cubierto base.
-- El periodo trabajado usa formato `AAAA-MM` y solo admite meses reales de `01` a `12`.
-- El cierre salarial mensual es definitivo: congela por empleado salario base, conceptos, total, cubierto, pagado, pendiente y el detalle de liquidaciones activas.
-- Un periodo con cierre `CERRADO` no admite altas, ediciones ni anulaciones ordinarias desde caja o liquidacion administrativa.
-- No se cierra un periodo si contiene un pago salarial asociado a una caja todavia abierta.
-- Una correccion posterior exige una revision `CORRECTIVO` abierta por encargado o administrador, con motivo obligatorio y enlazada al ultimo cierre vigente.
-- Solo puede existir una correccion abierta por periodo. Toda alta, reemplazo o anulacion realizada durante ella guarda su `correctionClosureId`.
-- Al cerrar la correccion se genera una nueva revision inmutable; el cierre anterior y su foto no se modifican.
-- Una correccion sin movimientos puede cancelarse con auditoria. Si ya tiene movimientos, debe completarse y cerrarse.
-- La base historica considera fecha de ingreso y baja: una persona actualmente inactiva conserva su salario en los periodos que efectivamente trabajo.
+- Una correccion sobre la misma cuenta valida solo el incremento neto; un cambio de cuenta valida el importe completo en la cuenta nueva.
+- El cierre salarial mensual es una foto inmutable. Las modificaciones posteriores requieren una revision correctiva enlazada y auditada.
+- No se cierra un periodo salarial si contiene un pago de Caja vinculado a una caja todavia abierta.
 
-## Referencias obligatorias por modulo
+## Cierre periodico
 
-- Caja/cierre: `docs/contextos/CODEX_NUCLEO_CAJA.md`, `docs/modulos/02_caja_diaria.md`, `docs/modulos/05_cierre_caja.md`.
+- Consolida resultado de maquinas, gastos, salarios y regalos sin sumar traspasos internos ni movimientos de socios al resultado.
+- Incluye gastos y liquidaciones de Principal aunque no tengan `balanceId`.
+- Guarda IDs de cajas, gastos Principal, salarios Principal, traspasos y movimientos de socios incluidos.
+- La foto guardada no se recalcula retroactivamente; una anulacion del cierre conserva historial.
+
+## Referencias por modulo
+
+- Caja: `docs/contextos/CODEX_NUCLEO_CAJA.md`, `docs/modulos/02_caja_diaria.md`, `docs/modulos/05_cierre_caja.md`.
+- Movimientos: `docs/modulos/04_movimientos_operativos.md`.
 - Diferencias: `docs/contextos/CODEX_DIFERENCIAS.md`, `docs/modulos/06_diferencias_caja.md`.
-- Cuentas corrientes: `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`, `docs/modulos/11_cuentas_corrientes.md`.
+- Cuentas: `docs/contextos/CODEX_CUENTAS_CORRIENTES.md`, `docs/modulos/11_cuentas_corrientes.md`.
 - Salarios: `docs/contextos/CODEX_SALARIOS.md`, `docs/modulos/10_clientes_personal_sueldos.md`.
-- Auditoria: `docs/modulos/12_auditoria.md`.

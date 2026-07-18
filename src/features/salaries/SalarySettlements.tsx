@@ -59,7 +59,7 @@ export function AdminSalarySettlements({
   const [correctionNote, setCorrectionNote] = useState("");
   const [correctionError, setCorrectionError] = useState("");
   const [settlementSort, setSettlementSort] = useState<
-    SortState<"period" | "concept" | "salaryPaid" | "advances" | "extraPrize" | "hoursExtra" | "bonuses" | "otherDeductions" | "status">
+    SortState<"period" | "concept" | "paymentAccount" | "salaryPaid" | "advances" | "extraPrize" | "hoursExtra" | "bonuses" | "otherDeductions" | "status">
   >({
     key: "period",
     direction: "desc",
@@ -134,6 +134,10 @@ export function AdminSalarySettlements({
     const concept = normalizeSalaryConcept(settlement.concept);
     if (key === "period") return settlement.period;
     if (key === "concept") return salaryConceptLabel(concept);
+    if (key === "paymentAccount") {
+      if (concept === "DESCUENTO") return "No mueve fondos";
+      return data.currentAccounts.find((account) => account.id === settlement.paymentAccountId)?.name ?? "Caja / Efectivo";
+    }
     if (key === "salaryPaid") return isSalaryPaymentConcept(concept) ? salarySettlementAmount(settlement) : 0;
     if (key === "extraPrize") return concept === "EXTRA" ? Number(settlement.extraAmount ?? 0) : 0;
     if (key === "hoursExtra") return concept === "HORAS_EXTRAS" ? Number(settlement.extraAmount ?? 0) : 0;
@@ -800,6 +804,7 @@ export function AdminSalarySettlements({
                       {[
                         ["period", "Mes"],
                         ["concept", "Concepto"],
+                        ["paymentAccount", "Cuenta de pago"],
                         ["salaryPaid", "Salario pagado"],
                         ["advances", "Adelanto"],
                         ["extraPrize", "Premio / Gratificacion"],
@@ -827,6 +832,11 @@ export function AdminSalarySettlements({
                         <tr key={settlement.id} className={settlement.status === "ANULADA" ? "status-inactive" : settlement.status === "CONFIRMADA" ? "status-active" : ""}>
                           <td>{settlement.period}</td>
                           <td>{salaryConceptLabel(concept)}</td>
+                          <td>
+                            {concept === "DESCUENTO"
+                              ? "No mueve fondos"
+                              : data.currentAccounts.find((account) => account.id === settlement.paymentAccountId)?.name ?? "Caja / Efectivo"}
+                          </td>
                           <td>{isSalaryPaymentConcept(concept) ? money(salarySettlementAmount(settlement)) : "-"}</td>
                           <td>{settlement.advances ? money(settlement.advances) : "-"}</td>
                           <td>{extraPrize ? money(extraPrize) : "-"}</td>
@@ -861,7 +871,7 @@ export function AdminSalarySettlements({
                     })}
                     {!selectedEmployee.settlements.length && (
                       <tr>
-                        <td colSpan={10}>Este empleado no tiene liquidaciones en el periodo.</td>
+                        <td colSpan={11}>Este empleado no tiene liquidaciones en el periodo.</td>
                       </tr>
                     )}
                   </tbody>
@@ -973,6 +983,14 @@ export function AdminSalarySettlements({
               <div>
                 <dt>Origen</dt>
                 <dd>{selectedStaffMovementSettlement?.origin === "CAJA" ? "Pago desde caja" : "Liquidacion administrativa"}</dd>
+              </div>
+              <div>
+                <dt>Cuenta de pago</dt>
+                <dd>
+                  {normalizeSalaryConcept(selectedStaffMovementSettlement?.concept) === "DESCUENTO"
+                    ? "No mueve fondos"
+                    : data.currentAccounts.find((account) => account.id === selectedStaffMovementSettlement?.paymentAccountId)?.name ?? "Caja / Efectivo"}
+                </dd>
               </div>
               <div>
                 <dt>Monto</dt>

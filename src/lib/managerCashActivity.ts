@@ -1,19 +1,13 @@
-import type {
-  AppData,
-  AuditEvent,
-  CapitalMovementMedium,
-  CapitalMovementType,
-  MovementStatus,
-} from "../types";
+import type { AppData, AuditEvent, FinancialMedium, MovementStatus } from "../types";
 
-export type ManagerCashActivityKind = "GASTO" | CapitalMovementType;
+export type ManagerCashActivityKind = "GASTO" | "CAJA_A_PRINCIPAL" | "PRINCIPAL_A_CAJA";
 
 export type ManagerCashActivityItem = {
   id: string;
   occurredAt: string;
   userName: string;
   kind: ManagerCashActivityKind;
-  medium: CapitalMovementMedium;
+  medium: FinancialMedium;
   detail: string;
   entry: number;
   outflow: number;
@@ -47,23 +41,20 @@ const payloadForEvent = (event: AuditEvent) => {
 };
 
 const isManagerFunction = (event: AuditEvent) => (event.actorRole ?? event.actualRole) === "ENCARGADO";
-
 const stringValue = (value: unknown) => (typeof value === "string" ? value : "");
 const amountValue = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : 0);
-
-const expenseDetail = (payload: AuditPayload) =>
-  [stringValue(payload.category), stringValue(payload.subcategory), stringValue(payload.description)]
+const detailFrom = (payload: AuditPayload, expense: boolean) =>
+  (expense
+    ? [stringValue(payload.category), stringValue(payload.subcategory), stringValue(payload.description)]
+    : [stringValue(payload.person), stringValue(payload.note)])
     .filter(Boolean)
-    .join(" · ");
-
-const capitalDetail = (payload: AuditPayload) =>
-  [stringValue(payload.person), stringValue(payload.note)].filter(Boolean).join(" · ");
+    .join(" - ");
 
 export function managerCashActivityForBalance(data: AppData, balanceId: string): ManagerCashActivity {
   const grouped = new Map<string, Array<{ event: AuditEvent; payload: AuditPayload }>>();
 
   data.audit.forEach((event) => {
-    if (!isManagerFunction(event) || !["Gasto", "MovimientoCapital"].includes(event.entity)) return;
+    if (!isManagerFunction(event) || !["Gasto", "MovimientoCapital", "TraspasoTesoreria"].includes(event.entity)) return;
     const payload = payloadForEvent(event);
     if (!payload || payload.balanceId !== balanceId) return;
     const key = `${event.entity}:${event.entityId}`;
@@ -77,20 +68,25 @@ export function managerCashActivityForBalance(data: AppData, balanceId: string):
       );
       const latest = ordered[0];
       const isExpense = latest.event.entity === "Gasto";
+      const isTreasury = latest.event.entity === "TraspasoTesoreria";
       const current = isExpense
         ? data.expenses.find((item) => item.id === latest.event.entityId)
-        : data.capitalMovements.find((item) => item.id === latest.event.entityId);
+        : isTreasury
+          ? data.treasuryTransfers.find((item) => item.id === latest.event.entityId)
+          : data.capitalMovements.find((item) => item.id === latest.event.entityId);
       const payload = (current ?? latest.payload) as AuditPayload;
       const amount = amountValue(payload.amount);
       if (amount <= 0) return undefined;
       const status: MovementStatus = current?.status === "ACTIVO" ? "ACTIVO" : "ANULADO";
+      const type = stringValue(payload.type);
       const kind: ManagerCashActivityKind = isExpense
         ? "GASTO"
-        : stringValue(payload.type) === "APORTE"
-          ? "APORTE"
-          : "RETIRO";
-      const medium: CapitalMovementMedium =
-        !isExpense && stringValue(payload.medium) === "TRANSFERENCIA" ? "TRANSFERENCIA" : "EFECTIVO";
+        : ["APORTE", "APORTE_CAJA"].includes(type)
+          ? "PRINCIPAL_A_CAJA"
+          : "CAJA_A_PRINCIPAL";
+      const medium: FinancialMedium = ["TRANSFERENCIA", "BANCO"].includes(stringValue(payload.medium))
+        ? "BANCO"
+        : "EFECTIVO";
       const userName = [...new Set(ordered.map(({ event }) => event.userName))].join(", ");
 
       return {
@@ -99,9 +95,9 @@ export function managerCashActivityForBalance(data: AppData, balanceId: string):
         userName,
         kind,
         medium,
-        detail: isExpense ? expenseDetail(payload) : capitalDetail(payload),
-        entry: kind === "APORTE" ? amount : 0,
-        outflow: kind === "GASTO" || kind === "RETIRO" ? amount : 0,
+        detail: detailFrom(payload, isExpense),
+        entry: kind === "PRINCIPAL_A_CAJA" ? amount : 0,
+        outflow: kind === "GASTO" || kind === "CAJA_A_PRINCIPAL" ? amount : 0,
         status,
       };
     })
@@ -109,7 +105,7 @@ export function managerCashActivityForBalance(data: AppData, balanceId: string):
     .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt));
 
   const activeItems = items.filter((item) => item.status === "ACTIVO");
-  const netForMedium = (medium: CapitalMovementMedium) =>
+  const netForMedium = (medium: FinancialMedium) =>
     activeItems
       .filter((item) => item.medium === medium)
       .reduce((total, item) => total + item.entry - item.outflow, 0);
@@ -117,7 +113,7 @@ export function managerCashActivityForBalance(data: AppData, balanceId: string):
   return {
     items,
     cashNet: netForMedium("EFECTIVO"),
-    bankNet: netForMedium("TRANSFERENCIA"),
+    bankNet: netForMedium("BANCO"),
     activeCount: activeItems.length,
     annulledCount: items.length - activeItems.length,
   };

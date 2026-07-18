@@ -24,7 +24,17 @@ export type SalarySettlementOrigin = "CAJA" | "LIQUIDACION";
 export type PeriodicClosureType = "SEMANAL" | "QUINCENAL" | "MENSUAL" | "PERSONALIZADO";
 export type PeriodicClosureStatus = "GENERADO" | "ANULADO";
 export type WeekDay = "LUNES" | "MARTES" | "MIERCOLES" | "JUEVES" | "VIERNES" | "SABADO" | "DOMINGO";
-export type CurrentAccountKind = "PERSONAL" | "TRANSFERENCIAS" | "LOCAL_EFECTIVO" | "LOCAL_BANCO";
+export type Currency = "UYU";
+export type FinancialMedium = "EFECTIVO" | "BANCO";
+export type Partner = "RICARDO" | "MATHIAS";
+export type CurrentAccountKind =
+  | "PERSONAL"
+  | "TRANSFERENCIAS"
+  | "LOCAL_EFECTIVO"
+  | "LOCAL_BANCO"
+  | "PRINCIPAL_EFECTIVO"
+  | "PRINCIPAL_BANCO"
+  | "SOCIO";
 export type CurrentAccountStatus = "ACTIVA" | "INACTIVA";
 export type AccountMovementSource =
   | "SUELDO"
@@ -33,6 +43,9 @@ export type AccountMovementSource =
   | "REGALO"
   | "RETIRO"
   | "APORTE"
+  | "TRASPASO_CAJA"
+  | "APORTE_SOCIO"
+  | "RETIRO_SOCIO"
   | "RESULTADO_MAQUINAS"
   | "DIFERENCIA_CAJA"
   | "MIGRACION"
@@ -42,6 +55,9 @@ export type CapitalMovementType = "RETIRO" | "APORTE";
 export type CapitalMovementMedium = "EFECTIVO" | "TRANSFERENCIA";
 export type CapitalMovementPerson = "RICARDO" | "MATHIAS";
 export type CapitalMovementTiming = "APERTURA" | "OPERATIVO" | "CIERRE";
+export type TreasuryTransferType = "RETIRO_CAJA" | "APORTE_CAJA";
+export type TreasuryTransferTiming = "APERTURA" | "OPERATIVO" | "CIERRE";
+export type PartnerMovementType = "APORTE_SOCIO" | "RETIRO_SOCIO";
 export type Screen =
   | "welcome"
   | "login"
@@ -150,6 +166,8 @@ export type SalarySettlement = {
   staffId: string;
   staffName: string;
   localId: string;
+  paymentAccountId?: string;
+  currency?: Currency;
   baseSalary: number;
   advances: number;
   extraAmount: number;
@@ -293,6 +311,7 @@ export type CurrentAccount = {
   kind: CurrentAccountKind;
   entityId?: string;
   name: string;
+  currency: Currency;
   status: CurrentAccountStatus;
   createdAt: string;
   updatedAt: string;
@@ -301,12 +320,14 @@ export type CurrentAccount = {
 export type AccountMovement = {
   id: string;
   accountId: string;
+  localId?: string;
   balanceId?: string;
   sourceType: AccountMovementSource;
   sourceId: string;
   direction: AccountMovementDirection;
   concept: string;
   amount: number;
+  currency: Currency;
   detail: string;
   status: MovementStatus;
   userId: string;
@@ -324,6 +345,36 @@ export type CapitalMovement = {
   timing: CapitalMovementTiming;
   person: CapitalMovementPerson;
   amount: number;
+  note: string;
+  status: MovementStatus;
+  userId: string;
+  createdAt: string;
+};
+
+export type TreasuryTransfer = {
+  id: string;
+  balanceId?: string;
+  localId: string;
+  type: TreasuryTransferType;
+  medium: FinancialMedium;
+  timing: TreasuryTransferTiming;
+  amount: number;
+  currency: Currency;
+  note: string;
+  status: MovementStatus;
+  userId: string;
+  createdAt: string;
+};
+
+export type PartnerMovement = {
+  id: string;
+  balanceId?: string;
+  localId: string;
+  partner: Partner;
+  type: PartnerMovementType;
+  medium: FinancialMedium;
+  amount: number;
+  currency: Currency;
   note: string;
   status: MovementStatus;
   userId: string;
@@ -371,6 +422,8 @@ export type Balance = {
   withdrawal?: number;
   finalWithdrawalCash?: number;
   finalWithdrawalBank?: number;
+  finalTransferToPrincipalCash?: number;
+  finalTransferToPrincipalBank?: number;
   cashDifference?: number;
   bankDifference?: number;
   differenceNote?: string;
@@ -397,7 +450,10 @@ export type Reading = {
 
 export type Expense = {
   id: string;
-  balanceId: string;
+  balanceId?: string;
+  localId: string;
+  paymentAccountId: string;
+  currency: Currency;
   category: string;
   subcategory: string;
   amount: number;
@@ -423,6 +479,10 @@ export type PeriodicClosure = {
   startDate: string;
   endDate: string;
   balanceIds: string[];
+  principalExpenseIds: string[];
+  principalSalarySettlementIds: string[];
+  treasuryTransferIds: string[];
+  partnerMovementIds: string[];
   resultMachines: number;
   totalExpenses: number;
   totalSalaries: number;
@@ -432,6 +492,10 @@ export type PeriodicClosure = {
   totalTransfers: number;
   totalWithdrawals: number;
   totalContributions: number;
+  totalCajaToPrincipal: number;
+  totalPrincipalToCaja: number;
+  totalPartnerContributions: number;
+  totalPartnerWithdrawals: number;
   cashDifference: number;
   bankDifference: number;
   pendingDifferences: number;
@@ -516,6 +580,8 @@ export type AppData = {
   currentAccounts: CurrentAccount[];
   accountMovements: AccountMovement[];
   capitalMovements: CapitalMovement[];
+  treasuryTransfers: TreasuryTransfer[];
+  partnerMovements: PartnerMovement[];
   locals: Local[];
   machines: Machine[];
   balances: Balance[];

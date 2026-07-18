@@ -1,43 +1,56 @@
 # Modulo 02 - Caja diaria y apertura
 
-La apertura atomica vive en `src/application/cash/openCash.ts` y coordina balance, aportes iniciales, lecturas, cuentas y auditoria.
+Comando propietario: `src/application/cash/openCash.ts`.
 
 ## Objetivo
 
-Abrir una caja diaria por local y fecha, con saldos iniciales correctos.
+Crear una recaudacion para el local con saldos de Caja trazables y una foto de las maquinas que deben recaudarse.
 
-## Reglas de apertura
+## Reglas generales
 
-- No puede haber dos cajas abiertas para el mismo local, aunque tengan distinta fecha operativa.
-- Los saldos iniciales deben ser importes finitos y no negativos.
-- Al abrir caja se toma una foto de maquinas activas del local.
-- Cada caja tiene ID visible: primeras cuatro letras del local + correlativo. Ejemplo: `POSE-1`.
-- Cada caja registra usuario real y funcion usada al abrir.
+- Solo puede existir una caja abierta por local.
+- Solo la funcion `CAJERO` puede abrirla.
+- El usuario debe estar activo y autorizado para el local.
+- Cada caja tiene ID visible: cuatro letras del local y correlativo, por ejemplo `POSE-1`.
+- Registra fecha operativa, hora, usuario real, rol real y funcion usada.
+- La apertura toma una foto de maquinas activas/no desuso y crea sus lecturas iniciales.
+- Los importes deben ser finitos y no negativos.
 
 ## Primera caja del local
 
-El cajero debe declarar:
+El Cajero declara:
 
-- aporte inicial en efectivo;
-- aporte inicial en banco;
-- responsable del aporte: RICARDO o MATHIAS.
+- efectivo inicial;
+- banco inicial;
+- socio que realiza el aporte real: Mathias o Ricardo;
+- nota inicial opcional.
 
-Esos aportes crean movimientos de cuenta corriente del local.
+Por cada medio con monto mayor a cero el comando crea dos operaciones enlazadas:
+
+1. aporte patrimonial del socio a Principal;
+2. traspaso automatico de Principal a Caja.
+
+El socio se selecciona porque existe un aporte patrimonial real. No representa custodia.
 
 ## Cajas posteriores
 
-- Efectivo inicial = saldo de cuenta Local / Efectivo.
-- Banco inicial = saldo de cuenta Local / Banco.
-- El cajero no carga esos saldos manualmente.
-- El comando deriva del historial si se trata de la primera caja; no confia solamente en el indicador recibido desde la interfaz.
-- En una caja posterior, los importes iniciales deben coincidir exactamente con ambas cuentas del local. Si no coinciden, la apertura se rechaza sin crear balance, lecturas, movimientos ni auditoria.
+- Efectivo inicial = saldo vigente de `Caja / Efectivo`.
+- Banco inicial = saldo vigente de `Caja / Banco`.
+- No se cargan manualmente.
+- Si la interfaz envia otro monto, la apertura se rechaza atomicamente.
+- El comando determina si es primera apertura desde el historial; no confia solo en una bandera de UI.
 
-## Resumen de cajas
+## Resumen de recaudaciones
 
-- Muestra ultimas 10 cajas cerradas.
-- La tabla de ultimas cajas cerradas permite ordenar por ID, fecha, horario, resultado final, declarado, diferencia efectivo, diferencia banco, estado de diferencia y maquinas.
-- Se ve una caja por vez.
-- Permite ver resumen en pantalla, sin exportar desde esa vista.
-- En el resumen de una caja cerrada, la tabla de maquinas permite ordenar por ID, maquina, IN, OUT, resultado y estado.
-- Las mini-tablas `Salidas operativas` y `Movimientos financieros` son fichas resumen de orden semantico fijo; no son grillas operativas y no tienen ordenamiento interactivo.
-- Despues de cerrar una caja, el sistema envia a Resumen de cajas.
+- Muestra las ultimas 10 cajas cerradas.
+- Se selecciona una caja por vez.
+- El resumen es de consulta y no exporta desde esa vista.
+- Las tablas permiten ordenar todas las columnas visibles de datos; Acciones queda exceptuada.
+- Tras cerrar, el sistema navega a `/recaudaciones` y conserva el aviso de exito.
+
+## Pruebas clave
+
+- Primera apertura crea aporte de socio, traspaso y saldos correctos.
+- Apertura posterior hereda Caja sin crear otro aporte de socio.
+- Segunda caja abierta se rechaza sin mutar datos.
+- Saldo heredado incorrecto se rechaza sin balance, lecturas ni auditoria.

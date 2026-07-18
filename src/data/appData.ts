@@ -11,21 +11,25 @@ import type {
   Local,
   Machine,
   Reading,
+  PartnerMovement,
   SalarySettlement,
   StaffMember,
   StaffSchedule,
   Transfer,
+  TreasuryTransfer,
   User,
   WeekDay,
 } from "../types";
 import {
   createLocalBankCurrentAccount,
   createLocalCashCurrentAccount,
+  createPartnerCurrentAccount,
+  createPrincipalBankCurrentAccount,
+  createPrincipalCashCurrentAccount,
   createStaffCurrentAccount,
   createTransferCurrentAccount,
 } from "../lib/currentAccounts";
 import {
-  capitalAccountMovement,
   differenceAccountMovement,
   localExpenseAccountMovement,
   localGiftAccountMovement,
@@ -33,8 +37,10 @@ import {
   localTransferCashAccountMovement,
   localTransferAccountMovement,
   machineResultAccountMovement,
+  partnerMovementAccountMovements,
   salaryAccountMovement,
   transferAccountMovement,
+  treasuryTransferAccountMovements,
 } from "../lib/accountMovements";
 import { nowIso, today } from "../lib/dates";
 import { localCode, localName } from "../lib/display";
@@ -123,6 +129,8 @@ export function clearOperationalData(data: AppData): AppData {
     periodicClosures: [],
     salaryClosures: [],
     capitalMovements: [],
+    treasuryTransfers: [],
+    partnerMovements: [],
     accountMovements: [],
     audit: [],
     machineLocalHistory: [],
@@ -415,6 +423,9 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
     {
       id: "expense-demo-1",
       balanceId: balance1.id,
+      localId: local.id,
+      paymentAccountId: `account-local-${local.id}-efectivo`,
+      currency: "UYU",
       category: "Limpieza",
       subcategory: "Productos",
       amount: 2500,
@@ -430,6 +441,9 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
     {
       id: "expense-demo-2",
       balanceId: balance2.id,
+      localId: local.id,
+      paymentAccountId: `account-local-${local.id}-efectivo`,
+      currency: "UYU",
       category: "Repuestos",
       subcategory: "Maquinas",
       amount: 3000,
@@ -448,6 +462,9 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
     {
       id: "expense-demo-3",
       balanceId: balance3.id,
+      localId: local.id,
+      paymentAccountId: `account-local-${local.id}-efectivo`,
+      currency: "UYU",
       category: "Servicios",
       subcategory: "Tecnico",
       amount: 2000,
@@ -685,6 +702,36 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
       createdAt: "2026-07-03T19:30:00.000-03:00",
     },
   ];
+  const partnerMovements: PartnerMovement[] = capitalMovements
+    .filter((movement) => movement.type === "APORTE")
+    .map((movement) => ({
+      id: `partner-demo-${movement.id}`,
+      balanceId: movement.balanceId,
+      localId: movement.localId,
+      partner: movement.person,
+      type: "APORTE_SOCIO",
+      medium: movement.medium === "EFECTIVO" ? "EFECTIVO" : "BANCO",
+      amount: movement.amount,
+      currency: "UYU",
+      note: movement.note,
+      status: movement.status,
+      userId: movement.userId,
+      createdAt: movement.createdAt,
+    }));
+  const treasuryTransfers: TreasuryTransfer[] = capitalMovements.map((movement) => ({
+    id: `treasury-demo-${movement.id}`,
+    balanceId: movement.balanceId,
+    localId: movement.localId,
+    type: movement.type === "APORTE" ? "APORTE_CAJA" : "RETIRO_CAJA",
+    medium: movement.medium === "EFECTIVO" ? "EFECTIVO" : "BANCO",
+    timing: movement.timing,
+    amount: movement.amount,
+    currency: "UYU",
+    note: movement.note,
+    status: movement.status,
+    userId: movement.userId,
+    createdAt: movement.createdAt,
+  }));
   const accountMovements = [
     ...salarySettlements.flatMap((settlement) => [
       salaryAccountMovement(settlement, settlement.approvedBy ?? settlement.createdBy ?? "system"),
@@ -697,7 +744,8 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
       localTransferCashAccountMovement(transfer, local.id),
     ]),
     ...gifts.map((gift) => localGiftAccountMovement(gift, local.id)),
-    ...capitalMovements.map(capitalAccountMovement),
+    ...partnerMovements.flatMap(partnerMovementAccountMovements),
+    ...treasuryTransfers.flatMap(treasuryTransferAccountMovements),
     ...balances
       .map((balance) => {
         const result = readings
@@ -751,7 +799,9 @@ function createDemoOperationalData(local: Local, machines: Machine[], staff: Sta
     transfers,
     gifts,
     salarySettlements,
-    capitalMovements,
+    capitalMovements: [],
+    treasuryTransfers,
+    partnerMovements,
     accountMovements,
     audit,
   };
@@ -831,11 +881,17 @@ export function createSeedData(): AppData {
     currentAccounts: [
       createLocalCashCurrentAccount(local),
       createLocalBankCurrentAccount(local),
+      createPrincipalCashCurrentAccount(),
+      createPrincipalBankCurrentAccount(),
+      createPartnerCurrentAccount("MATHIAS"),
+      createPartnerCurrentAccount("RICARDO"),
       createTransferCurrentAccount(),
       ...staff.map((staffMember) => createStaffCurrentAccount(staffMember)),
     ],
     accountMovements: demo.accountMovements,
     capitalMovements: demo.capitalMovements,
+    treasuryTransfers: demo.treasuryTransfers,
+    partnerMovements: demo.partnerMovements,
     locals: [local],
     machines,
     balances: demo.balances,

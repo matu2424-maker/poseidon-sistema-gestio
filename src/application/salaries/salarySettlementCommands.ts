@@ -5,12 +5,19 @@ import {
   salaryAccountMovement,
   upsertAccountMovement,
 } from "../../lib/accountMovements";
-import { createStaffCurrentAccount, ensureLocalCurrentAccounts, staffAccountId } from "../../lib/currentAccounts";
 import {
-  activeLocalCashSourceOutflow,
+  createStaffCurrentAccount,
+  ensureFinancialCurrentAccounts,
+  isMoneyAccount,
+  localCashAccountId,
+  PRINCIPAL_CASH_ACCOUNT_ID,
+  staffAccountId,
+} from "../../lib/currentAccounts";
+import {
+  activeAccountSourceOutflow,
+  accountOutflowError,
   balanceCashReconciliationError,
   historicalCashMutationError,
-  localCashOutflowError,
 } from "../../lib/cashAvailability";
 import { staffFullName } from "../../lib/people";
 import {
@@ -32,6 +39,7 @@ export type SaveSalarySettlementInput = {
   notes: string;
   origin: "CAJA" | "LIQUIDACION";
   balanceId?: string;
+  paymentAccountId?: string;
   correctionClosureId?: string;
 };
 
@@ -42,6 +50,24 @@ export function saveSalarySettlementCommand(
 ): CommandResult<SalarySettlement> {
   const staff = data.staff.find((item) => item.id === input.staffId && item.status === "ACTIVO");
   if (!staff) return commandError("Selecciona una persona activa.");
+  const actorMatchesUser =
+    context.actorRole === context.user.role ||
+    (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role)) ||
+    (context.actorRole === "ENCARGADO" && context.user.role === "ADMINISTRADOR");
+  if (!actorMatchesUser) return commandError("La funcion activa no corresponde al usuario autenticado.");
+  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
+  if (input.origin === "CAJA" && context.actorRole !== "CAJERO") {
+    return commandError("Los pagos de Caja se registran desde la funcion Cajero.");
+  }
+  if (input.origin === "LIQUIDACION" && !["ENCARGADO", "ADMINISTRADOR"].includes(context.actorRole)) {
+    return commandError("La funcion activa no permite liquidar salarios desde Principal.");
+  }
+  if (input.origin === "LIQUIDACION" && input.balanceId) {
+    return commandError("Las liquidaciones desde Principal no se asocian a una caja operativa.");
+  }
+  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(staff.localId)) {
+    return commandError("El usuario no esta asignado al local del empleado.");
+  }
   const concept = normalizeSalaryConcept(input.concept);
   if (!isValidSalaryPeriod(input.period)) return commandError("Selecciona un periodo trabajado valido.");
   if (!Number.isFinite(input.amount) || input.amount <= 0) return commandError("Ingresa un monto valido mayor a cero.");
@@ -62,27 +88,52 @@ export function saveSalarySettlementCommand(
   const validationError = validateSalarySettlementLimit(data, staff, input.period, concept, input.amount, existing?.id);
   if (validationError) return commandError(validationError);
 
+  const preparedData: AppData = {
+    ...data,
+    currentAccounts: ensureFinancialCurrentAccounts(data, staff.localId),
+  };
   const breakdown = salaryConceptBreakdown(concept, input.amount);
   const nextCashAmount = concept === "DESCUENTO" ? 0 : input.amount;
-  const previousCashAmount = existing?.localId === staff.localId
-    ? activeLocalCashSourceOutflow(data, staff.localId, existing.id)
+  const targetPaymentAccountId =
+    input.origin === "CAJA"
+      ? localCashAccountId(staff.localId)
+      : input.paymentAccountId ?? existing?.paymentAccountId ?? PRINCIPAL_CASH_ACCOUNT_ID;
+  const targetPaymentAccount = preparedData.currentAccounts.find((account) => account.id === targetPaymentAccountId);
+  if (nextCashAmount > 0 && !isMoneyAccount(targetPaymentAccount)) {
+    return commandError("Selecciona una cuenta de pago valida.");
+  }
+  if (
+    input.origin === "LIQUIDACION" &&
+    nextCashAmount > 0 &&
+    !["PRINCIPAL_EFECTIVO", "PRINCIPAL_BANCO"].includes(targetPaymentAccount?.kind ?? "")
+  ) {
+    return commandError("Las liquidaciones del encargado o administrador se pagan desde una cuenta Principal.");
+  }
+  const previousPaymentAccountId = existing?.paymentAccountId ?? localCashAccountId(existing?.localId ?? staff.localId);
+  const previousCashAmount = existing
+    ? activeAccountSourceOutflow(preparedData, previousPaymentAccountId, existing.id)
     : 0;
-  const netCashOutflow = Math.max(0, nextCashAmount - previousCashAmount);
-  const targetBalanceId = input.balanceId ?? existing?.balanceId;
+  const netCashOutflow =
+    targetPaymentAccountId === previousPaymentAccountId
+      ? Math.max(0, nextCashAmount - previousCashAmount)
+      : nextCashAmount;
+  const targetBalanceId = input.origin === "CAJA" ? input.balanceId ?? existing?.balanceId : undefined;
   const openBalance = data.balances.find((item) => item.localId === staff.localId && item.status === "EN_PROCESO");
-  if (existing && previousCashAmount > 0) {
-    const sourceMutationError = historicalCashMutationError(data, staff.localId, existing.balanceId);
+  const previousUsesLocalCash = previousPaymentAccountId === localCashAccountId(staff.localId);
+  const targetUsesLocalCash = targetPaymentAccountId === localCashAccountId(staff.localId);
+  if (existing && previousCashAmount > 0 && previousUsesLocalCash) {
+    const sourceMutationError = historicalCashMutationError(preparedData, staff.localId, existing.balanceId);
     if (sourceMutationError) return commandError(sourceMutationError);
   }
-  if (nextCashAmount > 0) {
-    const targetMutationError = historicalCashMutationError(data, staff.localId, targetBalanceId);
+  if (nextCashAmount > 0 && targetUsesLocalCash) {
+    const targetMutationError = historicalCashMutationError(preparedData, staff.localId, targetBalanceId);
     if (targetMutationError) return commandError(targetMutationError);
   }
-  if (openBalance) {
-    const reconciliationError = balanceCashReconciliationError(data, openBalance.id);
+  if (openBalance && (previousUsesLocalCash || targetUsesLocalCash)) {
+    const reconciliationError = balanceCashReconciliationError(preparedData, openBalance.id);
     if (reconciliationError) return commandError(reconciliationError);
   }
-  const cashError = localCashOutflowError(data, staff.localId, netCashOutflow);
+  const cashError = nextCashAmount > 0 ? accountOutflowError(preparedData, targetPaymentAccountId, netCashOutflow) : "";
   if (cashError) return commandError(cashError);
 
   const timestamp = context.now();
@@ -90,10 +141,12 @@ export function saveSalarySettlementCommand(
   const next: SalarySettlement = {
     id: correction ? context.id("salary-settlement-correction") : context.id("salary-settlement"),
     period: input.period,
-    balanceId: input.balanceId ?? existing?.balanceId,
+    balanceId: targetBalanceId,
     staffId: staff.id,
     staffName: staffFullName(staff),
     localId: staff.localId,
+    paymentAccountId: targetPaymentAccountId,
+    currency: "UYU",
     ...breakdown,
     concept,
     notes: input.notes,
@@ -128,10 +181,10 @@ export function saveSalarySettlementCommand(
   const staffUpdated = data.staff.map((item) =>
     item.id === staff.id ? { ...item, salaryAdvanceBalance: activeAdvanceBalance, updatedAt: timestamp } : item,
   );
-  const currentAccounts = data.currentAccounts.some((account) => account.id === staffAccountId(staff.id))
-    ? data.currentAccounts
-    : [createStaffCurrentAccount(staff), ...data.currentAccounts];
-  const withLocalAccounts = ensureLocalCurrentAccounts({ ...data, currentAccounts }, next.localId);
+  const currentAccounts = preparedData.currentAccounts.some((account) => account.id === staffAccountId(staff.id))
+    ? preparedData.currentAccounts
+    : [createStaffCurrentAccount(staff), ...preparedData.currentAccounts];
+  const withFinancialAccounts = ensureFinancialCurrentAccounts({ ...preparedData, currentAccounts }, next.localId);
   const baseMovements = existing
     ? reverseSourceAccountMovements(data.accountMovements, ["SUELDO"], existing.id, context.user.id, "Correccion de liquidacion", timestamp)
     : data.accountMovements;
@@ -141,12 +194,12 @@ export function saveSalarySettlementCommand(
   );
   const mutatedData = {
     ...data,
-    currentAccounts: withLocalAccounts,
+    currentAccounts: withFinancialAccounts,
     accountMovements,
     salarySettlements,
     staff: staffUpdated,
   };
-  if (openBalance) {
+  if (openBalance && (previousUsesLocalCash || targetUsesLocalCash)) {
     const postconditionError = balanceCashReconciliationError(mutatedData, openBalance.id);
     if (postconditionError) return commandError(postconditionError);
   }
@@ -171,6 +224,18 @@ export function annulSalarySettlementCommand(
 ): CommandResult<SalarySettlement> {
   const previous = data.salarySettlements.find((item) => item.id === settlementId);
   if (!previous) return commandError("No se encontro la liquidacion.");
+  const actorMatchesUser =
+    context.actorRole === context.user.role ||
+    (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role)) ||
+    (context.actorRole === "ENCARGADO" && context.user.role === "ADMINISTRADOR");
+  if (!actorMatchesUser) return commandError("La funcion activa no corresponde al usuario autenticado.");
+  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
+  if (options.requireOpenBalance ? context.actorRole !== "CAJERO" : !["ENCARGADO", "ADMINISTRADOR"].includes(context.actorRole)) {
+    return commandError("La funcion activa no permite anular esta liquidacion.");
+  }
+  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(previous.localId)) {
+    return commandError("El usuario no esta asignado al local del empleado.");
+  }
   if (previous.status === "ANULADA") return commandError("La liquidacion ya esta anulada.");
   const periodError = salaryPeriodMutationError(data, previous.period, options.correctionClosureId);
   if (periodError) return commandError(periodError);
@@ -178,8 +243,9 @@ export function annulSalarySettlementCommand(
     const balance = data.balances.find((item) => item.id === previous.balanceId);
     if (!balance || balance.status !== "EN_PROCESO") return commandError("Solo se pueden eliminar salarios antes de cerrar la caja.");
   }
-  const previousCashOutflow = activeLocalCashSourceOutflow(data, previous.localId, previous.id);
-  if (previousCashOutflow > 0) {
+  const previousPaymentAccountId = previous.paymentAccountId ?? localCashAccountId(previous.localId);
+  const previousCashOutflow = activeAccountSourceOutflow(data, previousPaymentAccountId, previous.id);
+  if (previousCashOutflow > 0 && previousPaymentAccountId === localCashAccountId(previous.localId)) {
     const historicalMutationError = historicalCashMutationError(data, previous.localId, previous.balanceId);
     if (historicalMutationError) return commandError(historicalMutationError);
   }

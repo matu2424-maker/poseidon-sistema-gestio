@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
+import type { CapitalMovement } from "../../types";
 import { createSeedData, POSEIDON_LOCAL_ID } from "../../data/appData";
+import { capitalAccountMovement, upsertAccountMovement } from "../../lib/accountMovements";
 import { totalsForBalance } from "../../lib/cashTotals";
 import { accountTotals, localAccountBalances, TRANSFER_ACCOUNT_ID } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
 import { openCashCommand } from "../cash/openCash";
 import { saveReadingCommand } from "../cash/saveReading";
+import {
+  createPartnerMovementCommand,
+  createTreasuryTransferCommand,
+} from "../treasury/treasuryCommands";
 import {
   annulCapitalMovementCommand,
   annulTransferCommand,
@@ -62,7 +68,7 @@ function managerContext(data: ReturnType<typeof createSeedData>, localIds = [POS
 }
 
 describe("comandos de movimientos operativos", () => {
-  it("permite al encargado asignado registrar un gasto sobre la misma caja y cuenta local", () => {
+  it("impide que el encargado use el comando operativo reservado al cajero", () => {
     const setup = setupOpenCash();
     const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
     const result = createExpenseCommand(
@@ -77,21 +83,11 @@ describe("comandos de movimientos operativos", () => {
       managerContext(setup.data),
     );
 
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.value.balanceId).toBe(setup.balance.id);
-    expect(result.value.userId).toBe("user-encargado");
-    expect(localAccountBalances(result.data, POSEIDON_LOCAL_ID).cash).toBe(0);
-    expect(totalsForBalance(result.data, setup.balance.id).expectedCash).toBe(0);
-    expect(result.data.audit[0]).toMatchObject({
-      userId: "user-encargado",
-      actualRole: "ENCARGADO",
-      actorRole: "ENCARGADO",
-      action: "Crear gasto",
-    });
+    expect(result).toEqual({ ok: false, error: "Para operar movimientos hay que trabajar con la funcion Cajero." });
+    expect(localAccountBalances(setup.data, POSEIDON_LOCAL_ID).cash).toBe(10_000);
   });
 
-  it("permite al encargado aportar y retirar, pero rechaza una salida mayor al disponible", () => {
+  it("impide que el encargado use aportes y retiros legacy de una caja", () => {
     const setup = setupOpenCash();
     const context = managerContext(setup.data);
     const contribution = createCapitalMovementCommand(
@@ -106,7 +102,10 @@ describe("comandos de movimientos operativos", () => {
       },
       context,
     );
-    expect(contribution.ok).toBe(true);
+    expect(contribution).toEqual({
+      ok: false,
+      error: "El alta legacy de aportes y retiros esta deshabilitada. Usa Caja / Principal o un movimiento real de socio.",
+    });
     if (!contribution.ok) return;
 
     const withdrawal = createCapitalMovementCommand(
@@ -158,7 +157,7 @@ describe("comandos de movimientos operativos", () => {
       },
       managerContext(setup.data, []),
     );
-    expect(unassigned).toEqual({ ok: false, error: "El usuario no esta asignado al local de esta caja." });
+    expect(unassigned).toEqual({ ok: false, error: "Para operar movimientos hay que trabajar con la funcion Cajero." });
 
     const context = managerContext(setup.data);
     const transfer = createTransferCommand(
@@ -278,48 +277,42 @@ describe("comandos de movimientos operativos", () => {
     expect(annulled.data.accountMovements.filter((item) => item.reversalOf)).toHaveLength(3);
   });
 
-  it("registra aportes/retiros y anula mediante reverso sin borrar historial", () => {
+  it("permite anular un movimiento legacy existente sin habilitar nuevas altas", () => {
     const setup = setupOpenCash();
-    const contribution = createCapitalMovementCommand(
-      setup.data,
-      {
-        balanceId: setup.balance.id,
-        type: "APORTE",
-        medium: "EFECTIVO",
-        person: "RICARDO",
-        amount: 2_000,
-        note: "Refuerzo",
-      },
-      setup.context,
-    );
-    expect(contribution.ok).toBe(true);
-    if (!contribution.ok) return;
-    const withdrawal = createCapitalMovementCommand(
-      contribution.data,
-      {
-        balanceId: setup.balance.id,
-        type: "RETIRO",
-        medium: "EFECTIVO",
-        person: "MATHIAS",
-        amount: 1_000,
-        note: "Retiro parcial",
-      },
-      setup.context,
-    );
-    expect(withdrawal.ok).toBe(true);
-    if (!withdrawal.ok) return;
-    expect(localAccountBalances(withdrawal.data, POSEIDON_LOCAL_ID).cash).toBe(11_000);
+    const legacyMovement: CapitalMovement = {
+      id: "capital-legacy-existing",
+      balanceId: setup.balance.id,
+      localId: POSEIDON_LOCAL_ID,
+      type: "APORTE",
+      medium: "EFECTIVO",
+      timing: "OPERATIVO",
+      person: "RICARDO",
+      amount: 1_000,
+      note: "Movimiento historico",
+      status: "ACTIVO",
+      userId: "user-cajero1",
+      createdAt: "2026-07-11T12:30:00.000Z",
+    };
+    const withLegacy = {
+      ...setup.data,
+      capitalMovements: [legacyMovement, ...setup.data.capitalMovements],
+      accountMovements: upsertAccountMovement(
+        setup.data.accountMovements,
+        capitalAccountMovement(legacyMovement),
+      ),
+    };
+    expect(localAccountBalances(withLegacy, POSEIDON_LOCAL_ID).cash).toBe(11_000);
 
     const annulled = annulCapitalMovementCommand(
-      withdrawal.data,
+      withLegacy,
       setup.balance.id,
-      withdrawal.value.id,
+      legacyMovement.id,
       setup.context,
     );
     expect(annulled.ok).toBe(true);
     if (!annulled.ok) return;
-    expect(localAccountBalances(annulled.data, POSEIDON_LOCAL_ID).cash).toBe(12_000);
-    expect(annulled.data.capitalMovements.find((item) => item.id === withdrawal.value.id)?.status).toBe("ANULADO");
+    expect(localAccountBalances(annulled.data, POSEIDON_LOCAL_ID).cash).toBe(10_000);
+    expect(annulled.data.capitalMovements.find((item) => item.id === legacyMovement.id)?.status).toBe("ANULADO");
     expect(annulled.data.accountMovements.some((item) => item.reversalOf)).toBe(true);
   });
 
@@ -406,21 +399,6 @@ describe("comandos de movimientos operativos", () => {
       ).ok,
     ).toBe(true);
 
-    const withdrawalSetup = setupOpenCash();
-    expect(
-      createCapitalMovementCommand(
-        withdrawalSetup.data,
-        {
-          balanceId: withdrawalSetup.balance.id,
-          type: "RETIRO",
-          medium: "EFECTIVO",
-          person: "MATHIAS",
-          amount: 10_000,
-          note: "Retiro total",
-        },
-        withdrawalSetup.context,
-      ).ok,
-    ).toBe(true);
   });
 
   it("rechaza salidas que exceden el disponible sin mutar el estado", () => {
@@ -462,40 +440,43 @@ describe("comandos de movimientos operativos", () => {
         },
         setup.context,
       ),
-      createCapitalMovementCommand(
-        setup.data,
-        {
-          balanceId: setup.balance.id,
-          type: "RETIRO",
-          medium: "EFECTIVO",
-          person: "MATHIAS",
-          amount: 10_001,
-          note: "Sin fondos",
-        },
-        setup.context,
-      ),
     ];
 
     commands.forEach((result) => {
       expect(result).toMatchObject({ ok: false });
-      if (!result.ok) expect(result.error).toContain("No hay efectivo suficiente");
+      if (!result.ok) expect(result.error).toContain("No hay fondos suficientes en Caja / Efectivo");
     });
     expect(JSON.stringify(setup.data)).toBe(before);
   });
 
   it("permite la salida despues de un aporte real que cubre el faltante", () => {
     const setup = setupOpenCash();
-    const contribution = createCapitalMovementCommand(
+    const manager = managerContext(setup.data);
+    const partnerContribution = createPartnerMovementCommand(
       setup.data,
       {
-        balanceId: setup.balance.id,
-        type: "APORTE",
+        localId: POSEIDON_LOCAL_ID,
+        type: "APORTE_SOCIO",
         medium: "EFECTIVO",
-        person: "RICARDO",
+        partner: "RICARDO",
         amount: 2_000,
-        note: "Cubre salida",
+        note: "Fondos reales",
       },
-      setup.context,
+      manager,
+    );
+    expect(partnerContribution.ok).toBe(true);
+    if (!partnerContribution.ok) return;
+    const contribution = createTreasuryTransferCommand(
+      partnerContribution.data,
+      {
+        localId: POSEIDON_LOCAL_ID,
+        balanceId: setup.balance.id,
+        type: "APORTE_CAJA",
+        medium: "EFECTIVO",
+        amount: 2_000,
+        note: "Principal a Caja",
+      },
+      manager,
     );
     expect(contribution.ok).toBe(true);
     if (!contribution.ok) return;
@@ -547,6 +528,6 @@ describe("comandos de movimientos operativos", () => {
       setup.context,
     );
     expect(rejected).toMatchObject({ ok: false });
-    if (!rejected.ok) expect(rejected.error).toContain("saldo Local / Efectivo es negativo");
+    if (!rejected.ok) expect(rejected.error).toContain("saldo Caja / Efectivo es negativo");
   });
 });

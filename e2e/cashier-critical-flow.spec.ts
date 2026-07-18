@@ -72,7 +72,7 @@ test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }
   await expect(page.locator(".recent-cash-table tbody")).toContainText(OPERATING_DATE);
 });
 
-test("bloquea un cierre con efectivo negativo y permite resolverlo con un aporte real", async ({ page }) => {
+test("bloquea un cierre con efectivo negativo y permite cubrir Caja desde Principal", async ({ page, context }) => {
   await loginAsCashier(page);
 
   await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
@@ -100,15 +100,36 @@ test("bloquea un cierre con efectivo negativo y permite resolverlo con un aporte
   await expect(page.getByRole("alert")).toContainText("el efectivo esperado es -$ 24.000");
   await expect(page.locator("form.close-form").getByRole("button", { name: "Cerrar caja", exact: true })).toBeDisabled();
 
-  await page.getByRole("button", { name: "Registrar aporte", exact: true }).click();
-  await expect(page).toHaveURL(/\/caja\/capital$/);
+  const managerPage = await context.newPage();
+  await managerPage.goto("/");
+  await managerPage.getByRole("button", { name: "Ingresar", exact: true }).click();
+  await managerPage.getByLabel("Entrar como").selectOption("user-encargado");
+  await managerPage.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
+  await managerPage.goto("/cuentas-corrientes");
+  await managerPage.getByRole("button", { name: "Movimiento de socio", exact: true }).click();
+  const partnerModal = managerPage.getByRole("dialog", { name: "Aporte o retiro de socio" });
+  await partnerModal.locator('select[name="partner"]').selectOption("MATHIAS");
+  await partnerModal.locator('select[name="type"]').selectOption("APORTE_SOCIO");
+  await partnerModal.locator('select[name="medium"]').selectOption("EFECTIVO");
+  await partnerModal.locator('input[name="amount"]').fill("24000");
+  await partnerModal.locator('input[name="note"]').fill("Fondos reales para cubrir la caja");
+  await partnerModal.getByRole("button", { name: "Registrar movimiento", exact: true }).click();
+  await expect(managerPage.getByText("Aporte de socio registrado.")).toBeVisible();
+
+  await expect
+    .poll(() => page.evaluate((storageKey) => localStorage.getItem(storageKey)?.includes("Fondos reales para cubrir la caja") ?? false, STORAGE_KEY))
+    .toBe(true);
+  await page.reload();
+
+  await page.getByRole("button", { name: "Mover fondos", exact: true }).click();
+  await expect(page).toHaveURL(/\/caja\/fondos$/);
   const createRow = page.locator("tr.create-row");
-  await createRow.locator('select[name="type"]').selectOption("APORTE");
+  await createRow.locator('select[name="type"]').selectOption("APORTE_CAJA");
   await createRow.locator('select[name="medium"]').selectOption("EFECTIVO");
   await createRow.locator('input[name="amount"]').fill("24000");
-  await createRow.locator('input[name="note"]').fill("Cubre resultado negativo de maquinas");
+  await createRow.locator('input[name="note"]').fill("Traspaso para cubrir resultado negativo de maquinas");
   await createRow.getByRole("button", { name: "Agregar", exact: true }).click();
-  await expect(page.getByText("Aporte de capital registrado.")).toBeVisible();
+  await expect(page.getByText("Fondos aportados a Caja.")).toBeVisible();
 
   await page.goto("/caja/cerrar");
   await expect(page.getByRole("alert")).toHaveCount(0);
@@ -161,7 +182,7 @@ test("bloquea una caja desincronizada y no ofrece un aporte como reparacion", as
   await page.goto("/caja/cerrar");
   await expect(
     page.getByRole("alert").filter({ hasText: "La caja no esta conciliada" }),
-  ).toContainText("un aporte comun no corrige este desacople");
-  await expect(page.getByRole("button", { name: "Registrar aporte", exact: true })).toHaveCount(0);
+  ).toContainText("un traspaso comun no corrige este desacople");
+  await expect(page.getByRole("button", { name: "Mover fondos", exact: true })).toHaveCount(0);
   await expect(page.locator("form.close-form").getByRole("button", { name: "Cerrar caja", exact: true })).toBeDisabled();
 });

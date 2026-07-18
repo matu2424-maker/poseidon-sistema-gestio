@@ -17,6 +17,7 @@ const cashMovement = (
   direction,
   concept: "PRUEBA",
   amount,
+  currency: "UYU",
   detail: "Prueba de disponibilidad",
   status: "ACTIVO",
   userId: "user-test",
@@ -24,7 +25,7 @@ const cashMovement = (
 });
 
 describe("disponibilidad de efectivo local", () => {
-  it("usa el saldo activo Local / Efectivo y acepta una salida igual al disponible", () => {
+  it("usa el saldo activo Caja / Efectivo y acepta una salida igual al disponible", () => {
     const data = {
       ...clearOperationalData(createSeedData()),
       accountMovements: [cashMovement("aporte", "ENTRADA", 1_000)],
@@ -32,14 +33,14 @@ describe("disponibilidad de efectivo local", () => {
 
     expect(localCashAvailable(data, "1")).toBe(1_000);
     expect(localCashOutflowError(data, "1", 1_000)).toBe("");
-    expect(localCashOutflowError(data, "1", 1_001)).toContain("No hay efectivo suficiente");
+    expect(localCashOutflowError(data, "1", 1_001)).toContain("No hay fondos suficientes en Caja / Efectivo");
 
     const negative = {
       ...data,
       accountMovements: [cashMovement("resultado", "SALIDA", 1_500), ...data.accountMovements],
     };
     expect(localCashAvailable(negative, "1")).toBe(-500);
-    expect(localCashOutflowError(negative, "1", 1)).toContain("saldo Local / Efectivo es negativo");
+    expect(localCashOutflowError(negative, "1", 1)).toContain("saldo Caja / Efectivo es negativo");
 
     const salarySource = {
       ...data,

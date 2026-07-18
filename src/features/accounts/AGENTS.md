@@ -12,7 +12,7 @@ Antes de tocar esta carpeta, leer:
 
 Reglas locales:
 
-- Las cuentas corrientes leen movimientos de caja, diferencias, transferencias, salarios, retiros/aportes y saldos por cuenta.
+- Las cuentas corrientes leen Caja, Principal, socios, diferencias, transferencias, salarios y saldos derivados; tambien ejecutan traspasos y movimientos patrimoniales autorizados.
 - No modificar formulas de saldo, debito/credito o impacto contable sin revisar `src/lib/accountMovements.ts`.
 - Toda tabla operativa debe ordenar por cada columna visible de datos. Las columnas de acciones son la excepcion.
 - Si se cambia un flujo o calculo, actualizar el modulo 11 y las reglas contables si corresponde.

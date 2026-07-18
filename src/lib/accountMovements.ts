@@ -1,9 +1,23 @@
-import type { AccountMovement, AppData, Balance, CapitalMovement, Expense, Gift, SalarySettlement, Transfer } from "../types";
+import type {
+  AccountMovement,
+  AppData,
+  Balance,
+  CapitalMovement,
+  Expense,
+  Gift,
+  PartnerMovement,
+  SalarySettlement,
+  Transfer,
+  TreasuryTransfer,
+} from "../types";
 import {
   ensureLocalCurrentAccounts,
   localAccountIdForMedium,
+  localAccountIdForFinancialMedium,
   localBankAccountId,
   localCashAccountId,
+  partnerAccountId,
+  principalAccountIdForMedium,
   staffAccountId,
   TRANSFER_ACCOUNT_ID,
 } from "./currentAccounts";
@@ -15,12 +29,14 @@ export function salaryAccountMovement(settlement: SalarySettlement, userId: stri
   return {
     id: `account-movement-salary-${settlement.id}`,
     accountId: staffAccountId(settlement.staffId),
+    localId: settlement.localId,
     balanceId: settlement.balanceId,
     sourceType: "SUELDO",
     sourceId: settlement.id,
     direction: "SALIDA",
     concept,
     amount: salarySettlementDisplayAmount(settlement),
+    currency: settlement.currency ?? "UYU",
     detail: settlement.notes || salaryConceptLabel(concept),
     status: settlement.status === "CONFIRMADA" ? "ACTIVO" : "ANULADO",
     userId,
@@ -33,13 +49,15 @@ export function localSalaryAccountMovement(settlement: SalarySettlement, userId:
   const detail = settlement.notes || salaryConceptLabel(concept);
   return {
     id: `account-movement-local-salary-${settlement.id}`,
-    accountId: localCashAccountId(settlement.localId),
+    accountId: settlement.paymentAccountId ?? localCashAccountId(settlement.localId),
+    localId: settlement.localId,
     balanceId: settlement.balanceId,
     sourceType: "SUELDO",
     sourceId: settlement.id,
     direction: "SALIDA",
     concept,
     amount: salarySettlementAmount(settlement),
+    currency: settlement.currency ?? "UYU",
     detail: `${settlement.staffName}${detail ? ` - ${detail}` : ""}`,
     status: settlement.status === "CONFIRMADA" ? "ACTIVO" : "ANULADO",
     userId,
@@ -57,6 +75,7 @@ export function transferAccountMovement(transfer: Transfer): AccountMovement {
     direction: "ENTRADA",
     concept: "TRANSFERENCIA",
     amount: transfer.amount,
+    currency: "UYU",
     detail: `${transfer.name} - ${transfer.receipt}`,
     status: transfer.status,
     userId: transfer.userId,
@@ -68,12 +87,14 @@ export function localTransferAccountMovement(transfer: Transfer, localId: string
   return {
     id: `account-movement-local-transfer-${transfer.id}`,
     accountId: localBankAccountId(localId),
+    localId,
     balanceId: transfer.balanceId,
     sourceType: "TRANSFERENCIA",
     sourceId: transfer.id,
     direction: "ENTRADA",
     concept: "TRANSFERENCIA",
     amount: transfer.amount,
+    currency: "UYU",
     detail: `${transfer.name} - ${transfer.receipt}`,
     status: transfer.status,
     userId: transfer.userId,
@@ -85,12 +106,14 @@ export function localTransferCashAccountMovement(transfer: Transfer, localId: st
   return {
     id: `account-movement-local-transfer-cash-${transfer.id}`,
     accountId: localCashAccountId(localId),
+    localId,
     balanceId: transfer.balanceId,
     sourceType: "TRANSFERENCIA",
     sourceId: transfer.id,
     direction: "SALIDA",
     concept: "TRANSFERENCIA",
     amount: transfer.amount,
+    currency: "UYU",
     detail: `${transfer.name} - ${transfer.receipt} - salida a banco`,
     status: transfer.status,
     userId: transfer.userId,
@@ -101,13 +124,15 @@ export function localTransferCashAccountMovement(transfer: Transfer, localId: st
 export function localExpenseAccountMovement(expense: Expense, localId: string): AccountMovement {
   return {
     id: `account-movement-local-expense-${expense.id}`,
-    accountId: localCashAccountId(localId),
+    accountId: expense.paymentAccountId || localCashAccountId(localId),
+    localId,
     balanceId: expense.balanceId,
     sourceType: "GASTO",
     sourceId: expense.id,
     direction: "SALIDA",
     concept: "GASTO",
     amount: expense.amount,
+    currency: expense.currency ?? "UYU",
     detail: `${expense.category} / ${expense.subcategory || "-"}${expense.description ? ` - ${expense.description}` : ""}`,
     status: expense.status,
     userId: expense.userId,
@@ -119,12 +144,14 @@ export function localGiftAccountMovement(gift: Gift, localId: string): AccountMo
   return {
     id: `account-movement-local-gift-${gift.id}`,
     accountId: localCashAccountId(localId),
+    localId,
     balanceId: gift.balanceId,
     sourceType: "REGALO",
     sourceId: gift.id,
     direction: "SALIDA",
     concept: "REGALO",
     amount: gift.cashAmount + gift.creditAmount,
+    currency: "UYU",
     detail: `${gift.reference || "Sin referencia"}${gift.description ? ` - ${gift.description}` : ""}`,
     status: gift.status,
     userId: gift.userId,
@@ -136,12 +163,14 @@ export function capitalAccountMovement(movement: CapitalMovement): AccountMoveme
   return {
     id: `account-movement-capital-${movement.id}`,
     accountId: localAccountIdForMedium(movement.localId, movement.medium),
+    localId: movement.localId,
     balanceId: movement.balanceId,
     sourceType: movement.type,
     sourceId: movement.id,
     direction: movement.type === "APORTE" ? "ENTRADA" : "SALIDA",
     concept: movement.type,
     amount: movement.amount,
+    currency: "UYU",
     detail: `${movement.person} - ${movement.medium} - ${movement.timing}${movement.note ? ` - ${movement.note}` : ""}`,
     status: movement.status,
     userId: movement.userId,
@@ -149,17 +178,86 @@ export function capitalAccountMovement(movement: CapitalMovement): AccountMoveme
   };
 }
 
+export function treasuryTransferAccountMovements(transfer: TreasuryTransfer): [AccountMovement, AccountMovement] {
+  const localAccountId = localAccountIdForFinancialMedium(transfer.localId, transfer.medium);
+  const principalAccountId = principalAccountIdForMedium(transfer.medium);
+  const fromAccountId = transfer.type === "RETIRO_CAJA" ? localAccountId : principalAccountId;
+  const toAccountId = transfer.type === "RETIRO_CAJA" ? principalAccountId : localAccountId;
+  const label = transfer.type === "RETIRO_CAJA" ? "Retiro de caja a principal" : "Aporte desde principal a caja";
+  const common = {
+    localId: transfer.localId,
+    balanceId: transfer.balanceId,
+    sourceType: "TRASPASO_CAJA" as const,
+    sourceId: transfer.id,
+    concept: transfer.type,
+    amount: transfer.amount,
+    currency: transfer.currency,
+    detail: `${label} - ${transfer.medium}${transfer.note ? ` - ${transfer.note}` : ""}`,
+    status: transfer.status,
+    userId: transfer.userId,
+    createdAt: transfer.createdAt,
+  };
+  return [
+    {
+      ...common,
+      id: `account-movement-treasury-${transfer.id}-source`,
+      accountId: fromAccountId,
+      direction: "SALIDA",
+    },
+    {
+      ...common,
+      id: `account-movement-treasury-${transfer.id}-destination`,
+      accountId: toAccountId,
+      direction: "ENTRADA",
+    },
+  ];
+}
+
+export function partnerMovementAccountMovements(movement: PartnerMovement): [AccountMovement, AccountMovement] {
+  const isContribution = movement.type === "APORTE_SOCIO";
+  const label = isContribution ? "Aporte de socio" : "Retiro de socio";
+  const common = {
+    localId: movement.localId,
+    balanceId: movement.balanceId,
+    sourceType: movement.type,
+    sourceId: movement.id,
+    concept: movement.type,
+    amount: movement.amount,
+    currency: movement.currency,
+    detail: `${label} ${movement.partner} - ${movement.medium}${movement.note ? ` - ${movement.note}` : ""}`,
+    status: movement.status,
+    userId: movement.userId,
+    createdAt: movement.createdAt,
+  };
+  return [
+    {
+      ...common,
+      id: `account-movement-partner-${movement.id}-principal`,
+      accountId: principalAccountIdForMedium(movement.medium),
+      direction: isContribution ? "ENTRADA" : "SALIDA",
+    },
+    {
+      ...common,
+      id: `account-movement-partner-${movement.id}-partner`,
+      accountId: partnerAccountId(movement.partner),
+      direction: isContribution ? "ENTRADA" : "SALIDA",
+    },
+  ];
+}
+
 export function machineResultAccountMovement(balance: Balance, result: number, userId: string): AccountMovement | null {
   if (result === 0) return null;
   return {
     id: `account-movement-local-machine-${balance.id}`,
     accountId: localCashAccountId(balance.localId),
+    localId: balance.localId,
     balanceId: balance.id,
     sourceType: "RESULTADO_MAQUINAS",
     sourceId: balance.id,
     direction: result >= 0 ? "ENTRADA" : "SALIDA",
     concept: "RESULTADO_MAQUINAS",
     amount: Math.abs(result),
+    currency: "UYU",
     detail: `Caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
     status: "ACTIVO",
     userId,
@@ -193,12 +291,14 @@ export function differenceAccountMovement(
   return {
     id: options.id ?? (isCash ? ids.cash : ids.bank),
     accountId: isCash ? localCashAccountId(balance.localId) : localBankAccountId(balance.localId),
+    localId: balance.localId,
     balanceId: balance.id,
     sourceType: "DIFERENCIA_CAJA",
     sourceId: `${balance.id}-${kind}`,
     direction: amount >= 0 ? "ENTRADA" : "SALIDA",
     concept: isCash ? "DIFERENCIA_EFECTIVO" : "DIFERENCIA_BANCO",
     amount: Math.abs(amount),
+    currency: "UYU",
     detail: `${options.detailPrefix ?? "Diferencia"} ${isCash ? "efectivo" : "banco"} caja ${balance.visibleId ?? balance.id} - ${balance.operatingDate}`,
     status: options.status ?? (balance.differenceStatus === "ANULADA" ? "ANULADO" : "ACTIVO"),
     userId,
@@ -289,12 +389,14 @@ export function reverseSourceAccountMovements(
     const reversal: AccountMovement = {
       id: reversalId,
       accountId: original.accountId,
+      localId: original.localId,
       balanceId: original.balanceId,
       sourceType: "AJUSTE",
       sourceId: original.sourceId,
       direction: original.direction === "ENTRADA" ? "SALIDA" : "ENTRADA",
       concept: `REVERSO_${original.concept}`,
       amount: original.amount,
+      currency: original.currency,
       detail: `${reason} - reverso de ${original.detail}`,
       status: "ACTIVO",
       userId,
