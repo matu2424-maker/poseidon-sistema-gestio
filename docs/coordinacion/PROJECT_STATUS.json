@@ -18,10 +18,10 @@
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-18-CEN-04",
-    "title": "Delegacion obligatoria de cambios no triviales por experiencia de rol",
+    "id": "2026-07-18-ENC-01",
+    "title": "Prioridad de Efectivo en Cuentas corrientes",
     "state": "INTEGRADA",
-    "evidence": "El commit que contiene este archivo identifica el estado exacto validado."
+    "evidence": "Poseidon Encargado entrego 2254295; Central reviso, integro por fast-forward y valido 189 pruebas, build, smoke y navegador."
   },
   "health": {
     "overall": "YELLOW",

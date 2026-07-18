@@ -1,6 +1,6 @@
 # Contexto Codex - Cuentas corrientes
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Leer junto con `docs/REGLAS_CONTABLES.md` y `docs/modulos/11_cuentas_corrientes.md`.
 
