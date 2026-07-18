@@ -11,8 +11,8 @@
   },
   "current": {
     "phase": "prueba-local",
-    "objective": "Evolucion modular del sistema Poseidon con trazabilidad y validacion local.",
-    "activeWorkOrders": [],
+    "objective": "Incorporar una carga integral y recuperable de datos demo para pruebas compartidas en Chrome.",
+    "activeWorkOrders": ["2026-07-18-ADM-01"],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []

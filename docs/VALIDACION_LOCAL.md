@@ -53,6 +53,8 @@ El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http:
 
 - Toda validacion manual que lea o modifique datos locales se realiza en el perfil habitual de Chrome del usuario.
 - El origen canonico es exactamente `http://127.0.0.1:5173/`; `localhost`, otro perfil, incognito u otro navegador mantienen almacenamientos independientes.
+- Codex nombra una sesion `Poseidon - <tarea>`, crea las pestanas de trabajo dentro de ese grupo y evita reclamar pestanas personales abiertas por el usuario.
+- Al finalizar se conservan solo las pestanas utiles para el usuario; las temporales se cierran.
 - El navegador integrado no se usa para crear, editar, importar ni validar datos operativos.
 - Si Chrome no esta disponible o no puede controlarse, registrar la limitacion y no sustituirlo silenciosamente por otro navegador.
 - Evitar que el usuario y una automatizacion modifiquen simultaneamente el mismo perfil de Chrome.
@@ -102,7 +104,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 
 ## Evidencia vigente al 2026-07-18
 
-- 37 archivos de pruebas y 189 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
+- 38 archivos de pruebas y 191 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
 - La suite E2E en 8 archivos aprobo 14 de 14 casos: caja, fondos Principal -> Caja, desacople caja/libro, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.

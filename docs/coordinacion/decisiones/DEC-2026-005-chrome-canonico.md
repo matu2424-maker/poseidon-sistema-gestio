@@ -13,6 +13,8 @@ El proyecto preve migrar directamente a una base central antes de publicar. Agre
 ## Decision
 
 - El perfil habitual de Chrome del usuario en `http://127.0.0.1:5173/` es la unica fuente operativa de datos durante la etapa local.
+- Codex crea una sesion o grupo nombrado `Poseidon - <tarea>` y mantiene dentro de el todas las pestanas usadas por la validacion.
+- Las pestanas personales del usuario no se reclaman para trabajar; al finalizar se eliminan las temporales y se conserva solo una entrega util cuando corresponda.
 - Central, chats de rol y validaciones manuales usan el control de Chrome cuando la evidencia depende de datos persistidos.
 - No se usa el navegador integrado para crear, editar, importar o validar datos operativos.
 - Si Chrome no esta disponible, se informa la limitacion y no se cambia silenciosamente de navegador.

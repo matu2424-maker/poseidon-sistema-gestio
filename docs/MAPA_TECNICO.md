@@ -170,6 +170,7 @@ src/
 | `application/salaries/salarySettlementCommands.ts` | Caja/Efectivo para Cajero y Principal para Encargado/Admin; correccion neta, anulacion y auditoria |
 | `application/salaries/salaryClosureCommands.ts` | Cierre mensual definitivo y ciclo de revisiones correctivas |
 | `application/system/resetOperationalData.ts` | Reinicio local con permisos, limpieza determinista y auditoria nueva; el respaldo se descarga desde `App.tsx` antes de ejecutar |
+| `application/system/loadDemoData.ts` | Reemplazo autorizado por el escenario demo integral, sin mezcla, con resumen y auditoria; `App.tsx` descarga el respaldo antes de ejecutar |
 
 ## Componentes compartidos
 

@@ -478,9 +478,13 @@ Administrador ve todo. Encargado ve eventos de sus locales. No se auditan contra
 - Un error de cuota no se oculta ni recorta historial.
 - El administrador puede exportar/importar respaldo.
 - Desde `Datos locales`, un Administrador en funcion Administrador puede crear una base operativa limpia. Antes se descarga automaticamente el snapshot completo del navegador.
+- Desde la misma pantalla puede cargar el escenario demo integral. Antes se descarga automaticamente el snapshot completo y luego se reemplaza la base activa sin mezclar datos anteriores.
+- La carga demo deja tres cajas historicas cerradas, una diferencia pendiente y movimientos de gastos, transferencias, regalos, salarios, tesoreria, socios, cuentas corrientes y auditoria para pruebas coordinadas.
+- La carga queda auditada con usuario real, funcion, fecha y resumen anterior/nuevo.
 - El reinicio conserva local, usuarios, personal, clientes, categorias, cuentas y maquinas; pone contadores y adelantos en cero y elimina cajas, lecturas, gastos, transferencias, regalos, liquidaciones, cierres y movimientos financieros del snapshot activo.
 - La base nueva conserva un unico evento de auditoria con actor, funcion, fecha y resumen anterior/nuevo. El historial reemplazado sigue disponible en el respaldo descargado.
 - Esta excepcion destructiva existe solo para pruebas locales y no representa anulaciones ni movimientos contables de produccion.
+- La carga demo comparte esa condicion: no debe existir como reemplazo de datos en produccion.
 - Un snapshot corrupto puede descargarse antes de reiniciar.
 
 ## 26. Pendientes tecnicos

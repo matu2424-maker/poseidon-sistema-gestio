@@ -31,11 +31,14 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Un fallo de escritura debe detener la operacion y ofrecer recuperacion.
 - Los archivos pesados no se guardan en `localStorage`; solo sus metadatos.
 - Durante la etapa local de pruebas, un Administrador en funcion Administrador puede crear una base operativa limpia solo desde `Datos locales`. La accion descarga primero un respaldo completo, conserva maestros y reemplaza operaciones, saldos e historial operativo por un unico evento de reinicio auditado.
+- Un Administrador en funcion Administrador puede cargar desde `Datos locales` el escenario demo integral. La accion descarga primero un respaldo, reemplaza el snapshot completo sin mezclar registros y agrega una auditoria de la carga.
 - El reinicio limpio es una herramienta destructiva del entorno local, no una operacion de negocio ni una funcion habilitable en produccion.
+- La carga demo tambien es exclusiva de pruebas locales y no representa altas, anulaciones ni asientos reales de produccion.
 
 ## Navegador canonico durante la etapa local
 
 - Chrome, usando el perfil habitual del usuario y el origen exacto `http://127.0.0.1:5173/`, es la unica fuente operativa de datos para validaciones manuales.
+- Cada tarea manual de Codex abre una sesion o grupo nombrado `Poseidon - <tarea>` y crea dentro de ese grupo las pestanas necesarias; no toma pestanas sueltas de la navegacion personal del usuario.
 - Central y los chats delegados usan el control de Chrome cuando una prueba depende de cajas, cuentas, movimientos o cualquier dato persistido por el usuario.
 - El navegador integrado no se usa para crear, editar, importar ni validar datos operativos y no se compara con Chrome como si ambos compartieran almacenamiento.
 - Si Chrome no esta disponible o no puede controlarse, se informa la limitacion; no se cambia silenciosamente al navegador integrado.
