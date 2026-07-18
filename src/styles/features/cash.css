@@ -943,3 +943,82 @@
   font-weight: 600;
 }
 
+.cash-availability-notice {
+  box-sizing: border-box;
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  border: 1px solid #d5e0ec;
+  border-radius: 8px;
+  background: #f8fbff;
+  padding: 14px 16px;
+}
+
+.cash-availability-notice span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cash-availability-notice strong {
+  color: #132235;
+  font-family: var(--font-data);
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.cash-availability-notice small {
+  color: #526173;
+  font-size: 0.84rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+@media (max-width: 720px) {
+  .cashier-shell .cashier-panel,
+  .cashier-shell .cashier-inline-view,
+  .cashier-shell .cashier-inline-view > .open-cash-page,
+  .cashier-shell .cashier-inline-view .recent-cashes-panel,
+  .cashier-shell .cashier-inline-view .closed-summary-panel,
+  .cashier-shell .cashier-inline-view .closed-summary-card,
+  .close-cash-page .close-breakdown,
+  .close-cash-page .close-form,
+  .cash-availability-notice {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .cashier-shell .cashier-content {
+    padding: 18px 12px 40px !important;
+  }
+
+  .cashier-shell .cashier-panel {
+    width: 100% !important;
+    padding: 16px !important;
+  }
+
+  .cashier-shell .cashier-inline-view,
+  .cashier-shell .cashier-inline-view > .open-cash-page,
+  .cashier-shell .cashier-inline-view .recent-cashes-panel,
+  .cashier-shell .cashier-inline-view .closed-summary-panel {
+    width: 100% !important;
+  }
+
+  .cashier-shell .cashier-inline-view .recent-cashes-panel,
+  .cashier-shell .cashier-inline-view .closed-summary-panel {
+    padding: 16px !important;
+  }
+
+  .cashier-shell .cashier-inline-view .table-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+
+  .recent-cash-table {
+    min-width: 760px;
+  }
+}
+

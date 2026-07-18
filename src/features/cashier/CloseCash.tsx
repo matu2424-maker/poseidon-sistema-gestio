@@ -46,6 +46,7 @@ export function CloseCash({
   const pendingInvalid = data.readings.filter(
     (reading) => reading.balanceId === balance.id && reading.status === "PENDIENTE" && !reading.observation.trim(),
   );
+  const hasPendingReadings = pendingReadings.length > 0;
   const finalEconomicResult = totals.commercialResult;
   const declaredCashPreview = parseMoneyInput(declaredCashDraft);
   const declaredBankPreview = parseMoneyInput(declaredBankDraft);
@@ -69,27 +70,25 @@ export function CloseCash({
     event.preventDefault();
     setCloseError("");
     const form = new FormData(event.currentTarget);
-    patchData((current) => {
-      const result = closeCashCommand(
-        current,
-        {
-          balanceId: balance.id,
-          declaredCash: parseMoneyInput(form.get("declaredCash")),
-          declaredBank: parseMoneyInput(form.get("declaredBank")),
-          transferToPrincipalCash: parseMoneyInput(form.get("transferToPrincipalCash")),
-          transferToPrincipalBank: parseMoneyInput(form.get("transferToPrincipalBank")),
-          differenceNote: String(form.get("differenceNote") ?? ""),
-        },
-        commandContext(user, actorRole),
-      );
-      if (!result.ok) {
-        setCloseError(result.error);
-        return current;
-      }
-      setMessage("Caja cerrada correctamente.");
-      setScreen(afterCloseScreen);
-      return result.data;
-    });
+    const result = closeCashCommand(
+      data,
+      {
+        balanceId: balance.id,
+        declaredCash: parseMoneyInput(form.get("declaredCash")),
+        declaredBank: parseMoneyInput(form.get("declaredBank")),
+        transferToPrincipalCash: parseMoneyInput(form.get("transferToPrincipalCash")),
+        transferToPrincipalBank: parseMoneyInput(form.get("transferToPrincipalBank")),
+        differenceNote: String(form.get("differenceNote") ?? ""),
+      },
+      commandContext(user, actorRole),
+    );
+    if (!result.ok) {
+      setCloseError(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage("Caja cerrada correctamente.");
+    setScreen(afterCloseScreen);
   };
 
   return (
@@ -278,16 +277,16 @@ export function CloseCash({
             <div className="close-alert danger">
               Hay {pendingInvalid.length} maquinas pendientes sin observacion. Para cerrar, cargalas o deja una observacion.
             </div>
-          ) : pendingReadings.length > 0 ? (
+          ) : hasPendingReadings ? (
             <div className="close-alert warning">
-              Hay {pendingReadings.length} maquinas pendientes con observacion. El cierre puede continuar y queda registrado.
+              Hay {pendingReadings.length} maquinas pendientes. Para cerrar, primero completa la recaudacion o registra la observacion y luego guarda contadores.
             </div>
           ) : (
             <div className="close-alert ok">Todas las maquinas de la caja fueron recaudadas.</div>
           )}
 
           <div className="close-actions">
-            <button className="button success" type="submit" disabled={hasNegativeExpectedCash || hasCashReconciliationError}>
+            <button className="button success" type="submit" disabled={hasNegativeExpectedCash || hasCashReconciliationError || hasPendingReadings}>
               Cerrar caja
             </button>
           </div>

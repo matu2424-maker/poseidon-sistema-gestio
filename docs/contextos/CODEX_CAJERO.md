@@ -5,7 +5,8 @@ Leer junto con `docs/contextos/CODEX_NUCLEO_CAJA.md`, `docs/REGLAS_CONTABLES.md`
 ## Propiedad
 
 - UI de Caja: `src/features/cashier/`.
-- Panel: `src/features/dashboard/CashierDashboard.tsx`.
+- Panel real del Cajero: `src/features/layout/AppShell.tsx` mediante `CashierWorkspace`.
+- Compatibilidad legacy del panel: `src/features/dashboard/CashierDashboard.tsx`.
 - Rutas/permisos: `src/navigation/screens.ts`.
 - Comandos compartidos: `src/application/cash/`, `src/application/movements/`, `src/application/treasury/` y `src/application/salaries/`.
 
@@ -15,6 +16,7 @@ El chat Cajero es propietario de su experiencia, no de los contratos contables c
 
 - Sin caja abierta: Abrir caja, Clientes y Resumen de cajas.
 - Con caja abierta: contadores, gastos, transferencias, regalos, salarios, Caja/Principal y cierre.
+- `CashierWorkspace` concentra cabecera, resumen operativo, accesos y vistas inline/modal del Cajero.
 - Cada movimiento operativo usa el `balanceId` activo.
 - Cajero opera `Caja / Efectivo` y `Caja / Banco`.
 - `Caja y Principal` permite traspasos internos; no selecciona socio y no cambia resultado economico.
@@ -24,13 +26,17 @@ El chat Cajero es propietario de su experiencia, no de los contratos contables c
 ## Reglas
 
 - No duplicar formulas en React; usar helpers y comandos compartidos.
+- `patchData` en componentes Cajero solo aplica `result.data`; los comandos, mensajes, resets y navegacion ocurren fuera del updater.
 - Contadores IN/OUT no retroceden.
 - Gastos, regalos y salarios del Cajero salen de Caja/Efectivo.
 - Transferencias mueven Caja/Efectivo a Caja/Banco.
 - Una salida sin fondos se rechaza atomicamente.
+- Formularios que generan una salida desde Caja muestran `Caja / Efectivo actual`.
+- Gastos, regalos y salarios anulados permanecen visibles e identificables; no se reintenta una segunda anulacion.
 - Efectivo esperado debe coincidir con Caja/Efectivo.
 - Si el efectivo esperado es negativo, se cubre con fondos reales de Principal y un traspaso Principal -> Caja.
 - El cierre puede traspasar Caja -> Principal y compara el remanente con lo declarado.
+- Si hay maquinas pendientes, el cierre queda deshabilitado hasta completar o guardar la recaudacion pendiente.
 - No existe selector de persona ni custodia en traspasos de Caja.
 - Todas las columnas visibles de datos ordenan; Acciones/Seleccion no.
 

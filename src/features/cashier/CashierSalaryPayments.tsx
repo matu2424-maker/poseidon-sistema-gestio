@@ -13,6 +13,7 @@ import {
   suggestedWorkedPeriodFromOperatingDate,
 } from "../../lib/salaryRules";
 import type { AppData, Balance, User } from "../../types";
+import { CashAvailabilityNotice } from "./CashAvailabilityNotice";
 import { CashierMovementPanel, MovementTable } from "./MovementTable";
 
 export function CashierSalaryPayments({
@@ -32,7 +33,7 @@ export function CashierSalaryPayments({
 }) {
   const suggestedPeriod = suggestedWorkedPeriodFromOperatingDate(balance.operatingDate);
   const activeStaff = data.staff.filter((staff) => staff.status === "ACTIVO");
-  const items = data.salarySettlements.filter((settlement) => settlement.balanceId === balance.id && settlement.status !== "ANULADA");
+  const items = data.salarySettlements.filter((settlement) => settlement.balanceId === balance.id);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -62,48 +63,44 @@ export function CashierSalaryPayments({
       setMessage("Ingresa un monto.");
       return;
     }
-    patchData((current) => {
-      const result = saveSalarySettlementCommand(
-        current,
-        {
-          staffId: staff.id,
-          period,
-          concept,
-          amount,
-          notes: `Pago desde caja ${balance.visibleId ?? balance.id}. Periodo trabajado ${period}.`,
-          origin: "CAJA",
-          balanceId: balance.id,
-        },
-        commandContext(user, "CAJERO"),
-      );
-      if (!result.ok) {
-        setMessage(result.error);
-        return current;
-      }
-      setMessage("Pago de salario registrado.");
-      return result.data;
-    });
+    const result = saveSalarySettlementCommand(
+      data,
+      {
+        staffId: staff.id,
+        period,
+        concept,
+        amount,
+        notes: `Pago desde caja ${balance.visibleId ?? balance.id}. Periodo trabajado ${period}.`,
+        origin: "CAJA",
+        balanceId: balance.id,
+      },
+      commandContext(user, "CAJERO"),
+    );
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage("Pago de salario registrado.");
     event.currentTarget.reset();
   };
 
   const deleteSalaryPayment = (id: string) => {
     if (balance.status !== "EN_PROCESO") {
-      setMessage("Solo se pueden eliminar salarios antes de cerrar la caja.");
+      setMessage("Solo se pueden anular salarios antes de cerrar la caja.");
       return;
     }
-    if (!confirmAction("Eliminar este pago de salario de la caja abierta?")) return;
-    patchData((current) => {
-      const result = annulSalarySettlementCommand(current, id, commandContext(user, "CAJERO"), {
-        requireOpenBalance: true,
-        reason: "Caja abierta",
-      });
-      if (!result.ok) {
-        setMessage(result.error);
-        return current;
-      }
-      setMessage("Pago de salario anulado.");
-      return result.data;
+    if (!confirmAction("Anular este pago de salario de la caja abierta?")) return;
+    const result = annulSalarySettlementCommand(data, id, commandContext(user, "CAJERO"), {
+      requireOpenBalance: true,
+      reason: "Caja abierta",
     });
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage("Pago de salario anulado.");
   };
 
   return (
@@ -114,6 +111,7 @@ export function CashierSalaryPayments({
       total={items.length}
       onBack={onBack}
     >
+      <CashAvailabilityNotice data={data} balance={balance} detail="Este pago sale de Caja / Efectivo." />
       {!activeStaff.length && <p className="notice">No hay personal activo cargado.</p>}
       <MovementTable
         columns={["Personal", "Concepto", "Periodo trabajado", "Monto", "Estado", "Accion"]}
@@ -135,7 +133,7 @@ export function CashierSalaryPayments({
           ],
           status: item.status === "ANULADA" ? "ANULADO" : "ACTIVO",
         }))}
-        actionLabel="Eliminar"
+        actionLabel="Anular"
         onAnnul={deleteSalaryPayment}
         createRow={
           <tr className="create-row">

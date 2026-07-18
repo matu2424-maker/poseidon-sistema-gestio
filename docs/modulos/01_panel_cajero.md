@@ -7,7 +7,8 @@ Centralizar la operativa diaria del cajero sin barra lateral.
 ## Estado actual
 
 - El layout visual del cajero vive en `src/features/layout/AppShell.tsx`.
-- El panel del cajero vive en `src/features/dashboard/CashierDashboard.tsx`; `RoleDashboard.tsx` solo selecciona el panel por funcion efectiva.
+- El panel operativo real del cajero vive en `CashierWorkspace` dentro de `src/features/layout/AppShell.tsx`.
+- `src/features/dashboard/CashierDashboard.tsx` queda como compatibilidad legacy; `RoleDashboard.tsx` solo decide la funcion efectiva.
 - El cajero entra a un panel propio.
 - Si no hay caja abierta, solo puede usar Clientes, Resumen cajas y Abrir caja.
 - Si hay caja abierta, ve resumen superior y accesos directos.
@@ -40,6 +41,7 @@ Centralizar la operativa diaria del cajero sin barra lateral.
 - `Salida total`, `Efectivo en caja` y `Dinero en banco` son lectura, no botones.
 - Los demas recuadros abren su modulo correspondiente.
 - Al entrar a un modulo se oculta el resumen superior para dar foco.
+- En movil, `Resumen de cajas` conserva el scroll horizontal dentro de la tabla; la pagina no debe generar overflow global.
 
 ## Accesos
 
@@ -52,3 +54,10 @@ Centralizar la operativa diaria del cajero sin barra lateral.
 - Clientes -> Clientes.
 - Resumen cajas -> Resumen de cajas.
 - Cerrar caja -> Cierre de caja.
+
+## Comportamientos operativos vigentes
+
+- Los formularios que generan una salida desde Caja muestran `Caja / Efectivo actual`.
+- Si un gasto, regalo, salario, transferencia o traspaso rechaza la operacion, el formulario conserva sus datos.
+- Gastos, regalos y salarios anulados siguen visibles con estado `ANULADO`; la accion de anular desaparece en ese registro.
+- Si hay maquinas pendientes, `Cerrar caja` queda deshabilitado y la misma pantalla explica el prerrequisito.

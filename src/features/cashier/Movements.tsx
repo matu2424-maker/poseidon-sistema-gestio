@@ -17,16 +17,17 @@ import { balanceVisibleId, roleLabels } from "../../lib/display";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { Modal } from "../../components/ui";
+import { CashAvailabilityNotice } from "./CashAvailabilityNotice";
 import { CashierMovementPanel, MovementTable } from "./MovementTable";
 import { clientSortValue, type ClientTableColumn } from "../clients/clientTable";
 import { commandContext } from "../../application/command";
 import {
   annulTransferCommand,
+  annulExpenseCommand,
+  annulGiftCommand,
   createExpenseCommand,
   createGiftCommand,
   createTransferCommand,
-  deleteExpenseCommand,
-  deleteGiftCommand,
 } from "../../application/movements/operatingMovementCommands";
 import {
   annulTreasuryTransferCommand,
@@ -99,21 +100,25 @@ export function Expenses({
       receiptFileName: uploadedReceipt?.name,
       receiptFileType: uploadedReceipt?.type,
     };
-    patchData((current) => {
-      const result = createExpenseCommand(current, input, commandContext(user, actorRole));
-      setMessage(result.ok ? "Gasto guardado." : result.error);
-      return result.ok ? result.data : current;
-    });
+    const result = createExpenseCommand(data, input, commandContext(user, actorRole));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage("Gasto guardado.");
     event.currentTarget.reset();
   };
 
   const removeExpense = (id: string) => {
-    if (!confirmAction("Eliminar este gasto de la caja abierta?")) return;
-    patchData((current) => {
-      const result = deleteExpenseCommand(current, balance.id, id, commandContext(user, actorRole));
-      setMessage(result.ok ? "Gasto eliminado." : result.error);
-      return result.ok ? result.data : current;
-    });
+    if (!confirmAction("Anular este gasto de la caja abierta?")) return;
+    const result = annulExpenseCommand(data, balance.id, id, commandContext(user, actorRole));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage("Gasto anulado.");
   };
 
   if (!activeCategories.length) {
@@ -135,15 +140,16 @@ export function Expenses({
       hideTitle={actorRole === "ENCARGADO"}
     >
       <OperatingMovementContext data={data} balance={balance} actorRole={actorRole} />
+      <CashAvailabilityNotice data={data} balance={balance} detail="Toda salida de gastos sale de Caja / Efectivo." />
       <MovementTable
-        columns={["Categoria", "Descripcion", "Monto", "Accion"]}
+        columns={["Categoria", "Descripcion", "Monto", "Estado", "Accion"]}
         rows={items.map((item) => ({
           id: item.id,
-          cells: [`${item.category} / ${item.subcategory || "-"}`, item.description || "-", money(item.amount)],
-          sortValues: [`${item.category} ${item.subcategory || ""}`, item.description || "", item.amount],
+          cells: [`${item.category} / ${item.subcategory || "-"}`, item.description || "-", money(item.amount), item.status],
+          sortValues: [`${item.category} ${item.subcategory || ""}`, item.description || "", item.amount, item.status],
           status: item.status,
         }))}
-        actionLabel="Eliminar"
+        actionLabel="Anular"
         onAnnul={removeExpense}
         createRow={
           <tr className="create-row">
@@ -170,6 +176,7 @@ export function Expenses({
             <td>
               <input form="expense-create-form" name="amount" inputMode="numeric" defaultValue="0" onFocus={handleMoneyFocus} onChange={handleMoneyInput} onBlur={handleMoneyBlur} required />
             </td>
+            <td>Nuevo</td>
             <td>
               <form id="expense-create-form" onSubmit={submit}>
                 <button className="button success compact" type="submit">
@@ -205,21 +212,25 @@ export function Transfers(props: {
       amount: parseMoneyInput(form.get("amount")),
       account: String(form.get("account") || "Cuenta unica inicial"),
     };
-    props.patchData((current) => {
-      const result = createTransferCommand(current, input, commandContext(props.user, "CAJERO"));
-      props.setMessage(result.ok ? "Transferencia guardada." : result.error);
-      return result.ok ? result.data : current;
-    });
+    const result = createTransferCommand(props.data, input, commandContext(props.user, "CAJERO"));
+    if (!result.ok) {
+      props.setMessage(result.error);
+      return;
+    }
+    props.patchData(() => result.data);
+    props.setMessage("Transferencia guardada.");
     event.currentTarget.reset();
   };
 
   const annul = (id: string) => {
     if (!confirmAction("Anular esta transferencia?")) return;
-    props.patchData((current) => {
-      const result = annulTransferCommand(current, props.balance.id, id, commandContext(props.user, "CAJERO"));
-      props.setMessage(result.ok ? "Transferencia anulada." : result.error);
-      return result.ok ? result.data : current;
-    });
+    const result = annulTransferCommand(props.data, props.balance.id, id, commandContext(props.user, "CAJERO"));
+    if (!result.ok) {
+      props.setMessage(result.error);
+      return;
+    }
+    props.patchData(() => result.data);
+    props.setMessage("Transferencia anulada.");
   };
 
   return (
@@ -230,6 +241,7 @@ export function Transfers(props: {
       total={items.length}
       onBack={props.onBack}
     >
+      <CashAvailabilityNotice data={props.data} balance={props.balance} detail="La transferencia sale de Caja / Efectivo y entra en Caja / Banco." />
       <MovementTable
         columns={["Cliente", "Nombre", "Comprobante", "Cuenta", "Monto", "Estado", "Accion"]}
         rows={items.map((item) => ({
@@ -302,21 +314,25 @@ export function Gifts(props: {
       reference: String(form.get("reference") ?? ""),
       description: String(form.get("description")),
     };
-    props.patchData((current) => {
-      const result = createGiftCommand(current, input, commandContext(props.user, "CAJERO"));
-      props.setMessage(result.ok ? "Regalo guardado." : result.error);
-      return result.ok ? result.data : current;
-    });
+    const result = createGiftCommand(props.data, input, commandContext(props.user, "CAJERO"));
+    if (!result.ok) {
+      props.setMessage(result.error);
+      return;
+    }
+    props.patchData(() => result.data);
+    props.setMessage("Regalo guardado.");
     setSelectedClientIds([]);
     event.currentTarget.reset();
   };
   const removeGift = (id: string) => {
-    if (!confirmAction("Eliminar este regalo de la caja abierta?")) return;
-    props.patchData((current) => {
-      const result = deleteGiftCommand(current, props.balance.id, id, commandContext(props.user, "CAJERO"));
-      props.setMessage(result.ok ? "Regalo eliminado." : result.error);
-      return result.ok ? result.data : current;
-    });
+    if (!confirmAction("Anular este regalo de la caja abierta?")) return;
+    const result = annulGiftCommand(props.data, props.balance.id, id, commandContext(props.user, "CAJERO"));
+    if (!result.ok) {
+      props.setMessage(result.error);
+      return;
+    }
+    props.patchData(() => result.data);
+    props.setMessage("Regalo anulado.");
   };
   const selectedClientNames = selectedClientIds.map((id) => clientNameWithDocument(props.data, id)).filter(Boolean).join(", ");
 
@@ -328,8 +344,9 @@ export function Gifts(props: {
       total={items.length}
       onBack={props.onBack}
     >
+      <CashAvailabilityNotice data={props.data} balance={props.balance} detail="Todo regalo en esta pantalla sale de Caja / Efectivo." />
       <MovementTable
-        columns={["Clientes", "Detalle", "Referencia", "Monto", "Accion"]}
+        columns={["Clientes", "Detalle", "Referencia", "Monto", "Estado", "Accion"]}
         rows={items.map((item) => ({
           id: item.id,
           sortValues: [
@@ -337,16 +354,18 @@ export function Gifts(props: {
             item.description,
             item.reference || "",
             item.cashAmount,
+            item.status,
           ],
           cells: [
             (item.clientIds ?? (item.clientId ? [item.clientId] : [])).map((id) => clientNameWithDocument(props.data, id)).filter(Boolean).join(", ") || "-",
             item.description,
             item.reference || "-",
             money(item.cashAmount),
+            item.status,
           ],
           status: item.status,
         }))}
-        actionLabel="Eliminar"
+        actionLabel="Anular"
         onAnnul={removeGift}
         createRow={
           <tr className="create-row">
@@ -371,6 +390,7 @@ export function Gifts(props: {
             <td>
               <input className="compact-money-input" form="gift-create-form" name="amount" inputMode="numeric" defaultValue="0" onFocus={handleMoneyFocus} onChange={handleMoneyInput} onBlur={handleMoneyBlur} required />
             </td>
+            <td>Nuevo</td>
             <td>
               <form id="gift-create-form" onSubmit={submit}>
                 <button className="button success compact" type="submit">
@@ -501,6 +521,7 @@ export function CapitalMovements({
   const activeItems = items.filter((item) => item.status === "ACTIVO");
   const totalWithdrawals = activeItems.filter((item) => item.type === "RETIRO_CAJA").reduce((total, item) => total + item.amount, 0);
   const totalContributions = activeItems.filter((item) => item.type === "APORTE_CAJA").reduce((total, item) => total + item.amount, 0);
+  const [selectedMedium, setSelectedMedium] = useState<FinancialMedium>("EFECTIVO");
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -519,21 +540,26 @@ export function CapitalMovements({
       amount: parseMoneyInput(form.get("amount")),
       note: String(form.get("note") ?? "").trim(),
     };
-    patchData((current) => {
-      const result = createTreasuryTransferCommand(current, input, commandContext(user, actorRole));
-      setMessage(result.ok ? (type === "RETIRO_CAJA" ? "Fondos enviados a Principal." : "Fondos aportados a Caja.") : result.error);
-      return result.ok ? result.data : current;
-    });
+    const result = createTreasuryTransferCommand(data, input, commandContext(user, actorRole));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage(type === "RETIRO_CAJA" ? "Fondos enviados a Principal." : "Fondos aportados a Caja.");
     event.currentTarget.reset();
+    setSelectedMedium("EFECTIVO");
   };
 
   const annulMovement = (id: string) => {
     if (!confirmAction("Anular este traspaso entre Caja y Principal?")) return;
-    patchData((current) => {
-      const result = annulTreasuryTransferCommand(current, id, commandContext(user, actorRole), "Anulado antes del cierre");
-      setMessage(result.ok ? "Traspaso anulado." : result.error);
-      return result.ok ? result.data : current;
-    });
+    const result = annulTreasuryTransferCommand(data, id, commandContext(user, actorRole), "Anulado antes del cierre");
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    patchData(() => result.data);
+    setMessage("Traspaso anulado.");
   };
 
   return (
@@ -546,6 +572,9 @@ export function CapitalMovements({
       hideTitle={actorRole === "ENCARGADO"}
     >
       <OperatingMovementContext data={data} balance={balance} actorRole={actorRole} />
+      {selectedMedium === "EFECTIVO" ? (
+        <CashAvailabilityNotice data={data} balance={balance} detail="Este formulario impacta Caja / Efectivo cuando el medio elegido es Efectivo." />
+      ) : null}
       <div className="account-summary-grid movement-summary-grid">
         <div>
           <span>Enviado a Principal</span>
@@ -581,7 +610,12 @@ export function CapitalMovements({
               </select>
             </td>
             <td>
-              <select form="capital-create-form" name="medium" defaultValue="EFECTIVO">
+              <select
+                form="capital-create-form"
+                name="medium"
+                value={selectedMedium}
+                onChange={(event) => setSelectedMedium(event.target.value as FinancialMedium)}
+              >
                 <option value="EFECTIVO">Efectivo</option>
                 <option value="BANCO">Banco</option>
               </select>

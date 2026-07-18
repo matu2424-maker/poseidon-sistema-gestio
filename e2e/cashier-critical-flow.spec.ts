@@ -9,11 +9,44 @@ const numericText = async (cell: Locator) =>
 const numericInputValue = async (input: Locator) =>
   Number((await input.inputValue()).replace(/[^0-9-]/g, "") || 0);
 
+const numericValueFromText = (value: string | null) =>
+  Number((value ?? "").replace(/[^0-9-]/g, "") || 0);
+
 async function loginAsCashier(page: Page) {
   await page.getByRole("button", { name: "Ingresar", exact: true }).click();
   await page.getByLabel("Entrar como").selectOption("user-cajero1");
   await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Panel del cajero" })).toBeVisible();
+}
+
+async function openCash(page: Page, operatingDate = OPERATING_DATE) {
+  if (!/\/panel$/.test(page.url())) {
+    await page.goto("/panel");
+  }
+  await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
+  await expect(page).toHaveURL(/\/caja\/abrir$/);
+  await expect(page.getByRole("heading", { name: "Nueva caja diaria" })).toBeVisible();
+  await page.getByLabel("Fecha operativa").fill(operatingDate);
+  await page.locator("form.open-cash-form").getByRole("button", { name: "Abrir caja", exact: true }).click();
+  await expect(page.getByText("Caja abierta correctamente.")).toBeVisible();
+}
+
+async function waitForOpenBalanceReadingsSaved(page: Page) {
+  await expect
+    .poll(
+      () =>
+        page.evaluate((storageKey) => {
+          const raw = localStorage.getItem(storageKey);
+          if (!raw) return false;
+          const snapshot = JSON.parse(raw);
+          const openBalance = snapshot.data.balances.find((balance: { status: string }) => balance.status === "EN_PROCESO");
+          if (!openBalance) return false;
+          return snapshot.data.readings
+            .filter((reading: { balanceId: string }) => reading.balanceId === openBalance.id)
+            .every((reading: { status: string }) => reading.status !== "PENDIENTE");
+        }, STORAGE_KEY),
+    )
+    .toBe(true);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -25,13 +58,7 @@ test.beforeEach(async ({ page }) => {
 test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }) => {
   await loginAsCashier(page);
   await expect(page).toHaveURL(/\/panel$/);
-
-  await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
-  await expect(page).toHaveURL(/\/caja\/abrir$/);
-  await expect(page.getByRole("heading", { name: "Nueva caja diaria" })).toBeVisible();
-  await page.getByLabel("Fecha operativa").fill(OPERATING_DATE);
-  await page.locator("form.open-cash-form").getByRole("button", { name: "Abrir caja", exact: true }).click();
-  await expect(page.getByText("Caja abierta correctamente.")).toBeVisible();
+  await openCash(page);
 
   await page.getByRole("button", { name: /Resultado de maquinas/i }).click();
   await expect(page).toHaveURL(/\/caja\/contadores$/);
@@ -50,7 +77,9 @@ test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }
 
   await page.getByRole("button", { name: "Guardar contadores" }).click();
   await expect(page.getByText("Contadores guardados.").first()).toBeVisible();
+  await waitForOpenBalanceReadingsSaved(page);
   await page.getByRole("button", { name: "Volver al panel" }).click();
+  await expect(page.getByText("3/3 recaudadas - 0 pendientes")).toBeVisible();
   await page.getByRole("main").getByRole("button", { name: "Cerrar caja", exact: true }).click();
   await expect(page).toHaveURL(/\/caja\/cerrar$/);
   await expect(page.getByRole("heading", { name: "Control de cierre" })).toBeVisible();
@@ -94,6 +123,7 @@ test("bloquea un cierre con efectivo negativo y permite cubrir Caja desde Princi
   }
   await page.getByRole("button", { name: "Guardar contadores" }).click();
   await expect(page.getByText("Contadores guardados.").first()).toBeVisible();
+  await waitForOpenBalanceReadingsSaved(page);
 
   await page.goto("/caja/cerrar");
   await expect(page.getByRole("alert")).toBeVisible();
@@ -145,10 +175,7 @@ test("bloquea un cierre con efectivo negativo y permite cubrir Caja desde Princi
 
 test("bloquea una caja desincronizada y no ofrece un aporte como reparacion", async ({ page }) => {
   await loginAsCashier(page);
-  await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
-  await page.getByLabel("Fecha operativa").fill(OPERATING_DATE);
-  await page.locator("form.open-cash-form").getByRole("button", { name: "Abrir caja", exact: true }).click();
-  await expect(page.getByText("Caja abierta correctamente.")).toBeVisible();
+  await openCash(page);
   await page.waitForFunction((storageKey) => {
     const raw = localStorage.getItem(storageKey);
     if (!raw) return false;
@@ -184,5 +211,88 @@ test("bloquea una caja desincronizada y no ofrece un aporte como reparacion", as
     page.getByRole("alert").filter({ hasText: "La caja no esta conciliada" }),
   ).toContainText("un traspaso comun no corrige este desacople");
   await expect(page.getByRole("button", { name: "Mover fondos", exact: true })).toHaveCount(0);
+  await expect(page.locator("form.close-form").getByRole("button", { name: "Cerrar caja", exact: true })).toBeDisabled();
+});
+
+test("preserva formularios rechazados, muestra Caja / Efectivo y conserva gastos anulados visibles", async ({ page }) => {
+  await loginAsCashier(page);
+  await openCash(page, "2026-07-12");
+
+  await page.getByRole("button", { name: /Gastos/i }).click();
+  await expect(page).toHaveURL(/\/caja\/gastos$/);
+  await expect(page.getByText("Caja / Efectivo actual")).toBeVisible();
+  await expect(page.getByText("Toda salida de gastos sale de Caja / Efectivo.")).toBeVisible();
+
+  const availableCash = numericValueFromText(await page.locator(".cash-availability-notice strong").textContent());
+  const descriptionInput = page.locator('input[name="description"]');
+  const amountInput = page.locator('input[name="amount"]');
+  await descriptionInput.fill("Gasto UI preservado");
+  await amountInput.fill(String(availableCash + 1));
+  await page.getByRole("button", { name: "Agregar", exact: true }).click();
+
+  await expect(page.getByText("No hay fondos suficientes en Caja / Efectivo")).toBeVisible();
+  await expect(descriptionInput).toHaveValue("Gasto UI preservado");
+  await expect.poll(() => numericInputValue(amountInput)).toBe(availableCash + 1);
+
+  await amountInput.fill("100");
+  await page.getByRole("button", { name: "Agregar", exact: true }).click();
+  await expect(page.getByText("Gasto guardado.")).toBeVisible();
+
+  const expenseRow = page.locator(".movement-data-table tbody tr").filter({ hasText: "Gasto UI preservado" }).first();
+  await expect(expenseRow).toContainText("ACTIVO");
+  page.once("dialog", (dialog) => dialog.accept());
+  await expenseRow.getByRole("button", { name: "Anular", exact: true }).click();
+  await expect(page.getByText("Gasto anulado.")).toBeVisible();
+  await expect(expenseRow).toContainText("ANULADO");
+  await expect(expenseRow.getByRole("button", { name: "Anular", exact: true })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Volver al panel", exact: true }).click();
+  await page.getByRole("button", { name: /Transferencias/i }).click();
+  await expect(page.getByText("Caja / Efectivo actual")).toBeVisible();
+  await page.getByRole("button", { name: "Volver al panel", exact: true }).click();
+
+  await page.getByRole("button", { name: /Regalos/i }).click();
+  await expect(page.getByText("Caja / Efectivo actual")).toBeVisible();
+  await page.getByRole("button", { name: "Volver al panel", exact: true }).click();
+
+  await page.getByRole("button", { name: /Salarios/i }).click();
+  await expect(page.getByText("Caja / Efectivo actual")).toBeVisible();
+  await expect(page.getByText("Este pago sale de Caja / Efectivo.")).toBeVisible();
+  await page.getByRole("button", { name: "Volver al panel", exact: true }).click();
+
+  await page.getByRole("button", { name: /Principal a Caja/i }).click();
+  await expect(page.getByText("Caja / Efectivo actual")).toBeVisible();
+});
+
+test("mantiene scroll interno en resumen de cajas y bloquea el cierre con maquinas pendientes", async ({ page }) => {
+  await loginAsCashier(page);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/recaudaciones");
+  await expect
+    .poll(() =>
+      page.evaluate(() => ({
+        innerWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      })),
+    )
+    .toEqual({ innerWidth: 390, scrollWidth: 390 });
+
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await expect(page.locator(".recent-cashes-panel .table-wrap")).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => ({
+        innerWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      })),
+    )
+    .toEqual({ innerWidth: 1366, scrollWidth: 1366 });
+
+  await page.goto("/panel");
+  await openCash(page, "2026-07-13");
+  await page.getByRole("main").getByRole("button", { name: "Cerrar caja", exact: true }).click();
+  await expect(page).toHaveURL(/\/caja\/cerrar$/);
+  await expect(page.getByText("Hay 3 maquinas pendientes sin observacion. Para cerrar, cargalas o deja una observacion.")).toBeVisible();
   await expect(page.locator("form.close-form").getByRole("button", { name: "Cerrar caja", exact: true })).toBeDisabled();
 });
