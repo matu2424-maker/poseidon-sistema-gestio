@@ -20,6 +20,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Panel del Encargado: resumen puro, control financiero compacto, resultado mensual, recaudacion activa, accesos unicos y actividad reciente ordenable.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.
+- Regla de propiedad: todo cambio no trivial de una experiencia de rol se ejecuta en su chat permanente; la autorizacion del usuario no reasigna esa propiedad a Central.
 
 ## Modelo financiero
 

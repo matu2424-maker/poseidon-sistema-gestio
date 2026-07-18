@@ -11,6 +11,7 @@ Ultima actualizacion: 2026-07-18
 - Servidor oficial: `iniciar-poseidon.bat`.
 - Validacion vigente: 186 pruebas en 36 archivos y 14 casos E2E en 8 archivos.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
+- Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
 
 ## Ultimo bloque tecnico
 

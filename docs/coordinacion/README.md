@@ -15,7 +15,7 @@ Poseidon adopta solo las partes verificables y de bajo costo operativo del model
 
 Los estados normales de una orden son `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA` e `INTEGRADA`. `BLOQUEADA` y `DESCARTADA` son auxiliares.
 
-Una orden formal es obligatoria para trabajo delegado, paralelo o con propiedad temporal de archivos. Una modificacion local simple ejecutada por Central con autorizacion literal del usuario conserva el flujo normal de `AGENTS.md` y no necesita burocracia adicional.
+Una orden formal es obligatoria para trabajo delegado, paralelo, con propiedad temporal o perteneciente de forma no trivial a una experiencia permanente de rol. La autorizacion literal del usuario habilita el cambio de producto, pero no reasigna automaticamente su propiedad a Central.
 
 ## Topologia
 
@@ -29,6 +29,15 @@ Una orden formal es obligatoria para trabajo delegado, paralelo o con propiedad 
 Los chats de rol y el workstream de calidad son permanentes. Los especialistas se crean o delegan solo para una tarea acotada. No todos deben estar activos al mismo tiempo.
 
 Calidad recibe un commit exacto y una matriz de aceptacion. Puede ejecutar pruebas y elevar `FALLO_CONFIRMADO`, `RIESGO`, `SUGERENCIA`, `DUDA_DE_PRODUCTO` o `SIN_HALLAZGOS`. Central debe reproducir o contrastar el resultado antes de consultarlo con el usuario. Ninguna sugerencia autoriza por si sola una implementacion.
+
+## Delegacion obligatoria por experiencia
+
+- Si el efecto principal modifica una pantalla, flujo, permiso, comportamiento, estilo propio, prueba o documento modular de Cajero, Encargado o Administrador, el chat permanente de ese rol es el propietario de ejecucion.
+- Central recibe el pedido, conserva la autorizacion, define contratos y criterios, crea la orden y supervisa la entrega; no sustituye al chat propietario para acelerar el bloque.
+- Central conserva contratos compartidos, integracion, gobierno, documentacion global y validacion transversal.
+- Un alcance mixto se divide antes de editar: el rol implementa su experiencia y Central conserva o asigna temporalmente los contratos compartidos.
+- Solo una correccion realmente trivial sin cambio de comportamiento, una resolucion de integracion o una recuperacion urgente puede ejecutarse directamente desde Central sobre una ruta de rol. La excepcion debe explicarse al cerrar el bloque.
+- Un bloque ya integrado y validado no se rehace solo para reproducir el flujo; la correccion operativa se aplica desde la siguiente orden.
 
 ## Regla de sincronizacion
 
@@ -48,7 +57,7 @@ Un mensaje entre chats ayuda a coordinar, pero no reemplaza estos artefactos.
 2. Clasifica rol propietario y dependencias de dominio.
 3. Registra una orden usando `docs/plantillas/ORDEN_TRABAJO_CHAT.md`.
 4. Asigna archivos de escritura exclusivos y referencias de solo lectura.
-5. El chat de rol trabaja en su worktree y no amplía alcance por inferencia.
+5. El chat de rol trabaja en su worktree y no amplia alcance por inferencia.
 6. Si necesita un contrato compartido, se detiene en ese punto y solicita al chat central una dependencia concreta.
 7. El chat propietario valida y entrega con `docs/plantillas/ENTREGA_CHAT_MODULO.md`.
 8. Central revisa el diff, integra un commit por vez, resuelve contradicciones y ejecuta la validacion transversal.

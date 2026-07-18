@@ -14,7 +14,9 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Un bloque estable se valida, documenta y cierra con commit local.
 - Antes del commit ejecutar `pnpm run check:commit`.
 - Para localhost usar exclusivamente `iniciar-poseidon.bat`; liberar el puerto con `detener-poseidon.bat`.
-- El trabajo delegado o paralelo usa una orden con commit base, alcance, propietario y criterios; un cambio local simple autorizado directamente a Central no requiere una orden adicional.
+- La autorizacion literal del usuario habilita el cambio, pero no transfiere a Central la propiedad de una experiencia de rol.
+- Todo cambio no trivial de Cajero, Encargado o Administrador usa una orden con commit base, alcance, propietario y criterios, y se ejecuta en el worktree del chat permanente correspondiente.
+- Central puede resolver directamente contratos compartidos, integracion, gobierno, documentacion global, recuperacion urgente o correcciones triviales sin cambio de comportamiento. Un alcance mixto se divide antes de editar.
 - Estado, decisiones transversales, migraciones y capacidades se registran en `docs/coordinacion/` y se validan con `pnpm run check:governance`.
 
 ## Historial y persistencia

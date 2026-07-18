@@ -36,7 +36,9 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Registrar cada delegacion terminada en `docs/REGISTRO_DELEGACIONES_AGENTES.md` usando la plantilla canonica, sin inventar duracion ni consumo.
 - No crear un perfil permanente nuevo sin tres delegaciones utiles documentadas de la misma especialidad y autorizacion explicita del usuario.
 - Poseidon Central es el unico responsable de integrar resultados en `main`, validar transversalmente, resolver contradicciones y cerrar el commit de integracion. Un chat permanente de rol puede commitear solo en su rama/worktree aislado.
-- Las ordenes formales se usan para trabajo delegado, paralelo o con propiedad temporal de archivos. No se exige una orden adicional para un cambio local simple que Central reciba como instruccion literal del usuario.
+- La autorizacion literal del usuario habilita el cambio solicitado, pero no reasigna automaticamente a Central la propiedad de una experiencia de rol.
+- Toda modificacion no trivial cuyo efecto principal pertenezca a Cajero, Encargado o Administrador debe ejecutarse mediante una orden formal en el chat permanente propietario, con rama y worktree aislados. Esto incluye cambios de pantallas, flujos, permisos, comportamiento, estilos propios, pruebas de rol o documentacion modular.
+- Central solo implementa directamente cuando el alcance principal corresponde a contratos compartidos, integracion, gobierno, documentacion global, recuperacion urgente o una correccion verdaderamente trivial que no cambie comportamiento. Si el alcance mezcla experiencia de rol y contratos compartidos, Central divide propietarios antes de editar.
 
 ## Chats permanentes por rol
 
