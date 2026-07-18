@@ -332,42 +332,38 @@ function App({
     openingCapitalPerson: CapitalMovementPerson,
     firstOpening: boolean,
   ) => {
-    patchData((current) => {
-      if (!user || !effectiveRole) return current;
-      const result = openCashCommand(
-        current,
-        {
-          localId: activeLocal.id,
-          operatingDate,
-          initialFund,
-          initialBankFund,
-          initialNote,
-          openingCapitalPerson,
-          firstOpening,
-        },
-        commandContext(user, effectiveRole),
-      );
-      if (!result.ok) {
-        setMessage(result.error);
-        return current;
-      }
-      setMessage("Caja abierta correctamente.");
-      navigate(pathForScreen("panel"));
-      return result.data;
-    });
+    if (!user || !effectiveRole) return;
+    const result = openCashCommand(
+      data,
+      {
+        localId: activeLocal.id,
+        operatingDate,
+        initialFund,
+        initialBankFund,
+        initialNote,
+        openingCapitalPerson,
+        firstOpening,
+      },
+      commandContext(user, effectiveRole),
+    );
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setData(result.data);
+    setMessage("Caja abierta correctamente.");
+    navigate(pathForScreen("panel"));
   };
 
   const updateReading = (readingId: string, patch: ReadingPatch) => {
     if (!user || !effectiveRole || !openBalance) return;
-    patchData((current) => {
-      const result = saveReadingCommand(current, openBalance.id, readingId, patch, commandContext(user, effectiveRole));
-      if (!result.ok) {
-        setMessage(result.error);
-        return current;
-      }
-      setMessage("Contador guardado.");
-      return result.data;
-    });
+    const result = saveReadingCommand(data, openBalance.id, readingId, patch, commandContext(user, effectiveRole));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setData(result.data);
+    setMessage("Contador guardado.");
   };
 
   if (screen === "welcome") {

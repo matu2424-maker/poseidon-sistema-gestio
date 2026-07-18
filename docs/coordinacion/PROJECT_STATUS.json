@@ -11,8 +11,11 @@
   },
   "current": {
     "phase": "prueba-local",
-    "objective": "Probar los flujos integrados con el escenario demo recuperable cargado en el Chrome canonico.",
-    "activeWorkOrders": [],
+    "objective": "Corregir integralmente el Panel del Cajero preservando integridad contable, transacciones puras, guardado atomico y calidad visual.",
+    "activeWorkOrders": [
+      "2026-07-18-CEN-02",
+      "2026-07-18-CAJ-02"
+    ],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
@@ -40,10 +43,10 @@
     ]
   },
   "nextActions": [
-    "Ejecutar el primer ciclo independiente de Calidad sobre un bloque estable.",
-    "Completar validacion runtime profunda del snapshot.",
-    "Extraer mutaciones sensibles restantes de handlers React.",
-    "Ampliar E2E de tesoreria, cierre periodico y formularios administrativos."
+    "Integrar el contrato central de anulaciones append-only y guardado atomico de contadores.",
+    "Integrar la actualizacion de experiencia del chat Poseidon Cajero.",
+    "Ejecutar validacion transversal, E2E y QA visual en Chrome.",
+    "Completar validacion runtime profunda del snapshot."
   ],
   "registries": {
     "workstreams": "docs/coordinacion/WORKSTREAMS.json",

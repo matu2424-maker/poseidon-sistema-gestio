@@ -18,8 +18,8 @@ import {
   createExpenseCommand,
   createGiftCommand,
   createTransferCommand,
-  deleteExpenseCommand,
-  deleteGiftCommand,
+  annulExpenseCommand,
+  annulGiftCommand,
 } from "./operatingMovementCommands";
 
 function setupOpenCash() {
@@ -186,7 +186,7 @@ describe("comandos de movimientos operativos", () => {
     expect(gift).toEqual({ ok: false, error: "Para operar movimientos hay que trabajar con la funcion Cajero." });
   });
 
-  it("crea y elimina gasto/regalo manteniendo cuenta local y auditoria", () => {
+  it("crea y anula gasto/regalo con reversos, historial y auditoria append-only", () => {
     const setup = setupOpenCash();
     const category = setup.data.expenseCategories.find((item) => item.status === "ACTIVA")!;
     const expenseResult = createExpenseCommand(
@@ -219,29 +219,42 @@ describe("comandos de movimientos operativos", () => {
     if (!giftResult.ok) return;
     expect(localAccountBalances(giftResult.data, POSEIDON_LOCAL_ID).cash).toBe(8_500);
 
-    const expenseDeleted = deleteExpenseCommand(
+    const expenseAnnulled = annulExpenseCommand(
       giftResult.data,
       setup.balance.id,
       expenseResult.value.id,
       setup.context,
     );
-    expect(expenseDeleted.ok).toBe(true);
-    if (!expenseDeleted.ok) return;
-    const giftDeleted = deleteGiftCommand(
-      expenseDeleted.data,
+    expect(expenseAnnulled.ok).toBe(true);
+    if (!expenseAnnulled.ok) return;
+    const giftAnnulled = annulGiftCommand(
+      expenseAnnulled.data,
       setup.balance.id,
       giftResult.value.id,
       setup.context,
     );
-    expect(giftDeleted.ok).toBe(true);
-    if (!giftDeleted.ok) return;
-    expect(localAccountBalances(giftDeleted.data, POSEIDON_LOCAL_ID).cash).toBe(10_000);
-    expect(giftDeleted.data.expenses).toHaveLength(0);
-    expect(giftDeleted.data.gifts).toHaveLength(0);
-    expect(giftDeleted.data.audit[0]).toMatchObject({
-      action: "Eliminar regalo antes de cierre",
+    expect(giftAnnulled.ok).toBe(true);
+    if (!giftAnnulled.ok) return;
+    expect(localAccountBalances(giftAnnulled.data, POSEIDON_LOCAL_ID).cash).toBe(10_000);
+    expect(giftAnnulled.data.expenses).toEqual([
+      expect.objectContaining({ id: expenseResult.value.id, status: "ANULADO" }),
+    ]);
+    expect(giftAnnulled.data.gifts).toEqual([
+      expect.objectContaining({ id: giftResult.value.id, status: "ANULADO" }),
+    ]);
+    expect(
+      giftAnnulled.data.accountMovements.filter(
+        (movement) => movement.reversalOf && [expenseResult.value.id, giftResult.value.id].includes(movement.sourceId),
+      ),
+    ).toHaveLength(2);
+    expect(giftAnnulled.data.audit[0]).toMatchObject({
+      action: "Anular regalo",
+      reason: "Anulacion operativa antes del cierre",
       createdAt: "2026-07-11T12:00:00.000Z",
     });
+    expect(
+      annulGiftCommand(giftAnnulled.data, setup.balance.id, giftResult.value.id, setup.context),
+    ).toEqual({ ok: false, error: "El regalo ya esta anulado." });
   });
 
   it("crea y anula transferencia con contramovimientos en ambas cuentas", () => {

@@ -14,7 +14,7 @@ import {
 } from "../treasury/treasuryCommands";
 import { closeCashCommand } from "./closeCash";
 import { openCashCommand } from "./openCash";
-import { saveReadingCommand } from "./saveReading";
+import { saveReadingCommand, saveReadingsCommand } from "./saveReading";
 
 const fixedContext = () => {
   const user = createSeedData().users.find((item) => item.id === "user-cajero1")!;
@@ -101,6 +101,57 @@ describe("comandos de caja", () => {
     expect(closed.data.machineLocalHistory.filter((item) => item.action === "CONTADORES")).toHaveLength(3);
     expect(accountTotalsFromMovements(closed.data.accountMovements.filter((item) => item.accountId === "account-local-1-efectivo")).balance).toBe(1500);
     expect(closed.data.audit[0].action).toBe("Cerrar caja");
+  });
+
+  it("guarda toda la grilla de contadores de forma atomica", () => {
+    const data = clearOperationalData(createSeedData());
+    const context = fixedContext();
+    const opened = openCashCommand(
+      data,
+      {
+        localId: "1",
+        operatingDate: "2026-07-10",
+        initialFund: 1000,
+        initialBankFund: 0,
+        initialNote: "",
+        openingCapitalPerson: "MATHIAS",
+        firstOpening: true,
+      },
+      context,
+    );
+    expect(opened.ok).toBe(true);
+    if (!opened.ok) return;
+    const readings = opened.data.readings.filter((item) => item.balanceId === opened.value.id);
+    const saved = saveReadingsCommand(
+      opened.data,
+      opened.value.id,
+      readings.map((reading, index) => ({
+        readingId: reading.id,
+        patch: {
+          inActual: reading.inPrevious + (index + 1) * 100,
+          outActual: reading.outPrevious,
+          status: "CARGADA" as const,
+        },
+      })),
+      context,
+    );
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+    expect(saved.value).toHaveLength(readings.length);
+    expect(saved.data.audit.filter((event) => event.action === "Guardar contador")).toHaveLength(readings.length);
+
+    const invalidUpdates = readings.map((reading, index) => ({
+      readingId: reading.id,
+      patch: {
+        inActual: index === readings.length - 1 ? reading.inPrevious - 1 : reading.inPrevious + 500,
+        outActual: reading.outPrevious,
+        status: "CARGADA" as const,
+      },
+    }));
+    const beforeRejected = structuredClone(opened.data);
+    const rejected = saveReadingsCommand(opened.data, opened.value.id, invalidUpdates, context);
+    expect(rejected).toEqual({ ok: false, error: "El IN actual debe ser igual o mayor al IN anterior." });
+    expect(opened.data).toEqual(beforeRejected);
   });
 
   it("traspasa fondos del cierre a Principal y reabre con el remanente de Caja", () => {

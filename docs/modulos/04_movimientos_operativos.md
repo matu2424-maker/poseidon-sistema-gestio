@@ -26,6 +26,7 @@ Los comandos validan actor, rol real, funcion, usuario, local, cuenta, fondos, a
 - Opcionales: descripcion y comprobante.
 - El comprobante guarda solamente nombre/tipo.
 - Se pueden anular mientras la caja sigue abierta.
+- La anulacion conserva el gasto con estado `ANULADO`, agrega el reverso contable y registra auditoria; nunca borra el objeto ni su asiento original.
 - La tabla ordena todas sus columnas de datos.
 
 ## Gastos de Encargado/Administrador
@@ -53,6 +54,7 @@ Los comandos validan actor, rol real, funcion, usuario, local, cuenta, fondos, a
 - Detalle opcional.
 - El selector de clientes permite buscar y elegir varios.
 - Integran el resultado economico como salida.
+- Se anulan mientras la caja sigue abierta conservando el regalo original, el reverso contable y la auditoria.
 
 ## Salarios
 

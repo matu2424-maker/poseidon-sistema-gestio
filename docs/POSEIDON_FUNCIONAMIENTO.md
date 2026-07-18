@@ -148,6 +148,7 @@ Solo puede existir una caja abierta por local. Cada una recibe ID visible, por e
 - IN/OUT anterior se toma del ultimo contador de la maquina.
 - IN/OUT actual inicia igual al anterior.
 - El Cajero edita y guarda manualmente.
+- Guardar valida toda la grilla antes de aplicar cambios; una fila invalida rechaza el lote completo y no muestra exito.
 - IN/OUT actual no puede ser menor al anterior.
 - El resultado por maquina se calcula desde la diferencia de contadores.
 - Un resultado negativo se registra; puede dejar efectivo esperado negativo y bloquear salidas/cierre.
@@ -163,7 +164,7 @@ Solo puede existir una caja abierta por local. Cada una recibe ID visible, por e
 - Usa `balanceId`.
 - Categoria, subcategoria y monto son obligatorios.
 - Descripcion y comprobante son opcionales.
-- Se puede anular antes de cerrar.
+- Se puede anular antes de cerrar. El gasto permanece con estado `ANULADO` y un reverso restituye el saldo sin borrar historial.
 
 ### Desde Principal
 
@@ -193,7 +194,7 @@ Todos los gastos integran el resultado economico del local y del periodo corresp
 - Cliente, referencia y monto son obligatorios.
 - Detalle es opcional.
 - El selector permite buscar y elegir varios clientes.
-- Se anulan antes del cierre sin borrar historial.
+- Se anulan antes del cierre sin borrar historial; el regalo permanece `ANULADO` y se agrega su reverso contable.
 
 ## 12. Salarios y liquidaciones
 

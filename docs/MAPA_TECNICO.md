@@ -159,8 +159,8 @@ src/
 | Archivo | Operacion atomica |
 | --- | --- |
 | `application/cash/openCash.ts` | Apertura; primera caja crea aporte de socio y traspaso Principal -> Caja; siguientes heredan Caja |
-| `application/cash/saveReading.ts` | Validacion/guardado de contador, reconciliacion previa, resultado, cuenta y auditoria |
-| `application/movements/operatingMovementCommands.ts` | Gastos, transferencias y regalos de Caja; alta legacy de capital deshabilitada |
+| `application/cash/saveReading.ts` | Validacion y guardado atomico de una o toda la grilla, reconciliacion previa, resultado, cuenta y auditoria |
+| `application/movements/operatingMovementCommands.ts` | Gastos, transferencias y regalos de Caja con anulacion append-only; alta legacy de capital deshabilitada |
 | `application/treasury/treasuryCommands.ts` | Traspasos Caja/Principal y aportes/retiros de socios con fondos, permisos, asientos y auditoria |
 | `application/expenses/principalExpenseCommands.ts` | Alta/anulacion de gastos desde Principal/Efectivo o Principal/Banco, sin `balanceId` |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |

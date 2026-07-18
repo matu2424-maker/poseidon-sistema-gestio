@@ -63,7 +63,7 @@ No forman parte del resultado economico:
 - Una salida superior se rechaza antes de crear IDs, entidades, asientos o auditoria.
 - `Caja / Efectivo`, `Caja / Banco`, `Principal / Efectivo` y `Principal / Banco` no pueden quedar por debajo de cero por una nueva salida.
 - Un resultado de maquinas negativo puede dejar `Caja / Efectivo` negativo porque representa un hecho real. En ese caso se bloquean nuevas salidas y el cierre hasta registrar un aporte real de socio a Principal y un traspaso Principal a Caja.
-- Las anulaciones y correcciones restitutivas se hacen con reversos append-only y no borran el movimiento original.
+- Las anulaciones y correcciones restitutivas se hacen con reversos append-only y no borran el movimiento ni la entidad original. Gastos, regalos y demas entidades anulables conservan estado `ANULADO` e historial consultable.
 
 ## Caja diaria
 

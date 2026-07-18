@@ -129,34 +129,45 @@ export function createExpenseCommand(
   return commandSuccess(nextData, expense);
 }
 
-export function deleteExpenseCommand(
+export function annulExpenseCommand(
   data: AppData,
   balanceId: string,
   expenseId: string,
   context: CommandContext,
 ): CommandResult<Expense> {
   const balance = openCash(data, balanceId, context, CASHIER_ONLY);
-  if (typeof balance === "string") return commandError("Solo se pueden eliminar gastos antes de cerrar la caja.");
-  const expense = data.expenses.find((item) => item.id === expenseId && item.balanceId === balance.id);
-  if (!expense) return commandError("No se encontro el gasto de esta caja.");
+  if (typeof balance === "string") return commandError("Solo se pueden anular gastos antes de cerrar la caja.");
+  const previous = data.expenses.find((item) => item.id === expenseId && item.balanceId === balance.id);
+  if (!previous) return commandError("No se encontro el gasto de esta caja.");
+  if (previous.status === "ANULADO") return commandError("El gasto ya esta anulado.");
+  const next: Expense = { ...previous, status: "ANULADO" };
+  const expenses = data.expenses.map((item) => (item.id === previous.id ? next : item));
+  const reason = "Anulacion operativa antes del cierre";
   const nextData = auditCommand(
     {
       ...data,
-      accountMovements: data.accountMovements.filter(
-        (movement) => movement.sourceType !== "GASTO" || movement.sourceId !== expense.id,
+      accountMovements: reverseSourceAccountMovements(
+        data.accountMovements,
+        ["GASTO"],
+        previous.id,
+        context.user.id,
+        reason,
+        context.now(),
       ),
-      expenses: data.expenses.filter((item) => item.id !== expense.id),
+      expenses,
     },
     context,
-    "Eliminar gasto antes de cierre",
+    "Anular gasto",
     "Gasto",
-    expense.id,
-    expense,
-    "",
-    "Caja abierta",
+    previous.id,
+    previous,
+    next,
+    reason,
   );
-  return commandSuccess(nextData, expense);
+  return commandSuccess(nextData, next);
 }
+
+export const deleteExpenseCommand = annulExpenseCommand;
 
 export type CreateTransferInput = {
   balanceId: string;
@@ -319,36 +330,47 @@ export function createGiftCommand(
   );
 }
 
-export function deleteGiftCommand(
+export function annulGiftCommand(
   data: AppData,
   balanceId: string,
   giftId: string,
   context: CommandContext,
 ): CommandResult<Gift> {
   const balance = openCash(data, balanceId, context);
-  if (typeof balance === "string") return commandError("Solo se pueden eliminar regalos antes de cerrar la caja.");
-  const gift = data.gifts.find((item) => item.id === giftId && item.balanceId === balance.id);
-  if (!gift) return commandError("No se encontro el regalo de esta caja.");
+  if (typeof balance === "string") return commandError("Solo se pueden anular regalos antes de cerrar la caja.");
+  const previous = data.gifts.find((item) => item.id === giftId && item.balanceId === balance.id);
+  if (!previous) return commandError("No se encontro el regalo de esta caja.");
+  if (previous.status === "ANULADO") return commandError("El regalo ya esta anulado.");
+  const next: Gift = { ...previous, status: "ANULADO" };
+  const gifts = data.gifts.map((item) => (item.id === previous.id ? next : item));
+  const reason = "Anulacion operativa antes del cierre";
   return commandSuccess(
     auditCommand(
       {
         ...data,
-        accountMovements: data.accountMovements.filter(
-          (movement) => movement.sourceType !== "REGALO" || movement.sourceId !== gift.id,
+        accountMovements: reverseSourceAccountMovements(
+          data.accountMovements,
+          ["REGALO"],
+          previous.id,
+          context.user.id,
+          reason,
+          context.now(),
         ),
-        gifts: data.gifts.filter((item) => item.id !== gift.id),
+        gifts,
       },
       context,
-      "Eliminar regalo antes de cierre",
+      "Anular regalo",
       "Regalo",
-      gift.id,
-      gift,
-      "",
-      "Caja abierta",
+      previous.id,
+      previous,
+      next,
+      reason,
     ),
-    gift,
+    next,
   );
 }
+
+export const deleteGiftCommand = annulGiftCommand;
 
 export type CreateCapitalMovementInput = {
   balanceId: string;

@@ -34,7 +34,7 @@ Central asigna propietario temporal unico antes de editar estos contratos desde 
 ## Comandos
 
 - `openCash.ts`: primera apertura Socio -> Principal -> Caja; aperturas siguientes heredan Caja.
-- `saveReading.ts`: valida contadores y sincroniza resultado de maquinas.
+- `saveReading.ts`: valida y guarda atomica la grilla de contadores; sincroniza resultado de maquinas solo cuando todas las filas son validas.
 - `operatingMovementCommands.ts`: operaciones exclusivas del Cajero; el alta de capital legacy esta bloqueada.
 - `treasuryCommands.ts`: Caja <-> Principal y movimientos reales de socios.
 - `principalExpenseCommands.ts`: gastos administrativos desde Principal.
@@ -54,7 +54,7 @@ Central asigna propietario temporal unico antes de editar estos contratos desde 
 - Apertura y cierre generan traspasos automaticos inmutables.
 - Traspasos y socios no modifican resultado economico.
 - Diferencias ajustan Caja, no resultado.
-- No se borran movimientos contabilizados; las anulaciones agregan reversos.
+- No se borran movimientos ni entidades contabilizadas; gastos y regalos anulados conservan estado e historial y agregan reversos.
 
 ## Migraciones
 
