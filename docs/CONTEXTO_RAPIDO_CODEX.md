@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea. No releer todo el repositorio por defecto.
 
@@ -16,7 +16,8 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
-- Validacion vigente: 175 pruebas unitarias/de integracion en 33 archivos, mas E2E.
+- Validacion vigente: 180 pruebas unitarias/de integracion en 34 archivos, mas E2E.
+- Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 
 ## Modelo financiero
 
@@ -80,6 +81,7 @@ No usar una skill como permiso de escritura. La orden literal del usuario o un o
 
 ```text
 pnpm run check
+pnpm run check:governance
 pnpm run build
 pnpm run check:commit
 iniciar-poseidon.bat

@@ -1,6 +1,6 @@
 # Poseidon - Cola de integracion
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-18
 
 Estados permitidos: `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA`, `INTEGRADA`, `BLOQUEADA`, `DESCARTADA`.
 
@@ -12,6 +12,7 @@ Estados permitidos: `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA`, `INTEGRADA`, `
 ## Uso
 
 - Una fila representa una unidad integrable, no una conversacion completa.
+- Un bloque ejecutado directamente por Central en `main` no necesita una fila ficticia; se registra en `PROJECT_STATUS.json` y, si corresponde, en decisiones o migraciones.
 - Central actualiza estado y orden de integracion.
 - `LISTA` exige entrega estructurada y commit local.
 - `INTEGRADA` exige revision del diff y validacion transversal.

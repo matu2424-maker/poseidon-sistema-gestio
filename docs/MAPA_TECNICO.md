@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -26,7 +26,7 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 .agents/skills/poseidon-accounting-regression/   matriz de regresion contable
 .agents/skills/poseidon-localhost-diagnostics/   arranque y diagnostico local
 docs/PROTOCOLO_AGENTES_CODEX.md            fuente canonica de delegacion
-docs/coordinacion/                          chats permanentes, propietarios y cola de integracion
+docs/coordinacion/                          chats, estado, decisiones, migraciones, capacidades y cola
 docs/SKILLS_POSEIDON.md                     fuente canonica de skills
 docs/REGISTRO_DELEGACIONES_AGENTES.md      medicion acumulada
 docs/plantillas/REPORTE_DELEGACION_AGENTES.md contrato de cada registro
@@ -39,13 +39,15 @@ scripts/skill-config-validation.mjs         reglas puras del validador de skills
 scripts/precommit-check.mjs                 seleccion proporcional previa al commit
 scripts/validate-design-system.mjs          validador de gobierno visual
 scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
+scripts/validate-governance.mjs             validador ejecutable de gobierno SOPM-Lite
+scripts/governance-config-validation.mjs    reglas puras de estado, decisiones, migraciones y capacidades
 ```
 
 - El proyecto no fija cantidad de hilos ni profundidad; aplica la capacidad disponible de Codex y el protocolo de no superposicion.
 - Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
 - El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
-- `pnpm run check:agents` valida perfiles; `check:workstreams` valida chats permanentes; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta todos antes del codigo.
+- `pnpm run check:agents` valida perfiles; `check:workstreams` valida chats y gobierno SOPM-Lite; `check:governance` valida solo sus registros; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta todos antes del codigo.
 - `.githooks/pre-commit` y `scripts/precommit-hook.ps1` ejecutan `pnpm run check:commit` con el runtime disponible en Windows.
 - Todo subagente terminado se registra; no se considera un perfil nuevo sin tres delegaciones utiles de la misma especialidad.
 
@@ -141,6 +143,10 @@ src/
 | `confirmations.ts` | Punto unico de reconfirmacion de interfaz |
 | `navigation/screens.ts` | Registro tipado de pantallas, menus, roles y caja requerida |
 | `docs/coordinacion/WORKSTREAMS.json` | Propiedad verificable de chats permanentes y contratos reservados |
+| `docs/coordinacion/PROJECT_STATUS.json` | Fase, ordenes, riesgos y proximas acciones sin duplicar el HEAD de Git |
+| `docs/coordinacion/DECISIONS.json` | Registro de decisiones transversales con documentos individuales |
+| `docs/coordinacion/MIGRATIONS.json` | Historial verificable de migraciones y reparaciones de datos |
+| `docs/coordinacion/CAPABILITIES.json` | Inventario de agentes, skills y validadores activos |
 
 ## Comandos de aplicacion
 
@@ -286,4 +292,4 @@ pnpm run check:commit
 git diff --check
 ```
 
-`pnpm run check` ejecuta `check:agents`, `check:workstreams`, `check:skills`, `check:design`, typecheck, ESLint y la suite automatizada. `check:commit` selecciona ese control completo o validadores de infraestructura segun las rutas preparadas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`.
+`pnpm run check` ejecuta `check:agents`, `check:workstreams` (incluido gobierno), `check:skills`, `check:design`, typecheck, ESLint y la suite automatizada. `check:commit` selecciona ese control completo o validadores de infraestructura segun las rutas preparadas. La prueba manual debe usar el rol y flujo afectados segun `docs/VALIDACION_LOCAL.md`.

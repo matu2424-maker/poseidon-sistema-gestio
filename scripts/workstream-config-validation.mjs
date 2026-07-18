@@ -4,6 +4,7 @@ import path from "node:path";
 export const EXPECTED_ROLE_CHAT_IDS = ["poseidon-cajero", "poseidon-encargado", "poseidon-administrador"];
 
 const REQUIRED_CHECKS = ["pnpm run check", "pnpm run build", "pnpm run check:commit"];
+const WORKSTREAM_SCRIPT = "node scripts/validate-workstreams.mjs && node scripts/validate-governance.mjs";
 
 const normalizedPath = (value) => String(value ?? "").replaceAll("\\", "/").replace(/^\.\//, "");
 
@@ -84,7 +85,15 @@ export function validateWorkstreamConfig(config) {
   for (const duplicate of duplicateValues((config?.specialists ?? []).map((specialist) => specialist.id))) {
     errors.push(`Especialidad duplicada: ${duplicate}.`);
   }
-  for (const key of ["workOrderTemplate", "handoffTemplate", "integrationQueue"]) {
+  for (const key of [
+    "workOrderTemplate",
+    "handoffTemplate",
+    "integrationQueue",
+    "projectStatus",
+    "decisionRegistry",
+    "migrationRegistry",
+    "capabilityRegistry",
+  ]) {
     if (!config?.[key]) errors.push(`Falta ${key}.`);
   }
   return errors;
@@ -133,6 +142,10 @@ export async function validateWorkstreamInfrastructure({ rootDir }) {
       config.workOrderTemplate,
       config.handoffTemplate,
       config.integrationQueue,
+      config.projectStatus,
+      config.decisionRegistry,
+      config.migrationRegistry,
+      config.capabilityRegistry,
     ];
     for (const reference of [...new Set(references)]) await requirePath(rootDir, reference, errors, checks);
   }
@@ -151,9 +164,12 @@ export async function validateWorkstreamInfrastructure({ rootDir }) {
   if (packageSource) {
     try {
       const packageJson = JSON.parse(packageSource);
-      if (packageJson.scripts?.["check:workstreams"] !== "node scripts/validate-workstreams.mjs") {
+      if (packageJson.scripts?.["check:workstreams"] !== WORKSTREAM_SCRIPT) {
         errors.push("package.json debe registrar check:workstreams.");
       } else checks.push("script check:workstreams registrado");
+      if (packageJson.scripts?.["check:governance"] !== "node scripts/validate-governance.mjs") {
+        errors.push("package.json debe registrar check:governance.");
+      } else checks.push("script check:governance registrado");
       if (!String(packageJson.scripts?.check ?? "").includes("pnpm run check:workstreams")) {
         errors.push("pnpm run check debe ejecutar check:workstreams.");
       } else checks.push("check incluye workstreams");

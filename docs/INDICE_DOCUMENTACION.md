@@ -1,6 +1,6 @@
 # Poseidon - Indice de documentacion
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-18
 
 Este archivo es la puerta de entrada a la documentacion. Su objetivo es cargar solo el contexto necesario y evitar que una misma regla quede copiada en varios lugares.
 
@@ -58,10 +58,18 @@ Agregar:
 ### Trabajar con chats permanentes por rol
 
 1. `docs/coordinacion/README.md`.
-2. `docs/coordinacion/WORKSTREAMS.json`.
-3. Contexto corto del rol y contratos compartidos afectados.
-4. Orden de trabajo y entrega en `docs/plantillas/`.
-5. Central integra un commit por vez y actualiza `docs/coordinacion/COLA_INTEGRACION.md`.
+2. `docs/coordinacion/PROJECT_STATUS.json`.
+3. `docs/coordinacion/WORKSTREAMS.json`.
+4. Contexto corto del rol y contratos compartidos afectados.
+5. Orden de trabajo y entrega en `docs/plantillas/`.
+6. Central integra un commit por vez y actualiza estado y cola.
+
+### Cambiar decisiones, migraciones o capacidades
+
+- Decisiones: `docs/coordinacion/DECISIONS.json` y documento individual referenciado.
+- Migraciones/reparaciones: `docs/coordinacion/MIGRATIONS.json` y `docs/plantillas/MIGRACION_REPARACION.md`.
+- Agentes, skills y validadores: `docs/coordinacion/CAPABILITIES.json`.
+- Validar con `pnpm run check:governance`; `check:workstreams` y `check:commit` tambien lo ejecutan cuando corresponde.
 
 ### Ejecutar un procedimiento repetible de Codex
 
@@ -96,6 +104,10 @@ Agregar:
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
 | Chats permanentes, propietarios e integracion | `docs/coordinacion/README.md` | Prompts de rol, contextos funcionales |
+| Estado operativo multiagente | `docs/coordinacion/PROJECT_STATUS.json` | Retomar, prompts, contextos funcionales |
+| Decisiones transversales | `docs/coordinacion/DECISIONS.json` y documento individual | Reglas funcionales o modulos |
+| Migraciones y reparaciones de datos | `docs/coordinacion/MIGRATIONS.json` | Planes generales, handoff |
+| Inventario de agentes, skills y validadores | `docs/coordinacion/CAPABILITIES.json` | Prompts y contextos funcionales |
 | Skills reutilizables de Codex | `docs/SKILLS_POSEIDON.md` | Perfiles TOML, contextos funcionales |
 | Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
 | Revisiones de diseno | `docs/REVISIONES_DE_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |

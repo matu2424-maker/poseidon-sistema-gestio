@@ -29,6 +29,10 @@ const validConfig = () => ({
   workOrderTemplate: "order.md",
   handoffTemplate: "handoff.md",
   integrationQueue: "queue.md",
+  projectStatus: "status.json",
+  decisionRegistry: "decisions.json",
+  migrationRegistry: "migrations.json",
+  capabilityRegistry: "capabilities.json",
 });
 
 describe("coordinacion de chats Poseidon", () => {
@@ -52,6 +56,12 @@ describe("coordinacion de chats Poseidon", () => {
     const config = validConfig();
     config.roleChats[0].requiredChecks = ["pnpm run check"];
     expect(validateWorkstreamConfig(config).join(" ")).toContain("pnpm run check:commit");
+  });
+
+  it("exige los registros de gobierno operativo", () => {
+    const config = validConfig();
+    delete config.migrationRegistry;
+    expect(validateWorkstreamConfig(config).join(" ")).toContain("Falta migrationRegistry");
   });
 
   it("valida la infraestructura versionada del repositorio", async () => {

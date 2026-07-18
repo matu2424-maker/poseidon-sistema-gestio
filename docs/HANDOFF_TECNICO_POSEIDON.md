@@ -1,6 +1,6 @@
 # Poseidon - Handoff tecnico
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Documento para continuar desde otra cuenta o agente sin leer el chat. Las fuentes canonicas tienen prioridad sobre este resumen.
 
@@ -11,6 +11,7 @@ Documento para continuar desde otra cuenta o agente sin leer el chat. Las fuente
 3. Leer `docs/INDICE_DOCUMENTACION.md`.
 4. Abrir solo el contexto y modulo de la tarea.
 5. Para contabilidad, leer `docs/REGLAS_CONTABLES.md`.
+6. Para coordinacion multiagente, leer `docs/coordinacion/PROJECT_STATUS.json` y `docs/coordinacion/README.md`.
 
 No modificar archivos sin orden literal u objetivo activo. No publicar, hacer push ni conectar servicios externos sin autorizacion.
 
@@ -21,8 +22,16 @@ No modificar archivos sin orden literal u objetivo activo. No publicar, hacer pu
 - Snapshot esquema `5`, clave `poseidon-sistema-gestion-v2`.
 - Login de prueba por usuario, sin contraseña.
 - Local operativo actual: Poseidon.
-- 175 pruebas unitarias/de integracion en 33 archivos, mas E2E.
+- 180 pruebas unitarias/de integracion en 34 archivos, mas E2E.
 - Servidor oficial: `iniciar-poseidon.bat`, URL `http://127.0.0.1:5173/`.
+
+## Gobierno operativo
+
+- Central integra `main`; chats de rol trabajan en worktrees aislados.
+- `PROJECT_STATUS.json` resume fase, riesgos y proximas acciones.
+- `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json` son registros verificables.
+- Trabajo delegado o paralelo usa orden y entrega; un cambio local simple autorizado a Central no requiere una orden adicional.
+- `pnpm run check:governance` valida registros y referencias sin depender de prompts gigantes.
 
 ## Modelo financiero innegociable
 
@@ -96,6 +105,7 @@ src/features/reports/Periodic.tsx
 
 ```text
 pnpm run check
+pnpm run check:governance
 pnpm run build
 iniciar-poseidon.bat
 pnpm run smoke:localhost

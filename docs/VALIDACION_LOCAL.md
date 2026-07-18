@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Este documento define la validacion tecnica y funcional minima. No reemplaza las pruebas especificas de cada modulo.
 
@@ -11,6 +11,7 @@ Con el runtime del proyecto disponible:
 ```bash
 pnpm run check:agents
 pnpm run check:workstreams
+pnpm run check:governance
 pnpm run check:skills
 pnpm run check:design
 pnpm run check
@@ -21,13 +22,15 @@ pnpm run check:commit
 `pnpm run check` ejecuta, en orden:
 
 1. Validacion de 28 controles de agentes Codex.
-2. Validacion de cuatro skills y sus contratos.
-3. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
-4. TypeScript sin emitir archivos.
-5. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
-6. Vitest sobre `src/` y `scripts/`.
+2. Validacion de 61 controles de chats, propietarios y referencias de workstreams.
+3. Validacion de 36 controles SOPM-Lite: 3 decisiones, 2 migraciones, 13 capacidades, estado y rutas.
+4. Validacion de cuatro skills y sus contratos.
+5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
+6. TypeScript sin emitir archivos.
+7. ESLint sobre `src/`, `e2e/` y `scripts/`, sin aceptar advertencias.
+8. Vitest sobre `src/` y `scripts/`.
 
-`check:agents`, `check:workstreams`, `check:skills` y `check:design` pueden ejecutarse por separado para su infraestructura. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
+`check:agents`, `check:governance`, `check:workstreams`, `check:skills` y `check:design` pueden ejecutarse por separado. `check:workstreams` incluye gobierno para evitar una coordinacion parcialmente validada. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
 
 ## Entorno y servidor
 
@@ -84,11 +87,12 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia vigente al 2026-07-17
+## Evidencia vigente al 2026-07-18
 
-- 33 archivos de pruebas y 175 casos aprobados, incluidos tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, rutas, snapshot y conflictos de escritura.
+- 34 archivos de pruebas y 180 casos aprobados, incluidos gobierno SOPM-Lite, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, rutas, snapshot y conflictos de escritura.
 - La suite E2E en 6 archivos aprobo 11 de 11 casos: caja, fondos Principal -> Caja, desacople caja/libro, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto y cierre salarial correctivo.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
+- `check:governance` aprobado para estado, decisiones, migraciones, capacidades, referencias, commits y scripts declarados.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.

@@ -95,5 +95,9 @@
   ],
   "workOrderTemplate": "docs/plantillas/ORDEN_TRABAJO_CHAT.md",
   "handoffTemplate": "docs/plantillas/ENTREGA_CHAT_MODULO.md",
-  "integrationQueue": "docs/coordinacion/COLA_INTEGRACION.md"
+  "integrationQueue": "docs/coordinacion/COLA_INTEGRACION.md",
+  "projectStatus": "docs/coordinacion/PROJECT_STATUS.json",
+  "decisionRegistry": "docs/coordinacion/DECISIONS.json",
+  "migrationRegistry": "docs/coordinacion/MIGRATIONS.json",
+  "capabilityRegistry": "docs/coordinacion/CAPABILITIES.json"
 }

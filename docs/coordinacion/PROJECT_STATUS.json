@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": "poseidon",
+    "name": "Poseidon Sistema de Gestion",
+    "status": "ACTIVE",
+    "mode": "LOCAL_ONLY",
+    "defaultBranch": "main",
+    "updatedAt": "2026-07-18",
+    "updatedBy": "poseidon-central"
+  },
+  "current": {
+    "phase": "prueba-local",
+    "objective": "Evolucion modular del sistema Poseidon con trazabilidad y validacion local.",
+    "activeWorkOrders": [],
+    "queuedWorkOrders": [],
+    "blockedWorkOrders": [],
+    "pendingIntegrations": []
+  },
+  "lastCompletedBlock": {
+    "id": "2026-07-18-CEN-01",
+    "title": "Adopcion de gobierno operativo SOPM-Lite",
+    "state": "INTEGRADA",
+    "evidence": "El commit que contiene este archivo identifica el estado exacto validado."
+  },
+  "health": {
+    "overall": "YELLOW",
+    "mainRisk": "La persistencia sigue siendo local y todavia falta validacion runtime profunda del snapshot.",
+    "risks": [
+      {
+        "id": "RISK-001",
+        "severity": "HIGH",
+        "summary": "Persistencia limitada por localStorage y sin backend transaccional."
+      },
+      {
+        "id": "RISK-002",
+        "severity": "MEDIUM",
+        "summary": "Cobertura E2E incompleta para tesoreria, cierre periodico y formularios administrativos."
+      }
+    ]
+  },
+  "nextActions": [
+    "Completar validacion runtime profunda del snapshot.",
+    "Extraer mutaciones sensibles restantes de handlers React.",
+    "Ampliar E2E de tesoreria, cierre periodico y formularios administrativos."
+  ],
+  "registries": {
+    "workstreams": "docs/coordinacion/WORKSTREAMS.json",
+    "integrationQueue": "docs/coordinacion/COLA_INTEGRACION.md",
+    "decisions": "docs/coordinacion/DECISIONS.json",
+    "migrations": "docs/coordinacion/MIGRATIONS.json",
+    "capabilities": "docs/coordinacion/CAPABILITIES.json"
+  }
+}

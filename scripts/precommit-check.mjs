@@ -19,7 +19,7 @@ export function buildCheckPlan(files) {
       (file) =>
         file.startsWith("docs/coordinacion/") ||
         /^docs\/prompts\/CHAT_(CENTRAL|CAJERO|ENCARGADO|ADMINISTRADOR)_POSEIDON\.md$/.test(file) ||
-        /^docs\/plantillas\/(ORDEN_TRABAJO_CHAT|ENTREGA_CHAT_MODULO)\.md$/.test(file),
+        /^docs\/plantillas\/(ORDEN_TRABAJO_CHAT|ENTREGA_CHAT_MODULO|DECISION_TRANSVERSAL|MIGRACION_REPARACION)\.md$/.test(file),
     )
   ) {
     plan.push("check:workstreams");

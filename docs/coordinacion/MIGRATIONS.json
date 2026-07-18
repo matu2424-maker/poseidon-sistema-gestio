@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "migrations": [
+    {
+      "id": "MIG-2026-07-16-001",
+      "runtimeId": "schema-v4-transfer-cash-reconciliation",
+      "status": "APPLIED",
+      "type": "DATA_REPAIR",
+      "risk": "HIGH",
+      "sourceSchema": 3,
+      "targetSchema": 4,
+      "implementation": "src/data/migrateData.ts",
+      "tests": [
+        "src/data/migrateData.test.ts"
+      ],
+      "introducedByCommit": null,
+      "legacyRecord": true,
+      "financialData": true,
+      "appendOnly": true,
+      "reversible": false,
+      "summary": "Reconcilia transferencias historicas en efectivo sin crear aportes ficticios ni modificar el resultado economico."
+    },
+    {
+      "id": "MIG-2026-07-17-001",
+      "runtimeId": "schema-v5-principal-accounts",
+      "status": "APPLIED",
+      "type": "SCHEMA_AND_DATA",
+      "risk": "HIGH",
+      "sourceSchema": 4,
+      "targetSchema": 5,
+      "implementation": "src/data/migrateData.ts",
+      "tests": [
+        "src/data/migrateData.test.ts",
+        "src/application/integration/financialLifecycle.test.ts"
+      ],
+      "introducedByCommit": "89e4eb7a19d35cdd70ac18ecada7e61aa6898cd0",
+      "legacyRecord": false,
+      "financialData": true,
+      "appendOnly": true,
+      "reversible": false,
+      "summary": "Incorpora Principal/Efectivo, Principal/Banco y cuentas patrimoniales de socios preservando Caja e historial."
+    }
+  ]
+}

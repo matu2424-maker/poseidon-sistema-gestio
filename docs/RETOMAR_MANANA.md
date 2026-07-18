@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 ## Estado inmediato
 
@@ -9,24 +9,36 @@ Ultima actualizacion: 2026-07-17
 - Sin Supabase, Auth, Storage remoto ni despliegue.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
-- Validacion vigente antes del cierre actual: 175 pruebas en 33 archivos; E2E debe revalidarse al cerrar el bloque.
+- Validacion vigente: 180 pruebas en 34 archivos y 11 casos E2E en 6 archivos.
+- Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
+
+## Ultimo bloque tecnico
+
+Se adopto un gobierno operativo SOPM-Lite integrado con la coordinacion existente:
+
+- Estado, riesgos y proximas acciones en `PROJECT_STATUS.json`.
+- Decisiones transversales en `DECISIONS.json` y documentos individuales.
+- Migraciones/reparaciones financieras en `MIGRATIONS.json`.
+- Agentes, skills y validadores en `CAPABILITIES.json`.
+- Ordenes y entregas ampliadas con prioridad, commit base, alcance, criterios, evidencia y estado Git.
+- `pnpm run check:governance` valida registros, referencias, rutas, commits y scripts.
+- `check:workstreams` incluye el gobierno; `check:commit` lo selecciona para cambios de coordinacion.
+
+No se copiaron prompts universales, documentos Word ni carpetas vacias del kit SOPM. No se reemplazo `AGENTS.md` ni se creo una segunda estructura paralela.
 
 ## Ultimo bloque funcional
 
-Se implemento el modelo de tesoreria separado:
+El modelo financiero vigente conserva:
 
 - Caja/Efectivo y Caja/Banco.
 - Principal/Efectivo y Principal/Banco.
 - Cuentas patrimoniales de Mathias y Ricardo.
 - Traspasos Caja <-> Principal sin resultado economico.
 - Aportes/retiros reales de socios sin concepto de custodia.
-- Primera apertura socio -> Principal -> Caja.
-- Cierres con traspaso Caja -> Principal y remanente declarado en Caja.
+- Primera apertura Socio -> Principal -> Caja.
+- Cierre con transferencia Caja -> Principal y remanente declarado en Caja.
 - Gastos y salarios administrativos desde Principal, sin `balanceId`.
-- Gastos y salarios de Cajero desde Caja/Efectivo, con `balanceId`.
-- Cierres periodicos consolidan cajas y movimientos administrativos de Principal.
-- Alta legacy de capital deshabilitada; historial conservado.
-- Migracion 4 -> 5 preserva Caja y resultado economico.
+- Migracion 4 -> 5 append-only y auditada.
 
 ## Reglas que no deben revertirse
 
@@ -34,42 +46,31 @@ Se implemento el modelo de tesoreria separado:
 - No existe custodia.
 - Un traspaso interno no selecciona socio.
 - Una salida nueva no deja Caja o Principal negativas.
-- Los traspasos automaticos de apertura/cierre son inmutables.
 - Diferencias no cambian resultado economico.
 - Historial y asientos se preservan con contramovimientos.
 - Encargado/Admin operan Principal; para Caja cambian a Cajero.
+- Central es el unico integrador en `main`.
+- Las ordenes formales se usan para trabajo delegado o paralelo, no como burocracia para cambios locales simples autorizados.
 
-## Fuentes actualizadas
+## Proximas prioridades
 
-- `README.md`.
-- `docs/REGLAS_CONTABLES.md`.
-- `docs/REGLAS_GENERALES.md`.
-- `docs/POSEIDON_FUNCIONAMIENTO.md`.
-- `docs/MAPA_TECNICO.md`.
-- `docs/MAPA_RUTAS.md`.
-- contextos de Caja, Cajero, Encargado, Cuentas y Salarios.
-- modulos 00, 02, 04, 05, 07, 10 y 11.
+1. Completar validacion runtime profunda del snapshot.
+2. Extraer mutaciones sensibles restantes de handlers React.
+3. Ampliar E2E de tesoreria, cierre periodico y formularios administrativos.
+4. Mantener multi-local completo y migracion online postergados hasta autorizacion.
 
-## Pendiente para cerrar el bloque
+## Ruta de inicio
 
-1. Ejecutar E2E actualizado.
-2. Corregir cualquier selector o flujo visual regresado.
-3. Verificar roles y viewports.
-4. Ejecutar `check`, `build`, `smoke`, `check:commit` y `git diff --check`.
-5. Crear commit local estable, sin push.
-
-## Deuda posterior
-
-- Validacion runtime profunda del snapshot.
-- Extraer mutaciones sensibles restantes de handlers React.
-- Ampliar E2E de tesoreria, cierre periodico y formularios administrativos.
-- Multi-local completo y migracion online quedan postergados.
+1. Leer `AGENTS.md` y `docs/CONTEXTO_RAPIDO_CODEX.md`.
+2. Consultar `docs/coordinacion/PROJECT_STATUS.json` si la tarea involucra varios chats, migraciones o capacidades.
+3. Seguir `docs/INDICE_DOCUMENTACION.md` para cargar solo el modulo afectado.
 
 ## Comandos
 
 ```text
 git status --short
 git log -1 --oneline
+pnpm run check:governance
 pnpm run check
 pnpm run build
 iniciar-poseidon.bat

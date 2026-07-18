@@ -23,7 +23,7 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Exportacion, importacion y recuperacion del snapshot local.
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
-- Validacion automatizada vigente: 175 pruebas unitarias/de integracion en 33 archivos, ademas de la suite E2E.
+- Validacion automatizada vigente: 180 pruebas unitarias/de integracion en 34 archivos, ademas de la suite E2E.
 
 ## Modelo financiero vigente
 
@@ -145,6 +145,7 @@ Con el runtime del proyecto disponible:
 
 ```bash
 pnpm run check
+pnpm run check:governance
 pnpm run build
 pnpm run check:commit
 ```
@@ -156,7 +157,7 @@ pnpm run smoke:localhost
 pnpm run test:e2e
 ```
 
-`pnpm run check` incluye agentes, workstreams, skills, gobierno visual, TypeScript, ESLint y Vitest. La matriz manual por rol se encuentra en `docs/VALIDACION_LOCAL.md`.
+`pnpm run check` incluye agentes, workstreams, gobierno SOPM-Lite, skills, gobierno visual, TypeScript, ESLint y Vitest. La matriz manual por rol se encuentra en `docs/VALIDACION_LOCAL.md`.
 
 ## Usuarios de prueba
 
@@ -202,6 +203,7 @@ src/types.ts                         Contratos de datos
 - `docs/MAPA_RUTAS.md`: URLs y protecciones.
 - `docs/modulos/`: especificacion por modulo.
 - `docs/contextos/`: contextos cortos para Codex.
+- `docs/coordinacion/`: chats, estado, decisiones, migraciones, capacidades e integracion.
 - `docs/VALIDACION_LOCAL.md`: validacion automatica y manual.
 
 ## Limites actuales

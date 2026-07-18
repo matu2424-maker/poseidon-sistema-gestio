@@ -1,8 +1,21 @@
 # Poseidon - Coordinacion de chats de desarrollo
 
-Ultima actualizacion: 2026-07-16
+Ultima actualizacion: 2026-07-18
 
 Fuente canonica para coordinar chats permanentes de Poseidon. No reemplaza `AGENTS.md`, las reglas funcionales ni el protocolo de subagentes.
+
+## Gobierno operativo SOPM-Lite
+
+Poseidon adopta solo las partes verificables y de bajo costo operativo del modelo SOPM. No usa prompts universales gigantes ni una estructura paralela. Git, los registros JSON y la documentacion existente siguen siendo las fuentes de verdad.
+
+- `docs/coordinacion/PROJECT_STATUS.json`: estado, riesgos y proximas acciones.
+- `docs/coordinacion/DECISIONS.json`: indice verificable de decisiones transversales.
+- `docs/coordinacion/MIGRATIONS.json`: migraciones y reparaciones de datos aplicadas o pendientes.
+- `docs/coordinacion/CAPABILITIES.json`: agentes, skills y validadores activos.
+
+Los estados normales de una orden son `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA` e `INTEGRADA`. `BLOQUEADA` y `DESCARTADA` son auxiliares.
+
+Una orden formal es obligatoria para trabajo delegado, paralelo o con propiedad temporal de archivos. Una modificacion local simple ejecutada por Central con autorizacion literal del usuario conserva el flujo normal de `AGENTS.md` y no necesita burocracia adicional.
 
 ## Topologia
 
@@ -36,7 +49,8 @@ Un mensaje entre chats ayuda a coordinar, pero no reemplaza estos artefactos.
 6. Si necesita un contrato compartido, se detiene en ese punto y solicita al chat central una dependencia concreta.
 7. El chat propietario valida y entrega con `docs/plantillas/ENTREGA_CHAT_MODULO.md`.
 8. Central revisa el diff, integra un commit por vez, resuelve contradicciones y ejecuta la validacion transversal.
-9. Central actualiza `docs/coordinacion/COLA_INTEGRACION.md` y cierra el punto de control local.
+9. Central actualiza la cola y `PROJECT_STATUS.json` cuando cambia una orden, riesgo o integracion material.
+10. Una decision transversal, migracion o capacidad nueva se registra antes de cerrar el punto de control.
 
 ## Git y worktrees
 
@@ -49,7 +63,15 @@ Un mensaje entre chats ayuda a coordinar, pero no reemplaza estos artefactos.
 
 ## Contratos compartidos
 
-Consultar `docs/coordinacion/CONTRATOS_COMPARTIDOS.md`. La configuracion verificable de propietarios vive en `docs/coordinacion/WORKSTREAMS.json` y se valida con `pnpm run check:workstreams`.
+Consultar `docs/coordinacion/CONTRATOS_COMPARTIDOS.md`. La configuracion verificable de propietarios vive en `docs/coordinacion/WORKSTREAMS.json`. `pnpm run check:workstreams` valida propietarios y todo el gobierno SOPM-Lite; `pnpm run check:governance` permite revisar solo los registros.
+
+## Actualizacion de registros
+
+- `PROJECT_STATUS.json`: al asignar/integrar trabajo o cambiar fase, riesgo o siguiente accion material.
+- `DECISIONS.json`: solo para decisiones transversales; cada entrada referencia un documento individual.
+- `MIGRATIONS.json`: antes de integrar una migracion o reparacion de datos; el commit completo es obligatorio salvo registro historico marcado.
+- `CAPABILITIES.json`: al crear, activar, suspender o retirar un agente, skill, validador, herramienta o conexion.
+- El commit que contiene el registro identifica el snapshot exacto; no se guarda un HEAD autorreferencial dentro del archivo.
 
 ## Chats y subagentes
 
@@ -63,11 +85,17 @@ Un chat de rol puede usar subagentes si el protocolo lo justifica. El chat centr
 ## Fuentes relacionadas
 
 - `docs/coordinacion/WORKSTREAMS.json`
+- `docs/coordinacion/PROJECT_STATUS.json`
 - `docs/coordinacion/CONTRATOS_COMPARTIDOS.md`
 - `docs/coordinacion/COLA_INTEGRACION.md`
+- `docs/coordinacion/DECISIONS.json`
 - `docs/coordinacion/DECISIONES.md`
+- `docs/coordinacion/MIGRATIONS.json`
+- `docs/coordinacion/CAPABILITIES.json`
 - `docs/plantillas/ORDEN_TRABAJO_CHAT.md`
 - `docs/plantillas/ENTREGA_CHAT_MODULO.md`
+- `docs/plantillas/DECISION_TRANSVERSAL.md`
+- `docs/plantillas/MIGRACION_REPARACION.md`
 - `docs/prompts/CHAT_CENTRAL_POSEIDON.md`
 - `docs/prompts/CHAT_CAJERO_POSEIDON.md`
 - `docs/prompts/CHAT_ENCARGADO_POSEIDON.md`

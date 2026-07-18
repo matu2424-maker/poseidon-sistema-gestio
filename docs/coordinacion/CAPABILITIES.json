@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "capabilities": [
+    {
+      "id": "CAP-AGENT-SCOPE-MAPPER",
+      "name": "Poseidon scope mapper",
+      "type": "AGENT_PROFILE",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": [".codex/agents/poseidon_scope_mapper.toml"],
+      "validationCommand": "pnpm run check:agents",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-AGENT-ACCOUNTING-REVIEWER",
+      "name": "Poseidon accounting reviewer",
+      "type": "AGENT_PROFILE",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": [".codex/agents/poseidon_accounting_reviewer.toml"],
+      "validationCommand": "pnpm run check:agents",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-AGENT-UI-REVIEWER",
+      "name": "Poseidon UI reviewer",
+      "type": "AGENT_PROFILE",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": [".codex/agents/poseidon_ui_reviewer.toml"],
+      "validationCommand": "pnpm run check:agents",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-SKILL-MODULE-CHANGE",
+      "name": "Poseidon module change",
+      "type": "SKILL",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C2",
+      "paths": [".agents/skills/poseidon-module-change/SKILL.md"],
+      "validationCommand": "pnpm run check:skills",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-SKILL-ACCOUNTING-REGRESSION",
+      "name": "Poseidon accounting regression",
+      "type": "SKILL",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": [".agents/skills/poseidon-accounting-regression/SKILL.md"],
+      "validationCommand": "pnpm run check:skills",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-SKILL-VISUAL-QA",
+      "name": "Poseidon visual QA",
+      "type": "SKILL",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": [".agents/skills/poseidon-visual-qa/SKILL.md"],
+      "validationCommand": "pnpm run check:skills",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-SKILL-LOCALHOST-DIAGNOSTICS",
+      "name": "Poseidon localhost diagnostics",
+      "type": "SKILL",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C2",
+      "paths": [".agents/skills/poseidon-localhost-diagnostics/SKILL.md"],
+      "validationCommand": "pnpm run check:skills",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-AGENTS",
+      "name": "Validador de agentes",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": ["scripts/validate-agent-config.mjs"],
+      "validationCommand": "pnpm run check:agents",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-WORKSTREAMS",
+      "name": "Validador de coordinacion",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": ["scripts/validate-workstreams.mjs"],
+      "validationCommand": "pnpm run check:workstreams",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-SKILLS",
+      "name": "Validador de skills",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": ["scripts/validate-skills.mjs"],
+      "validationCommand": "pnpm run check:skills",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-DESIGN",
+      "name": "Validador del sistema visual",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": ["scripts/validate-design-system.mjs"],
+      "validationCommand": "pnpm run check:design",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-PRECOMMIT",
+      "name": "Control proporcional previo al commit",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C2",
+      "paths": ["scripts/precommit-check.mjs"],
+      "validationCommand": "pnpm run check:commit",
+      "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-GOVERNANCE",
+      "name": "Validador de gobierno operativo",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C1",
+      "paths": ["scripts/validate-governance.mjs"],
+      "validationCommand": "pnpm run check:governance",
+      "externalAccess": false
+    }
+  ]
+}

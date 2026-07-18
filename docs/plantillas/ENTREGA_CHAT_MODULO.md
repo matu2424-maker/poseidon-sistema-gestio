@@ -3,16 +3,47 @@
 - ID de orden:
 - Chat propietario:
 - Rama:
+- Worktree:
+- Commit base original:
 - Commit local:
-- Archivos modificados:
+- HEAD probado:
+
+## Resultado
+
+- Objetivo alcanzado:
 - Comportamiento implementado:
+- Alcance no realizado:
+
+## Archivos y contratos
+
+- Archivos modificados:
 - Contratos compartidos consumidos o modificados:
-- Pruebas ejecutadas y resultado:
+- Migraciones creadas o aplicadas:
+- Capacidades utilizadas o modificadas:
+- Dependencias agregadas:
+
+## Validacion
+
+- Comandos exactos y resultado:
+- Commit exacto probado:
+- Pruebas omitidas y motivo:
 - Validacion manual por rol:
+- Validacion visual y viewports:
 - Documentacion actualizada:
+
+## Riesgos y decisiones
+
+- Decisiones locales:
+- Decisiones requeridas de Central:
 - Riesgos residuales:
 - Dependencias pendientes:
 - Recomendacion de integracion:
+
+## Estado Git
+
+- Worktree limpio:
+- Archivos fuera de alcance:
+- Commits incluidos:
 
 ## Declaracion
 

@@ -1,11 +1,15 @@
 # Poseidon - Decisiones de coordinacion
 
-## 2026-07-16 - Chats permanentes por rol
+Indice humano de decisiones transversales. El registro verificable vive en `docs/coordinacion/DECISIONS.json`; las reglas funcionales siguen perteneciendo a sus fuentes canonicas.
 
-- Se adopta un chat central y tres chats permanentes: Cajero, Encargado y Administrador.
-- El chat de rol es propietario de su experiencia, no de todos los dominios que consume.
-- Nucleo financiero, salarios/personal, locales/maquinas y revision visual operan como especialidades temporales.
-- Cada chat de escritura usa rama y worktree aislados.
-- Los chats de rol pueden commitear en su rama; solo Central integra en `main`.
-- Los contratos compartidos requieren propietario temporal unico.
-- Git, documentacion y entregas estructuradas son la sincronizacion confiable; no se presume memoria compartida entre chats.
+| ID | Fecha | Decision | Estado |
+| --- | --- | --- | --- |
+| `DEC-2026-001` | 2026-07-16 | [Central y chats permanentes por rol](decisiones/DEC-2026-001-chats-por-rol.md) | `APPROVED` |
+| `DEC-2026-002` | 2026-07-17 | [Caja, Principal y Socios](decisiones/DEC-2026-002-tesoreria-caja-principal-socios.md) | `APPROVED` |
+| `DEC-2026-003` | 2026-07-18 | [Gobierno operativo SOPM-Lite](decisiones/DEC-2026-003-sopm-lite.md) | `APPROVED` |
+
+## Criterio
+
+- Crear un documento individual solo para una decision material y transversal.
+- Cambios locales y reversibles permanecen en la orden o entrega.
+- Toda alta, sustitucion o rechazo se registra tambien en `DECISIONS.json`.

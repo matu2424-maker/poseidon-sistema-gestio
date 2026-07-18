@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-18
 
 Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditoria. Las formulas y movimientos de cuentas viven en `docs/REGLAS_CONTABLES.md`.
 
@@ -14,6 +14,8 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Un bloque estable se valida, documenta y cierra con commit local.
 - Antes del commit ejecutar `pnpm run check:commit`.
 - Para localhost usar exclusivamente `iniciar-poseidon.bat`; liberar el puerto con `detener-poseidon.bat`.
+- El trabajo delegado o paralelo usa una orden con commit base, alcance, propietario y criterios; un cambio local simple autorizado directamente a Central no requiere una orden adicional.
+- Estado, decisiones transversales, migraciones y capacidades se registran en `docs/coordinacion/` y se validan con `pnpm run check:governance`.
 
 ## Historial y persistencia
 
@@ -69,6 +71,7 @@ Cada cambio actualiza las fuentes afectadas antes de cerrarse:
 - rutas: `docs/MAPA_RUTAS.md`;
 - continuidad: `docs/RETOMAR_MANANA.md`;
 - ejecucion: `README.md` o `docs/VALIDACION_LOCAL.md`.
+- coordinacion multiagente: registros de `docs/coordinacion/` cuando cambien ordenes, riesgos, decisiones, migraciones o capacidades.
 
 No se considera terminado un cambio con documentacion contradictoria.
 

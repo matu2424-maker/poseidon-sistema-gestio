@@ -1,6 +1,6 @@
 # Poseidon - Protocolo de agentes y subagentes Codex
 
-Ultima actualizacion: 2026-07-12
+Ultima actualizacion: 2026-07-18
 
 Fuente canonica para decidir cuando delegar trabajo de desarrollo de Poseidon, que perfil usar y como integrar sus resultados. Estos agentes son infraestructura de Codex versionada con el proyecto; no forman parte de la aplicacion ni son visibles para sus usuarios.
 
@@ -21,6 +21,7 @@ Los chats permanentes de Cajero, Encargado y Administrador no son subagentes. Ma
 - Un subagente sigue siendo temporal y nunca hace commit, push, publicacion ni despliegue.
 - Un chat de rol puede convocar subagentes cuando este protocolo lo justifique, sin cederles integracion ni ampliar el alcance autorizado.
 - `pnpm run check:workstreams` valida prompts, contextos, propietarios y contratos reservados de los chats permanentes.
+- `docs/coordinacion/CAPABILITIES.json` inventaria perfiles, skills y validadores activos; `check:governance` comprueba sus rutas y comandos.
 
 La carpeta correcta para perfiles del proyecto es `.codex/agents/`. Las skills del proyecto viven separadas en `.agents/skills/` y se rigen por `docs/SKILLS_POSEIDON.md`.
 
@@ -169,6 +170,7 @@ Para cambios de configuracion o perfiles:
 ```text
 pnpm run check:agents
 pnpm run check:workstreams
+pnpm run check:governance
 pnpm run check:skills
 pnpm run check:design
 verificar carga de los perfiles en una nueva tarea Codex

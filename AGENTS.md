@@ -31,14 +31,17 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Hacer commit local cuando un bloque quede estable, validado y sea correcto cerrar el punto de control. No hacer push, publicacion ni despliegue sin pedido explicito del usuario.
 - Para crear, modificar o validar perfiles/agentes Codex, leer `docs/PROTOCOLO_AGENTES_CODEX.md` y ejecutar `pnpm run check:agents`.
 - Para crear, modificar o coordinar chats permanentes de rol, leer `docs/coordinacion/README.md` y ejecutar `pnpm run check:workstreams`.
+- El gobierno operativo liviano vive en `docs/coordinacion/PROJECT_STATUS.json`, `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json`; se valida tambien con `pnpm run check:governance`.
 - Para crear, modificar o usar skills del repositorio, leer `docs/SKILLS_POSEIDON.md` y ejecutar `pnpm run check:skills`.
 - Registrar cada delegacion terminada en `docs/REGISTRO_DELEGACIONES_AGENTES.md` usando la plantilla canonica, sin inventar duracion ni consumo.
 - No crear un perfil permanente nuevo sin tres delegaciones utiles documentadas de la misma especialidad y autorizacion explicita del usuario.
 - Poseidon Central es el unico responsable de integrar resultados en `main`, validar transversalmente, resolver contradicciones y cerrar el commit de integracion. Un chat permanente de rol puede commitear solo en su rama/worktree aislado.
+- Las ordenes formales se usan para trabajo delegado, paralelo o con propiedad temporal de archivos. No se exige una orden adicional para un cambio local simple que Central reciba como instruccion literal del usuario.
 
 ## Chats permanentes por rol
 
 - La fuente canonica es `docs/coordinacion/README.md`; la propiedad verificable vive en `docs/coordinacion/WORKSTREAMS.json`.
+- Central actualiza `PROJECT_STATUS.json` al cambiar una orden, integracion, fase o riesgo material; decisiones, migraciones y capacidades se registran en sus indices JSON antes de cerrar el bloque.
 - Los chats permanentes son Poseidon Central, Poseidon Cajero, Poseidon Encargado y Poseidon Administrador.
 - Cada chat de rol es propietario de su experiencia, no de todos los dominios que consume.
 - Cada chat de escritura usa rama y worktree propios; no se trabaja en paralelo sobre el mismo checkout.

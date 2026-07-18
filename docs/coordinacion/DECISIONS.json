@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "decisions": [
+    {
+      "id": "DEC-2026-001",
+      "title": "Coordinacion mediante Central y chats permanentes por rol",
+      "status": "APPROVED",
+      "date": "2026-07-16",
+      "document": "docs/coordinacion/decisiones/DEC-2026-001-chats-por-rol.md",
+      "scope": "Coordinacion, propiedad de rutas e integracion Git"
+    },
+    {
+      "id": "DEC-2026-002",
+      "title": "Separacion financiera entre Caja, Principal y Socios",
+      "status": "APPROVED",
+      "date": "2026-07-17",
+      "document": "docs/coordinacion/decisiones/DEC-2026-002-tesoreria-caja-principal-socios.md",
+      "scope": "Tesoreria, caja, cuentas corrientes y resultado economico"
+    },
+    {
+      "id": "DEC-2026-003",
+      "title": "Adopcion de gobierno operativo SOPM-Lite",
+      "status": "APPROVED",
+      "date": "2026-07-18",
+      "document": "docs/coordinacion/decisiones/DEC-2026-003-sopm-lite.md",
+      "scope": "Ordenes, entregas, estado, migraciones, capacidades y validacion"
+    }
+  ]
+}
