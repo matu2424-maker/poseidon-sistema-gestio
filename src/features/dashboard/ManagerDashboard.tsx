@@ -1,17 +1,32 @@
-import { InfoCard } from "../../components/ui";
-import { totalsForBalance } from "../../lib/cashTotals";
-import { companyLiquidity, localAccountBalances, principalAccountBalances } from "../../lib/currentAccounts";
-import { today } from "../../lib/dates";
 import {
-  balanceHasDifference,
-  bankDifferenceForBalance,
-  cashDifferenceForBalance,
-  differenceIsPending,
-} from "../../lib/differences";
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  ContactRound,
+  ReceiptText,
+  ShieldCheck,
+  UsersRound,
+  WalletCards,
+} from "lucide-react";
 import { balanceVisibleId } from "../../lib/display";
+import { managerDashboardSummary } from "../../lib/managerDashboardSummary";
 import { money } from "../../lib/money";
-import { salarySettlementAmount } from "../../lib/salaryRules";
 import type { AppData, Balance, Local, Screen } from "../../types";
+import { ManagerActivityTable } from "./ManagerActivityTable";
+
+function MetricDetails({ rows }: { rows: Array<{ label: string; value: string }> }) {
+  return (
+    <span className="manager-summary-details">
+      {rows.map((row) => (
+        <span key={row.label}>
+          <span>{row.label}</span>
+          <strong>{row.value}</strong>
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export function ManagerDashboard({
   data,
@@ -24,181 +39,181 @@ export function ManagerDashboard({
   openBalance: Balance | undefined;
   setScreen: (screen: Screen) => void;
 }) {
-  const localClosedBalances = data.balances
-    .filter((balance) => balance.localId === local.id && balance.status === "CERRADO")
-    .sort((a, b) => String(b.closedAt ?? b.operatingDate).localeCompare(String(a.closedAt ?? a.operatingDate)));
-  const localDifferenceBalances = localClosedBalances.filter((balance) => balanceHasDifference(data, balance));
-  const localPendingDifferences = localDifferenceBalances.filter(differenceIsPending).length;
-  const localCashDifferenceTotal = localDifferenceBalances.reduce(
-    (total, balance) => total + cashDifferenceForBalance(data, balance),
-    0,
-  );
-  const localBankDifferenceTotal = localDifferenceBalances.reduce(
-    (total, balance) => total + bankDifferenceForBalance(balance),
-    0,
-  );
-  const localBalances = localAccountBalances(data, local.id);
-  const principalBalances = principalAccountBalances(data);
-  const liquidity = companyLiquidity(data, local.id);
-  const currentDate = today();
-  const currentMonthStart = `${currentDate.slice(0, 7)}-01`;
-  const currentMonthName = new Date(`${currentMonthStart}T00:00:00`).toLocaleDateString("es-UY", {
-    month: "long",
-    year: "numeric",
-  });
-  const monthlyClosedBalances = localClosedBalances.filter((balance) => {
-    const balanceDate = balance.closedAt?.slice(0, 10) ?? balance.operatingDate;
-    return balanceDate >= currentMonthStart && balanceDate <= currentDate;
-  });
-  const monthlyMachineResult = monthlyClosedBalances.reduce(
-    (total, balance) => total + totalsForBalance(data, balance.id).resultMachines,
-    0,
-  );
-  const isCurrentMonth = (createdAt: string) =>
-    createdAt.slice(0, 10) >= currentMonthStart && createdAt.slice(0, 10) <= currentDate;
-  const monthlyExpenses = data.expenses
-    .filter((expense) => expense.localId === local.id && expense.status === "ACTIVO" && isCurrentMonth(expense.createdAt))
-    .reduce((total, expense) => total + expense.amount, 0);
-  const monthlySalaries = data.salarySettlements
-    .filter(
-      (settlement) =>
-        settlement.localId === local.id &&
-        settlement.status !== "ANULADA" &&
-        settlement.period === currentDate.slice(0, 7),
-    )
-    .reduce((total, settlement) => total + salarySettlementAmount(settlement), 0);
-  const monthlyGifts = data.gifts
-    .filter((gift) => gift.status === "ACTIVO" && isCurrentMonth(gift.createdAt))
-    .filter((gift) => data.balances.find((balance) => balance.id === gift.balanceId)?.localId === local.id)
-    .reduce((total, gift) => total + gift.cashAmount + gift.creditAmount, 0);
-  const monthlyEconomicTotals = {
-    income: Math.max(monthlyMachineResult, 0),
-    outcome: Math.max(-monthlyMachineResult, 0) + monthlyExpenses + monthlySalaries + monthlyGifts,
-  };
-  const monthlyNetResult = monthlyEconomicTotals.income - monthlyEconomicTotals.outcome;
+  const summary = managerDashboardSummary(data, local.id);
+  const negativeAccounts = [
+    { label: "Caja / Efectivo", value: summary.balances.caja.cash },
+    { label: "Caja / Banco", value: summary.balances.caja.bank },
+    { label: "Principal / Efectivo", value: summary.balances.principal.cash },
+    { label: "Principal / Banco", value: summary.balances.principal.bank },
+  ].filter((account) => account.value < 0);
+  const hasAttention = summary.differences.pending > 0 || negativeAccounts.length > 0;
+  const openedBy = openBalance ? data.users.find((user) => user.id === openBalance.openedBy)?.name ?? openBalance.openedBy : "";
 
   return (
     <section className="manager-dashboard manager-dashboard-minimal">
+      <section className={`manager-attention ${hasAttention ? "is-alert" : "is-ok"}`} role="status">
+        {hasAttention ? <AlertTriangle size={19} aria-hidden="true" /> : <CheckCircle2 size={19} aria-hidden="true" />}
+        <div>
+          <strong>{hasAttention ? "Requiere atencion" : "Control financiero al dia"}</strong>
+          <span>
+            {summary.differences.pending > 0 && `${summary.differences.pending} diferencia${summary.differences.pending === 1 ? "" : "s"} pendiente${summary.differences.pending === 1 ? "" : "s"}. `}
+            {negativeAccounts.length > 0
+              ? `${negativeAccounts.map((account) => `${account.label} ${money(account.value)}`).join("; ")}.`
+              : summary.differences.pending === 0
+                ? "Sin diferencias pendientes ni saldos monetarios negativos."
+                : ""}
+          </span>
+        </div>
+      </section>
+
       <section className="manager-overview-section" aria-labelledby="manager-financial-title">
         <div className="manager-section-heading">
           <h2 id="manager-financial-title">Control financiero</h2>
         </div>
-        <div className="manager-metric-strip">
-          <InfoCard
-            tone={localPendingDifferences > 0 ? "red" : "green"}
-            title="Diferencias"
-            variant="cash"
-            lines={[
-              `*Pendientes: ${localPendingDifferences}`,
-              `Total con diferencia: ${localDifferenceBalances.length}`,
-              `Efectivo: ${money(localCashDifferenceTotal)}`,
-              `Banco: ${money(localBankDifferenceTotal)}`,
-            ]}
-          />
-          <InfoCard
-            tone={localBalances.cash < 0 ? "red" : "green"}
-            title="Caja / Efectivo"
-            variant="cash"
-            lines={[`*Saldo actual: ${money(localBalances.cash)}`, "Fondos operativos del local"]}
-          />
-          <InfoCard
-            tone={localBalances.bank < 0 ? "red" : "blue"}
-            title="Caja / Banco"
-            variant="cash"
-            lines={[`*Saldo actual: ${money(localBalances.bank)}`, "Fondos bancarios del local"]}
-          />
-          <InfoCard
-            tone={principalBalances.cash < 0 ? "red" : "green"}
-            title="Principal / Efectivo"
-            variant="cash"
-            lines={[`*Saldo actual: ${money(principalBalances.cash)}`, "Pagos y fondos centrales"]}
-          />
-          <InfoCard
-            tone={principalBalances.bank < 0 ? "red" : "blue"}
-            title="Principal / Banco"
-            variant="cash"
-            lines={[`*Saldo actual: ${money(principalBalances.bank)}`, `Liquidez total: ${money(liquidity.total)}`]}
-          />
+        <div className="manager-summary-surface">
+          <button
+            className={`manager-summary-item ${summary.differences.pending > 0 ? "is-alert" : "is-ok"}`}
+            type="button"
+            onClick={() => setScreen("differences")}
+            aria-label="Ver diferencias"
+          >
+            <span className="manager-summary-label">Diferencias</span>
+            <strong className="manager-summary-value">
+              {summary.differences.pending > 0 ? `${summary.differences.pending} pendiente${summary.differences.pending === 1 ? "" : "s"}` : "Sin pendientes"}
+            </strong>
+            <MetricDetails
+              rows={[
+                { label: "Efectivo", value: money(summary.differences.cash) },
+                { label: "Banco", value: money(summary.differences.bank) },
+                { label: "Historicas", value: String(summary.differences.total) },
+              ]}
+            />
+            <ArrowRight className="manager-summary-arrow" size={17} aria-hidden="true" />
+          </button>
+
+          <button
+            className="manager-summary-item"
+            type="button"
+            onClick={() => setScreen("admin-current-accounts")}
+            aria-label="Abrir cuentas corrientes de efectivo"
+          >
+            <span className="manager-summary-label">Efectivo</span>
+            <strong className="manager-summary-value">{money(summary.balances.liquidity.cash)}</strong>
+            <MetricDetails
+              rows={[
+                { label: "Caja", value: money(summary.balances.caja.cash) },
+                { label: "Principal", value: money(summary.balances.principal.cash) },
+              ]}
+            />
+            <ArrowRight className="manager-summary-arrow" size={17} aria-hidden="true" />
+          </button>
+
+          <button
+            className="manager-summary-item"
+            type="button"
+            onClick={() => setScreen("admin-current-accounts")}
+            aria-label="Abrir cuentas corrientes de banco"
+          >
+            <span className="manager-summary-label">Banco</span>
+            <strong className="manager-summary-value">{money(summary.balances.liquidity.bank)}</strong>
+            <MetricDetails
+              rows={[
+                { label: "Caja", value: money(summary.balances.caja.bank) },
+                { label: "Principal", value: money(summary.balances.principal.bank) },
+              ]}
+            />
+            <ArrowRight className="manager-summary-arrow" size={17} aria-hidden="true" />
+          </button>
         </div>
       </section>
 
       <section className="manager-overview-section" aria-labelledby="manager-economic-title">
-        <div className="manager-section-heading">
-          <h2 id="manager-economic-title">Resultado economico de {currentMonthName}</h2>
+        <div className="manager-section-heading manager-section-heading-action">
+          <div>
+            <h2 id="manager-economic-title">Resultado economico de {summary.currentMonthName}</h2>
+            <span>Hasta {summary.currentDate} - {summary.economic.closedBalances} cajas cerradas</span>
+          </div>
+          <button className="button muted compact" type="button" onClick={() => setScreen("periodic")}>
+            Ver cierre periodico
+          </button>
         </div>
-        <div className="manager-metric-strip">
-          <InfoCard
-            tone="green"
-            title="Ingresos"
-            variant="cash"
-            lines={[
-              `*Total: ${money(monthlyEconomicTotals.income)}`,
-              `Hasta hoy: ${currentDate}`,
-              `Cajas cerradas: ${monthlyClosedBalances.length}`,
-            ]}
-          />
-          <InfoCard
-            tone="red"
-            title="Salidas"
-            variant="cash"
-            lines={[
-              `*Total: ${money(monthlyEconomicTotals.outcome)}`,
-              "Incluye gastos, salarios, regalos",
-              "y resultado negativo de maquinas",
-            ]}
-          />
-          <InfoCard
-            tone={monthlyNetResult < 0 ? "red" : "green"}
-            title="Resultado neto"
-            variant="cash"
-            lines={[
-              `*Total: ${money(monthlyNetResult)}`,
-              `Ingresos: ${money(monthlyEconomicTotals.income)}`,
-              `Salidas: ${money(monthlyEconomicTotals.outcome)}`,
-              "Resultado economico mensual",
-            ]}
-          />
+        <div className="manager-economic-surface">
+          <div className="manager-economic-totals">
+            <div>
+              <span>Ingresos</span>
+              <strong className="amount-positive">{money(summary.economic.income)}</strong>
+            </div>
+            <div>
+              <span>Salidas</span>
+              <strong className="amount-negative">{money(summary.economic.outcome)}</strong>
+            </div>
+            <div>
+              <span>Resultado neto</span>
+              <strong className={summary.economic.net < 0 ? "amount-negative" : "amount-positive"}>{money(summary.economic.net)}</strong>
+            </div>
+          </div>
+          <dl className="manager-economic-breakdown">
+            <div>
+              <dt>Resultado de maquinas</dt>
+              <dd className={summary.economic.machineResult < 0 ? "amount-negative" : "amount-positive"}>{money(summary.economic.machineResult)}</dd>
+            </div>
+            <div><dt>Gastos</dt><dd>{money(summary.economic.expenses)}</dd></div>
+            <div><dt>Salarios</dt><dd>{money(summary.economic.salaries)}</dd></div>
+            <div><dt>Regalos</dt><dd>{money(summary.economic.gifts)}</dd></div>
+          </dl>
         </div>
       </section>
 
-      <section className="manager-operation-section" aria-labelledby="manager-operation-title">
-        <div className="manager-section-heading manager-operation-heading">
-          <div>
-            <h2 id="manager-operation-title">Operacion financiera</h2>
-            <p className="helper">
-              {openBalance
-                ? `${balanceVisibleId(data, openBalance)} · ${openBalance.operatingDate} · Efectivo disponible ${money(localBalances.cash)}`
-                : "No hay una caja abierta en Poseidon. Principal sigue disponible para pagos autorizados."}
-            </p>
-          </div>
+      <section className="manager-cash-context" aria-label="Contexto de recaudacion">
+        <div>
+          <span>{openBalance ? "Recaudacion activa" : "Sin recaudacion activa"}</span>
+          <strong>
+            {openBalance
+              ? `${balanceVisibleId(data, openBalance)} - ${openBalance.operatingDate}`
+              : "Operacion administrativa sobre Principal"}
+          </strong>
+          <small>{openBalance ? `Apertura por ${openedBy}` : "Caja disponible para una nueva apertura"}</small>
         </div>
-        <nav className="manager-shortcuts manager-operation-shortcuts" aria-label="Movimientos de la caja activa">
+        <button className="button muted compact" type="button" onClick={() => setScreen("cashier-summary")}>
+          Ver resumen de cajas
+        </button>
+      </section>
+
+      <section className="manager-overview-section" aria-labelledby="manager-actions-title">
+        <div className="manager-section-heading">
+          <h2 id="manager-actions-title">Accesos de gestion</h2>
+        </div>
+        <nav className="manager-shortcuts" aria-label="Accesos de gestion del encargado">
           <button className="button primary compact" type="button" onClick={() => setScreen("manager-expenses")}>
-            Gastos desde Principal
+            <ReceiptText size={17} aria-hidden="true" /> Control de gastos
           </button>
-          <button className="button primary compact" type="button" onClick={() => setScreen("admin-current-accounts")}>
-            Mover Caja / Principal
+          <button className="button primary compact" type="button" onClick={() => setScreen("admin-salary-settlements")}>
+            <WalletCards size={17} aria-hidden="true" /> Salarios
+          </button>
+          <button className="button primary compact" type="button" onClick={() => setScreen("admin-clients")}>
+            <UsersRound size={17} aria-hidden="true" /> Clientes
+          </button>
+          <button className="button primary compact" type="button" onClick={() => setScreen("admin-staff")}>
+            <ContactRound size={17} aria-hidden="true" /> Personal
+          </button>
+          <button className="button primary compact" type="button" onClick={() => setScreen("reports")}>
+            <BarChart3 size={17} aria-hidden="true" /> Reportes
+          </button>
+          <button className="button primary compact" type="button" onClick={() => setScreen("audit")}>
+            <ShieldCheck size={17} aria-hidden="true" /> Auditoria
           </button>
         </nav>
       </section>
 
-      <nav className="manager-shortcuts" aria-label="Accesos de revision del encargado">
-        <button className="button primary compact" type="button" onClick={() => setScreen("differences")}>
-          Ver diferencias
-        </button>
-        <button className="button primary compact" type="button" onClick={() => setScreen("admin-current-accounts")}>
-          Cuentas corrientes
-        </button>
-        <button className="button primary compact" type="button" onClick={() => setScreen("manager-expenses")}>
-          Control de gastos
-        </button>
-        <button className="button primary compact" type="button" onClick={() => setScreen("admin-salary-settlements")}>
-          Salarios
-        </button>
-        <button className="button primary compact" type="button" onClick={() => setScreen("cashier-summary")}>
-          Resumen de cajas
-        </button>
-      </nav>
+      <section className="manager-overview-section" aria-labelledby="manager-activity-title">
+        <div className="manager-section-heading manager-section-heading-action">
+          <div>
+            <h2 id="manager-activity-title">Actividad financiera reciente</h2>
+            <span>Ultimos movimientos monetarios del local</span>
+          </div>
+        </div>
+        <ManagerActivityTable rows={summary.recentActivity} />
+      </section>
     </section>
   );
 }

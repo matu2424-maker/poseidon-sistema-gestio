@@ -78,7 +78,7 @@ pnpm run check:commit
 - Pantallas principales viven en `src/features/`.
 - Reglas compartidas viven en `src/lib/`.
 - React Router conserva una URL por modulo; la sesion local de pestaña guarda solo usuario y funcion activa.
-- Pruebas actuales: 183 casos unitarios/de integracion en 35 archivos, mas 12 casos E2E en 7 archivos.
+- Pruebas actuales: 186 casos unitarios/de integracion en 36 archivos, mas 14 casos E2E en 8 archivos.
 - Tres perfiles Codex read-only viven en `.codex/agents/`; `check:agents` valida su contrato.
 - Los chats permanentes por rol y su propiedad viven en `docs/coordinacion/`; `check:workstreams` valida el contrato.
 - Cuatro skills versionadas viven en `.agents/skills/`; `check:skills` valida sus contratos.

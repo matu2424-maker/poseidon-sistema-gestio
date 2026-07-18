@@ -209,12 +209,16 @@ Conservar selector mensual, accion `Detalle`, tablas ordenables y carga dentro d
 
 ### Panel del encargado
 
-Estado: primera base visual implementada.
+Estado: rediseno compacto implementado.
 
 - La cabecera permanece unica y el cambio a Cajero conserva su ubicacion en el shell.
 - `Control financiero` agrupa diferencias, efectivo y banco en una superficie compacta de tres celdas.
 - `Resultado economico` agrupa ingresos, salidas y resultado neto del mes sin repetir el periodo en cada celda.
-- Las metricas son informativas y no duplican acciones; los destinos frecuentes viven en una unica fila de botones con tamano estable.
+- Las celdas de control financiero son accionables y las metricas economicas son pasivas; su jerarquia visual debe diferenciarlas.
+- Diferencias, Cuentas y Resumen de cajas se abren desde su contexto. Los restantes destinos frecuentes viven en una unica grilla de botones de tamano estable.
+- Una alerta compacta concentra excepciones; no se crean tarjetas adicionales para cada problema.
+- La recaudacion activa se presenta como contexto, no como una segunda cabecera ni como una operacion del Encargado.
+- La actividad reciente usa tabla densa, seis columnas ordenables y desplazamiento contenido en movil.
 - Titulos, etiquetas e importes usan una escala liviana: los valores principales conservan prioridad sin poner en negrita todo el contenido.
 - El contenido de escritorio se centra dentro de un ancho maximo para evitar bandas excesivamente extendidas en pantallas grandes.
 - En movil las bandas se convierten en una columna y separan sus celdas con lineas.

@@ -10,13 +10,14 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Persistencia local mediante `AppDataRepository` y `localStorage`.
 - Clave compatible: `poseidon-sistema-gestion-v2`.
 - Snapshot actual: esquema `5`.
-- Login local por seleccion de usuario; sesion de pestaña en `sessionStorage`.
+- Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
 - Sin Auth, base remota, storage real ni despliegue.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
-- Validacion vigente: 183 pruebas unitarias/de integracion en 35 archivos, mas E2E.
+- Validacion vigente: 186 pruebas unitarias/de integracion en 36 archivos y 14 casos E2E en 8 archivos.
+- Panel del Encargado: resumen puro, control financiero compacto, resultado mensual, recaudacion activa, accesos unicos y actividad reciente ordenable.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.
 

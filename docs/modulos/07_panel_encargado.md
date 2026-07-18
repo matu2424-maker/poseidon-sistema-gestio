@@ -2,6 +2,10 @@
 
 Panel: `src/features/dashboard/ManagerDashboard.tsx`.
 
+Resumen financiero: `src/lib/managerDashboardSummary.ts`.
+
+Tabla de actividad: `src/features/dashboard/ManagerActivityTable.tsx`.
+
 Layout y cambio de funcion: `src/features/layout/AppShell.tsx`.
 
 ## Objetivo
@@ -10,11 +14,24 @@ Dar al Encargado control financiero y operativo del local asignado sin mezclar s
 
 ## Informacion principal
 
-- Diferencias pendientes.
-- Saldos de `Caja / Efectivo` y `Caja / Banco`.
-- Saldos de `Principal / Efectivo` y `Principal / Banco`.
-- Liquidez total por medio.
-- Ingreso, salida y resultado economico del mes actual hasta hoy.
+- Una alerta superior concentra diferencias pendientes y cuentas monetarias negativas.
+- `Control financiero` muestra diferencias y liquidez por medio en tres celdas accionables.
+- Efectivo y Banco desglosan los saldos de Caja y Principal sin mezclarlos.
+- `Resultado economico` muestra ingreso, salida y resultado neto del mes actual hasta hoy.
+- El desglose economico separa maquinas, gastos, salarios y regalos.
+- El contexto de recaudacion identifica la caja abierta, fecha y usuario de apertura; sin caja aclara que la operacion administrativa usa Principal.
+- `Actividad financiera reciente` muestra los ultimos cinco movimientos monetarios del local.
+
+## Calculo y trazabilidad
+
+- `managerDashboardSummary` reutiliza los totales, cuentas y diferencias canonicos; el componente no replica formulas contables.
+- Los ingresos economicos son el resultado positivo de maquinas.
+- Las salidas economicas son resultado negativo de maquinas, gastos, salarios y regalos.
+- El resultado neto conserva la regla `maquinas - gastos - salarios - regalos`.
+- La liquidez es informativa: suma Caja y Principal por cada medio, sin crear movimientos.
+- La actividad reciente solo lee movimientos activos de cuentas monetarias vinculadas al local.
+- Cada fila conserva fecha, accion, cuenta, monto con signo, usuario y detalle; incluye la recaudacion cuando existe `balanceId`.
+- Todas las columnas visibles de la actividad son ordenables.
 
 ## Funciones administrativas
 
@@ -28,6 +45,8 @@ Dar al Encargado control financiero y operativo del local asignado sin mezclar s
 - Cerrar periodos y revisar reportes.
 - Gestionar personal, salarios y clientes.
 - Consultar auditoria del local asignado.
+
+El panel ofrece una sola entrada visible por destino frecuente. Diferencias, Cuentas corrientes y Resumen de cajas se abren desde su contexto; los accesos rapidos quedan reservados para Gastos, Salarios, Clientes, Personal, Reportes y Auditoria.
 
 ## Separacion con Cajero
 
@@ -65,5 +84,7 @@ Es la pantalla central de tesoreria:
 
 - No repetir el titulo de la barra superior.
 - Metricas compactas con tipografia moderada.
-- Accesos rapidos alineados y de tamaño estable.
+- Diferenciar celdas accionables de indicadores economicos pasivos.
+- Accesos rapidos alineados, unicos y de tamano estable.
 - Tablas densas; todas las columnas visibles de datos ordenan.
+- En movil, las superficies se apilan y la tabla conserva su propio desplazamiento horizontal sin desbordar la pagina.

@@ -142,6 +142,7 @@ src/
 | `balanceReferences.ts` | Recaudacion asociada por `balanceId` |
 | `sorting.ts` | Ordenamiento compartido e indicador accesible `aria-sort` |
 | `managerCashActivity.ts` | Reconstruccion de intervenciones del Encargado por `balanceId`, estado vigente e impacto informativo por cuenta |
+| `managerDashboardSummary.ts` | Resumen puro del Panel del encargado: diferencias, liquidez Caja/Principal, resultado mensual y actividad monetaria reciente |
 | `clients.ts`, `people.ts` | Reglas de clientes y personal |
 | `files.ts`, `export.ts` | Metadata local y exportaciones |
 | `machineHistory.ts` | Eventos de historial de maquinas |
@@ -176,6 +177,7 @@ src/
 - `components/MonthlyPeriodSelector.tsx`: selector mensual comun.
 - `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
 - `features/cashier/ManagerCashActivity.tsx`: detalle ordenable de intervenciones del Encargado consumido por el cierre, sin escritura contable.
+- `features/dashboard/ManagerActivityTable.tsx`: tabla ordenable de los movimientos monetarios recientes del Panel del encargado.
 - `features/clients/clientTable.ts`: orden y estados compartidos de clientes.
 
 ## Dependencias criticas

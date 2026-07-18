@@ -22,7 +22,7 @@ No modificar archivos sin orden literal u objetivo activo. No publicar, hacer pu
 - Snapshot esquema `5`, clave `poseidon-sistema-gestion-v2`.
 - Login de prueba por usuario, sin contraseña.
 - Local operativo actual: Poseidon.
-- 183 pruebas unitarias/de integracion en 35 archivos, mas E2E.
+- 186 pruebas unitarias/de integracion en 36 archivos, mas 14 casos E2E en 8 archivos.
 - Servidor oficial: `iniciar-poseidon.bat`, URL `http://127.0.0.1:5173/`.
 
 ## Gobierno operativo

@@ -5,6 +5,8 @@ Leer junto con `docs/REGLAS_CONTABLES.md`, `docs/modulos/07_panel_encargado.md`,
 ## Propiedad
 
 - Panel: `src/features/dashboard/ManagerDashboard.tsx`.
+- Resumen puro: `src/lib/managerDashboardSummary.ts`.
+- Actividad reciente: `src/features/dashboard/ManagerActivityTable.tsx`.
 - Layout/menu: `src/features/layout/AppShell.tsx`.
 - Gastos: `src/features/manager/Expenses.tsx`.
 - Cuentas/Tesoreria: `src/features/accounts/CurrentAccounts.tsx`.
@@ -34,17 +36,23 @@ Leer junto con `docs/REGLAS_CONTABLES.md`, `docs/modulos/07_panel_encargado.md`,
 ## Interfaz
 
 - No repetir titulos de la barra superior.
-- Mostrar Caja, Principal y liquidez por medio.
+- Mostrar alerta, Caja, Principal y liquidez por medio sin ocultar saldos negativos.
+- Separar control financiero accionable de resultado economico mensual pasivo.
+- Mostrar una sola entrada por destino: evitar accesos duplicados.
+- Identificar la recaudacion activa y su apertura sin convertirla en operacion de Cajero.
+- Mostrar los cinco movimientos monetarios mas recientes del local.
 - Todas las columnas visibles de datos ordenan.
 - Los errores se muestran dentro del modal/pantalla donde ocurren.
 
 ## Prueba minima
 
 1. Entrar como `encargado`.
-2. Ver Caja, Principal y resultado mensual del local.
-3. Registrar un gasto desde Principal y comprobar que Caja no cambia.
-4. Registrar una liquidacion desde Principal.
-5. Hacer un traspaso Caja/Principal.
-6. Registrar aporte y retiro real de socio.
-7. Revisar cuentas, auditoria y cierre periodico.
-8. Cambiar a Cajero y comprobar que la identidad real se conserva.
+2. Ver alerta, Caja, Principal y resultado mensual del local.
+3. Abrir Diferencias, Cuentas y Resumen desde sus celdas contextuales.
+4. Ordenar cada columna de Actividad financiera reciente.
+5. Registrar un gasto desde Principal y comprobar que Caja no cambia.
+6. Registrar una liquidacion desde Principal.
+7. Hacer un traspaso Caja/Principal.
+8. Registrar aporte y retiro real de socio.
+9. Revisar cuentas, auditoria y cierre periodico.
+10. Cambiar a Cajero y comprobar que la identidad real se conserva.

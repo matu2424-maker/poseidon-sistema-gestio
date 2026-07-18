@@ -89,8 +89,8 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-18
 
-- 35 archivos de pruebas y 183 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, rutas, snapshot y conflictos de escritura.
-- La suite E2E en 7 archivos aprobo 12 de 12 casos: caja, fondos Principal -> Caja, desacople caja/libro, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
+- 36 archivos de pruebas y 186 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
+- La suite E2E en 8 archivos aprobo 14 de 14 casos: caja, fondos Principal -> Caja, desacople caja/libro, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.

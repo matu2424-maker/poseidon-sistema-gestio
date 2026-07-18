@@ -380,12 +380,14 @@ Cuentas corrientes tambien es la entrada administrativa para:
 
 ### Panel Encargado
 
-- Diferencias pendientes.
-- Caja/Efectivo y Caja/Banco.
-- Principal/Efectivo y Principal/Banco.
-- Liquidez por medio.
-- Ingreso, salida y resultado del mes.
-- Accesos a diferencias, cuentas, gastos, salarios y recaudaciones.
+- Alerta unica para diferencias pendientes y cuentas monetarias negativas.
+- Control financiero en tres celdas: Diferencias, Efectivo y Banco.
+- Efectivo/Banco muestran liquidez total y desglose Caja/Principal.
+- Resultado del mes con ingresos, salidas, neto y desglose de maquinas, gastos, salarios y regalos.
+- Contexto de recaudacion activa con ID, fecha y usuario de apertura.
+- Accesos unicos a gastos, salarios, clientes, personal, reportes y auditoria.
+- Actividad financiera con los cinco movimientos monetarios mas recientes y todas sus columnas ordenables.
+- Los calculos se concentran en `managerDashboardSummary`; el panel no modifica cuentas ni replica formulas.
 
 ### Panel Administrador
 

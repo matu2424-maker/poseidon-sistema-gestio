@@ -24,7 +24,7 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Reinicio operativo local con respaldo automatico, maestros conservados, cuentas/contadores en cero y auditoria nueva.
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
-- Validacion automatizada vigente: 183 pruebas unitarias/de integracion en 35 archivos, ademas de la suite E2E.
+- Validacion automatizada vigente: 186 pruebas unitarias/de integracion en 36 archivos y 14 casos E2E en 8 archivos.
 
 ## Modelo financiero vigente
 

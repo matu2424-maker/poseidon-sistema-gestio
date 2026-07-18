@@ -55,7 +55,7 @@ Hallazgos adoptados como criterio de diseno:
 - mantener cabecera como unica propietaria de titulo/local/usuario/funcion;
 - resolver explicitamente la navegacion movil antes de redisenar el panel.
 
-Resultado: patron y riesgos documentados. No se modifico el Panel del encargado.
+Resultado: diagnostico adoptado e implementado en el rediseno compacto del Panel del encargado. La implementacion separa control financiero accionable, resultado mensual pasivo, contexto de recaudacion, accesos unicos y actividad reciente ordenable.
 
 ## Evaluacion conjunta
 
@@ -73,8 +73,8 @@ Las tres revisiones cubren una misma especialidad estable: jerarquia, densidad, 
 
 - `poseidon_ui_reviewer` pasa a ser custodio de diseno en modos `PROPUESTA` y `VERIFICACION`.
 - `docs/SISTEMA_VISUAL_POSEIDON.md` contiene los patrones; el TOML no duplica todo el conocimiento.
-- Diferencias es la unica referencia visual aprobada para replicar como patron en esta etapa.
-- Salarios y Encargado son revisiones de diagnostico, no disenos aprobados.
+- Diferencias y Panel del encargado son referencias implementadas para superficies compactas, jerarquia y responsive.
+- Salarios permanece como revision de diagnostico; su rediseno requiere un bloque funcional autorizado.
 - El agente principal y los workers conservan la implementacion.
 
 ## Proxima medicion

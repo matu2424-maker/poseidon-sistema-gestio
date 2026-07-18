@@ -9,18 +9,17 @@ Ultima actualizacion: 2026-07-18
 - Sin Supabase, Auth, Storage remoto ni despliegue.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
-- Validacion vigente: 183 pruebas en 35 archivos y 12 casos E2E en 7 archivos.
+- Validacion vigente: 186 pruebas en 36 archivos y 14 casos E2E en 8 archivos.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 
 ## Ultimo bloque tecnico
 
-Se incorporaron dos herramientas controladas de la etapa local:
-
-- `Sistema > Datos locales` crea una base operativa limpia solo para Administrador, descarga respaldo previo, conserva maestros y deja cuentas/contadores en cero con auditoria nueva.
-- `Poseidon Calidad y Pruebas` es un workstream permanente de apoyo con contexto, plantilla, alcances y worktree aislado.
-- Calidad prueba commits exactos y eleva fallos, riesgos o sugerencias; Central contrasta la evidencia y consulta al usuario antes de asignar cambios.
-- No se creo un cuarto rol funcional ni un perfil generico de QA.
-- El gobierno SOPM-Lite registra la decision `DEC-2026-004` y valida cuatro decisiones, dos migraciones y trece capacidades.
+- El Panel del Encargado concentra diferencias, Caja, Principal y liquidez en tres celdas accionables.
+- El resultado mensual separa ingresos, salidas, neto, maquinas, gastos, salarios y regalos sin replicar formulas en React.
+- `src/lib/managerDashboardSummary.ts` centraliza el resumen y cuenta con pruebas unitarias.
+- La recaudacion activa, los accesos unicos y los ultimos cinco movimientos monetarios completan el primer viewport de control.
+- `ManagerActivityTable` permite ordenar sus seis columnas y contiene el desplazamiento horizontal en movil.
+- La cobertura E2E valida navegacion, ausencia de accesos duplicados, escritorio y movil.
 
 ## Ultimo bloque funcional
 

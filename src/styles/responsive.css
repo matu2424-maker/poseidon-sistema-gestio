@@ -90,8 +90,16 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .manager-operation-shortcuts {
+  .manager-economic-breakdown {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .manager-economic-breakdown > div:nth-child(3) {
+    border-left: 0;
+  }
+
+  .manager-economic-breakdown > div:nth-child(n + 3) {
+    border-top: 1px solid #e3e8ed;
   }
 
   .cashier-metric.strong {
@@ -299,13 +307,42 @@
     grid-template-columns: 1fr;
   }
 
-  .manager-metric-strip {
+  .manager-summary-surface,
+  .manager-economic-totals,
+  .manager-economic-breakdown {
     grid-template-columns: 1fr;
   }
 
-  .manager-metric-strip .info-card + .info-card {
+  .manager-summary-item + .manager-summary-item,
+  .manager-economic-totals > div + div,
+  .manager-economic-breakdown > div + div,
+  .manager-economic-breakdown > div:nth-child(3) {
     border-top: 1px solid #e3e8ed;
     border-left: 0;
+  }
+
+  .manager-section-heading-action,
+  .manager-cash-context {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .manager-section-heading-action .button,
+  .manager-cash-context .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .manager-attention {
+    align-items: flex-start;
+  }
+
+  .manager-cash-context > div {
+    grid-template-columns: 1fr;
+  }
+
+  .manager-cash-context small {
+    grid-column: 1;
   }
 
   .admin-header-actions {

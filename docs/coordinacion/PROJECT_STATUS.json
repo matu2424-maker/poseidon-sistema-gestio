@@ -18,8 +18,8 @@
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-18-CEN-02",
-    "title": "Base operativa limpia y workstream permanente de Calidad",
+    "id": "2026-07-18-CEN-03",
+    "title": "Panel del Encargado compacto, trazable y responsive",
     "state": "INTEGRADA",
     "evidence": "El commit que contiene este archivo identifica el estado exacto validado."
   },
