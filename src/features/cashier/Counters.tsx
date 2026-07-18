@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReadingUpdate } from "../../application/cash/saveReading";
 import type { AppData, Balance, Reading, ReadingStatus, User } from "../../types";
 import { counter, formatCounterInput, money, parseCounter } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
@@ -15,8 +16,6 @@ function InfoCard({ title, lines, tone }: { title: string; lines: string[]; tone
 }
 
 type CounterSortKey = "visibleId" | "machine" | "status" | "inPrevious" | "inActual" | "outPrevious" | "outActual" | "result" | "observation";
-type ReadingDraftPatch = Partial<Pick<Reading, "inActual" | "outActual" | "status" | "observation">>;
-type ReadingDraftUpdate = { readingId: string; patch: ReadingDraftPatch };
 type SaveReadingsResult = string | { ok: boolean; error?: string; message?: string } | void;
 
 export function Counters({
@@ -24,15 +23,13 @@ export function Counters({
   user,
   balance,
   onBack,
-  updateReading,
   saveReadings,
 }: {
   data: AppData;
   user: User;
   balance: Balance;
   onBack?: () => void;
-  updateReading?: (id: string, patch: Partial<Reading>) => void;
-  saveReadings?: (updates: ReadingDraftUpdate[]) => SaveReadingsResult;
+  saveReadings: (updates: ReadingUpdate[]) => SaveReadingsResult;
 }) {
   const readings = data.readings.filter((reading) => reading.balanceId === balance.id);
   const [drafts, setDrafts] = useState<Record<string, { status: ReadingStatus; inActual: string; outActual: string; observation: string }>>({});
@@ -84,7 +81,7 @@ export function Counters({
       return;
     }
 
-    const updates = readings.reduce<ReadingDraftUpdate[]>((collection, reading) => {
+    const updates = readings.reduce<ReadingUpdate[]>((collection, reading) => {
       const draft = drafts[reading.id];
       if (!draft) return collection;
       collection.push({
@@ -99,27 +96,16 @@ export function Counters({
       return collection;
     }, []);
 
-    if (saveReadings) {
-      const result = saveReadings(updates);
-      if (typeof result === "string") {
-        setSavedMessage(result || "Contadores guardados.");
-        return;
-      }
-      if (result && !result.ok) {
-        setSavedMessage(result.error || "No se pudieron guardar los contadores.");
-        return;
-      }
-      setSavedMessage(result?.message || "Contadores guardados.");
+    const result = saveReadings(updates);
+    if (typeof result === "string") {
+      setSavedMessage(result || "Contadores guardados.");
       return;
     }
-
-    if (!updateReading) {
-      setSavedMessage("No hay una via de guardado disponible para estos contadores.");
+    if (result && !result.ok) {
+      setSavedMessage(result.error || "No se pudieron guardar los contadores.");
       return;
     }
-
-    updates.forEach((update) => updateReading(update.readingId, update.patch));
-    setSavedMessage("Contadores guardados.");
+    setSavedMessage(result?.message || "Contadores guardados.");
   };
 
   const draftSummary = readings.reduce(

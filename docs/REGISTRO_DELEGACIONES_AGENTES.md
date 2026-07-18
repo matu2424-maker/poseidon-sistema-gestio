@@ -25,6 +25,7 @@ Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica v
 | `2026-07-11-ENC-UI-01` | `poseidon_ui_reviewer` aplicado por explorer integrado | Revisar Panel del encargado | `UTIL` | No medida por perfil | No disponible | Separacion financiera/economica, alcance temporal, jerarquia de acciones, accesos unicos y navegacion movil | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-16-CAJA-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar reconciliacion de caja y migracion de transferencias | `UTIL` | No medida por perfil | No disponible | Causalidad exacta del delta, orden de validacion, bloqueo de salarios/gastos historicos y migracion versionada | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-18-DEMO-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar la carga integral del escenario demo | `NO_UTIL` | No disponible | No disponible | Ninguno: no entrego un resultado util dentro del tiempo de la tarea | BAJA | Interrumpido, cerrado, solo lectura |
+| `2026-07-18-CAJ-02` | Chat permanente `Poseidon Cajero` | Mejorar resiliencia, saldos, cierre y responsive del Panel del Cajero | `UTIL` | No disponible | No disponible | Formularios preservados ante rechazos, disponibilidad visible, anulaciones append-only consumidas, cierre bloqueado con pendientes y resumen movil contenido | BAJA | Orden completada; chat disponible y worktree limpio; escritura controlada |
 
 ## Evaluacion de perfiles nuevos
 

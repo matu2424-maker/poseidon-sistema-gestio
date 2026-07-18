@@ -5,8 +5,7 @@ Leer junto con `docs/contextos/CODEX_NUCLEO_CAJA.md`, `docs/REGLAS_CONTABLES.md`
 ## Propiedad
 
 - UI de Caja: `src/features/cashier/`.
-- Panel real del Cajero: `src/features/layout/AppShell.tsx` mediante `CashierWorkspace`.
-- Compatibilidad legacy del panel: `src/features/dashboard/CashierDashboard.tsx`.
+- Panel real del Cajero: `src/features/cashier/CashierWorkspace.tsx`.
 - Rutas/permisos: `src/navigation/screens.ts`.
 - Comandos compartidos: `src/application/cash/`, `src/application/movements/`, `src/application/treasury/` y `src/application/salaries/`.
 
@@ -28,6 +27,7 @@ El chat Cajero es propietario de su experiencia, no de los contratos contables c
 - No duplicar formulas en React; usar helpers y comandos compartidos.
 - `patchData` en componentes Cajero solo aplica `result.data`; los comandos, mensajes, resets y navegacion ocurren fuera del updater.
 - Contadores IN/OUT no retroceden.
+- La grilla completa de contadores valida primero y se guarda en una sola transaccion; no existe guardado fila por fila desde React.
 - Gastos, regalos y salarios del Cajero salen de Caja/Efectivo.
 - Transferencias mueven Caja/Efectivo a Caja/Banco.
 - Una salida sin fondos se rechaza atomicamente.

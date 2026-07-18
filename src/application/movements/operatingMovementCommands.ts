@@ -167,7 +167,6 @@ export function annulExpenseCommand(
   return commandSuccess(nextData, next);
 }
 
-export const deleteExpenseCommand = annulExpenseCommand;
 
 export type CreateTransferInput = {
   balanceId: string;
@@ -370,7 +369,6 @@ export function annulGiftCommand(
   );
 }
 
-export const deleteGiftCommand = annulGiftCommand;
 
 export type CreateCapitalMovementInput = {
   balanceId: string;

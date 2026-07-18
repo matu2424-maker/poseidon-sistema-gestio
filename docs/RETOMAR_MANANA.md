@@ -9,20 +9,28 @@ Ultima actualizacion: 2026-07-18
 - Sin Supabase, Auth, Storage remoto ni despliegue.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
-- Validacion vigente: 186 pruebas en 36 archivos y 14 casos E2E en 8 archivos.
+- Validacion vigente: 192 pruebas en 38 archivos y 16 casos E2E.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
 
 ## Ultimo bloque tecnico
 
-- El Panel del Encargado concentra diferencias, Caja, Principal y liquidez en tres celdas accionables.
-- El resultado mensual separa ingresos, salidas, neto, maquinas, gastos, salarios y regalos sin replicar formulas en React.
-- `src/lib/managerDashboardSummary.ts` centraliza el resumen y cuenta con pruebas unitarias.
-- La recaudacion activa, los accesos unicos y los ultimos cinco movimientos monetarios completan el primer viewport de control.
-- `ManagerActivityTable` permite ordenar sus seis columnas y contiene el desplazamiento horizontal en movil.
-- La cobertura E2E valida navegacion, ausencia de accesos duplicados, escritorio y movil.
+- El Panel del Cajero real vive en `src/features/cashier/CashierWorkspace.tsx`; no existe una variante legacy paralela.
+- Gastos y regalos se anulan mediante contramovimientos append-only con auditoria; no se borran registros operativos.
+- La grilla de contadores valida todas las filas y persiste en una sola transaccion mediante `saveReadingsCommand`.
+- Los componentes Cajero aplican datos puros dentro de los updaters; mensajes, resets y navegacion se ejecutan fuera.
+- Los formularios rechazados preservan lo ingresado y muestran disponibilidad/contexto para corregir la causa.
+- El resumen de cajas contiene su tabla internamente en movil y no genera overflow horizontal global.
 
 ## Ultimo bloque funcional
+
+La experiencia del Cajero vigente conserva:
+
+- Panel unico sin menu lateral, con accesos operativos condicionados por la caja abierta.
+- Saldos de Caja/Efectivo y Caja/Banco visibles donde una operacion puede ser rechazada por fondos.
+- Cierre bloqueado cuando hay contadores pendientes, efectivo esperado negativo o desalineacion contable.
+- Operaciones del Encargado sobre la caja activa visibles en el control de cierre.
+- Anulaciones visibles con estado propio y ordenamiento por las columnas de datos.
 
 El modelo financiero vigente conserva:
 

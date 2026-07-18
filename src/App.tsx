@@ -27,7 +27,7 @@ import { downloadFile } from "./lib/export";
 import { localDate } from "./lib/dates";
 import { commandContext } from "./application/command";
 import { openCashCommand } from "./application/cash/openCash";
-import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
+import { saveReadingsCommand, type ReadingUpdate } from "./application/cash/saveReading";
 import { loadDemoDataCommand } from "./application/system/loadDemoData";
 import { resetOperationalDataCommand } from "./application/system/resetOperationalData";
 import { canAccessScreen, pathForScreen, screenForPath, screenRequiresOpenCash } from "./navigation/screens";
@@ -356,15 +356,16 @@ function App({
     navigate(pathForScreen("panel"));
   };
 
-  const updateReading = (readingId: string, patch: ReadingPatch) => {
-    if (!user || !effectiveRole || !openBalance) return;
-    const result = saveReadingCommand(data, openBalance.id, readingId, patch, commandContext(user, effectiveRole));
+  const saveReadings = (updates: ReadingUpdate[]) => {
+    if (!user || !effectiveRole || !openBalance) {
+      return { ok: false, error: "No hay una caja abierta para guardar contadores." };
+    }
+    const result = saveReadingsCommand(data, openBalance.id, updates, commandContext(user, effectiveRole));
     if (!result.ok) {
-      setMessage(result.error);
-      return;
+      return { ok: false, error: result.error };
     }
     setData(result.data);
-    setMessage("Contador guardado.");
+    return { ok: true, message: "Contadores guardados." };
   };
 
   if (screen === "welcome") {
@@ -425,7 +426,7 @@ function App({
             user={user}
             balance={openBalance}
             onBack={() => goToScreen("panel")}
-            updateReading={updateReading}
+            saveReadings={saveReadings}
           />
         )}
         {cashierScreen === "expenses" && openBalance && (
@@ -520,7 +521,7 @@ function App({
           data={data}
           user={user}
           balance={openBalance}
-          updateReading={updateReading}
+          saveReadings={saveReadings}
         />
       )}
       {screen === "expenses" && openBalance && (

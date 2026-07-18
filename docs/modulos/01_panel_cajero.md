@@ -7,8 +7,8 @@ Centralizar la operativa diaria del cajero sin barra lateral.
 ## Estado actual
 
 - El layout visual del cajero vive en `src/features/layout/AppShell.tsx`.
-- El panel operativo real del cajero vive en `CashierWorkspace` dentro de `src/features/layout/AppShell.tsx`.
-- `src/features/dashboard/CashierDashboard.tsx` queda como compatibilidad legacy; `RoleDashboard.tsx` solo decide la funcion efectiva.
+- El panel operativo real del cajero vive en `src/features/cashier/CashierWorkspace.tsx`.
+- `RoleDashboard.tsx` queda reservado a la seleccion de los paneles de Encargado y Administrador.
 - El cajero entra a un panel propio.
 - Si no hay caja abierta, solo puede usar Clientes, Resumen cajas y Abrir caja.
 - Si hay caja abierta, ve resumen superior y accesos directos.
