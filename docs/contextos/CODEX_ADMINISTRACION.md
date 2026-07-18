@@ -1,6 +1,6 @@
 # Contexto Codex - Administracion
 
-Ultima actualizacion: 2026-07-09
+Ultima actualizacion: 2026-07-18
 
 Leer este contexto antes de modificar panel administrador, menus administrativos, usuarios, configuraciones, categorias, papelera o funciones de control global. Referencias asociadas:
 
@@ -21,6 +21,8 @@ Leer este contexto antes de modificar panel administrador, menus administrativos
 - Datos demo, reset operativo y normalizacion viven en `src/data/appData.ts`.
 - El reinicio operativo se ejecuta mediante `src/application/system/resetOperationalData.ts`, solo para Administrador en funcion Administrador, desde `Sistema > Datos locales` y con respaldo automatico previo.
 - Conserva maestros y cuentas estructurales, deja contadores/saldos en cero y reemplaza el historial operativo activo por una auditoria nueva; el snapshot anterior queda en el JSON descargado.
+- La carga integral del escenario demo se ejecuta mediante `src/application/system/loadDemoData.ts`, solo para Administrador en funcion Administrador, y reemplaza el snapshot completo sin mezclar registros.
+- `src/features/system/LocalDataMaintenance.tsx` muestra `Cargar datos demo` solo cuando el orquestador entrega el callback opcional `onLoadDemo`; Central conserva el respaldo previo, la reconfirmacion y el cableado del comando compartido.
 - El panel administrativo vive en `src/features/dashboard/AdminDashboard.tsx`; `RoleDashboard.tsx` conserva la seleccion por funcion.
 - Menu y layout base viven en `src/features/layout/AppShell.tsx`.
 - Usuarios y categorias/subcategorias de gastos viven en `src/features/admin/Settings.tsx`.
@@ -37,6 +39,7 @@ Leer este contexto antes de modificar panel administrador, menus administrativos
 - Administrador puede ver y gestionar todo, pero para operar caja debe cambiar a funcion Cajero.
 - No borrar historial operativo: usar baja, papelera, anulacion o ajuste auditado.
 - Cambios sensibles deben guardar fecha/hora, usuario, rol real y funcion usada.
+- La carga demo es exclusiva de pruebas locales, advierte que reemplaza los datos actuales y debe descargar antes un respaldo recuperable.
 - No conectar Supabase, Vercel ni servicios externos sin pedido explicito.
 - Tablas administrativas deben ser compactas, ordenables y preparadas para 1080p.
 

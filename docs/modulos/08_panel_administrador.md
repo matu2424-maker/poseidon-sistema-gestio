@@ -36,7 +36,7 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - Auditoria.
 - Cuentas corrientes.
 - Diferencias.
-- Datos locales: exportacion, importacion y reinicio operativo local con respaldo automatico.
+- Datos locales: exportacion, importacion, carga integral del escenario demo y reinicio operativo local con respaldo automatico.
 
 ## Codigo actual
 
@@ -55,8 +55,9 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - `src/features/reports/Periodic.tsx`: cierres periodicos.
 - `src/features/accounts/CurrentAccounts.tsx`: cuentas corrientes.
 - `src/components/ui.tsx`: componentes compartidos y selector de columnas.
-- `src/features/system/LocalDataMaintenance.tsx`: mantenimiento del snapshot local y acceso al reinicio limpio.
+- `src/features/system/LocalDataMaintenance.tsx`: mantenimiento del snapshot local, acceso al reinicio limpio y accion demo visible solo cuando recibe `onLoadDemo`.
 - `src/application/system/resetOperationalData.ts`: permiso, limpieza determinista y auditoria del reinicio local.
+- `src/application/system/loadDemoData.ts`: permiso, reemplazo determinista por el escenario integral y auditoria de la carga demo.
 
 ## Refactor pendiente
 
@@ -66,3 +67,4 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 
 - Tablas administrativas usan encabezado claro, tipografia compacta y todas sus columnas visibles de datos continuan siendo ordenables.
 - Formularios, modales, filtros y selectores de columnas respetan pesos maximos de `600` y radios de hasta `8px`.
+- La accion `Cargar datos demo` explica que recupera usuarios, maquinas, cajas historicas, diferencias, movimientos y auditoria; tambien advierte que descarga un respaldo y reemplaza la base actual sin mezclarla.

@@ -1,14 +1,16 @@
 import { useState, type ChangeEvent } from "react";
-import { Download, FileUp, RotateCcw } from "lucide-react";
+import { Database, Download, FileUp, RotateCcw } from "lucide-react";
 import { confirmAction } from "../../lib/confirmations";
 
 export function LocalDataMaintenance({
   onExport,
   onImport,
+  onLoadDemo,
   onReset,
 }: {
   onExport: () => void;
   onImport: (raw: string) => Promise<string>;
+  onLoadDemo?: () => void;
   onReset: () => void;
 }) {
   const [selectedFile, setSelectedFile] = useState<File>();
@@ -61,6 +63,20 @@ export function LocalDataMaintenance({
             Validar e importar
           </button>
         </section>
+
+        {onLoadDemo && (
+          <section className="local-data-reset">
+            <div>
+              <h2>Cargar escenario de pruebas</h2>
+              <p>Restaura el conjunto integral de usuarios, maquinas, cajas historicas, diferencias, movimientos y auditoria.</p>
+              <p className="notice">Advertencia: descarga un respaldo y reemplaza los datos actuales sin mezclarlos.</p>
+            </div>
+            <button className="button danger" type="button" onClick={onLoadDemo}>
+              <Database size={17} aria-hidden="true" />
+              Cargar datos demo
+            </button>
+          </section>
+        )}
 
         <section className="local-data-reset">
           <div>
