@@ -33,6 +33,15 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Durante la etapa local de pruebas, un Administrador en funcion Administrador puede crear una base operativa limpia solo desde `Datos locales`. La accion descarga primero un respaldo completo, conserva maestros y reemplaza operaciones, saldos e historial operativo por un unico evento de reinicio auditado.
 - El reinicio limpio es una herramienta destructiva del entorno local, no una operacion de negocio ni una funcion habilitable en produccion.
 
+## Navegador canonico durante la etapa local
+
+- Chrome, usando el perfil habitual del usuario y el origen exacto `http://127.0.0.1:5173/`, es la unica fuente operativa de datos para validaciones manuales.
+- Central y los chats delegados usan el control de Chrome cuando una prueba depende de cajas, cuentas, movimientos o cualquier dato persistido por el usuario.
+- El navegador integrado no se usa para crear, editar, importar ni validar datos operativos y no se compara con Chrome como si ambos compartieran almacenamiento.
+- Si Chrome no esta disponible o no puede controlarse, se informa la limitacion; no se cambia silenciosamente al navegador integrado.
+- Playwright y otras pruebas automatizadas usan contextos aislados, limpian su almacenamiento y cargan datos descartables. Sus resultados validan comportamiento, no el estado operativo de Chrome.
+- Mientras exista `localStorage`, usar otro perfil, navegador u origen crea otra base. `localhost:5173` no sustituye a `127.0.0.1:5173`.
+
 ## Navegacion, roles y permisos
 
 - `src/navigation/screens.ts` es la fuente de rutas, titulos, menus, roles y requisito de caja abierta.

@@ -32,6 +32,14 @@
       "date": "2026-07-18",
       "document": "docs/coordinacion/decisiones/DEC-2026-004-calidad-pruebas.md",
       "scope": "Validacion independiente, sugerencias, propiedad de pruebas e integracion"
+    },
+    {
+      "id": "DEC-2026-005",
+      "title": "Chrome como fuente canonica de datos durante la etapa local",
+      "status": "APPROVED",
+      "date": "2026-07-18",
+      "document": "docs/coordinacion/decisiones/DEC-2026-005-chrome-canonico.md",
+      "scope": "Validacion manual, persistencia local y separacion de datos automatizados"
     }
   ]
 }

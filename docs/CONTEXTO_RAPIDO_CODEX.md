@@ -9,6 +9,8 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - React 19, React Router 8, Vite 6 y TypeScript.
 - Persistencia local mediante `AppDataRepository` y `localStorage`.
 - Clave compatible: `poseidon-sistema-gestion-v2`.
+- Chrome, en el perfil habitual del usuario y `http://127.0.0.1:5173/`, es la unica fuente canonica de datos para validaciones manuales; no sustituirlo silenciosamente por el navegador integrado.
+- Playwright conserva datos aislados y descartables; valida comportamiento, no el estado operativo de Chrome.
 - Snapshot actual: esquema `5`.
 - Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
@@ -16,7 +18,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
-- Validacion vigente: 186 pruebas unitarias/de integracion en 36 archivos y 14 casos E2E en 8 archivos.
+- Validacion vigente: 189 pruebas unitarias/de integracion en 37 archivos y 14 casos E2E en 8 archivos.
 - Panel del Encargado: resumen puro, control financiero compacto, resultado mensual, recaudacion activa, accesos unicos y actividad reciente ordenable.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.

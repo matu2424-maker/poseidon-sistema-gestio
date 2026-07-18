@@ -176,7 +176,7 @@ La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega un
 - Fuente canonica: `docs/coordinacion/README.md`.
 - Completado 2026-07-18: gobierno SOPM-Lite integrado sin prompts gigantes ni estructura paralela.
 - `PROJECT_STATUS.json`, `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json` conservan estado verificable y referencias dirigidas.
-- `pnpm run check:governance` valida 4 decisiones, 2 migraciones, 13 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
+- `pnpm run check:governance` valida 5 decisiones, 2 migraciones, 13 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
 
 ## Skills y control previo al commit
 

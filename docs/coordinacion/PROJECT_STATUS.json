@@ -18,10 +18,10 @@
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-18-ENC-01",
-    "title": "Prioridad de Efectivo en Cuentas corrientes",
+    "id": "2026-07-18-CEN-05",
+    "title": "Chrome como fuente canonica de validacion local",
     "state": "INTEGRADA",
-    "evidence": "Poseidon Encargado entrego 2254295; Central reviso, integro por fast-forward y valido 189 pruebas, build, smoke y navegador."
+    "evidence": "DEC-2026-005, AGENTS, reglas generales, validacion local, contexto rapido, README y skill de localhost actualizados."
   },
   "health": {
     "overall": "YELLOW",

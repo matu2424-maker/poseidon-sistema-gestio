@@ -120,6 +120,8 @@ Abrir:
 http://127.0.0.1:5173/
 ```
 
+Durante la etapa local, abrir y validar siempre en el perfil habitual de Chrome. Ese perfil y ese origen exacto son la unica fuente operativa de datos; el navegador integrado y los perfiles automatizados mantienen copias aisladas y descartables.
+
 Comprobar el entorno sin iniciar otro proceso:
 
 ```text
@@ -212,6 +214,7 @@ src/types.ts                         Contratos de datos
 
 - `localStorage` no es una base multiusuario ni durable.
 - La sincronizacion actual cubre pestanas del mismo navegador, no equipos distintos.
+- Chrome en `http://127.0.0.1:5173/` es la referencia operativa temporal; otros navegadores, perfiles u origenes conservan bases independientes.
 - Los adjuntos no conservan el archivo real.
 - La autorizacion es local y simulada.
 - Multi-local completo, validacion runtime profunda del snapshot, Auth, base remota y storage real quedan pendientes.

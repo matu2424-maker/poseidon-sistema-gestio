@@ -23,7 +23,7 @@ pnpm run check:commit
 
 1. Validacion de 28 controles de agentes Codex.
 2. Validacion de 67 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
-3. Validacion de 37 controles SOPM-Lite: 4 decisiones, 2 migraciones, 13 capacidades, estado y rutas.
+3. Validacion de 38 controles SOPM-Lite: 5 decisiones, 2 migraciones, 13 capacidades, estado y rutas.
 4. Validacion de cuatro skills y sus contratos.
 5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 6. TypeScript sin emitir archivos.
@@ -49,7 +49,20 @@ pnpm run test:e2e
 
 El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http://127.0.0.1:5173/`.
 
+## Chrome como fuente canonica
+
+- Toda validacion manual que lea o modifique datos locales se realiza en el perfil habitual de Chrome del usuario.
+- El origen canonico es exactamente `http://127.0.0.1:5173/`; `localhost`, otro perfil, incognito u otro navegador mantienen almacenamientos independientes.
+- El navegador integrado no se usa para crear, editar, importar ni validar datos operativos.
+- Si Chrome no esta disponible o no puede controlarse, registrar la limitacion y no sustituirlo silenciosamente por otro navegador.
+- Evitar que el usuario y una automatizacion modifiquen simultaneamente el mismo perfil de Chrome.
+- Antes de importar, reiniciar o reemplazar datos del perfil canonico, generar respaldo y solicitar confirmacion.
+
+Esta regla evita confundir copias independientes de `localStorage`; no convierte la persistencia local en una base multiusuario.
+
 La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia la clave local de Poseidon y la sesion de pestaña, y carga el dataset demo. Los casos cubren apertura, tres lecturas, cierre y persistencia; diferencias/auditoria; rutas, permisos y funcion activa; conflicto entre pestañas; y cierre salarial con revision correctiva. Las trazas y capturas se conservan solo cuando falla.
+
+El perfil de Playwright es descartable: valida comportamiento reproducible y nunca reemplaza ni certifica el estado operativo del perfil canonico de Chrome.
 
 ## Smoke de interfaz por rol
 
@@ -89,7 +102,7 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-18
 
-- 36 archivos de pruebas y 186 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
+- 37 archivos de pruebas y 189 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
 - La suite E2E en 8 archivos aprobo 14 de 14 casos: caja, fondos Principal -> Caja, desacople caja/libro, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
