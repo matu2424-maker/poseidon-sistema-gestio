@@ -18,8 +18,8 @@
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-18-CEN-01",
-    "title": "Adopcion de gobierno operativo SOPM-Lite",
+    "id": "2026-07-18-CEN-02",
+    "title": "Base operativa limpia y workstream permanente de Calidad",
     "state": "INTEGRADA",
     "evidence": "El commit que contiene este archivo identifica el estado exacto validado."
   },
@@ -40,6 +40,7 @@
     ]
   },
   "nextActions": [
+    "Ejecutar el primer ciclo independiente de Calidad sobre un bloque estable.",
     "Completar validacion runtime profunda del snapshot.",
     "Extraer mutaciones sensibles restantes de handlers React.",
     "Ampliar E2E de tesoreria, cierre periodico y formularios administrativos."

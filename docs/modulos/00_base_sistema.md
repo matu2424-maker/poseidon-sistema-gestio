@@ -52,7 +52,9 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - Recargar conserva usuario, funcion activa y modulo; cerrar sesion vuelve a `/ingresar` y limpia la sesion de pestaña.
 - No hay Auth real todavia.
 - No hay backend real todavia.
-- El boton `Reiniciar demo` del administrador vuelve a cargar este dataset inicial de prueba.
+- `Sistema > Datos locales` permite al Administrador crear una base operativa limpia con respaldo automatico previo.
+- El reinicio conserva los maestros necesarios, pone contadores, adelantos y cuentas en cero, elimina operaciones/cierres del snapshot activo y crea una unica auditoria de inicio limpio.
+- La accion es exclusiva de la etapa local de pruebas; no debe existir como borrado de historial en produccion.
 - No se borran datos operativos automaticamente al iniciar.
 - `Sistema > Datos locales` permite exportar/importar respaldo JSON validado.
 - Si el almacenamiento esta corrupto se conserva sin sobrescribir hasta que el usuario descargue respaldo o confirme iniciar datos nuevos.

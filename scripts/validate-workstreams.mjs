@@ -10,6 +10,9 @@ if (!result.ok) {
   result.errors.forEach((error) => console.error(`- ${error}`));
   process.exitCode = 1;
 } else {
-  console.log(`Coordinacion de chats valida: ${result.roleChats.length} chats de rol, ${result.checks.length} controles.`);
+  console.log(
+    `Coordinacion de chats valida: ${result.roleChats.length} chats de rol, ${result.supportChats.length} chat(s) de apoyo, ${result.checks.length} controles.`,
+  );
   result.roleChats.forEach((chat) => console.log(`- ${chat}: worktree aislado`));
+  result.supportChats.forEach((chat) => console.log(`- ${chat}: worktree de calidad aislado`));
 }

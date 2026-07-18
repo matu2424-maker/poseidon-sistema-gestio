@@ -16,7 +16,6 @@ import {
 import type { AppDataBackupCodec, AppDataRepository } from "./application/ports/AppDataRepository";
 import {
   POSEIDON_LOCAL_ID,
-  createSeedData,
 } from "./data/appData";
 import { hydrateAppData } from "./data/migrateData";
 import { CashierWorkspace, Login, Shell, Welcome } from "./features/layout/AppShell";
@@ -28,6 +27,7 @@ import { localDate } from "./lib/dates";
 import { commandContext } from "./application/command";
 import { openCashCommand } from "./application/cash/openCash";
 import { saveReadingCommand, type ReadingPatch } from "./application/cash/saveReading";
+import { resetOperationalDataCommand } from "./application/system/resetOperationalData";
 import { canAccessScreen, pathForScreen, screenForPath, screenRequiresOpenCash } from "./navigation/screens";
 import { useNotice } from "./hooks/useNotice";
 import { useAppDataRepository } from "./hooks/useAppDataRepository";
@@ -181,21 +181,27 @@ function App({
     audit: value.audit.length,
   });
 
-  const resetDemo = () => {
-    if (!confirmAction("Reiniciar todos los datos demo? Se reemplazaran las operaciones locales actuales.")) return;
-    const fresh = appendAuditEvent(
-      createSeedData(),
-      { user, actorRole: effectiveRole },
-      "Reiniciar datos demo",
-      "Sistema",
-      "demo",
-      dataSummary(data),
-      "Dataset demo inicial",
-      "Reinicio manual confirmado",
+  const resetOperationalData = () => {
+    if (!user || !effectiveRole) return;
+    if (
+      !confirmAction(
+        "Crear una base operativa limpia? Se descargara un respaldo y luego se eliminaran cajas, movimientos, cierres, auditoria operativa y saldos de este navegador.",
+      )
+    ) {
+      return;
+    }
+    downloadFile(
+      `poseidon-respaldo-antes-reinicio-${localDate()}.json`,
+      backupCodec.serialize(data),
+      "application/json;charset=utf-8",
     );
-    setData(fresh);
-    setMessage("Datos demo reiniciados.");
-    navigate(pathForScreen("panel"));
+    const result = resetOperationalDataCommand(data, commandContext(user, effectiveRole));
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setData(result.data);
+    setMessage("Base operativa limpia creada. Las cuentas, contadores y operaciones quedaron en cero.");
   };
 
   const exportLocalBackup = () => {
@@ -457,7 +463,6 @@ function App({
           effectiveRole={effectiveRole ?? user.role}
           modeStatus="Prueba local"
           setScreen={goToScreen}
-          resetDemo={resetDemo}
         />
       )}
       {screen === "open-cash" && (
@@ -531,7 +536,9 @@ function App({
       {screen === "admin-clients" && <AdminClients data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-trash" && <AdminTrash data={data} patchData={patchData} audit={audit} />}
       {screen === "admin-expense-categories" && <AdminExpenseCategories data={data} patchData={patchData} audit={audit} />}
-      {screen === "admin-local-data" && <LocalDataMaintenance onExport={exportLocalBackup} onImport={importLocalBackup} />}
+      {screen === "admin-local-data" && (
+        <LocalDataMaintenance onExport={exportLocalBackup} onImport={importLocalBackup} onReset={resetOperationalData} />
+      )}
       {screen === "admin-machines" && (
         <AdminMachines
           data={data}

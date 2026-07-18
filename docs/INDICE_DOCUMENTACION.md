@@ -64,6 +64,14 @@ Agregar:
 5. Orden de trabajo y entrega en `docs/plantillas/`.
 6. Central integra un commit por vez y actualiza estado y cola.
 
+### Validar con Poseidon Calidad y Pruebas
+
+1. `docs/contextos/CODEX_CALIDAD_PRUEBAS.md`.
+2. Orden con commit exacto, alcance, roles y criterios verificables.
+3. `docs/VALIDACION_LOCAL.md` y contexto del modulo bajo prueba.
+4. Entrega mediante `docs/plantillas/REPORTE_CALIDAD.md`.
+5. Central contrasta el resultado y consulta al usuario antes de asignar una sugerencia.
+
 ### Cambiar decisiones, migraciones o capacidades
 
 - Decisiones: `docs/coordinacion/DECISIONS.json` y documento individual referenciado.
@@ -104,6 +112,7 @@ Agregar:
 | Validacion automatica y smoke por rol | `docs/VALIDACION_LOCAL.md` | Modulos funcionales |
 | Agentes, subagentes y delegacion Codex | `docs/PROTOCOLO_AGENTES_CODEX.md` | Contextos y modulos funcionales |
 | Chats permanentes, propietarios e integracion | `docs/coordinacion/README.md` | Prompts de rol, contextos funcionales |
+| Calidad independiente y sugerencias | `docs/contextos/CODEX_CALIDAD_PRUEBAS.md` y `docs/plantillas/REPORTE_CALIDAD.md` | Modulos funcionales, perfiles TOML |
 | Estado operativo multiagente | `docs/coordinacion/PROJECT_STATUS.json` | Retomar, prompts, contextos funcionales |
 | Decisiones transversales | `docs/coordinacion/DECISIONS.json` y documento individual | Reglas funcionales o modulos |
 | Migraciones y reparaciones de datos | `docs/coordinacion/MIGRATIONS.json` | Planes generales, handoff |
@@ -144,6 +153,7 @@ Agregar:
 - `CODEX_CLIENTES_PERSONAL`: clientes, personal y papelera.
 - `CODEX_AUDITORIA`: trazabilidad.
 - `CODEX_LAYOUT_BASE`: navegacion, roles y layout.
+- `CODEX_CALIDAD_PRUEBAS`: validacion independiente y flujo de sugerencias a Central.
 
 Todos viven en `docs/contextos/`.
 

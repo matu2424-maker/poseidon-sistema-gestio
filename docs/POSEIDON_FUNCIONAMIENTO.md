@@ -475,6 +475,10 @@ Administrador ve todo. Encargado ve eventos de sus locales. No se auditan contra
 - Una pestaña pasiva adopta el ultimo snapshot.
 - Un error de cuota no se oculta ni recorta historial.
 - El administrador puede exportar/importar respaldo.
+- Desde `Datos locales`, un Administrador en funcion Administrador puede crear una base operativa limpia. Antes se descarga automaticamente el snapshot completo del navegador.
+- El reinicio conserva local, usuarios, personal, clientes, categorias, cuentas y maquinas; pone contadores y adelantos en cero y elimina cajas, lecturas, gastos, transferencias, regalos, liquidaciones, cierres y movimientos financieros del snapshot activo.
+- La base nueva conserva un unico evento de auditoria con actor, funcion, fecha y resumen anterior/nuevo. El historial reemplazado sigue disponible en el respaldo descargado.
+- Esta excepcion destructiva existe solo para pruebas locales y no representa anulaciones ni movimientos contables de produccion.
 - Un snapshot corrupto puede descargarse antes de reiniciar.
 
 ## 26. Pendientes tecnicos

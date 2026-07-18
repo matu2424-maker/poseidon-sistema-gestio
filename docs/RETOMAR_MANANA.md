@@ -9,22 +9,18 @@ Ultima actualizacion: 2026-07-18
 - Sin Supabase, Auth, Storage remoto ni despliegue.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
-- Validacion vigente: 180 pruebas en 34 archivos y 11 casos E2E en 6 archivos.
+- Validacion vigente: 183 pruebas en 35 archivos y 12 casos E2E en 7 archivos.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 
 ## Ultimo bloque tecnico
 
-Se adopto un gobierno operativo SOPM-Lite integrado con la coordinacion existente:
+Se incorporaron dos herramientas controladas de la etapa local:
 
-- Estado, riesgos y proximas acciones en `PROJECT_STATUS.json`.
-- Decisiones transversales en `DECISIONS.json` y documentos individuales.
-- Migraciones/reparaciones financieras en `MIGRATIONS.json`.
-- Agentes, skills y validadores en `CAPABILITIES.json`.
-- Ordenes y entregas ampliadas con prioridad, commit base, alcance, criterios, evidencia y estado Git.
-- `pnpm run check:governance` valida registros, referencias, rutas, commits y scripts.
-- `check:workstreams` incluye el gobierno; `check:commit` lo selecciona para cambios de coordinacion.
-
-No se copiaron prompts universales, documentos Word ni carpetas vacias del kit SOPM. No se reemplazo `AGENTS.md` ni se creo una segunda estructura paralela.
+- `Sistema > Datos locales` crea una base operativa limpia solo para Administrador, descarga respaldo previo, conserva maestros y deja cuentas/contadores en cero con auditoria nueva.
+- `Poseidon Calidad y Pruebas` es un workstream permanente de apoyo con contexto, plantilla, alcances y worktree aislado.
+- Calidad prueba commits exactos y eleva fallos, riesgos o sugerencias; Central contrasta la evidencia y consulta al usuario antes de asignar cambios.
+- No se creo un cuarto rol funcional ni un perfil generico de QA.
+- El gobierno SOPM-Lite registra la decision `DEC-2026-004` y valida cuatro decisiones, dos migraciones y trece capacidades.
 
 ## Ultimo bloque funcional
 

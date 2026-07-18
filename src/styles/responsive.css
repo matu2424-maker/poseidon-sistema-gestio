@@ -334,6 +334,15 @@
     grid-template-columns: 1fr;
   }
 
+  .local-data-grid .local-data-reset {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .local-data-reset .button {
+    align-self: stretch;
+  }
+
   .storage-recovery-panel .button-row,
   .storage-recovery-panel > svg {
     grid-column: auto;

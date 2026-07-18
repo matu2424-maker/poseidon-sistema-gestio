@@ -49,6 +49,15 @@ Construir una aplicacion web administrativa para gestionar caja diaria, maquinas
 - Los chats de rol pueden cerrar commits locales despues de `pnpm run check:commit`, pero no integran `main`, no hacen push ni publican.
 - La sincronizacion confiable usa orden de trabajo, codigo/documentacion, commit y entrega estructurada; no se presume memoria compartida entre chats.
 
+## Workstream permanente de calidad
+
+- `Poseidon Calidad y Pruebas` es un chat de apoyo, no un rol funcional ni un sustituto de Central.
+- Trabaja en rama/worktree aislados y recibe un commit exacto, alcance y criterios de aceptacion.
+- Puede ejecutar pruebas, revisar comportamiento y proponer mejoras con evidencia; no decide producto ni implementa sugerencias por iniciativa propia.
+- Su escritura normal se limita a `e2e/quality/`, `docs/calidad/` y su contexto corto, siempre mediante orden autorizada.
+- Central reproduce o contrasta sus hallazgos, elimina duplicados y presenta al usuario las recomendaciones antes de asignar cualquier cambio.
+- Calidad no integra `main`, no hace push, no publica y no modifica contratos compartidos.
+
 ## Agentes y subagentes Codex
 
 - La fuente canonica para delegacion es `docs/PROTOCOLO_AGENTES_CODEX.md`.

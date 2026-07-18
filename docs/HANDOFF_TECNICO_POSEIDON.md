@@ -22,12 +22,13 @@ No modificar archivos sin orden literal u objetivo activo. No publicar, hacer pu
 - Snapshot esquema `5`, clave `poseidon-sistema-gestion-v2`.
 - Login de prueba por usuario, sin contraseña.
 - Local operativo actual: Poseidon.
-- 180 pruebas unitarias/de integracion en 34 archivos, mas E2E.
+- 183 pruebas unitarias/de integracion en 35 archivos, mas E2E.
 - Servidor oficial: `iniciar-poseidon.bat`, URL `http://127.0.0.1:5173/`.
 
 ## Gobierno operativo
 
 - Central integra `main`; chats de rol trabajan en worktrees aislados.
+- Calidad y Pruebas trabaja en un worktree de apoyo aislado, entrega evidencia y sugerencias a Central y no decide producto.
 - `PROJECT_STATUS.json` resume fase, riesgos y proximas acciones.
 - `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json` son registros verificables.
 - Trabajo delegado o paralelo usa orden y entrega; un cambio local simple autorizado a Central no requiere una orden adicional.

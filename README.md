@@ -21,9 +21,10 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Preparacion estructural multi-local, aunque la operacion se concentra en Poseidon.
 - Sincronizacion entre pestanas del mismo navegador y control optimista de conflictos.
 - Exportacion, importacion y recuperacion del snapshot local.
+- Reinicio operativo local con respaldo automatico, maestros conservados, cuentas/contadores en cero y auditoria nueva.
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
-- Validacion automatizada vigente: 180 pruebas unitarias/de integracion en 34 archivos, ademas de la suite E2E.
+- Validacion automatizada vigente: 183 pruebas unitarias/de integracion en 35 archivos, ademas de la suite E2E.
 
 ## Modelo financiero vigente
 
@@ -204,6 +205,7 @@ src/types.ts                         Contratos de datos
 - `docs/modulos/`: especificacion por modulo.
 - `docs/contextos/`: contextos cortos para Codex.
 - `docs/coordinacion/`: chats, estado, decisiones, migraciones, capacidades e integracion.
+- `docs/contextos/CODEX_CALIDAD_PRUEBAS.md`: contrato del workstream permanente que prueba y asesora a Central.
 - `docs/VALIDACION_LOCAL.md`: validacion automatica y manual.
 
 ## Limites actuales

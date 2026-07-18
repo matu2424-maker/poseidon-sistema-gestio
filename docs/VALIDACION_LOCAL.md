@@ -22,8 +22,8 @@ pnpm run check:commit
 `pnpm run check` ejecuta, en orden:
 
 1. Validacion de 28 controles de agentes Codex.
-2. Validacion de 61 controles de chats, propietarios y referencias de workstreams.
-3. Validacion de 36 controles SOPM-Lite: 3 decisiones, 2 migraciones, 13 capacidades, estado y rutas.
+2. Validacion de 67 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
+3. Validacion de 37 controles SOPM-Lite: 4 decisiones, 2 migraciones, 13 capacidades, estado y rutas.
 4. Validacion de cuatro skills y sus contratos.
 5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 6. TypeScript sin emitir archivos.
@@ -89,8 +89,10 @@ La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia l
 
 ## Evidencia vigente al 2026-07-18
 
-- 34 archivos de pruebas y 180 casos aprobados, incluidos gobierno SOPM-Lite, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, rutas, snapshot y conflictos de escritura.
-- La suite E2E en 6 archivos aprobo 11 de 11 casos: caja, fondos Principal -> Caja, desacople caja/libro, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto y cierre salarial correctivo.
+- 35 archivos de pruebas y 183 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, caja, salarios, diferencias, rutas, snapshot y conflictos de escritura.
+- La suite E2E en 7 archivos aprobo 12 de 12 casos: caja, fondos Principal -> Caja, desacople caja/libro, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
+- Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
+- Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
 - `check:governance` aprobado para estado, decisiones, migraciones, capacidades, referencias, commits y scripts declarados.
 - `check:design` aprobado con 38 controles, estado accesible de ordenamiento, limite automatico de peso funcional y dos referencias visuales reproducibles.

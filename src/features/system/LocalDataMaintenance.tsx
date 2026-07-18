@@ -1,13 +1,15 @@
 import { useState, type ChangeEvent } from "react";
-import { Download, FileUp } from "lucide-react";
+import { Download, FileUp, RotateCcw } from "lucide-react";
 import { confirmAction } from "../../lib/confirmations";
 
 export function LocalDataMaintenance({
   onExport,
   onImport,
+  onReset,
 }: {
   onExport: () => void;
   onImport: (raw: string) => Promise<string>;
+  onReset: () => void;
 }) {
   const [selectedFile, setSelectedFile] = useState<File>();
   const [error, setError] = useState("");
@@ -57,6 +59,17 @@ export function LocalDataMaintenance({
           <button className="button muted" type="button" onClick={importBackup}>
             <FileUp size={17} aria-hidden="true" />
             Validar e importar
+          </button>
+        </section>
+
+        <section className="local-data-reset">
+          <div>
+            <h2>Crear base operativa limpia</h2>
+            <p>Conserva Poseidon, usuarios, personal, clientes, categorias y maquinas. Reinicia operaciones, contadores y saldos despues de descargar un respaldo.</p>
+          </div>
+          <button className="button danger" type="button" onClick={onReset}>
+            <RotateCcw size={17} aria-hidden="true" />
+            Respaldar y reiniciar
           </button>
         </section>
       </div>

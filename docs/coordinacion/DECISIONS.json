@@ -24,6 +24,14 @@
       "date": "2026-07-18",
       "document": "docs/coordinacion/decisiones/DEC-2026-003-sopm-lite.md",
       "scope": "Ordenes, entregas, estado, migraciones, capacidades y validacion"
+    },
+    {
+      "id": "DEC-2026-004",
+      "title": "Workstream permanente de Calidad y Pruebas",
+      "status": "APPROVED",
+      "date": "2026-07-18",
+      "document": "docs/coordinacion/decisiones/DEC-2026-004-calidad-pruebas.md",
+      "scope": "Validacion independiente, sugerencias, propiedad de pruebas e integracion"
     }
   ]
 }

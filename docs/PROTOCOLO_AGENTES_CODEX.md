@@ -16,10 +16,13 @@ Fuente canonica para decidir cuando delegar trabajo de desarrollo de Poseidon, q
 
 Los chats permanentes de Cajero, Encargado y Administrador no son subagentes. Mantienen contexto funcional, trabajan en ramas/worktrees aislados y se coordinan mediante `docs/coordinacion/README.md`.
 
+`Poseidon Calidad y Pruebas` tampoco es un subagente ni un perfil TOML. Es un workstream permanente de apoyo con contexto y worktree propios. Ejecuta revisiones independientes, puede convocar perfiles existentes de solo lectura y entrega evidencia a Central. No convierte una sugerencia en trabajo autorizado.
+
 - Un chat permanente puede cerrar commits locales en su propia rama despues de `pnpm run check:commit`.
 - Solo Poseidon Central integra esos commits en `main` y ejecuta la validacion transversal.
 - Un subagente sigue siendo temporal y nunca hace commit, push, publicacion ni despliegue.
 - Un chat de rol puede convocar subagentes cuando este protocolo lo justifique, sin cederles integracion ni ampliar el alcance autorizado.
+- Calidad puede usar los perfiles de alcance, contabilidad e interfaz y las skills de regresion, QA visual y localhost. No se crea un perfil generico adicional de pruebas mientras esta combinacion cubra el procedimiento.
 - `pnpm run check:workstreams` valida prompts, contextos, propietarios y contratos reservados de los chats permanentes.
 - `docs/coordinacion/CAPABILITIES.json` inventaria perfiles, skills y validadores activos; `check:governance` comprueba sus rutas y comandos.
 

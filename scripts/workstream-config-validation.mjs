@@ -2,6 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 export const EXPECTED_ROLE_CHAT_IDS = ["poseidon-cajero", "poseidon-encargado", "poseidon-administrador"];
+export const EXPECTED_SUPPORT_CHAT_IDS = ["poseidon-calidad"];
 
 const REQUIRED_CHECKS = ["pnpm run check", "pnpm run build", "pnpm run check:commit"];
 const WORKSTREAM_SCRIPT = "node scripts/validate-workstreams.mjs && node scripts/validate-governance.mjs";
@@ -35,30 +36,42 @@ export function validateWorkstreamConfig(config) {
     errors.push(`Los chats de rol deben ser exactamente y en orden: ${EXPECTED_ROLE_CHAT_IDS.join(", ")}.`);
   }
 
-  for (const duplicate of duplicateValues(roleIds)) errors.push(`ID de chat de rol duplicado: ${duplicate}.`);
-  for (const duplicate of duplicateValues(roleChats.map((role) => role.title))) {
+  const supportChats = Array.isArray(config?.supportChats) ? config.supportChats : [];
+  const supportIds = supportChats.map((chat) => chat.id);
+  if (JSON.stringify(supportIds) !== JSON.stringify(EXPECTED_SUPPORT_CHAT_IDS)) {
+    errors.push(`Los chats de apoyo deben ser exactamente y en orden: ${EXPECTED_SUPPORT_CHAT_IDS.join(", ")}.`);
+  }
+
+  const ownedChats = [...roleChats, ...supportChats];
+
+  for (const duplicate of duplicateValues(ownedChats.map((chat) => chat.id))) errors.push(`ID de chat duplicado: ${duplicate}.`);
+  for (const duplicate of duplicateValues(ownedChats.map((chat) => chat.title))) {
     errors.push(`Titulo de chat duplicado: ${duplicate}.`);
   }
 
-  roleChats.forEach((role) => {
-    if (!role.title) errors.push(`${role.id || "chat sin id"}: falta title.`);
-    if (!role.prompt) errors.push(`${role.id || "chat sin id"}: falta prompt.`);
-    if (!role.context) errors.push(`${role.id || "chat sin id"}: falta context.`);
-    if (!Array.isArray(role.writeScopes) || role.writeScopes.length === 0) {
-      errors.push(`${role.id || "chat sin id"}: debe declarar writeScopes.`);
+  ownedChats.forEach((chat) => {
+    if (!chat.title) errors.push(`${chat.id || "chat sin id"}: falta title.`);
+    if (!chat.prompt) errors.push(`${chat.id || "chat sin id"}: falta prompt.`);
+    if (!chat.context) errors.push(`${chat.id || "chat sin id"}: falta context.`);
+    if (!Array.isArray(chat.writeScopes) || chat.writeScopes.length === 0) {
+      errors.push(`${chat.id || "chat sin id"}: debe declarar writeScopes.`);
     }
     for (const check of REQUIRED_CHECKS) {
-      if (!role.requiredChecks?.includes(check)) errors.push(`${role.id || "chat sin id"}: falta ${check}.`);
+      if (!chat.requiredChecks?.includes(check)) errors.push(`${chat.id || "chat sin id"}: falta ${check}.`);
     }
-    for (const duplicate of duplicateValues(role.writeScopes ?? [])) {
-      errors.push(`${role.id || "chat sin id"}: writeScope duplicado ${duplicate}.`);
+    for (const duplicate of duplicateValues(chat.writeScopes ?? [])) {
+      errors.push(`${chat.id || "chat sin id"}: writeScope duplicado ${duplicate}.`);
     }
   });
 
-  for (let leftIndex = 0; leftIndex < roleChats.length; leftIndex += 1) {
-    for (let rightIndex = leftIndex + 1; rightIndex < roleChats.length; rightIndex += 1) {
-      const left = roleChats[leftIndex];
-      const right = roleChats[rightIndex];
+  supportChats.forEach((chat) => {
+    if (!chat.reportTemplate) errors.push(`${chat.id || "chat de apoyo sin id"}: falta reportTemplate.`);
+  });
+
+  for (let leftIndex = 0; leftIndex < ownedChats.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < ownedChats.length; rightIndex += 1) {
+      const left = ownedChats[leftIndex];
+      const right = ownedChats[rightIndex];
       for (const leftScope of left.writeScopes ?? []) {
         for (const rightScope of right.writeScopes ?? []) {
           if (pathsOverlap(leftScope, rightScope)) {
@@ -69,11 +82,11 @@ export function validateWorkstreamConfig(config) {
     }
   }
 
-  for (const role of roleChats) {
-    for (const scope of role.writeScopes ?? []) {
+  for (const chat of ownedChats) {
+    for (const scope of chat.writeScopes ?? []) {
       for (const reserved of config?.central?.reservedPaths ?? []) {
         if (pathsOverlap(scope, reserved)) {
-          errors.push(`${role.id} invade contrato reservado: ${scope} / ${reserved}.`);
+          errors.push(`${chat.id} invade contrato reservado: ${scope} / ${reserved}.`);
         }
       }
     }
@@ -138,6 +151,7 @@ export async function validateWorkstreamInfrastructure({ rootDir }) {
       config.central.prompt,
       ...config.central.reservedPaths,
       ...config.roleChats.flatMap((role) => [role.prompt, role.context, ...role.writeScopes]),
+      ...config.supportChats.flatMap((chat) => [chat.prompt, chat.context, chat.reportTemplate, ...chat.writeScopes]),
       ...config.specialists.map((specialist) => specialist.context),
       config.workOrderTemplate,
       config.handoffTemplate,
@@ -151,7 +165,7 @@ export async function validateWorkstreamInfrastructure({ rootDir }) {
   }
 
   const coordination = await readRequired(rootDir, "docs/coordinacion/README.md", errors);
-  for (const title of ["Poseidon Central", "Poseidon Cajero", "Poseidon Encargado", "Poseidon Administrador"]) {
+  for (const title of ["Poseidon Central", "Poseidon Cajero", "Poseidon Encargado", "Poseidon Administrador", "Poseidon Calidad y Pruebas"]) {
     if (!coordination.includes(title)) errors.push(`docs/coordinacion/README.md no referencia ${title}.`);
     else checks.push(`coordinacion referencia ${title}`);
   }
@@ -183,5 +197,6 @@ export async function validateWorkstreamInfrastructure({ rootDir }) {
     errors,
     checks,
     roleChats: config?.roleChats?.map((role) => role.id) ?? [],
+    supportChats: config?.supportChats?.map((chat) => chat.id) ?? [],
   };
 }

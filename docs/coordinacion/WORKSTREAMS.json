@@ -75,6 +75,21 @@
       "requiredChecks": ["pnpm run check", "pnpm run build", "pnpm run check:commit"]
     }
   ],
+  "supportChats": [
+    {
+      "id": "poseidon-calidad",
+      "title": "Poseidon Calidad y Pruebas",
+      "prompt": "docs/prompts/CHAT_CALIDAD_POSEIDON.md",
+      "context": "docs/contextos/CODEX_CALIDAD_PRUEBAS.md",
+      "reportTemplate": "docs/plantillas/REPORTE_CALIDAD.md",
+      "writeScopes": [
+        "e2e/quality/",
+        "docs/calidad/",
+        "docs/contextos/CODEX_CALIDAD_PRUEBAS.md"
+      ],
+      "requiredChecks": ["pnpm run check", "pnpm run build", "pnpm run test:e2e", "pnpm run check:commit"]
+    }
+  ],
   "specialists": [
     {
       "id": "nucleo-financiero",

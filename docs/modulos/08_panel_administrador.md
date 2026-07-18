@@ -36,6 +36,7 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - Auditoria.
 - Cuentas corrientes.
 - Diferencias.
+- Datos locales: exportacion, importacion y reinicio operativo local con respaldo automatico.
 
 ## Codigo actual
 
@@ -54,6 +55,8 @@ Gestion completa del sistema sin mezclar operativa de caja directa.
 - `src/features/reports/Periodic.tsx`: cierres periodicos.
 - `src/features/accounts/CurrentAccounts.tsx`: cuentas corrientes.
 - `src/components/ui.tsx`: componentes compartidos y selector de columnas.
+- `src/features/system/LocalDataMaintenance.tsx`: mantenimiento del snapshot local y acceso al reinicio limpio.
+- `src/application/system/resetOperationalData.ts`: permiso, limpieza determinista y auditoria del reinicio local.
 
 ## Refactor pendiente
 

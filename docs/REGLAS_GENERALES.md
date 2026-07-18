@@ -28,6 +28,8 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Una pestana pasiva puede adoptar el ultimo snapshot; una con cambios propios no mezcla estados.
 - Un fallo de escritura debe detener la operacion y ofrecer recuperacion.
 - Los archivos pesados no se guardan en `localStorage`; solo sus metadatos.
+- Durante la etapa local de pruebas, un Administrador en funcion Administrador puede crear una base operativa limpia solo desde `Datos locales`. La accion descarga primero un respaldo completo, conserva maestros y reemplaza operaciones, saldos e historial operativo por un unico evento de reinicio auditado.
+- El reinicio limpio es una herramienta destructiva del entorno local, no una operacion de negocio ni una funcion habilitable en produccion.
 
 ## Navegacion, roles y permisos
 

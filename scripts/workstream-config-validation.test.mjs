@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   EXPECTED_ROLE_CHAT_IDS,
+  EXPECTED_SUPPORT_CHAT_IDS,
   validateWorkstreamConfig,
   validateWorkstreamInfrastructure,
 } from "./workstream-config-validation.mjs";
@@ -25,6 +26,15 @@ const validConfig = () => ({
     writeScopes: [`src/role-${index}/`],
     requiredChecks: ["pnpm run check", "pnpm run build", "pnpm run check:commit"],
   })),
+  supportChats: EXPECTED_SUPPORT_CHAT_IDS.map((id, index) => ({
+    id,
+    title: `Apoyo ${index}`,
+    prompt: `support-prompt-${index}.md`,
+    context: `support-context-${index}.md`,
+    reportTemplate: `support-report-${index}.md`,
+    writeScopes: [`e2e/support-${index}/`],
+    requiredChecks: ["pnpm run check", "pnpm run build", "pnpm run check:commit"],
+  })),
   specialists: [{ id: "especialista", context: "specialist.md" }],
   workOrderTemplate: "order.md",
   handoffTemplate: "handoff.md",
@@ -43,6 +53,12 @@ describe("coordinacion de chats Poseidon", () => {
   it("rechaza propiedad superpuesta entre chats", () => {
     const config = validConfig();
     config.roleChats[1].writeScopes = ["src/role-0/detail/"];
+    expect(validateWorkstreamConfig(config).join(" ")).toContain("superponen propiedad");
+  });
+
+  it("rechaza propiedad superpuesta entre un rol y Calidad", () => {
+    const config = validConfig();
+    config.supportChats[0].writeScopes = ["src/role-0/quality/"];
     expect(validateWorkstreamConfig(config).join(" ")).toContain("superponen propiedad");
   });
 
@@ -69,5 +85,6 @@ describe("coordinacion de chats Poseidon", () => {
     expect(result.errors).toEqual([]);
     expect(result.ok).toBe(true);
     expect(result.roleChats).toEqual(EXPECTED_ROLE_CHAT_IDS);
+    expect(result.supportChats).toEqual(EXPECTED_SUPPORT_CHAT_IDS);
   });
 });

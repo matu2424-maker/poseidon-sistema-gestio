@@ -19,6 +19,8 @@ Leer este contexto antes de modificar panel administrador, menus administrativos
 
 - `src/App.tsx` conserva estado global, acciones principales y composicion de pantallas.
 - Datos demo, reset operativo y normalizacion viven en `src/data/appData.ts`.
+- El reinicio operativo se ejecuta mediante `src/application/system/resetOperationalData.ts`, solo para Administrador en funcion Administrador, desde `Sistema > Datos locales` y con respaldo automatico previo.
+- Conserva maestros y cuentas estructurales, deja contadores/saldos en cero y reemplaza el historial operativo activo por una auditoria nueva; el snapshot anterior queda en el JSON descargado.
 - El panel administrativo vive en `src/features/dashboard/AdminDashboard.tsx`; `RoleDashboard.tsx` conserva la seleccion por funcion.
 - Menu y layout base viven en `src/features/layout/AppShell.tsx`.
 - Usuarios y categorias/subcategorias de gastos viven en `src/features/admin/Settings.tsx`.

@@ -6,11 +6,9 @@ import { DashboardActionCard } from "./DashboardActionCard";
 export function AdminDashboard({
   data,
   setScreen,
-  resetDemo,
 }: {
   data: AppData;
   setScreen: (screen: Screen) => void;
-  resetDemo: () => void;
 }) {
   const pendingDifferences = pendingDifferenceCount(data);
 
@@ -49,11 +47,6 @@ export function AdminDashboard({
         />
         <DashboardActionCard title="Papelera" text="Restaurar o eliminar definitivo" onClick={() => setScreen("admin-trash")} />
         <DashboardActionCard title="Auditoria" text="Cambios sensibles e historial" onClick={() => setScreen("audit")} />
-      </div>
-      <div className="button-row end">
-        <button className="button muted" type="button" onClick={resetDemo}>
-          Reiniciar demo
-        </button>
       </div>
     </>
   );

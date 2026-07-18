@@ -11,7 +11,6 @@ export type RoleDashboardProps = {
   effectiveRole: Role;
   modeStatus: string;
   setScreen: (screen: Screen) => void;
-  resetDemo: () => void;
 };
 
 export function Panel({
@@ -21,10 +20,9 @@ export function Panel({
   effectiveRole,
   modeStatus,
   setScreen,
-  resetDemo,
 }: RoleDashboardProps) {
   if (effectiveRole === "ADMINISTRADOR") {
-    return <AdminDashboard data={data} setScreen={setScreen} resetDemo={resetDemo} />;
+    return <AdminDashboard data={data} setScreen={setScreen} />;
   }
 
   if (effectiveRole === "ENCARGADO") {

@@ -27,6 +27,9 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 .agents/skills/poseidon-localhost-diagnostics/   arranque y diagnostico local
 docs/PROTOCOLO_AGENTES_CODEX.md            fuente canonica de delegacion
 docs/coordinacion/                          chats, estado, decisiones, migraciones, capacidades y cola
+docs/contextos/CODEX_CALIDAD_PRUEBAS.md     contrato corto del workstream de calidad
+docs/calidad/                               informes de calidad autorizados
+e2e/quality/                                pruebas E2E propiedad de Calidad
 docs/SKILLS_POSEIDON.md                     fuente canonica de skills
 docs/REGISTRO_DELEGACIONES_AGENTES.md      medicion acumulada
 docs/plantillas/REPORTE_DELEGACION_AGENTES.md contrato de cada registro
@@ -46,6 +49,7 @@ scripts/governance-config-validation.mjs    reglas puras de estado, decisiones, 
 - El proyecto no fija cantidad de hilos ni profundidad; aplica la capacidad disponible de Codex y el protocolo de no superposicion.
 - Los perfiles no forman parte del runtime de Poseidon ni modifican su arquitectura funcional.
 - El agente principal conserva autorizacion, integracion, validacion, documentacion y commits.
+- `Poseidon Calidad y Pruebas` es un workstream permanente aislado: prueba commits exactos y asesora a Central, sin decidir producto ni editar contratos compartidos.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
 - `pnpm run check:agents` valida perfiles; `check:workstreams` valida chats y gobierno SOPM-Lite; `check:governance` valida solo sus registros; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta todos antes del codigo.
 - `.githooks/pre-commit` y `scripts/precommit-hook.ps1` ejecutan `pnpm run check:commit` con el runtime disponible en Windows.
@@ -80,6 +84,7 @@ src/
     expenses/               gastos administrativos desde Principal
     movements/              movimientos operativos de Caja
     salaries/               liquidaciones y cierres salariales
+    system/                 mantenimiento destructivo controlado del entorno local
     ports/                  contrato de repositorio y cola asincrona ordenada
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed demo, reset y fachada de normalizacion
@@ -163,6 +168,7 @@ src/
 | `application/differences/manageDifference.ts` | Verificacion, correccion/anulacion, delta contable y auditoria |
 | `application/salaries/salarySettlementCommands.ts` | Caja/Efectivo para Cajero y Principal para Encargado/Admin; correccion neta, anulacion y auditoria |
 | `application/salaries/salaryClosureCommands.ts` | Cierre mensual definitivo y ciclo de revisiones correctivas |
+| `application/system/resetOperationalData.ts` | Reinicio local con permisos, limpieza determinista y auditoria nueva; el respaldo se descarga desde `App.tsx` antes de ejecutar |
 
 ## Componentes compartidos
 

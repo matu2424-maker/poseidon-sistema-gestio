@@ -115,10 +115,10 @@ export function nextBalanceVisibleId(data: AppData, localId: string) {
     .reduce((highest, value) => Math.max(highest, value), 0);
   return `${code}-${max + 1}`;
 }
-export function clearOperationalData(data: AppData): AppData {
+export function clearOperationalData(data: AppData, timestamp = nowIso()): AppData {
   return {
     ...data,
-    staff: data.staff.map((staff) => ({ ...staff, salaryAdvanceBalance: 0, updatedAt: nowIso() })),
+    staff: data.staff.map((staff) => ({ ...staff, salaryAdvanceBalance: 0, updatedAt: timestamp })),
     machines: data.machines.map((machine) => ({ ...machine, lastIn: 0, lastOut: 0 })),
     balances: [],
     readings: [],

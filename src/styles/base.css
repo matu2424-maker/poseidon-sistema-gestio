@@ -221,6 +221,24 @@ strong {
   justify-self: end;
 }
 
+.local-data-grid .local-data-reset {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.local-data-reset > div {
+  display: grid;
+  gap: 10px;
+  max-width: 760px;
+}
+
+.local-data-reset .button {
+  flex: 0 0 auto;
+}
+
 .form-stack {
   display: grid;
   gap: 16px;

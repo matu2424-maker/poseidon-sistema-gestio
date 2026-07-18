@@ -18,7 +18,7 @@ export function buildCheckPlan(files) {
     normalizedFiles.some(
       (file) =>
         file.startsWith("docs/coordinacion/") ||
-        /^docs\/prompts\/CHAT_(CENTRAL|CAJERO|ENCARGADO|ADMINISTRADOR)_POSEIDON\.md$/.test(file) ||
+        /^docs\/prompts\/CHAT_(CENTRAL|CAJERO|ENCARGADO|ADMINISTRADOR|CALIDAD)_POSEIDON\.md$/.test(file) ||
         /^docs\/plantillas\/(ORDEN_TRABAJO_CHAT|ENTREGA_CHAT_MODULO|DECISION_TRANSVERSAL|MIGRACION_REPARACION)\.md$/.test(file),
     )
   ) {

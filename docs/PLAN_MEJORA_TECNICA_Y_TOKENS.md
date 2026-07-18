@@ -18,7 +18,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Treinta y cuatro archivos de pruebas, 180 casos, mas 11 casos E2E en 6 archivos.
+- Treinta y cinco archivos de pruebas, 183 casos, mas 12 casos E2E en 7 archivos.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -176,7 +176,7 @@ La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega un
 - Fuente canonica: `docs/coordinacion/README.md`.
 - Completado 2026-07-18: gobierno SOPM-Lite integrado sin prompts gigantes ni estructura paralela.
 - `PROJECT_STATUS.json`, `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json` conservan estado verificable y referencias dirigidas.
-- `pnpm run check:governance` valida 3 decisiones, 2 migraciones, 13 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
+- `pnpm run check:governance` valida 4 decisiones, 2 migraciones, 13 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
 
 ## Skills y control previo al commit
 
