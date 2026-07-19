@@ -1,15 +1,19 @@
 import { useState } from "react";
-import type { AppData, Balance, PeriodicClosure, PeriodicClosureStatus, PeriodicClosureType, User } from "../../types";
+import type { AppData, Balance, PeriodicClosure, PeriodicClosureType, Role, User } from "../../types";
 import { totalsForBalance } from "../../lib/cashTotals";
-import { today, nowIso } from "../../lib/dates";
+import { today } from "../../lib/dates";
 import { balanceVisibleId, localName } from "../../lib/display";
 import { balanceHasDifference, bankDifferenceForBalance, cashDifferenceForBalance, differenceIsPending } from "../../lib/differences";
-import { uid } from "../../lib/ids";
 import { money } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard } from "../../components/ui";
 import { confirmAction } from "../../lib/confirmations";
 import { summarizePeriodicRange } from "../../lib/periodicTotals";
+import { commandContext } from "../../application/command";
+import {
+  annulPeriodicClosureCommand,
+  createPeriodicClosureCommand,
+} from "../../application/reports/periodicClosureCommands";
 
 const POSEIDON_LOCAL_ID = "1";
 
@@ -54,14 +58,15 @@ const closureColumns: { key: ClosureColumnKey; label: string; sortable?: boolean
 export function Periodic({
   data,
   user,
+  actorRole = user.role,
   patchData,
-  audit,
   setMessage,
 }: {
   data: AppData;
   user: User;
+  actorRole?: Role;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
+  audit?: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
 }) {
   const [closureType, setClosureType] = useState<PeriodicClosureType>("MENSUAL");
@@ -105,15 +110,6 @@ export function Periodic({
       setEndDate(range.end);
     }
   };
-  const nextPeriodicVisibleId = (current: AppData) => {
-    const max = current.periodicClosures
-      .map((closure) => {
-        const match = String(closure.visibleId ?? "").match(/PER-(\d+)$/);
-        return match ? Number(match[1]) : 0;
-      })
-      .reduce((highest, value) => Math.max(highest, value), 0);
-    return `PER-${max + 1}`;
-  };
   const saveClosure = () => {
     if (startDate > endDate) {
       setError("La fecha inicial no puede ser mayor a la fecha final.");
@@ -124,59 +120,39 @@ export function Periodic({
       return;
     }
     patchData((current) => {
-      const currentBalances = current.balances
-        .filter((balance) => balance.status === "CERRADO" && (!allowedLocalIds || allowedLocalIds.has(balance.localId)))
-        .filter((balance) => {
-          const date = balance.closedAt?.slice(0, 10) ?? balance.operatingDate;
-          return date >= startDate && date <= endDate;
-        });
-      const currentTotals = summarizePeriodicRange(current, {
-        balances: currentBalances,
-        localIds: scopedLocalIds,
-        startDate,
-        endDate,
-        type: closureType,
-      });
       const localId = user.localIds[0] ?? POSEIDON_LOCAL_ID;
-      const closure: PeriodicClosure = {
-        id: uid("periodic"),
-        visibleId: nextPeriodicVisibleId(current),
-        localId,
-        type: closureType,
-        startDate,
-        endDate,
-        balanceIds: currentBalances.map((balance) => balance.id),
-        ...currentTotals,
-        status: "GENERADO",
-        note: note.trim(),
-        createdBy: user.id,
-        createdAt: nowIso(),
-      };
-      return audit(
-        { ...current, periodicClosures: [closure, ...current.periodicClosures] },
-        "Generar cierre periodico",
-        "CierrePeriodico",
-        closure.id,
-        "",
-        closure,
-        closure.note,
+      const result = createPeriodicClosureCommand(
+        current,
+        { localId, type: closureType, startDate, endDate, note },
+        commandContext(user, actorRole),
       );
+      if (!result.ok) {
+        setError(result.error);
+        return current;
+      }
+      setMessage("Cierre periodico generado y auditado.");
+      setNote("");
+      setError("");
+      return result.data;
     });
-    setMessage("Cierre periodico generado y auditado.");
-    setNote("");
-    setError("");
   };
   const annulClosure = (closure: PeriodicClosure) => {
     if (!confirmAction(`Anular cierre periodico ${closure.visibleId}?`)) return;
     patchData((current) => {
-      const previous = current.periodicClosures.find((item) => item.id === closure.id);
-      const periodicClosures = current.periodicClosures.map((item) =>
-        item.id === closure.id ? { ...item, status: "ANULADO" as PeriodicClosureStatus } : item,
+      const result = annulPeriodicClosureCommand(
+        current,
+        closure.id,
+        "Anulacion de control",
+        commandContext(user, actorRole),
       );
-      const next = periodicClosures.find((item) => item.id === closure.id);
-      return audit({ ...current, periodicClosures }, "Anular cierre periodico", "CierrePeriodico", closure.id, previous, next, "Anulacion de control");
+      if (!result.ok) {
+        setError(result.error);
+        return current;
+      }
+      setMessage("Cierre periodico anulado.");
+      setError("");
+      return result.data;
     });
-    setMessage("Cierre periodico anulado.");
   };
 
   return (

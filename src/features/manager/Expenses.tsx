@@ -1,12 +1,10 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import type { AppData, Balance, Expense, ExpenseReviewStatus, MovementStatus, User } from "../../types";
-import { formatDateTime, nowIso } from "../../lib/dates";
+import type { AppData, Balance, Expense, ExpenseReviewStatus, MovementStatus, Role, User } from "../../types";
+import { formatDateTime } from "../../lib/dates";
 import { balanceVisibleId, localName, userDisplayName } from "../../lib/display";
 import { handleMoneyBlur, handleMoneyFocus, handleMoneyInput, money, parseMoneyInput } from "../../lib/money";
 import { ariaSort, compareValues, nextSort, sortIndicator, type SortState } from "../../lib/sorting";
 import { InfoCard, Modal, type TableColumn } from "../../components/ui";
-import { reverseSourceAccountMovements } from "../../lib/accountMovements";
-import { historicalCashMutationError } from "../../lib/cashAvailability";
 import { confirmAction } from "../../lib/confirmations";
 import { readUploadFile } from "../../lib/files";
 import {
@@ -15,10 +13,11 @@ import {
   principalAccountBalances,
 } from "../../lib/currentAccounts";
 import { commandContext } from "../../application/command";
+import { createPrincipalExpenseCommand } from "../../application/expenses/principalExpenseCommands";
 import {
-  annulPrincipalExpenseCommand,
-  createPrincipalExpenseCommand,
-} from "../../application/expenses/principalExpenseCommands";
+  annulManagedExpenseCommand,
+  reviewExpenseCommand,
+} from "../../application/expenses/expenseReviewCommands";
 
 type ExpenseRow = { expense: Expense; balance?: Balance };
 type ExpenseColumnKey =
@@ -55,14 +54,15 @@ const expenseColumns: TableColumn<ExpenseColumnKey>[] = [
 export function ManagerExpenses({
   data,
   user,
+  actorRole = user.role,
   patchData,
-  audit,
   setMessage,
 }: {
   data: AppData;
   user: User;
+  actorRole?: Role;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
+  audit?: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
 }) {
   const [query, setQuery] = useState("");
@@ -169,7 +169,7 @@ export function ManagerExpenses({
           receiptFileName: uploadedReceipt?.name,
           receiptFileType: uploadedReceipt?.type,
         },
-        commandContext(user, user.role),
+        commandContext(user, actorRole),
       );
       if (!result.ok) {
         setCreateError(result.error);
@@ -188,25 +188,20 @@ export function ManagerExpenses({
       setError("Para observar un gasto tenes que escribir una observacion.");
       return;
     }
-    const reviewedAt = nowIso();
     patchData((current) => {
-      const previous = current.expenses.find((expense) => expense.id === selectedRow.expense.id);
-      const expenses = current.expenses.map((expense) =>
-        expense.id === selectedRow.expense.id
-          ? {
-              ...expense,
-              reviewStatus: draftReviewStatus,
-              reviewedBy: user.id,
-              reviewedAt,
-              reviewNote: note,
-            }
-          : expense,
+      const result = reviewExpenseCommand(
+        current,
+        { expenseId: selectedRow.expense.id, status: draftReviewStatus, note },
+        commandContext(user, actorRole),
       );
-      const next = expenses.find((expense) => expense.id === selectedRow.expense.id);
-      return audit({ ...current, expenses }, "Revisar gasto", "Gasto", selectedRow.expense.id, previous, next, note);
+      if (!result.ok) {
+        setError(result.error);
+        return current;
+      }
+      setMessage("Gasto revisado y auditado.");
+      setError("");
+      return result.data;
     });
-    setMessage("Gasto revisado y auditado.");
-    setError("");
   };
 
   const annulExpense = () => {
@@ -217,66 +212,22 @@ export function ManagerExpenses({
       return;
     }
     if (!confirmAction("Anular este gasto? El movimiento queda auditado y no se borra.")) return;
-    const principalExpense = [PRINCIPAL_CASH_ACCOUNT_ID, PRINCIPAL_BANK_ACCOUNT_ID].includes(
-      selectedRow.expense.paymentAccountId,
-    );
-    if (principalExpense) {
-      patchData((current) => {
-        const result = annulPrincipalExpenseCommand(
-          current,
-          selectedRow.expense.id,
-          note,
-          commandContext(user, user.role),
-        );
-        if (!result.ok) {
-          setError(result.error);
-          return current;
-        }
-        setMessage("Gasto anulado y auditado.");
-        setSelectedExpenseId(null);
-        setError("");
-        return result.data;
-      });
-      return;
-    }
-    if (!selectedRow.balance) {
-      setError("El gasto no tiene una caja asociada valida.");
-      return;
-    }
-    const mutationError = historicalCashMutationError(data, selectedRow.expense.localId, selectedRow.balance.id);
-    if (mutationError) {
-      setError(mutationError);
-      return;
-    }
-    const reviewedAt = nowIso();
     patchData((current) => {
-      const previous = current.expenses.find((expense) => expense.id === selectedRow.expense.id);
-      const expenses = current.expenses.map((expense) =>
-        expense.id === selectedRow.expense.id
-          ? {
-              ...expense,
-              status: "ANULADO" as MovementStatus,
-              reviewStatus: "OBSERVADO" as ExpenseReviewStatus,
-              reviewedBy: user.id,
-              reviewedAt,
-              reviewNote: note,
-            }
-          : expense,
-      );
-      const accountMovements = reverseSourceAccountMovements(
-        current.accountMovements,
-        ["GASTO"],
+      const result = annulManagedExpenseCommand(
+        current,
         selectedRow.expense.id,
-        user.id,
         note,
-        reviewedAt,
+        commandContext(user, actorRole),
       );
-      const next = expenses.find((expense) => expense.id === selectedRow.expense.id);
-      return audit({ ...current, expenses, accountMovements }, "Anular gasto encargado", "Gasto", selectedRow.expense.id, previous, next, note);
+      if (!result.ok) {
+        setError(result.error);
+        return current;
+      }
+      setMessage("Gasto anulado y auditado.");
+      setSelectedExpenseId(null);
+      setError("");
+      return result.data;
     });
-    setMessage("Gasto anulado y auditado.");
-    setSelectedExpenseId(null);
-    setError("");
   };
 
   return (
