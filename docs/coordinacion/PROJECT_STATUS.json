@@ -12,7 +12,7 @@
   "current": {
     "phase": "prueba-local",
     "objective": "Mantener estable la prueba local, extraer mutaciones sensibles restantes y ampliar pruebas de los flujos administrativos pendientes.",
-    "activeWorkOrders": [],
+    "activeWorkOrders": ["2026-07-19-ENC-01"],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
@@ -40,7 +40,7 @@
     ]
   },
   "nextActions": [
-    "Extraer mutaciones sensibles restantes de handlers React.",
+    "Integrar el cableado Encargado de los comandos periodicos y de control de gastos.",
     "Ampliar E2E de tesoreria, cierre periodico y formularios administrativos."
   ],
   "registries": {

@@ -52,6 +52,7 @@
       "context": "docs/contextos/CODEX_ENCARGADO.md",
       "writeScopes": [
         "src/features/manager/",
+        "src/features/reports/Periodic.tsx",
         "src/features/dashboard/ManagerDashboard.tsx",
         "src/styles/features/dashboard-manager.css",
         "docs/contextos/CODEX_ENCARGADO.md",
