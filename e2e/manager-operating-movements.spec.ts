@@ -1,33 +1,16 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
-
-async function resetDemo(page: Page) {
-  await page.goto("/");
-  await page.evaluate((storageKey) => {
-    localStorage.removeItem(storageKey);
-    sessionStorage.clear();
-  }, STORAGE_KEY);
-  await page.reload();
-}
-
-async function login(page: Page, userId: string) {
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption(userId);
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
-  await expect(page).toHaveURL(/\/panel$/);
-}
+import { expect, test } from "@playwright/test";
+import { loginPoseidon, resetPoseidon, STORAGE_KEY } from "./support/poseidon";
 
 test("encargado paga un gasto desde Principal sin alterar la Caja activa", async ({ page, context }) => {
-  await resetDemo(page);
-  await login(page, "user-cajero1");
+  await resetPoseidon(page);
+  await loginPoseidon(page, "user-cajero1");
   await expect
     .poll(() => page.evaluate((storageKey) => Boolean(localStorage.getItem(storageKey)), STORAGE_KEY))
     .toBe(true);
 
   const managerPage = await context.newPage();
   await managerPage.goto("/");
-  await login(managerPage, "user-encargado");
+  await loginPoseidon(managerPage, "user-encargado");
 
   await page.getByRole("button", { name: "Abrir caja", exact: true }).click();
   await page.getByLabel("Fecha operativa").fill("2026-07-17");

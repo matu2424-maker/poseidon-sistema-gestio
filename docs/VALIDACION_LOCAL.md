@@ -72,7 +72,7 @@ El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http:
 
 Esta regla evita confundir copias independientes de `localStorage`; no convierte la persistencia local en una base multiusuario.
 
-La suite Playwright usa un perfil aislado de Chrome. Antes de cada caso limpia la clave local de Poseidon y la sesion de pestaña, y carga el dataset demo. Los casos cubren apertura, tres lecturas, cierre y persistencia; diferencias/auditoria; rutas, permisos y funcion activa; conflicto entre pestañas; y cierre salarial con revision correctiva. Las trazas y capturas se conservan solo cuando falla.
+La suite Playwright usa un perfil aislado de Chrome. `e2e/support/poseidon.ts` centraliza la limpieza de la clave local, sesion e ingreso por usuario. Los casos cubren apertura, tres lecturas, cierre y persistencia; diferencias/auditoria; rutas, permisos y funcion activa; conflicto entre pestañas; cierre salarial correctivo; tesoreria; cierre periodico; formularios administrativos; reinicio e importacion invalida. Las trazas y capturas se conservan solo cuando falla.
 
 El perfil de Playwright es descartable: valida comportamiento reproducible y nunca reemplaza ni certifica el estado operativo del perfil canonico de Chrome.
 
@@ -116,7 +116,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 
 - 41 archivos de pruebas y 210 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, cierres periodicos atomicos, revision/anulacion administrativa de gastos, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
 - La validacion profunda cubre las 22 colecciones de `AppData`, campos, enums, importes finitos, IDs, referencias, asociaciones de local/recaudacion y preservacion del snapshot rechazado.
-- La suite E2E en 8 archivos aprobo 16 de 16 casos: caja, fondos Principal -> Caja, efectivo negativo, desacople caja/libro, formularios y anulaciones, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
+- La suite E2E en 9 archivos aprobo 20 de 20 casos: caja, fondos Caja/Principal en ambos sentidos, efectivo negativo, desacople caja/libro, formularios y anulaciones, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, cierre periodico, usuarios/categorias, importacion invalida, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
@@ -139,4 +139,4 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 
 ## Cobertura pendiente
 
-Los flujos criticos de cajero, diferencias/auditoria, cierre salarial y navegacion por los tres roles tienen E2E. Los demas formularios administrativos todavia se validan con pruebas de integracion y smoke manual por rol.
+Los flujos criticos de cajero, tesoreria, diferencias/auditoria, cierre periodico, cierre salarial, recuperacion y navegacion por los tres roles tienen E2E. Usuarios y categorias ofrecen una muestra administrativa estable; Locales, Maquinas, Personal, Clientes y Papelera conservan cobertura de integracion y smoke manual por rol.

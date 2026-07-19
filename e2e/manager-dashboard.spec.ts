@@ -1,18 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
+import { loginPoseidon, resetPoseidon } from "./support/poseidon";
 
 async function openManagerPanel(page: Page) {
-  await page.goto("/");
-  await page.evaluate((storageKey) => {
-    localStorage.removeItem(storageKey);
-    sessionStorage.clear();
-  }, STORAGE_KEY);
-  await page.reload();
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption("user-encargado");
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
-  await expect(page).toHaveURL(/\/panel$/);
+  await resetPoseidon(page);
+  await loginPoseidon(page, "user-encargado");
   await expect(page.getByRole("heading", { name: "Panel del encargado", exact: true })).toBeVisible();
 }
 

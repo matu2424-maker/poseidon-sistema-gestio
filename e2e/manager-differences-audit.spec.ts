@@ -1,19 +1,14 @@
 import { expect, test, type Dialog, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
+import { loginPoseidon, resetPoseidon } from "./support/poseidon";
 
 async function loginAsManager(page: Page) {
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption("user-encargado");
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
+  await loginPoseidon(page, "user-encargado");
   await expect(page.getByRole("heading", { name: "Panel del encargado" })).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto("/");
-  await page.evaluate((storageKey) => localStorage.removeItem(storageKey), STORAGE_KEY);
-  await page.reload();
+  await resetPoseidon(page);
 });
 
 test("valida, corrige y audita una diferencia con detalle contable", async ({ page }) => {

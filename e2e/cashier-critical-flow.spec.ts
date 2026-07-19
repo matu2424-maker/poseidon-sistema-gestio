@@ -1,6 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
+import { loginPoseidon, resetPoseidon, STORAGE_KEY } from "./support/poseidon";
 const OPERATING_DATE = "2026-07-11";
 
 const numericText = async (cell: Locator) =>
@@ -13,9 +12,7 @@ const numericValueFromText = (value: string | null) =>
   Number((value ?? "").replace(/[^0-9-]/g, "") || 0);
 
 async function loginAsCashier(page: Page) {
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption("user-cajero1");
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
+  await loginPoseidon(page, "user-cajero1");
   await expect(page.getByRole("heading", { name: "Panel del cajero" })).toBeVisible();
 }
 
@@ -50,9 +47,7 @@ async function waitForOpenBalanceReadingsSaved(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
-  await page.evaluate((storageKey) => localStorage.removeItem(storageKey), STORAGE_KEY);
-  await page.reload();
+  await resetPoseidon(page);
 });
 
 test("abre, opera y cierra una caja conservando la recaudacion", async ({ page }) => {
@@ -132,9 +127,7 @@ test("bloquea un cierre con efectivo negativo y permite cubrir Caja desde Princi
 
   const managerPage = await context.newPage();
   await managerPage.goto("/");
-  await managerPage.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await managerPage.getByLabel("Entrar como").selectOption("user-encargado");
-  await managerPage.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
+  await loginPoseidon(managerPage, "user-encargado");
   await managerPage.goto("/cuentas-corrientes");
   await managerPage.getByRole("button", { name: "Movimiento de socio", exact: true }).click();
   const partnerModal = managerPage.getByRole("dialog", { name: "Aporte o retiro de socio" });

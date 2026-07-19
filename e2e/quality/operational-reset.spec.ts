@@ -1,26 +1,9 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
-
-async function resetDemo(page: Page) {
-  await page.goto("/");
-  await page.evaluate((storageKey) => {
-    localStorage.removeItem(storageKey);
-    sessionStorage.clear();
-  }, STORAGE_KEY);
-  await page.reload();
-}
-
-async function loginAsAdmin(page: Page) {
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption("user-admin");
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
-  await expect(page).toHaveURL(/\/panel$/);
-}
+import { expect, test } from "@playwright/test";
+import { loginPoseidon, resetPoseidon, STORAGE_KEY } from "../support/poseidon";
 
 test("Administrador respalda y crea una base operativa limpia", async ({ page }) => {
-  await resetDemo(page);
-  await loginAsAdmin(page);
+  await resetPoseidon(page);
+  await loginPoseidon(page, "user-admin");
   await page.goto("/administracion/datos-locales");
 
   const masterCountsBefore = await page.evaluate((storageKey) => {

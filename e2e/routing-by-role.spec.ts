@@ -1,25 +1,8 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
-
-async function resetDemo(page: Page) {
-  await page.goto("/");
-  await page.evaluate((storageKey) => {
-    localStorage.removeItem(storageKey);
-    sessionStorage.clear();
-  }, STORAGE_KEY);
-  await page.reload();
-}
-
-async function login(page: Page, userId: string) {
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption(userId);
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
-  await expect(page).toHaveURL(/\/panel$/);
-}
+import { expect, test } from "@playwright/test";
+import { loginPoseidon, resetPoseidon } from "./support/poseidon";
 
 test.beforeEach(async ({ page }) => {
-  await resetDemo(page);
+  await resetPoseidon(page);
 });
 
 test("una ruta directa retoma el modulo despues de identificar al usuario", async ({ page }) => {
@@ -38,7 +21,7 @@ test("una ruta directa retoma el modulo despues de identificar al usuario", asyn
 });
 
 test("cajero conserva la ruta y bloquea una operacion sin caja", async ({ page }) => {
-  await login(page, "user-cajero1");
+  await loginPoseidon(page, "user-cajero1");
 
   await page.goto("/caja/clientes");
   await expect(page).toHaveURL(/\/caja\/clientes$/);
@@ -52,7 +35,7 @@ test("cajero conserva la ruta y bloquea una operacion sin caja", async ({ page }
 });
 
 test("encargado usa URL directa, recarga y navegacion historica", async ({ page }) => {
-  await login(page, "user-encargado");
+  await loginPoseidon(page, "user-encargado");
 
   await page.getByRole("button", { name: "Ver diferencias", exact: true }).click();
   await expect(page).toHaveURL(/\/diferencias$/);
@@ -72,7 +55,7 @@ test("encargado usa URL directa, recarga y navegacion historica", async ({ page 
 });
 
 test("administrador conserva una ruta administrativa al recargar", async ({ page }) => {
-  await login(page, "user-admin");
+  await loginPoseidon(page, "user-admin");
 
   await page.goto("/locales");
   await expect(page).toHaveURL(/\/locales$/);

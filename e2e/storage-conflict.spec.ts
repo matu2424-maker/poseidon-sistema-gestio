@@ -1,29 +1,12 @@
-import { expect, test, type Page } from "@playwright/test";
-
-const STORAGE_KEY = "poseidon-sistema-gestion-v2";
-
-async function resetDemo(page: Page) {
-  await page.goto("/");
-  await page.evaluate((storageKey) => {
-    localStorage.removeItem(storageKey);
-    sessionStorage.clear();
-  }, STORAGE_KEY);
-  await page.reload();
-}
-
-async function loginAdmin(page: Page) {
-  await page.getByRole("button", { name: "Ingresar", exact: true }).click();
-  await page.getByLabel("Entrar como").selectOption("user-admin");
-  await page.locator("form").getByRole("button", { name: "Ingresar", exact: true }).click();
-  await expect(page).toHaveURL(/\/panel$/);
-}
+import { expect, test } from "@playwright/test";
+import { loginPoseidon, resetPoseidon, STORAGE_KEY } from "./support/poseidon";
 
 test("sincroniza una pestana pasiva y conserva el bloqueo de una version realmente desactualizada", async ({ page, context }) => {
-  await resetDemo(page);
-  await loginAdmin(page);
+  await resetPoseidon(page);
+  await loginPoseidon(page, "user-admin");
   const secondPage = await context.newPage();
   await secondPage.goto("/");
-  await loginAdmin(secondPage);
+  await loginPoseidon(secondPage, "user-admin");
 
   await page.goto("/administracion/categorias-gastos");
   await secondPage.goto("/administracion/categorias-gastos");

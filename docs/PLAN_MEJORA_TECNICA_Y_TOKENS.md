@@ -86,8 +86,7 @@ Agregar en este orden:
 - Completado inicial: E2E Playwright de apertura, carga de las tres maquinas, cierre y persistencia despues de recargar;
 - Completado: E2E de conflicto entre dos pestañas y recuperacion sin sobrescritura;
 - Completado: E2E de cierre salarial, bloqueo, correccion R1 y conservacion de la foto R0;
-- Pendiente: pruebas UI automatizadas de formularios administrativos y flujos completos del encargado;
-- En curso: fixture E2E compartido y casos de tesoreria, cierre periodico, formulario administrativo y recuperacion/importacion.
+- Completado inicial: fixture E2E compartido y casos de tesoreria, cierre periodico, usuarios/categorias y recuperacion/importacion; quedan maestros administrativos de mayor superficie.
 - Completado manual/documentado: smoke de cajero, encargado y administrador en navegador.
 
 ## Prioridad 5 - Navegacion y UI compartida

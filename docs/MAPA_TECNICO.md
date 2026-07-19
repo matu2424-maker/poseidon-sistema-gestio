@@ -182,6 +182,7 @@ src/
 
 - `components/ui.tsx`: `InfoCard`, `FormButtons`, `Modal` con gestion de foco/Escape y `ColumnChooser`.
 - `components/MonthlyPeriodSelector.tsx`: selector mensual comun.
+- `e2e/support/poseidon.ts`: preparacion compartida de almacenamiento, sesion, login y lectura de snapshot para Playwright.
 - `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
 - `features/cashier/ManagerCashActivity.tsx`: detalle ordenable de intervenciones del Encargado consumido por el cierre, sin escritura contable.
 - `features/dashboard/ManagerActivityTable.tsx`: tabla ordenable de los movimientos monetarios recientes del Panel del encargado.
@@ -267,7 +268,7 @@ Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de pl
 - El local operativo de `App.tsx` sigue resolviendose como Poseidon o el primer local; la estructura de datos es multi-local, pero el contexto operativo multi-local aun no esta completo.
 - La apertura ya rechaza cualquier segunda caja abierta del mismo local, sin depender de la fecha. Traslados/asignaciones de maquinas, ajustes administrativos de contadores y cierre de local tambien se bloquean durante esa caja.
 - Cierres periodicos y control administrativo de gastos ya tienen comandos atomicos compartidos; el cableado de su interfaz pertenece al workstream Encargado.
-- Cobertura E2E todavia es insuficiente para todo el ciclo de tesoreria, cierre periodico y formularios administrativos.
+- Cobertura E2E ampliada para tesoreria, cierre periodico, usuarios/categorias y rechazo de respaldos invalidos; quedan maestros administrativos de mayor superficie.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales y conserva el intento fallido para descargar o reintentar.
 - El adaptador local compara el snapshot esperado con el almacenado y evita que una pestaña desactualizada sobrescriba otra.
 

@@ -21,6 +21,7 @@ Validar Poseidon de forma independiente y entregar evidencia y sugerencias a Pos
 - Revisar 1920x1080, 1366x768, 1024x768 y 390x844 cuando el cambio sea visual.
 - Agregar E2E propios dentro de `e2e/quality/` solamente con orden de escritura.
 - Guardar informes autorizados en `docs/calidad/`.
+- Reutilizar `e2e/support/poseidon.ts` para limpiar almacenamiento, sesion e iniciar usuarios; no duplicar ese setup en cada spec.
 
 ## Fuera de alcance
 
