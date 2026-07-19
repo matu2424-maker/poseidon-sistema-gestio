@@ -18,7 +18,7 @@ Este documento contiene prioridades vigentes. Los bloques terminados viven en Gi
 - Aproximadamente 3.700 lineas fisicas CSS en 8 archivos por capas.
 - `global.css`: historicamente superaba 3.200 lineas; ahora es un manifiesto de 7 imports y la cascada se divide por capas/feature.
 - Documentacion anterior al bloque de optimizacion: aproximadamente 4.000 lineas.
-- Treinta y cinco archivos de pruebas, 183 casos, mas 12 casos E2E en 7 archivos.
+- La linea base historica de pruebas se conserva en Git; los conteos vigentes viven unicamente en `docs/VALIDACION_LOCAL.md`.
 - Archivos de mayor concentracion: Liquidacion de salarios, seed/normalizacion, Locales/Maquinas, historiales y estilos administrativos.
 - `App.tsx` ya funciona principalmente como orquestador y no es el primer objetivo por tamaño.
 
@@ -65,7 +65,7 @@ Primera division mecanica completada el 2026-07-10: editores/historiales de loca
 - Completado: movimientos operativos con validacion de funcion/caja, cuentas, contramovimientos y auditoria.
 - Completado: locales/maquinas con validacion de rol, referencias, taller, cuentas, historial y auditoria.
 - Pendiente: aplicar autorizacion de rol, funcion activa y local asignado de forma uniforme dentro de apertura, contadores, cierre y salarios.
-- Pendiente: extraer cierres periodicos y revision/anulacion administrativa de gastos que aun se resuelven en handlers React.
+- Completado en contrato compartido: cierres periodicos y revision/anulacion administrativa de gastos usan comandos atomicos; queda integrar el cableado del workstream Encargado y su E2E.
 
 No agregar Redux o un store complejo antes de definir comandos.
 
@@ -87,6 +87,7 @@ Agregar en este orden:
 - Completado: E2E de conflicto entre dos pestañas y recuperacion sin sobrescritura;
 - Completado: E2E de cierre salarial, bloqueo, correccion R1 y conservacion de la foto R0;
 - Pendiente: pruebas UI automatizadas de formularios administrativos y flujos completos del encargado;
+- En curso: fixture E2E compartido y casos de tesoreria, cierre periodico, formulario administrativo y recuperacion/importacion.
 - Completado manual/documentado: smoke de cajero, encargado y administrador en navegador.
 
 ## Prioridad 5 - Navegacion y UI compartida

@@ -70,6 +70,9 @@ Es la pantalla central de tesoreria:
 - La tabla contiene gastos de Caja y Principal.
 - La columna Cuenta distingue el origen financiero.
 - Agregar gasto siempre usa Principal/Efectivo o Principal/Banco.
+- Revisar u observar no modifica cuentas ni resultado economico.
+- Anular conserva el gasto, crea el reverso append-only y audita usuario real, funcion, local, fecha y motivo.
+- Las validaciones se ejecutan dentro del comando sobre el snapshot vigente, no sobre datos capturados por la pantalla.
 - Revisar, observar o anular conserva historial y auditoria.
 - Todas las columnas de datos son ordenables.
 
@@ -77,6 +80,7 @@ Es la pantalla central de tesoreria:
 
 - Consolida cajas cerradas y movimientos administrativos de Principal.
 - Incluye gastos y liquidaciones sin `balanceId` dentro del periodo/local.
+- Cada cierre periodico guarda una foto de un unico local mediante un comando atomico; una anulacion posterior no recalcula la foto.
 - Separa resultado economico, traspasos Caja/Principal y movimientos de socios.
 - La foto periodica no borra ni reinicia operaciones.
 

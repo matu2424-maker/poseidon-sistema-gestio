@@ -17,6 +17,7 @@
     "check:design": "node scripts/validate-design-system.mjs",
     "check:commit": "node scripts/precommit-check.mjs",
     "capture:visual": "node scripts/capture-visual-references.mjs",
+    "measure:snapshot-validation": "node scripts/measure-app-data-validation.mjs",
     "smoke:localhost": "node scripts/smoke-localhost.mjs",
     "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
     "check": "pnpm run check:agents && pnpm run check:workstreams && pnpm run check:skills && pnpm run check:design && pnpm run typecheck && pnpm run lint && pnpm test"

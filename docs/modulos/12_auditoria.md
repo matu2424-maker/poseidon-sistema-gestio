@@ -64,6 +64,8 @@ Permitir rastrear que paso, cuando paso, quien lo hizo y con que funcion.
 - Los cambios de salario base deben auditar fecha efectiva, valor anterior, valor nuevo, usuario y motivo.
 - Los descuentos salariales deben quedar auditados como reduccion de pendiente/base cubierta, no como salida de caja.
 - Cada cierre salarial audita la foto completa, usuario, revision, cierre padre y motivo. Las operaciones correctivas guardan el ID de la revision que las autorizo.
+- Generar o anular un cierre periodico registra actor real, funcion activa, local, rango, asociaciones y motivo sin crear movimientos monetarios.
+- Revisar u observar un gasto no altera saldos. Anularlo conserva la entidad, agrega reverso y audita el motivo.
 - Un cierre salarial incluido en auditoria conserva sus `localIds` desde los snapshots por empleado.
 - Las eliminaciones definitivas requieren confirmacion.
 - La tabla principal de auditoria permite ordenar por fecha/hora, usuario, accion, entidad, funcion y motivo.

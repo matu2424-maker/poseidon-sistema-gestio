@@ -26,7 +26,7 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Reinicio operativo local con respaldo automatico, maestros conservados, cuentas/contadores en cero y auditoria nueva.
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
-- Validacion automatizada vigente: 204 pruebas unitarias/de integracion en 39 archivos y 16 casos E2E en 8 archivos.
+- La evidencia automatizada vigente y sus conteos se mantienen en `docs/VALIDACION_LOCAL.md`.
 
 ## Modelo financiero vigente
 
@@ -152,6 +152,7 @@ Con el runtime del proyecto disponible:
 pnpm run check
 pnpm run check:governance
 pnpm run build
+pnpm run measure:snapshot-validation
 pnpm run check:commit
 ```
 
@@ -219,7 +220,7 @@ src/types.ts                         Contratos de datos
 - Chrome en `http://127.0.0.1:5173/` es la referencia operativa temporal; otros navegadores, perfiles u origenes conservan bases independientes.
 - Los adjuntos no conservan el archivo real.
 - La autorizacion es local y simulada.
-- Multi-local completo, validacion runtime profunda del snapshot, Auth, base remota y storage real quedan pendientes.
+- Multi-local completo, Auth, base remota y storage real quedan pendientes. La ruta futura de persistencia es directa desde `AppDataRepository` hacia PostgreSQL/Supabase, sin base local intermedia.
 
 ## Publicacion
 

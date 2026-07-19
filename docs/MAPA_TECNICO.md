@@ -166,6 +166,9 @@ src/
 | `application/movements/operatingMovementCommands.ts` | Gastos, transferencias y regalos de Caja con anulacion append-only; alta legacy de capital deshabilitada |
 | `application/treasury/treasuryCommands.ts` | Traspasos Caja/Principal y aportes/retiros de socios con fondos, permisos, asientos y auditoria |
 | `application/expenses/principalExpenseCommands.ts` | Alta/anulacion de gastos desde Principal/Efectivo o Principal/Banco, sin `balanceId` |
+| `application/expenses/expenseReviewCommands.ts` | Revision y anulacion administrativa atomica de gastos de Caja o Principal |
+| `application/reports/periodicClosureCommands.ts` | Generacion/anulacion atomica de fotos periodicas por local |
+| `application/localAccess.ts` | Validacion compartida de usuario real, funcion activa, local y asignacion |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
 | `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
 | `application/cash/closeCash.ts` | Cierre, traspasos Caja -> Principal, remanente declarado, diferencias, maquinas e historial |
@@ -263,7 +266,7 @@ Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de pl
 - Los comandos nuevos de Caja, tesoreria, gastos Principal y salarios validan actor, funcion, usuario, local y fondos. Operaciones sensibles que aun viven en handlers React deben extraerse con la misma politica.
 - El local operativo de `App.tsx` sigue resolviendose como Poseidon o el primer local; la estructura de datos es multi-local, pero el contexto operativo multi-local aun no esta completo.
 - La apertura ya rechaza cualquier segunda caja abierta del mismo local, sin depender de la fecha. Traslados/asignaciones de maquinas, ajustes administrativos de contadores y cierre de local tambien se bloquean durante esa caja.
-- Guardado de cierres periodicos, revision administrativa de gastos y algunos maestros todavia conservan mutaciones en handlers React.
+- Cierres periodicos y control administrativo de gastos ya tienen comandos atomicos compartidos; el cableado de su interfaz pertenece al workstream Encargado.
 - Cobertura E2E todavia es insuficiente para todo el ciclo de tesoreria, cierre periodico y formularios administrativos.
 - El snapshot sigue limitado por la cuota del navegador, aunque ya no recorta historiales y conserva el intento fallido para descargar o reintentar.
 - El adaptador local compara el snapshot esperado con el almacenado y evita que una pestaña desactualizada sobrescriba otra.
@@ -278,6 +281,7 @@ Completado en integridad local: los movimientos persistidos se conservan, las an
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.
 - IDs locales no son adecuados para concurrencia online.
+- `scripts/measure-app-data-validation.mjs` ofrece una linea base reproducible del costo de validar snapshots grandes; no impone un umbral dependiente del hardware.
 
 Completado en navegacion: React Router, URL estable por pantalla, ruta directa, recarga, Atrás/Adelante, sesion de pestaña, permisos por funcion, requisito de caja abierta, menus/titulos centralizados, confirmacion unica y avisos compartidos. Se eliminaron estados de pantalla heredados sin render y `WelcomeScreen.tsx` sin uso.
 

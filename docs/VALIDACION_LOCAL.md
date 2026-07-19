@@ -2,7 +2,7 @@
 
 Ultima actualizacion: 2026-07-19
 
-Este documento define la validacion tecnica y funcional minima. No reemplaza las pruebas especificas de cada modulo.
+Este documento define la validacion tecnica y funcional minima. Es la unica fuente canonica para conteos y evidencia vigente; otros documentos deben referenciarlo sin copiar esas cifras. No reemplaza las pruebas especificas de cada modulo.
 
 ## Validacion automatica
 
@@ -31,6 +31,16 @@ pnpm run check:commit
 8. Vitest sobre `src/` y `scripts/`.
 
 `check:agents`, `check:governance`, `check:workstreams`, `check:skills` y `check:design` pueden ejecutarse por separado. `check:workstreams` incluye gobierno para evitar una coordinacion parcialmente validada. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
+
+## Rendimiento de la validacion profunda
+
+La medicion reproducible se ejecuta sin escribir datos:
+
+```bash
+pnpm run measure:snapshot-validation
+```
+
+Acepta `--records=<cantidad>` y `--runs=<cantidad>`. La referencia del 2026-07-19, con 10.000 eventos de auditoria y 20 ejecuciones, dio mediana `26,89 ms`, p95 `36,84 ms` y maximo `36,88 ms` en este equipo. Es evidencia comparativa para detectar regresiones; no es un umbral rigido de CI porque depende del hardware y la carga local.
 
 ## Entorno y servidor
 
@@ -104,7 +114,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 
 ## Evidencia vigente al 2026-07-19
 
-- 39 archivos de pruebas y 204 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, consolidacion periodica, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
+- 41 archivos de pruebas y 210 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, cierres periodicos atomicos, revision/anulacion administrativa de gastos, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
 - La validacion profunda cubre las 22 colecciones de `AppData`, campos, enums, importes finitos, IDs, referencias, asociaciones de local/recaudacion y preservacion del snapshot rechazado.
 - La suite E2E en 8 archivos aprobo 16 de 16 casos: caja, fondos Principal -> Caja, efectivo negativo, desacople caja/libro, formularios y anulaciones, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.

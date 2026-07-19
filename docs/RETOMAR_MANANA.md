@@ -9,7 +9,7 @@ Ultima actualizacion: 2026-07-19
 - Sin Supabase, Auth, Storage remoto ni despliegue.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
-- Validacion vigente: 204 pruebas en 39 archivos y 16 casos E2E.
+- Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
 

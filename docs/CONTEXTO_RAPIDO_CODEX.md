@@ -19,7 +19,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
-- Validacion vigente: 204 pruebas unitarias/de integracion en 39 archivos y 16 casos E2E en 8 archivos.
+- Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`; no duplicarlos en contextos cortos.
 - Panel del Encargado: resumen puro, control financiero compacto, resultado mensual, recaudacion activa, accesos unicos y actividad reciente ordenable.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.

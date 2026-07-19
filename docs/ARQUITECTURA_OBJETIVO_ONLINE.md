@@ -1,10 +1,12 @@
 # Poseidon - Arquitectura objetivo online
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-19
 
 Estado: diseno futuro. Nada de este documento esta conectado o desplegado actualmente.
 
 Base local ya implementada: `AppDataRepository` asincrono, codec de respaldo, adaptador `localStorage` y cola de escrituras ordenadas. No existe adaptador online ni conexion externa.
+
+Decision vigente: cuando se autorice la etapa online, la evolucion sera directa desde el adaptador `localStorage` hacia PostgreSQL/Supabase. No se incorpora PGlite, IndexedDB como base relacional ni otro almacenamiento intermedio salvo una decision futura y explicita de producto que requiera operacion offline-first.
 
 ## Objetivo
 
@@ -15,6 +17,7 @@ Preparar una evolucion desde la aplicacion local actual hacia un sistema online 
 - El sistema sigue usando `localStorage` hasta que el usuario autorice otra etapa.
 - No guardar credenciales, URLs privadas ni claves en documentacion o codigo versionado.
 - No activar Supabase, autenticacion, Storage, Vercel ni servicios externos por anticipado.
+- No agregar una base local intermedia: `AppDataRepository` es la frontera de reemplazo y evita acoplar la aplicacion al proveedor futuro.
 - La migracion debe preservar IDs visibles, relaciones, saldos, estados e historial.
 
 ## Arquitectura propuesta

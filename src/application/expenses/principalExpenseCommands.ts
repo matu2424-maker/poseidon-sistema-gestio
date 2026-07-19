@@ -11,6 +11,7 @@ import {
   PRINCIPAL_CASH_ACCOUNT_ID,
 } from "../../lib/currentAccounts";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { localCommandAccessError } from "../localAccess";
 
 export type CreatePrincipalExpenseInput = {
   localId: string;
@@ -24,19 +25,13 @@ export type CreatePrincipalExpenseInput = {
 };
 
 function accessError(data: AppData, localId: string, context: CommandContext) {
-  const actorMatchesUser =
-    context.actorRole === context.user.role ||
-    (context.actorRole === "ENCARGADO" && context.user.role === "ADMINISTRADOR");
-  if (!actorMatchesUser) return "La funcion activa no corresponde al usuario autenticado.";
-  if (!["ENCARGADO", "ADMINISTRADOR"].includes(context.actorRole)) {
-    return "La funcion activa no permite registrar gastos desde Principal.";
-  }
-  if (context.user.status !== "ACTIVO") return "El usuario no esta activo.";
-  if (!data.locals.some((local) => local.id === localId)) return "No se encontro el local.";
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(localId)) {
-    return "El usuario no esta asignado al local seleccionado.";
-  }
-  return "";
+  return localCommandAccessError(
+    data,
+    localId,
+    context,
+    ["ENCARGADO", "ADMINISTRADOR"],
+    "La funcion activa no permite registrar gastos desde Principal.",
+  );
 }
 
 export function createPrincipalExpenseCommand(

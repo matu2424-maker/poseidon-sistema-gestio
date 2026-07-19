@@ -1,6 +1,6 @@
 # Poseidon - Registro de delegaciones Codex
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica vive en `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
 
@@ -26,6 +26,8 @@ Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica v
 | `2026-07-16-CAJA-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar reconciliacion de caja y migracion de transferencias | `UTIL` | No medida por perfil | No disponible | Causalidad exacta del delta, orden de validacion, bloqueo de salarios/gastos historicos y migracion versionada | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-18-DEMO-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar la carga integral del escenario demo | `NO_UTIL` | No disponible | No disponible | Ninguno: no entrego un resultado util dentro del tiempo de la tarea | BAJA | Interrumpido, cerrado, solo lectura |
 | `2026-07-18-CAJ-02` | Chat permanente `Poseidon Cajero` | Mejorar resiliencia, saldos, cierre y responsive del Panel del Cajero | `UTIL` | No disponible | No disponible | Formularios preservados ante rechazos, disponibilidad visible, anulaciones append-only consumidas, cierre bloqueado con pendientes y resumen movil contenido | BAJA | Orden completada; chat disponible y worktree limpio; escritura controlada |
+| `2026-07-19-EFI-ALCANCE-01` | `poseidon_scope_mapper` nominal | Mapear mutaciones sensibles de cierres periodicos y control de gastos | `UTIL` | No disponible | No disponible | Propiedad Encargado, contratos compartidos, riesgo multi-local y matriz de pruebas | BAJA | Completado, cerrado, solo lectura |
+| `2026-07-19-EFI-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar invariantes contables de cierres periodicos y anulacion administrativa de gastos | `UTIL` | No disponible | No disponible | Deltas monetarios, foto inmutable, reversos append-only, actor/funcion/local y casos de rechazo atomico | BAJA | Completado, cerrado, solo lectura |
 
 ## Evaluacion de perfiles nuevos
 

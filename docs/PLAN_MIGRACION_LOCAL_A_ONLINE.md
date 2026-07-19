@@ -1,12 +1,14 @@
 # Poseidon - Plan de migracion local a online
 
-Ultima actualizacion: 2026-07-11
+Ultima actualizacion: 2026-07-19
 
 Estado: plan futuro. No autoriza conexiones, despliegues ni cambios de persistencia.
 
 ## Objetivo
 
 Migrar Poseidon desde `localStorage` hacia la arquitectura definida en `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`, manteniendo el sistema local disponible hasta que la version online sea verificada y aprobada.
+
+Ruta aprobada de preparacion: `localStorage` -> `AppDataRepository` -> PostgreSQL/Supabase. PGlite u otra base intermedia quedan fuera del plan para evitar una migracion adicional sin necesidad offline confirmada.
 
 ## Principios
 

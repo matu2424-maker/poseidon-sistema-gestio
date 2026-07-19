@@ -445,6 +445,8 @@ Cuentas corrientes tambien es la entrada administrativa para:
 - Informa traspasos Caja/Principal y movimientos patrimoniales de socios.
 - La foto periodica conserva IDs de cajas, gastos, salarios, traspasos y socios incluidos.
 - Un cierre periodico no borra ni reinicia operaciones.
+- Cada foto corresponde a un unico local. Usuario, funcion activa, asignacion, rango y referencias se validan atomica y nuevamente al guardar.
+- Anular una foto cambia solamente su estado y agrega auditoria; no recalcula ni reescribe los importes guardados.
 
 ## 23. Auditoria
 
@@ -458,6 +460,8 @@ Toda accion sensible registra, cuando aplica:
 - antes/despues;
 - motivo;
 - local y recaudacion.
+
+La revision de un gasto modifica solo sus metadatos y auditoria. Su anulacion conserva la entidad original y agrega el contramovimiento correspondiente; nunca elimina el registro.
 
 Administrador ve todo. Encargado ve eventos de sus locales. No se auditan contraseñas ni contenido inline de archivos.
 
