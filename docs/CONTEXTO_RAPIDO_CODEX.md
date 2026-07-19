@@ -21,6 +21,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`; no duplicarlos en contextos cortos.
 - Panel del Encargado: resumen puro, control financiero compacto, resultado mensual, recaudacion activa, accesos unicos y actividad reciente ordenable.
+- Cierre periodico y revision/anulacion de gastos del Encargado consumen comandos atomicos; React no construye sus auditorias ni reversos.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.
 - Regla de propiedad: todo cambio no trivial de una experiencia de rol se ejecuta en su chat permanente; la autorizacion del usuario no reasigna esa propiedad a Central.
@@ -99,6 +100,6 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Prioridades pendientes
 
-1. Extraer mutaciones sensibles restantes de handlers React.
-2. Ampliar E2E de tesoreria, reportes periodicos y formularios administrativos.
+1. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
+2. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera.
 3. Mantener el foco operativo en Poseidon; no iniciar multi-local ni migracion online sin autorizacion.

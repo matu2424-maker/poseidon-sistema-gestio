@@ -65,7 +65,7 @@ Primera division mecanica completada el 2026-07-10: editores/historiales de loca
 - Completado: movimientos operativos con validacion de funcion/caja, cuentas, contramovimientos y auditoria.
 - Completado: locales/maquinas con validacion de rol, referencias, taller, cuentas, historial y auditoria.
 - Pendiente: aplicar autorizacion de rol, funcion activa y local asignado de forma uniforme dentro de apertura, contadores, cierre y salarios.
-- Completado en contrato compartido: cierres periodicos y revision/anulacion administrativa de gastos usan comandos atomicos; queda integrar el cableado del workstream Encargado y su E2E.
+- Completado: cierres periodicos y revision/anulacion administrativa de gastos usan comandos atomicos; las pantallas del Encargado consumen esos contratos con funcion activa explicita y tienen cobertura E2E.
 
 No agregar Redux o un store complejo antes de definir comandos.
 
@@ -132,6 +132,16 @@ Postergado por decision de producto: contexto operativo multi-local. Mientras el
 - Completado en local: puerto `AppDataRepository`, codec de respaldo, adaptador `localStorage` y cola asincrona de escrituras.
 - Completado en local: control optimista de version, respaldo del intento fallido y recuperacion explicita ante conflicto.
 - Mientras no se autorice: mantener adaptador local y no crear conexiones/credenciales.
+
+## Bloque de eficiencia completado 2026-07-19
+
+1. Control de Chrome recuperado y comprobado sobre Poseidon en una sesion agrupada propia.
+2. Conteos vigentes eliminados de handoffs y contextos; `docs/VALIDACION_LOCAL.md` queda como fuente unica.
+3. Mutaciones sensibles de cierre periodico y control de gastos extraidas y conectadas a comandos atomicos.
+4. E2E ampliado para tesoreria, cierre periodico, formularios administrativos y rechazo de snapshots incompatibles.
+5. Fixture y helpers compartidos para preparar sesion, almacenamiento e ingreso en Playwright.
+6. Benchmark reproducible de validacion profunda mediante `pnpm run measure:snapshot-validation`.
+7. Ruta online conservada como migracion directa `AppDataRepository` -> PostgreSQL/Supabase, sin PGlite ni otra base intermedia.
 
 ## Reglas para ahorrar tokens
 

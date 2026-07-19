@@ -1,6 +1,6 @@
 # Poseidon - Handoff tecnico
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 Documento para continuar desde otra cuenta o agente sin leer el chat. Las fuentes canonicas tienen prioridad sobre este resumen.
 
@@ -22,7 +22,7 @@ No modificar archivos sin orden literal u objetivo activo. No publicar, hacer pu
 - Snapshot esquema `5`, clave `poseidon-sistema-gestion-v2`.
 - Login de prueba por usuario, sin contraseña.
 - Local operativo actual: Poseidon.
-- 186 pruebas unitarias/de integracion en 36 archivos, mas 14 casos E2E en 8 archivos.
+- Los conteos y la evidencia de pruebas vigentes viven exclusivamente en `docs/VALIDACION_LOCAL.md`.
 - Servidor oficial: `iniciar-poseidon.bat`, URL `http://127.0.0.1:5173/`.
 
 ## Gobierno operativo
@@ -119,7 +119,6 @@ Validar roles Cajero, Encargado y Administrador; escritorio y movil para cambios
 
 ## Pendientes
 
-- Validacion runtime profunda del snapshot.
-- E2E adicional de tesoreria y cierre periodico.
-- Extraer handlers React sensibles restantes.
+- Uniformar autorizacion de usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
+- Completar recorridos E2E de Locales, Maquinas, Personal, Clientes y Papelera.
 - Auth/base/storage real y multi-local completo en etapa futura autorizada.

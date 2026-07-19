@@ -15,6 +15,11 @@ Ultima actualizacion: 2026-07-19
 
 ## Ultimo bloque tecnico
 
+- Cierre periodico y control administrativo de gastos ya delegan generacion, revision y anulacion a comandos atomicos sobre el snapshot vigente.
+- React recibe la funcion activa y no construye auditorias, fechas, IDs ni reversos de esos flujos.
+- Playwright usa helpers y fixtures compartidos y cubre tesoreria, cierre periodico, formularios administrativos y recuperacion/importacion.
+- La validacion profunda tiene un benchmark reproducible documentado en `docs/VALIDACION_LOCAL.md`.
+- Chrome volvio a quedar controlable y Poseidon fue comprobado en el origen canonico.
 - `AppData` se valida con esquemas Zod Mini estrictos y reglas cruzadas para las 22 colecciones.
 - Carga, importacion, migracion y guardado rechazan IDs duplicados, referencias huerfanas, asociaciones local/recaudacion incoherentes y estructuras incompletas.
 - El almacenamiento valido no se sobrescribe ante error; el JSON original o el intento fallido queda disponible para recuperacion con rutas concretas del problema.
@@ -61,8 +66,8 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Extraer mutaciones sensibles restantes de handlers React.
-2. Ampliar E2E de tesoreria, cierre periodico y formularios administrativos.
+1. Uniformar autorizacion dentro de apertura, contadores, cierre y salarios.
+2. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera.
 3. Mantener multi-local completo y migracion online postergados hasta autorizacion.
 
 ## Ruta de inicio

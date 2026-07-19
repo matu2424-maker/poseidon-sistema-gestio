@@ -40,7 +40,7 @@ La medicion reproducible se ejecuta sin escribir datos:
 pnpm run measure:snapshot-validation
 ```
 
-Acepta `--records=<cantidad>` y `--runs=<cantidad>`. La referencia del 2026-07-19, con 10.000 eventos de auditoria y 20 ejecuciones, dio mediana `26,89 ms`, p95 `36,84 ms` y maximo `36,88 ms` en este equipo. Es evidencia comparativa para detectar regresiones; no es un umbral rigido de CI porque depende del hardware y la carga local.
+Acepta `--records=<cantidad>` y `--runs=<cantidad>`. La referencia final del 2026-07-19, con 10.000 eventos de auditoria y 20 ejecuciones, dio mediana `19,73 ms`, p95 `21,54 ms` y maximo `22,52 ms` en este equipo. Es evidencia comparativa para detectar regresiones; no es un umbral rigido de CI porque depende del hardware y la carga local.
 
 ## Entorno y servidor
 
@@ -69,6 +69,8 @@ El smoke HTTP exige respuesta `200`, nodo `#root` y titulo de Poseidon en `http:
 - Si Chrome no esta disponible o no puede controlarse, registrar la limitacion y no sustituirlo silenciosamente por otro navegador.
 - Evitar que el usuario y una automatizacion modifiquen simultaneamente el mismo perfil de Chrome.
 - Antes de importar, reiniciar o reemplazar datos del perfil canonico, generar respaldo y solicitar confirmacion.
+
+Si la extension figura instalada pero Codex no puede conectarse, realizar una sola reconexion mediante el plugin y comprobarla abriendo una pestana temporal. No inferir el estado del control solo desde claves del registro de Windows. Si la conexion oficial sigue sin estar disponible, reinstalar el plugin desde Codex, reiniciar Chrome y repetir esa comprobacion antes de usar datos operativos.
 
 Esta regla evita confundir copias independientes de `localStorage`; no convierte la persistencia local en una base multiusuario.
 
@@ -130,6 +132,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - Browser: `/panel` -> `/locales`, recarga y Atrás/Adelante aprobados sin errores de consola.
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
+- Chrome canonico: control recuperado; acceso como Encargado, Control de gastos, detalle operativo y Cierre periodico aprobados sin errores de consola.
 - Cierre desconciliado: aviso con caja/libro/delta visible, aporte ordinario ausente y cierre deshabilitado; QA visual aprobada en 1280 x 720 y 390 x 844 sin overflow horizontal.
 - Cuentas corrientes: grupos Caja, Principal, Socios y Otras; selector, movimientos y tabla ordenable aprobados en 1024 x 768 y 390 x 844 sin overflow global.
 - Control de gastos: alta desde Principal con selector Efectivo/Banco, saldos disponibles, tabla ordenable y modal aprobados en 1366 x 768 y 390 x 844 sin errores de consola.

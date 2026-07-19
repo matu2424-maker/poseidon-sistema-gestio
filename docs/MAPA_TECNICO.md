@@ -186,6 +186,8 @@ src/
 - `features/cashier/MovementTable.tsx`: marco y tabla ordenable para movimientos del cajero.
 - `features/cashier/ManagerCashActivity.tsx`: detalle ordenable de intervenciones del Encargado consumido por el cierre, sin escritura contable.
 - `features/dashboard/ManagerActivityTable.tsx`: tabla ordenable de los movimientos monetarios recientes del Panel del encargado.
+- `features/manager/Expenses.tsx`: presenta alta, revision y anulacion; delega reglas, reversos y auditoria a comandos de aplicacion con funcion activa explicita.
+- `features/reports/Periodic.tsx`: presenta rangos, totales y fotos; delega generacion y anulacion a comandos atomicos por local.
 - `features/clients/clientTable.ts`: orden y estados compartidos de clientes.
 
 ## Dependencias criticas

@@ -11,17 +11,17 @@
   },
   "current": {
     "phase": "prueba-local",
-    "objective": "Mantener estable la prueba local, extraer mutaciones sensibles restantes y ampliar pruebas de los flujos administrativos pendientes.",
-    "activeWorkOrders": ["2026-07-19-ENC-01"],
+    "objective": "Mantener estable la prueba local, reforzar autorizacion dentro de los comandos restantes y completar la cobertura administrativa prioritaria.",
+    "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-19-CEN-01",
-    "title": "Validacion profunda del snapshot local",
+    "id": "2026-07-19-CEN-02",
+    "title": "Eficiencia tecnica, comandos administrativos y cobertura E2E",
     "state": "INTEGRADA",
-    "evidence": "Central incorporo esquemas Zod Mini para las 22 colecciones y reglas cruzadas de IDs, referencias y asociaciones; carga, importacion, migracion y guardado rechazan snapshots invalidos sin sobrescribir el contenido recuperable. Validacion transversal: 204 pruebas, 16/16 E2E, TypeScript, ESLint, gobierno, agentes, skills, sistema visual, build y smoke local aprobados."
+    "evidence": "Central deduplico la documentacion, extrajo y conecto comandos atomicos para cierres periodicos y control de gastos, incorporo fixtures E2E reutilizables, amplio recorridos de tesoreria, administracion y recuperacion, midio la validacion profunda y comprobo Chrome. La evidencia vigente vive en docs/VALIDACION_LOCAL.md."
   },
   "health": {
     "overall": "YELLOW",
@@ -35,13 +35,14 @@
       {
         "id": "RISK-002",
         "severity": "MEDIUM",
-        "summary": "Cobertura E2E incompleta para tesoreria, cierre periodico y formularios administrativos."
+        "summary": "Locales, Maquinas, Personal, Clientes y Papelera aun no tienen recorridos E2E completos de alta, edicion y baja logica."
       }
     ]
   },
   "nextActions": [
-    "Integrar el cableado Encargado de los comandos periodicos y de control de gastos.",
-    "Ampliar E2E de tesoreria, cierre periodico y formularios administrativos."
+    "Aplicar autorizacion uniforme de usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.",
+    "Agregar E2E completos para Locales, Maquinas, Personal, Clientes y Papelera.",
+    "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."
   ],
   "registries": {
     "workstreams": "docs/coordinacion/WORKSTREAMS.json",

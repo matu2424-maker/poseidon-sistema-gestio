@@ -54,15 +54,14 @@ const expenseColumns: TableColumn<ExpenseColumnKey>[] = [
 export function ManagerExpenses({
   data,
   user,
-  actorRole = user.role,
+  actorRole,
   patchData,
   setMessage,
 }: {
   data: AppData;
   user: User;
-  actorRole?: Role;
+  actorRole: Role;
   patchData: (updater: (current: AppData) => AppData) => void;
-  audit?: (current: AppData, action: string, entity: string, entityId: string, previousValue: unknown, newValue: unknown, reason?: string) => AppData;
   setMessage: (message: string) => void;
 }) {
   const [query, setQuery] = useState("");
