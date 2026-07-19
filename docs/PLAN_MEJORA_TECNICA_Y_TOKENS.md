@@ -1,6 +1,6 @@
 # Poseidon - Plan tecnico y ahorro de contexto
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 Este documento contiene prioridades vigentes. Los bloques terminados viven en Git y no se enumeran uno por uno aqui.
 
@@ -106,7 +106,6 @@ Agregar en este orden:
 1. Reforzar autorizacion dentro de comandos y separar usuario real, funcion activa y locales permitidos.
 2. Extraer a comandos las operaciones sensibles que todavia modifican varias colecciones desde React.
 3. Ampliar pruebas de cierre periodico y permisos negativos.
-4. Completar al final la validacion runtime profunda del snapshot.
 
 Completado 2026-07-16: una sola caja abierta por local, bloqueos de maquinas/local con caja abierta, periodos salariales validos, referencias ampliadas, auditoria historica estable y guardado local con deteccion de conflictos.
 
@@ -116,17 +115,15 @@ Completado 2026-07-17: esquema 5, migraciones financieras incrementales, reconci
 
 Postergado por decision de producto: contexto operativo multi-local. Mientras el foco siga exclusivamente en Poseidon no se implementa selector de local activo.
 
-### Pendiente reservado para el bloque final
+### Bloque final completado 2026-07-19
 
 **Validacion profunda del snapshot**
 
-- definir esquemas runtime para todas las colecciones, campos, enums e importes finitos;
-- validar referencias entre balances, lecturas, maquinas, movimientos, personal, clientes y cierres;
-- ampliar las migraciones incrementales por `schemaVersion`; la infraestructura y los pasos 3 -> 4 y 4 -> 5 ya estan implementados;
-- conservar el JSON original y producir un informe de errores sin borrar relaciones silenciosamente;
-- cubrir snapshots validos, heredados, corruptos y con referencias huerfanas mediante fixtures.
-
-La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega una dependencia antes de necesitarla.
+- Completado: esquemas Zod Mini estrictos para las 22 colecciones, campos, enums e importes finitos.
+- Completado: referencias e invariantes entre balances, lecturas, maquinas, cuentas, movimientos, personal, clientes y cierres.
+- Completado: los snapshots heredados usan las migraciones incrementales existentes y se validan profundamente despues de migrar.
+- Completado: el JSON original o intento fallido se conserva y el informe identifica rutas sin borrar relaciones silenciosamente.
+- Completado: fixtures validos, heredados, corruptos, duplicados, con referencias huerfanas y asociaciones cruzadas incorrectas.
 
 ## Preparacion online sin implementacion
 
@@ -176,7 +173,7 @@ La libreria de esquema runtime se elegira al iniciar ese bloque; no se agrega un
 - Fuente canonica: `docs/coordinacion/README.md`.
 - Completado 2026-07-18: gobierno SOPM-Lite integrado sin prompts gigantes ni estructura paralela.
 - `PROJECT_STATUS.json`, `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json` conservan estado verificable y referencias dirigidas.
-- `pnpm run check:governance` valida 5 decisiones, 2 migraciones, 13 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
+- `pnpm run check:governance` valida 5 decisiones, 2 migraciones, 14 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
 
 ## Skills y control previo al commit
 

@@ -9,6 +9,7 @@ import {
 } from "../lib/currentAccounts";
 import { nowIso } from "../lib/dates";
 import { money } from "../lib/money";
+import { assertValidAppData } from "../infrastructure/storage/appDataValidation";
 import { normalizeData } from "./appData";
 
 export const CASH_TRANSFER_RECONCILIATION_MIGRATION_ID = "schema-v4-transfer-cash-reconciliation";
@@ -228,7 +229,8 @@ export function hydrateAppData(
   const reconciled = needsTransferCashReconciliation
     ? reconcileLegacyTransferCashMigration(normalized, options)
     : normalized;
-  return needsPrincipalAccountsMigration
+  const migrated = needsPrincipalAccountsMigration
     ? migrateLegacyCapitalToPrincipalAccounts(reconciled, options)
     : reconciled;
+  return assertValidAppData(migrated);
 }

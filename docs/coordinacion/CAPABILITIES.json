@@ -143,6 +143,20 @@
       "paths": ["scripts/validate-governance.mjs"],
       "validationCommand": "pnpm run check:governance",
       "externalAccess": false
+    },
+    {
+      "id": "CAP-VALIDATOR-APP-DATA",
+      "name": "Validador profundo de AppData",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C2",
+      "paths": [
+        "src/infrastructure/storage/appDataSchemas.ts",
+        "src/infrastructure/storage/appDataValidation.ts"
+      ],
+      "validationCommand": "pnpm run check",
+      "externalAccess": false
     }
   ]
 }

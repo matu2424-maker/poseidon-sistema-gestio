@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea. No releer todo el repositorio por defecto.
 
@@ -12,13 +12,14 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Chrome, en el perfil habitual del usuario y `http://127.0.0.1:5173/`, es la unica fuente canonica de datos para validaciones manuales; no sustituirlo silenciosamente por el navegador integrado.
 - Playwright conserva datos aislados y descartables; valida comportamiento, no el estado operativo de Chrome.
 - Snapshot actual: esquema `5`.
+- Los snapshots de esquema actual se validan de forma estricta antes de cargar, importar o guardar; los heredados migran primero y luego deben cumplir las mismas relaciones.
 - Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
 - Sin Auth, base remota, storage real ni despliegue.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
-- Validacion vigente: 191 pruebas unitarias/de integracion en 38 archivos y 14 casos E2E en 8 archivos.
+- Validacion vigente: 204 pruebas unitarias/de integracion en 39 archivos y 16 casos E2E en 8 archivos.
 - Panel del Encargado: resumen puro, control financiero compacto, resultado mensual, recaudacion activa, accesos unicos y actividad reciente ordenable.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.
@@ -98,7 +99,6 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Prioridades pendientes
 
-1. Completar validacion runtime profunda del snapshot al final de la etapa local.
-2. Extraer mutaciones sensibles restantes de handlers React.
-3. Ampliar E2E de tesoreria, reportes periodicos y formularios administrativos.
-4. Mantener el foco operativo en Poseidon; no iniciar multi-local ni migracion online sin autorizacion.
+1. Extraer mutaciones sensibles restantes de handlers React.
+2. Ampliar E2E de tesoreria, reportes periodicos y formularios administrativos.
+3. Mantener el foco operativo en Poseidon; no iniciar multi-local ni migracion online sin autorizacion.

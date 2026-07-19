@@ -33,6 +33,19 @@ describe("repositorio local de AppData", () => {
     if (result.status === "ready") expect(result.data.locals[0].name).toBe("Poseidon");
   });
 
+  it("conserva intacto un respaldo actual corrupto para recuperacion", () => {
+    const seed = createSeedData();
+    const raw = JSON.stringify({
+      kind: "poseidon-app-data",
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      savedAt: "2026-07-19T10:00:00.000Z",
+      data: { ...seed, gifts: seed.gifts.map((gift, index) => (index === 0 ? { ...gift, balanceId: "missing" } : gift)) },
+    });
+    const result = importLocalAppData(raw);
+    expect(result).toMatchObject({ status: "corrupt", raw });
+    if (result.status === "corrupt") expect(result.error).toContain("gifts[0].balanceId");
+  });
+
   it("cumple el puerto asincrono usando almacenamiento clave-valor local", async () => {
     const values = new Map<string, string>();
     const storage: KeyValueStorage = {
@@ -89,5 +102,27 @@ describe("repositorio local de AppData", () => {
     expect(result).toMatchObject({ status: "failed", error: "Cuota agotada" });
     if (result.status !== "failed") return;
     expect(result.attemptedRaw).toContain("poseidon-app-data");
+  });
+
+  it("no guarda un estado incoherente y conserva el intento serializado", async () => {
+    const values = new Map<string, string>();
+    const storage: KeyValueStorage = {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+      removeItem: (key) => values.delete(key),
+    };
+    const seed = createSeedData();
+    const invalid = {
+      ...seed,
+      expenses: seed.expenses.map((expense, index) =>
+        index === 0 ? { ...expense, paymentAccountId: "account-inexistente" } : expense,
+      ),
+    };
+    const result = await createLocalAppDataRepository(storage).save(invalid, null);
+    expect(result).toMatchObject({ status: "failed" });
+    if (result.status !== "failed") return;
+    expect(result.error).toContain("expenses[0].paymentAccountId");
+    expect(result.attemptedRaw).toContain("account-inexistente");
+    expect(values.size).toBe(0);
   });
 });

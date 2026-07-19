@@ -1,6 +1,6 @@
 # Poseidon - Funcionamiento vigente
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-19
 
 Este documento describe el comportamiento funcional implementado. Las formulas y asientos canonicos viven en `docs/REGLAS_CONTABLES.md`; las reglas transversales en `docs/REGLAS_GENERALES.md`.
 
@@ -487,6 +487,9 @@ Administrador ve todo. Encargado ve eventos de sus locales. No se auditan contra
 - Esta excepcion destructiva existe solo para pruebas locales y no representa anulaciones ni movimientos contables de produccion.
 - La carga demo comparte esa condicion: no debe existir como reemplazo de datos en produccion.
 - Un snapshot corrupto puede descargarse antes de reiniciar.
+- El esquema actual se valida completo y de forma estricta antes de cargar, importar o guardar: colecciones, campos, enums, numeros finitos, IDs, referencias y asociaciones de local/recaudacion.
+- Los snapshots heredados migran primero y solo se hidratan si el resultado cumple la validacion vigente.
+- Una falla informa las rutas afectadas, no reemplaza el almacenamiento valido y conserva el contenido original o el intento fallido para recuperacion.
 
 ## 26. Pendientes tecnicos
 
@@ -494,7 +497,6 @@ Administrador ve todo. Encargado ve eventos de sus locales. No se auditan contra
 - Base de datos multiusuario.
 - Storage real de adjuntos.
 - Contexto multi-local completo.
-- Validacion runtime profunda de campos y relaciones del snapshot.
 - E2E adicional de tesoreria, cierre periodico y formularios administrativos.
 
 Estos pendientes no se implementan ni publican sin autorizacion expresa.

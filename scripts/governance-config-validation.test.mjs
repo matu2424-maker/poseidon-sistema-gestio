@@ -47,6 +47,6 @@ describe("gobierno operativo Poseidon", () => {
     const result = await validateGovernanceInfrastructure({ rootDir });
     expect(result.errors).toEqual([]);
     expect(result.ok).toBe(true);
-    expect(result.counts).toEqual({ decisions: 5, migrations: 2, capabilities: 13 });
+    expect(result.counts).toEqual({ decisions: 5, migrations: 2, capabilities: 14 });
   });
 });

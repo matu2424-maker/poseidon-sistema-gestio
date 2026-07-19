@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditoria. Las formulas y movimientos de cuentas viven en `docs/REGLAS_CONTABLES.md`.
 
@@ -25,7 +25,10 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Bajas y correcciones se resuelven con estado, anulacion, contramovimiento, papelera o ajuste auditado.
 - Una entidad referenciada por operaciones no se elimina fisicamente.
 - El snapshot local es versionado y no recorta auditoria ni movimientos para ahorrar espacio.
+- Un snapshot del esquema vigente debe contener todas las colecciones y respetar tipos, campos, enums, importes finitos, IDs unicos, referencias y asociaciones de local/caja antes de entrar al sistema.
+- Un snapshot heredado se migra por `schemaVersion` y se somete a la misma validacion profunda antes de hidratar la aplicacion.
 - Un snapshot corrupto no se sobrescribe automaticamente.
+- Una carga, importacion, migracion o escritura invalida se rechaza con rutas concretas de error; el JSON original o el intento de guardado se conserva para recuperacion y no se normalizan relaciones silenciosamente.
 - Cada guardado compara la version leida; un conflicto entre pestanas bloquea la escritura y conserva el intento.
 - Una pestana pasiva puede adoptar el ultimo snapshot; una con cambios propios no mezcla estados.
 - Un fallo de escritura debe detener la operacion y ofrecer recuperacion.

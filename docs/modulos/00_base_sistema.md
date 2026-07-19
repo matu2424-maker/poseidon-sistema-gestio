@@ -9,7 +9,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - React + React Router + Vite + TypeScript.
 - `src/App.tsx` conserva estado global, sesion, acciones y composicion; la pantalla activa se deriva de la URL.
 - `src/data/appData.ts` concentra datos demo y limpieza manual; `src/data/normalizeData.ts` normaliza estructura y `src/data/migrateData.ts` ejecuta migraciones incrementales por version.
-- `src/infrastructure/storage/` valida, versiona, importa y persiste el snapshot local.
+- `src/infrastructure/storage/` valida profundamente, versiona, importa y persiste el snapshot local.
 - El esquema vigente es 5. Un snapshot actual no reconstruye asientos financieros faltantes durante la normalizacion ordinaria.
 - `src/features/layout/AppShell.tsx` contiene pantalla inicial, login local y layouts.
 - `src/navigation/screens.ts` es la fuente unica de titulos, menus, roles permitidos y requisito de caja abierta.
@@ -19,6 +19,8 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` es un manifiesto; los estilos se dividen en `base.css`, `layout.css`, `features/` y `responsive.css` conservando el orden de cascada.
 - Persistencia versionada en `localStorage`.
+- El esquema vigente exige las 22 colecciones completas y valida campos, enums, numeros finitos, IDs unicos, referencias y asociaciones de local/recaudacion con Zod Mini y reglas cruzadas propias.
+- Los respaldos heredados migran antes de validarse; un resultado invalido no se hidrata ni sobrescribe el almacenamiento valido y conserva el JSON para recuperacion.
 - Cada guardado compara la version leida para impedir que una pestaña desactualizada sobrescriba otra.
 - Login local sin contrasena.
 - La demo inicial incluye datos operativos para probar paneles:
@@ -58,6 +60,7 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - La accion es exclusiva de la etapa local de pruebas; no debe existir como borrado de historial en produccion.
 - No se borran datos operativos automaticamente al iniciar.
 - `Sistema > Datos locales` permite exportar/importar respaldo JSON validado.
+- La importacion y cada guardado informan rutas concretas cuando detectan una estructura o relacion invalida.
 - Si el almacenamiento esta corrupto se conserva sin sobrescribir hasta que el usuario descargue respaldo o confirme iniciar datos nuevos.
 - Si existe conflicto entre pestañas o falla una escritura, la operacion se bloquea y el intento queda disponible como respaldo antes de reintentar o cargar la ultima version guardada.
 - Una pestana pasiva sin cambios propios se sincroniza automaticamente con el ultimo snapshot guardado por otra pestana.

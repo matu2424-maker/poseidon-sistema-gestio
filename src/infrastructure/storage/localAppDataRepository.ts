@@ -5,7 +5,7 @@ import type {
   AppDataRepository,
   AppDataSaveResult,
 } from "../../application/ports/AppDataRepository";
-import { createSnapshot, decodeSnapshot } from "./snapshot";
+import { createSnapshot, CURRENT_SCHEMA_VERSION, decodeSnapshot, SNAPSHOT_KIND } from "./snapshot";
 
 export const STORAGE_KEY = "poseidon-sistema-gestion-v2";
 
@@ -52,7 +52,20 @@ export function saveLocalAppData(
 ): StorageSaveResult {
   let serialized = "";
   try {
-    serialized = serializeAppData(data);
+    const savedAt = new Date().toISOString();
+    const storedData = appDataForStorage(data);
+    const attemptedSnapshot = {
+      kind: SNAPSHOT_KIND,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      savedAt,
+      data: storedData,
+    };
+    try {
+      serialized = JSON.stringify(createSnapshot(storedData, savedAt), null, 2);
+    } catch (error) {
+      serialized = JSON.stringify(attemptedSnapshot, null, 2);
+      throw error;
+    }
     const storedRaw = storage.getItem(STORAGE_KEY);
     if (expectedRaw !== undefined && storedRaw !== expectedRaw) {
       return {

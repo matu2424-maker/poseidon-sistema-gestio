@@ -9,6 +9,7 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - React 19 y React Router 8.
 - Vite 6.
 - TypeScript.
+- Zod 4 mediante `zod/mini` para validar el snapshot completo en runtime.
 - CSS por capas y features.
 - Vitest y Playwright.
 - Persistencia local versionada sobre `localStorage` mediante `AppDataRepository`.
@@ -21,10 +22,11 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Preparacion estructural multi-local, aunque la operacion se concentra en Poseidon.
 - Sincronizacion entre pestanas del mismo navegador y control optimista de conflictos.
 - Exportacion, importacion y recuperacion del snapshot local.
+- Validacion runtime estricta del snapshot completo antes de cargar, importar, migrar o guardar, con informe por ruta y recuperacion del contenido rechazado.
 - Reinicio operativo local con respaldo automatico, maestros conservados, cuentas/contadores en cero y auditoria nueva.
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
-- Validacion automatizada vigente: 186 pruebas unitarias/de integracion en 36 archivos y 14 casos E2E en 8 archivos.
+- Validacion automatizada vigente: 204 pruebas unitarias/de integracion en 39 archivos y 16 casos E2E en 8 archivos.
 
 ## Modelo financiero vigente
 

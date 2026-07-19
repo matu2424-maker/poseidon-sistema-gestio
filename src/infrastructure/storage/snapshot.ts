@@ -1,5 +1,6 @@
 import type { AppData } from "../../types";
 import { CURRENT_SCHEMA_VERSION } from "../../data/schemaVersion";
+import { assertValidAppData, validateAppData } from "./appDataValidation";
 
 export const SNAPSHOT_KIND = "poseidon-app-data";
 export { CURRENT_SCHEMA_VERSION };
@@ -24,17 +25,23 @@ type DecodeResult =
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
+const isValidSavedAt = (value: unknown): value is string =>
+  typeof value === "string" && Number.isFinite(Date.parse(value));
+
 function isAppDataCandidate(value: unknown): value is AppData {
   if (!isRecord(value)) return false;
   return Array.isArray(value.users) && Array.isArray(value.locals) && Array.isArray(value.machines);
 }
 
 export function createSnapshot(data: AppData, savedAt = new Date().toISOString()): AppDataSnapshot {
+  if (!isValidSavedAt(savedAt)) {
+    throw new Error("No se puede crear un snapshot con una fecha de guardado invalida.");
+  }
   return {
     kind: SNAPSHOT_KIND,
     schemaVersion: CURRENT_SCHEMA_VERSION,
     savedAt,
-    data,
+    data: assertValidAppData(data),
   };
 }
 
@@ -54,13 +61,24 @@ export function decodeSnapshot(raw: string): DecodeResult {
     if (version > CURRENT_SCHEMA_VERSION) {
       return { ok: false, error: `El respaldo usa una version futura (${version}) que esta aplicacion no puede leer.` };
     }
-    if (!isAppDataCandidate(parsed.data)) {
-      return { ok: false, error: "El respaldo versionado no contiene datos Poseidon validos." };
+    if (!isValidSavedAt(parsed.savedAt)) {
+      return { ok: false, error: "El respaldo versionado no tiene una fecha de guardado valida." };
+    }
+    let data: AppData;
+    if (version === CURRENT_SCHEMA_VERSION) {
+      const validation = validateAppData(parsed.data);
+      if (!validation.ok) return { ok: false, error: validation.error };
+      data = validation.data;
+    } else {
+      if (!isAppDataCandidate(parsed.data)) {
+        return { ok: false, error: "El respaldo versionado no contiene datos Poseidon validos." };
+      }
+      data = parsed.data;
     }
     return {
       ok: true,
       value: {
-        data: parsed.data,
+        data,
         sourceVersion: version,
         needsRewrite: version !== CURRENT_SCHEMA_VERSION,
       },

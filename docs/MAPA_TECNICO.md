@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -9,6 +9,7 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 - React 19, React Router 8 en modo declarativo, TypeScript estricto y Vite.
 - CSS por capas con manifiesto global.
 - Persistencia local con snapshot versionado en `localStorage`.
+- Zod Mini para validacion runtime estricta de `AppData` sin incorporar un store nuevo.
 - Vitest para pruebas puras e integracion de comandos.
 - Playwright con Chrome para caja, diferencias/auditoria y navegacion por rol.
 - Entrada: `src/main.tsx` -> `BrowserRouter` -> `src/App.tsx`.
@@ -126,7 +127,9 @@ src/
 | `ids.ts` | IDs locales actuales |
 | `audit.ts` | Construccion de eventos, resolucion de local y visibilidad por rol |
 | `lib/storage.ts` | Preferencias locales de columnas |
-| `infrastructure/storage/snapshot.ts` | Formato y validacion runtime; esquema actual 5 separa migracion financiera de normalizacion |
+| `infrastructure/storage/appDataSchemas.ts` | Esquemas runtime estrictos para las 22 colecciones, campos, enums e importes finitos de `AppData` |
+| `infrastructure/storage/appDataValidation.ts` | IDs unicos, referencias, asociaciones local/recaudacion e informe tipado con rutas concretas |
+| `infrastructure/storage/snapshot.ts` | Formato versionado; valida esquema actual al decodificar y todos los datos antes de crear un snapshot |
 | `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo, suscripcion opcional a cambios y codec de respaldo |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
 | `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, sincronizacion pasiva entre pestanas, bloqueo y recuperacion sin acoplar App al adaptador |
@@ -267,11 +270,10 @@ Las cifras cuentan lineas fisicas y son orientativas; volver a medir antes de pl
 
 El mismo adaptador notifica cambios: una pestana pasiva se rehidrata automaticamente, mientras una pestana con revision local pendiente conserva el conflicto y el respaldo de recuperacion.
 
-Completado en integridad local: los movimientos persistidos se conservan, las anulaciones usan contramovimientos y las bajas definitivas validan referencias.
+Completado en integridad local: los movimientos persistidos se conservan, las anulaciones usan contramovimientos, las bajas definitivas validan referencias y todo snapshot actual o migrado atraviesa validacion profunda antes de cargar o guardar.
 
 ### Media
 
-- La validacion runtime inicial del snapshot reconoce la estructura por sus colecciones principales. Las migraciones 3 -> 4 y 4 -> 5 estan separadas, pero falta validacion profunda de campos, enums y relaciones.
 - El cierre salarial inmutable esta implementado con snapshot por empleado, bloqueo del periodo, revision correctiva enlazada y migracion explicita de cierres heredados.
 - Duplicaciones de UI/presentacion restantes, incluido `ClientEditor` consumido desde dos features.
 - Selectores CSS todavia son globales por clase, aunque los archivos ya estan separados por propiedad.
@@ -281,7 +283,7 @@ Completado en navegacion: React Router, URL estable por pantalla, ruta directa, 
 
 ### Baja por ahora
 
-- Carga diferida completada. Tras incorporar React Router, la medicion del 2026-07-12 deja el bundle inicial en 328,76 kB y Locales/Maquinas en 53,78 kB, ambos sin advertencia de chunk grande y por debajo del bundle historico de 507,03 kB.
+- Carga diferida completada. La medicion del 2026-07-19, incluyendo Zod Mini para validar snapshots, deja el bundle inicial en 390,95 kB (117,17 kB gzip) y Locales/Maquinas en 54,81 kB, sin advertencia de chunk grande y por debajo del bundle historico de 507,03 kB.
 - `types.ts` grande: dividir solo junto con dominios estables.
 - No incorporar store complejo antes de extraer comandos.
 

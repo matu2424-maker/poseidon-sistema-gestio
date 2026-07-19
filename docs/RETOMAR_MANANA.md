@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-19
 
 ## Estado inmediato
 
@@ -9,12 +9,15 @@ Ultima actualizacion: 2026-07-18
 - Sin Supabase, Auth, Storage remoto ni despliegue.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
-- Validacion vigente: 192 pruebas en 38 archivos y 16 casos E2E.
+- Validacion vigente: 204 pruebas en 39 archivos y 16 casos E2E.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
 
 ## Ultimo bloque tecnico
 
+- `AppData` se valida con esquemas Zod Mini estrictos y reglas cruzadas para las 22 colecciones.
+- Carga, importacion, migracion y guardado rechazan IDs duplicados, referencias huerfanas, asociaciones local/recaudacion incoherentes y estructuras incompletas.
+- El almacenamiento valido no se sobrescribe ante error; el JSON original o el intento fallido queda disponible para recuperacion con rutas concretas del problema.
 - El Panel del Cajero real vive en `src/features/cashier/CashierWorkspace.tsx`; no existe una variante legacy paralela.
 - Gastos y regalos se anulan mediante contramovimientos append-only con auditoria; no se borran registros operativos.
 - La grilla de contadores valida todas las filas y persiste en una sola transaccion mediante `saveReadingsCommand`.
@@ -58,10 +61,9 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Completar validacion runtime profunda del snapshot.
-2. Extraer mutaciones sensibles restantes de handlers React.
-3. Ampliar E2E de tesoreria, cierre periodico y formularios administrativos.
-4. Mantener multi-local completo y migracion online postergados hasta autorizacion.
+1. Extraer mutaciones sensibles restantes de handlers React.
+2. Ampliar E2E de tesoreria, cierre periodico y formularios administrativos.
+3. Mantener multi-local completo y migracion online postergados hasta autorizacion.
 
 ## Ruta de inicio
 
