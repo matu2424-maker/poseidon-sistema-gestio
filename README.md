@@ -2,7 +2,7 @@
 
 Aplicacion web local para operar y controlar caja diaria, maquinas, movimientos, tesoreria, salarios, clientes, cierres, reportes, cuentas corrientes y auditoria del local Poseidon.
 
-El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remota ni almacenamiento real de archivos. La primera beta esta preparada localmente, pero no fue enviada ni desplegada.
+El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remota ni almacenamiento real de archivos. La primera beta fue sincronizada con GitHub, pero todavia no fue desplegada.
 
 ## Stack
 
@@ -27,9 +27,10 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
 - La evidencia automatizada vigente y sus conteos se mantienen en `docs/VALIDACION_LOCAL.md`.
-- Version candidata local: `0.1.0-beta.1`.
+- Version candidata: `0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - Node y pnpm fijados para builds reproducibles.
-- Workflow CI y rama `release/test` preparados sin conexion ni ejecucion remota.
+- `main`, `release/test` y la etiqueta `v0.1.0-beta.1` sincronizados con GitHub.
+- Workflow CI activo para validar `main` y `release/test`.
 
 ## Modelo financiero vigente
 
@@ -230,7 +231,7 @@ src/types.ts                         Contratos de datos
 
 ## Publicacion
 
-La preparacion local de la beta incluye `vercel.json`, CI, preflight y reglas de versionado. No existe todavia un proyecto Vercel vinculado desde este checkout ni un despliegue activo.
+La beta sincronizada incluye `vercel.json`, CI, preflight y reglas de versionado. No existe todavia un proyecto Vercel vinculado desde este checkout ni un despliegue activo.
 
 Flujo previsto:
 
@@ -240,4 +241,4 @@ main validado -> release/test -> v0.1.0-beta.N -> prueba online autorizada
 
 La primera publicacion conserva datos separados en el `localStorage` de cada navegador. No representa una base compartida ni debe recibir datos reales. Consultar `docs/RELEASES_Y_DESPLIEGUES.md`.
 
-No hacer push, publicar en Vercel, conectar Supabase ni activar otro servicio externo sin pedido explicito.
+No hacer nuevos push, publicar en Vercel, conectar Supabase ni activar otro servicio externo sin pedido explicito.

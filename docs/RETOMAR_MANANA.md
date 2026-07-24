@@ -12,7 +12,7 @@ Ultima actualizacion: 2026-07-24
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
-- Preparacion beta local completada: version `0.1.0-beta.1`, preflight, CI, changelog y flujo `release/test`; no hay push ni despliegue.
+- Beta `0.1.0-beta.1` sincronizada con GitHub: `main`, `release/test` y la etiqueta apuntan al commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`; no hay despliegue.
 
 ## Ultimo bloque tecnico
 
@@ -67,8 +67,8 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Cerrar y etiquetar el candidato beta local; solicitar autorizacion separada para sincronizar GitHub.
-2. Despues del push aprobado, validar CI y preparar Vercel de prueba protegido.
+1. Verificar el resultado de CI del candidato beta sincronizado.
+2. Solicitar autorizacion separada antes de vincular o desplegar Vercel de prueba protegido.
 3. Mantener el backend Supabase, multi-local completo y datos reales fuera de esta primera beta frontend.
 
 ## Ruta de inicio
@@ -92,4 +92,4 @@ pnpm run test:e2e
 pnpm run check:commit
 ```
 
-No publicar ni conectar servicios externos.
+No hacer nuevos push, publicar ni conectar servicios externos sin autorizacion explicita.

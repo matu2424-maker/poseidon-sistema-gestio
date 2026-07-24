@@ -8,7 +8,9 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 
 ## [0.1.0-beta.1] - 2026-07-24
 
-Estado: candidato local, todavia no enviado a GitHub ni desplegado.
+Estado: candidato sincronizado con GitHub el 2026-07-24; todavia no desplegado.
+
+Referencias: `main`, `release/test` y `v0.1.0-beta.1` quedaron publicados sobre el commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 
 ### Incluye
 

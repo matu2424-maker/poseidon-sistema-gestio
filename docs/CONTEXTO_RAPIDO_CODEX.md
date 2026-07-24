@@ -15,8 +15,9 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Los snapshots de esquema actual se validan de forma estricta antes de cargar, importar o guardar; los heredados migran primero y luego deben cumplir las mismas relaciones.
 - Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
-- Sin Auth, base remota, storage real ni despliegue.
-- Preparacion local de entrega: candidato `0.1.0-beta.1`, runtime fijado, preflight de release, CI versionado y rama `release/test` prevista. Nada fue enviado ni desplegado.
+- Sin Auth, base de datos remota, storage real ni despliegue.
+- Candidato `0.1.0-beta.1` sincronizado con GitHub: `main`, `release/test` y la etiqueta apuntan al commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Runtime fijado, preflight de release y CI versionado; Vercel y el backend remoto siguen sin conectar.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
@@ -103,7 +104,8 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Prioridades pendientes
 
-1. Solicitar autorizacion separada para sincronizar GitHub y despues desplegar la prueba protegida.
-2. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
-3. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
-4. No iniciar multi-local ni backend Supabase sin una etapa y autorizacion propias.
+1. Verificar el resultado de CI del candidato sincronizado.
+2. Solicitar autorizacion separada antes de vincular Vercel o desplegar la prueba protegida.
+3. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
+4. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
+5. No iniciar multi-local ni backend Supabase sin una etapa y autorizacion propias.

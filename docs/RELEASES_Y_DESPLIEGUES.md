@@ -2,7 +2,7 @@
 
 Ultima actualizacion: 2026-07-24
 
-Estado: preparacion local implementada. No existe push, proyecto Vercel vinculado, despliegue ni backend remoto activo.
+Estado: beta `0.1.0-beta.1` sincronizada con GitHub. No existe proyecto Vercel vinculado, despliegue ni backend remoto activo.
 
 ## Objetivo
 
@@ -19,7 +19,7 @@ Permitir que Poseidon siga evolucionando localmente y que cada version enviada a
 | Ambiente | Codigo | Datos | Estado |
 | --- | --- | --- | --- |
 | Local | `main` y ramas `codex/*` | `localStorage` de Chrome en `127.0.0.1` | Activo |
-| Prueba online | `release/test` | Al inicio, `localStorage` aislado por navegador/origen | Preparado, no desplegado |
+| Prueba online | `release/test` | Al inicio, `localStorage` aislado por navegador/origen | Rama sincronizada, no desplegada |
 | Produccion | Version estable aprobada | PostgreSQL/Supabase futuro | No creado |
 
 La URL online y `http://127.0.0.1:5173/` nunca comparten `localStorage`. Durante la primera beta no se cargan datos reales ni se interpreta una copia del navegador como base multiusuario.
@@ -82,10 +82,17 @@ Se usa SemVer:
 - `packageManager` fija pnpm.
 - `pnpm install --frozen-lockfile` evita una resolucion distinta durante la entrega.
 - `pnpm run release:check` verifica version, changelog, archivos sensibles, build de Vercel, workflow, etiqueta y limpieza Git.
-- `.github/workflows/quality.yml` ejecutara `check` y `build` en pull requests, `main` y `release/test` cuando el repositorio se sincronice.
-- Los E2E se ejecutaran en `release/test` y bajo disparo manual. En CI Playwright inicia un servidor aislado y usa Chromium; localmente conserva Chrome y el servidor oficial.
+- `.github/workflows/quality.yml` ejecuta `check` y `build` en pull requests, `main` y `release/test`.
+- Los E2E se ejecutan en `release/test` y bajo disparo manual. En CI Playwright inicia un servidor aislado y usa Chromium; localmente conserva Chrome y el servidor oficial.
 
-El workflow versionado no tiene efecto hasta que exista un push autorizado.
+## Candidato sincronizado
+
+- Version: `0.1.0-beta.1`.
+- Commit congelado: `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Referencias remotas: `main`, `release/test` y `v0.1.0-beta.1`.
+- Respaldo local previo: `backup/pre-beta-2026-07-24`.
+- La etiqueta y `release/test` no se moveran; cualquier correccion genera un nuevo candidato.
+- La sincronizacion no autoriza ni implica un despliegue.
 
 ## Publicacion de prueba
 

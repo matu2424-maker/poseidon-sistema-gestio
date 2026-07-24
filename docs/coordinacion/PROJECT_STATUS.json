@@ -10,18 +10,18 @@
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-local-preparada",
-    "objective": "Conservar una primera beta reversible y validar separadamente la futura sincronizacion GitHub, CI y prueba protegida en Vercel.",
+    "phase": "beta-sincronizada-github",
+    "objective": "Verificar CI de la primera beta sincronizada y preparar separadamente una futura prueba protegida en Vercel.",
     "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-24-CEN-01",
-    "title": "Preparacion local de beta reversible",
+    "id": "2026-07-24-CEN-02",
+    "title": "Sincronizacion controlada de primera beta",
     "state": "INTEGRADA",
-    "evidence": "Central fijo Node y pnpm, agrego preflight, changelog, CI, build reproducible, politica de versiones y rollback, y valido unitarias, build y E2E local/CI. No hubo push, conexion externa ni despliegue. La evidencia vigente vive en docs/VALIDACION_LOCAL.md."
+    "evidence": "Central verifico que origin/main era ancestro directo, ejecuto el preflight y sincronizo atomicamente main, release/test y v0.1.0-beta.1 sobre 0bb33965b8ea50b4f1c10b8863f73582b006f8ea. No hubo conexion a Vercel, backend remoto ni despliegue."
   },
   "health": {
     "overall": "YELLOW",
@@ -40,8 +40,8 @@
     ]
   },
   "nextActions": [
-    "Solicitar autorizacion explicita para sincronizar main, release/test y la etiqueta beta con GitHub.",
-    "Despues del push aprobado, verificar CI y preparar un proyecto Vercel de prueba protegido sin datos reales.",
+    "Verificar el resultado de GitHub Actions para el candidato v0.1.0-beta.1.",
+    "Solicitar autorizacion explicita antes de vincular o desplegar un proyecto Vercel de prueba protegido sin datos reales.",
     "Antes de una beta operativa amplia, completar autorizacion uniforme y E2E de Locales, Maquinas, Personal, Clientes y Papelera.",
     "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."
   ],
