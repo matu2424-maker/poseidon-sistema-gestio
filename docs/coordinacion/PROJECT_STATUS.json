@@ -6,22 +6,22 @@
     "status": "ACTIVE",
     "mode": "LOCAL_ONLY",
     "defaultBranch": "main",
-    "updatedAt": "2026-07-19",
+    "updatedAt": "2026-07-24",
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "prueba-local",
-    "objective": "Mantener estable la prueba local, reforzar autorizacion dentro de los comandos restantes y completar la cobertura administrativa prioritaria.",
+    "phase": "beta-local-preparada",
+    "objective": "Conservar una primera beta reversible y validar separadamente la futura sincronizacion GitHub, CI y prueba protegida en Vercel.",
     "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-19-CEN-02",
-    "title": "Eficiencia tecnica, comandos administrativos y cobertura E2E",
+    "id": "2026-07-24-CEN-01",
+    "title": "Preparacion local de beta reversible",
     "state": "INTEGRADA",
-    "evidence": "Central deduplico la documentacion, extrajo y conecto comandos atomicos para cierres periodicos y control de gastos, incorporo fixtures E2E reutilizables, amplio recorridos de tesoreria, administracion y recuperacion, midio la validacion profunda y comprobo Chrome. La evidencia vigente vive en docs/VALIDACION_LOCAL.md."
+    "evidence": "Central fijo Node y pnpm, agrego preflight, changelog, CI, build reproducible, politica de versiones y rollback, y valido unitarias, build y E2E local/CI. No hubo push, conexion externa ni despliegue. La evidencia vigente vive en docs/VALIDACION_LOCAL.md."
   },
   "health": {
     "overall": "YELLOW",
@@ -40,8 +40,9 @@
     ]
   },
   "nextActions": [
-    "Aplicar autorizacion uniforme de usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.",
-    "Agregar E2E completos para Locales, Maquinas, Personal, Clientes y Papelera.",
+    "Solicitar autorizacion explicita para sincronizar main, release/test y la etiqueta beta con GitHub.",
+    "Despues del push aprobado, verificar CI y preparar un proyecto Vercel de prueba protegido sin datos reales.",
+    "Antes de una beta operativa amplia, completar autorizacion uniforme y E2E de Locales, Maquinas, Personal, Clientes y Papelera.",
     "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."
   ],
   "registries": {

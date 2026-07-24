@@ -1,8 +1,12 @@
 {
   "name": "poseidon-sistema-gestion",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.0-beta.1",
   "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24.14.0 <25"
+  },
   "scripts": {
     "dev": "vite --config vite.config.mjs --configLoader native",
     "build": "tsc -b && vite build --config vite.config.mjs --configLoader native",
@@ -19,6 +23,8 @@
     "capture:visual": "node scripts/capture-visual-references.mjs",
     "measure:snapshot-validation": "node scripts/measure-app-data-validation.mjs",
     "smoke:localhost": "node scripts/smoke-localhost.mjs",
+    "release:check": "node scripts/check-release-readiness.mjs",
+    "ci": "pnpm run check && pnpm run build",
     "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
     "check": "pnpm run check:agents && pnpm run check:workstreams && pnpm run check:skills && pnpm run check:design && pnpm run typecheck && pnpm run lint && pnpm test"
   },

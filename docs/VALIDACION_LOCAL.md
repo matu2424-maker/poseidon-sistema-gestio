@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 Este documento define la validacion tecnica y funcional minima. Es la unica fuente canonica para conteos y evidencia vigente; otros documentos deben referenciarlo sin copiar esas cifras. No reemplaza las pruebas especificas de cada modulo.
 
@@ -16,14 +16,15 @@ pnpm run check:skills
 pnpm run check:design
 pnpm run check
 pnpm run build
+pnpm run release:check
 pnpm run check:commit
 ```
 
 `pnpm run check` ejecuta, en orden:
 
 1. Validacion de 28 controles de agentes Codex.
-2. Validacion de 66 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
-3. Validacion de 40 controles SOPM-Lite: 5 decisiones, 2 migraciones, 14 capacidades, estado y rutas.
+2. Validacion de 67 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
+3. Validacion de 43 controles SOPM-Lite: 5 decisiones, 2 migraciones, 15 capacidades, estado y rutas.
 4. Validacion de cuatro skills y sus contratos.
 5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 6. TypeScript sin emitir archivos.
@@ -31,6 +32,8 @@ pnpm run check:commit
 8. Vitest sobre `src/` y `scripts/`.
 
 `check:agents`, `check:governance`, `check:workstreams`, `check:skills` y `check:design` pueden ejecutarse por separado. `check:workstreams` incluye gobierno para evitar una coordinacion parcialmente validada. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
+
+`pnpm run release:check` se ejecuta despues del commit candidato. Exige un worktree limpio y valida version, changelog, runtime, package manager, rutas sensibles, Vercel, workflow y etiqueta esperada.
 
 ## Rendimiento de la validacion profunda
 
@@ -114,11 +117,12 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia vigente al 2026-07-19
+## Evidencia vigente al 2026-07-24
 
-- 41 archivos de pruebas y 210 casos aprobados, incluidos gobierno SOPM-Lite, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, cierres periodicos atomicos, revision/anulacion administrativa de gastos, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
+- 42 archivos de pruebas y 212 casos aprobados, incluidos gobierno SOPM-Lite, preflight de release, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, cierres periodicos atomicos, revision/anulacion administrativa de gastos, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
 - La validacion profunda cubre las 22 colecciones de `AppData`, campos, enums, importes finitos, IDs, referencias, asociaciones de local/recaudacion y preservacion del snapshot rechazado.
 - La suite E2E en 9 archivos aprobo 20 de 20 casos: caja, fondos Caja/Principal en ambos sentidos, efectivo negativo, desacople caja/libro, formularios y anulaciones, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, cierre periodico, usuarios/categorias, importacion invalida, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
+- La misma suite aprobo 20 de 20 en modo CI con servidor aislado y Chromium, ademas del recorrido local con Chrome.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
@@ -127,6 +131,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - TypeScript aprobado.
 - ESLint aprobado con cero advertencias.
 - Build de produccion aprobado.
+- Runtime reproducible validado con Node `24.14.0`, pnpm `11.9.0` y lockfile congelado.
 - Smoke HTTP aprobado.
 - Browser: Administrador > Locales > Editar local aprobado.
 - Browser: `/panel` -> `/locales`, recarga y Atrás/Adelante aprobados sin errores de consola.

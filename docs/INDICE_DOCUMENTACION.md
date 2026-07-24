@@ -1,6 +1,6 @@
 # Poseidon - Indice de documentacion
 
-Ultima actualizacion: 2026-07-18
+Ultima actualizacion: 2026-07-24
 
 Este archivo es la puerta de entrada a la documentacion. Su objetivo es cargar solo el contexto necesario y evitar que una misma regla quede copiada en varios lugares.
 
@@ -89,8 +89,16 @@ Agregar:
 
 1. `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
 2. `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`.
-3. `docs/REGLAS_CONTABLES.md`.
-4. `docs/MAPA_TECNICO.md`.
+3. `docs/RELEASES_Y_DESPLIEGUES.md`.
+4. `docs/REGLAS_CONTABLES.md`.
+5. `docs/MAPA_TECNICO.md`.
+
+### Preparar una version o despliegue
+
+1. `docs/RELEASES_Y_DESPLIEGUES.md`.
+2. `CHANGELOG.md`.
+3. `docs/VALIDACION_LOCAL.md`.
+4. Agregar `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` solamente si cambia persistencia o esquema.
 
 ## Fuentes canonicas
 
@@ -122,6 +130,7 @@ Agregar:
 | Revisiones de diseno | `docs/REVISIONES_DE_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
+| Versiones, ambientes y rollback | `docs/RELEASES_Y_DESPLIEGUES.md` y `CHANGELOG.md` | Modulos funcionales |
 
 ## Modulos funcionales
 

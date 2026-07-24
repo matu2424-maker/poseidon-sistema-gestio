@@ -1,12 +1,14 @@
 # Poseidon - Arquitectura objetivo online
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 Estado: diseno futuro. Nada de este documento esta conectado o desplegado actualmente.
 
 Base local ya implementada: `AppDataRepository` asincrono, codec de respaldo, adaptador `localStorage` y cola de escrituras ordenadas. No existe adaptador online ni conexion externa.
 
 Decision vigente: cuando se autorice la etapa online, la evolucion sera directa desde el adaptador `localStorage` hacia PostgreSQL/Supabase. No se incorpora PGlite, IndexedDB como base relacional ni otro almacenamiento intermedio salvo una decision futura y explicita de producto que requiera operacion offline-first.
+
+Preparacion de entrega ya implementada localmente: runtime y package manager fijados, build reproducible, CI versionado, preflight, changelog y flujo `main -> release/test`. Esto no activa hosting ni modifica la persistencia.
 
 ## Objetivo
 
@@ -153,6 +155,7 @@ Si una parte falla, ninguna parte de la operacion debe quedar aplicada.
 - RLS activa antes de importar datos reales.
 - Ambientes separados: local, prueba y produccion.
 - Backups y restauracion probados antes del corte final.
+- Version de frontend, etiqueta Git, migracion de esquema y compatibilidad de datos deben poder rastrearse de forma independiente.
 
 ## Observabilidad
 

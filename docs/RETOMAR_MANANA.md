@@ -1,6 +1,6 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 ## Estado inmediato
 
@@ -12,6 +12,7 @@ Ultima actualizacion: 2026-07-19
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
+- Preparacion beta local completada: version `0.1.0-beta.1`, preflight, CI, changelog y flujo `release/test`; no hay push ni despliegue.
 
 ## Ultimo bloque tecnico
 
@@ -66,9 +67,9 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Uniformar autorizacion dentro de apertura, contadores, cierre y salarios.
-2. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera.
-3. Mantener multi-local completo y migracion online postergados hasta autorizacion.
+1. Cerrar y etiquetar el candidato beta local; solicitar autorizacion separada para sincronizar GitHub.
+2. Despues del push aprobado, validar CI y preparar Vercel de prueba protegido.
+3. Mantener el backend Supabase, multi-local completo y datos reales fuera de esta primera beta frontend.
 
 ## Ruta de inicio
 
@@ -84,6 +85,7 @@ git log -1 --oneline
 pnpm run check:governance
 pnpm run check
 pnpm run build
+pnpm run release:check
 iniciar-poseidon.bat
 pnpm run smoke:localhost
 pnpm run test:e2e

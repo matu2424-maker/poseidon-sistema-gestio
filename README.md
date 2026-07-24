@@ -2,7 +2,7 @@
 
 Aplicacion web local para operar y controlar caja diaria, maquinas, movimientos, tesoreria, salarios, clientes, cierres, reportes, cuentas corrientes y auditoria del local Poseidon.
 
-El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remota ni almacenamiento real de archivos. No se publica ni se conecta a servicios externos sin autorizacion expresa.
+El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remota ni almacenamiento real de archivos. La primera beta esta preparada localmente, pero no fue enviada ni desplegada.
 
 ## Stack
 
@@ -27,6 +27,9 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
 - La evidencia automatizada vigente y sus conteos se mantienen en `docs/VALIDACION_LOCAL.md`.
+- Version candidata local: `0.1.0-beta.1`.
+- Node y pnpm fijados para builds reproducibles.
+- Workflow CI y rama `release/test` preparados sin conexion ni ejecucion remota.
 
 ## Modelo financiero vigente
 
@@ -153,6 +156,7 @@ pnpm run check
 pnpm run check:governance
 pnpm run build
 pnpm run measure:snapshot-validation
+pnpm run release:check
 pnpm run check:commit
 ```
 
@@ -212,6 +216,8 @@ src/types.ts                         Contratos de datos
 - `docs/coordinacion/`: chats, estado, decisiones, migraciones, capacidades e integracion.
 - `docs/contextos/CODEX_CALIDAD_PRUEBAS.md`: contrato del workstream permanente que prueba y asesora a Central.
 - `docs/VALIDACION_LOCAL.md`: validacion automatica y manual.
+- `docs/RELEASES_Y_DESPLIEGUES.md`: versiones, ambientes, candidatos y rollback.
+- `CHANGELOG.md`: contenido de cada version.
 
 ## Limites actuales
 
@@ -224,4 +230,14 @@ src/types.ts                         Contratos de datos
 
 ## Publicacion
 
-El proyecto permanece local. No hacer push, publicar en Vercel, conectar Supabase ni activar otro servicio externo sin pedido explicito.
+La preparacion local de la beta incluye `vercel.json`, CI, preflight y reglas de versionado. No existe todavia un proyecto Vercel vinculado desde este checkout ni un despliegue activo.
+
+Flujo previsto:
+
+```text
+main validado -> release/test -> v0.1.0-beta.N -> prueba online autorizada
+```
+
+La primera publicacion conserva datos separados en el `localStorage` de cada navegador. No representa una base compartida ni debe recibir datos reales. Consultar `docs/RELEASES_Y_DESPLIEGUES.md`.
+
+No hacer push, publicar en Vercel, conectar Supabase ni activar otro servicio externo sin pedido explicito.

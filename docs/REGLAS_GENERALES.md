@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditoria. Las formulas y movimientos de cuentas viven en `docs/REGLAS_CONTABLES.md`.
 
@@ -18,6 +18,18 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Todo cambio no trivial de Cajero, Encargado o Administrador usa una orden con commit base, alcance, propietario y criterios, y se ejecuta en el worktree del chat permanente correspondiente.
 - Central puede resolver directamente contratos compartidos, integracion, gobierno, documentacion global, recuperacion urgente o correcciones triviales sin cambio de comportamiento. Un alcance mixto se divide antes de editar.
 - Estado, decisiones transversales, migraciones y capacidades se registran en `docs/coordinacion/` y se validan con `pnpm run check:governance`.
+
+## Versiones y despliegues
+
+- `docs/RELEASES_Y_DESPLIEGUES.md` es la fuente canonica para versionado, ambientes, candidatos y rollback.
+- `main` conserva la integracion estable; `release/test` solo puede apuntar a un commit validado de `main`.
+- `package.json`, `CHANGELOG.md` y la etiqueta `v<version>` deben coincidir.
+- Una etiqueta publicada es inmutable: no se mueve, reutiliza ni reemplaza.
+- Todo candidato ejecuta `check`, `build`, E2E, `release:check` y `check:commit`.
+- El push y el despliegue son autorizaciones diferentes. Preparar rama, etiqueta, workflow o bundle local no autoriza ninguna de las dos.
+- Antes del primer push se verifica que no existan credenciales, `.env`, `.vercel/`, adjuntos ni artefactos generados versionados.
+- Antes de desplegar una version que cambie `schemaVersion` se documenta compatibilidad de snapshot y recuperacion de datos.
+- Un rollback de interfaz nunca borra ni revierte automaticamente movimientos financieros.
 
 ## Historial y persistencia
 
@@ -90,6 +102,7 @@ Cada cambio actualiza las fuentes afectadas antes de cerrarse:
 - rutas: `docs/MAPA_RUTAS.md`;
 - continuidad: `docs/RETOMAR_MANANA.md`;
 - ejecucion: `README.md` o `docs/VALIDACION_LOCAL.md`.
+- version y despliegue: `docs/RELEASES_Y_DESPLIEGUES.md` y `CHANGELOG.md`.
 - coordinacion multiagente: registros de `docs/coordinacion/` cuando cambien ordenes, riesgos, decisiones, migraciones o capacidades.
 
 No se considera terminado un cambio con documentacion contradictoria.

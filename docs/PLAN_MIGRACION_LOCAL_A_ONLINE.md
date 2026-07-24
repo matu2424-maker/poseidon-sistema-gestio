@@ -1,6 +1,6 @@
 # Poseidon - Plan de migracion local a online
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 Estado: plan futuro. No autoriza conexiones, despliegues ni cambios de persistencia.
 
@@ -49,6 +49,18 @@ Ruta aprobada de preparacion: `localStorage` -> `AppDataRepository` -> PostgreSQ
 | `audit` | `audit_events` | actor, entidad |
 
 El nombre definitivo de tablas y columnas se decide durante el diseno del esquema. Esta tabla fija correspondencias funcionales, no SQL final.
+
+## Fase previa - Entrega versionada
+
+Estado local: completada. Sin push ni despliegue.
+
+- Fijar Node, pnpm y lockfile.
+- Validar version, changelog, archivos sensibles y configuracion de build.
+- Preparar CI para `main` y `release/test`.
+- Crear version beta, etiqueta y bundle local verificable.
+- Separar rollback de frontend y recuperacion de datos.
+
+Fuente operativa: `docs/RELEASES_Y_DESPLIEGUES.md`.
 
 ## Fase 0 - Congelar contrato local
 
@@ -173,6 +185,8 @@ Requiere autorizacion explicita antes de ejecutarse.
 ## Rollback
 
 - No borrar el snapshot local durante el corte.
+- Un rollback de Vercel o Git no modifica el snapshot ni revierte movimientos.
+- Toda version que aumente `schemaVersion` debe definir si el frontend anterior puede leer el snapshot nuevo.
 - Si falla conciliacion, permisos o comandos criticos, volver al adaptador local.
 - Documentar operaciones realizadas durante la ventana de prueba para no perderlas.
 - Restaurar online desde backup solo despues de identificar la causa.

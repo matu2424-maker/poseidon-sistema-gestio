@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea. No releer todo el repositorio por defecto.
 
@@ -16,6 +16,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
 - Sin Auth, base remota, storage real ni despliegue.
+- Preparacion local de entrega: candidato `0.1.0-beta.1`, runtime fijado, preflight de release, CI versionado y rama `release/test` prevista. Nada fue enviado ni desplegado.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
@@ -83,6 +84,7 @@ No usar una skill como permiso de escritura. La orden literal del usuario o un o
 - Ruta: `docs/MAPA_RUTAS.md`.
 - Continuidad: `docs/RETOMAR_MANANA.md`.
 - Ejecucion: `README.md` y `docs/VALIDACION_LOCAL.md`.
+- Version o despliegue: `docs/RELEASES_Y_DESPLIEGUES.md` y `CHANGELOG.md`.
 
 ## Comandos
 
@@ -90,6 +92,7 @@ No usar una skill como permiso de escritura. La orden literal del usuario o un o
 pnpm run check
 pnpm run check:governance
 pnpm run build
+pnpm run release:check
 pnpm run check:commit
 iniciar-poseidon.bat
 pnpm run smoke:localhost
@@ -100,6 +103,7 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Prioridades pendientes
 
-1. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
-2. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera.
-3. Mantener el foco operativo en Poseidon; no iniciar multi-local ni migracion online sin autorizacion.
+1. Solicitar autorizacion separada para sincronizar GitHub y despues desplegar la prueba protegida.
+2. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
+3. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
+4. No iniciar multi-local ni backend Supabase sin una etapa y autorizacion propias.

@@ -19,6 +19,8 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - `src/types.ts` contiene tipos principales.
 - `src/styles/global.css` es un manifiesto; los estilos se dividen en `base.css`, `layout.css`, `features/` y `responsive.css` conservando el orden de cascada.
 - Persistencia versionada en `localStorage`.
+- Candidato local `0.1.0-beta.1` preparado con Node/pnpm fijados, CI versionado, build reproducible y preflight de release.
+- `release/test` queda reservada para seleccionar un commit validado de `main`; no es una rama de desarrollo.
 - El esquema vigente exige las 22 colecciones completas y valida campos, enums, numeros finitos, IDs unicos, referencias y asociaciones de local/recaudacion con Zod Mini y reglas cruzadas propias.
 - Los respaldos heredados migran antes de validarse; un resultado invalido no se hidrata ni sobrescribe el almacenamiento valido y conserva el JSON para recuperacion.
 - Cada guardado compara la version leida para impedir que una pestaña desactualizada sobrescriba otra.
@@ -64,6 +66,9 @@ Base tecnica, arranque, usuarios simulados, roles, persistencia local y estructu
 - Si el almacenamiento esta corrupto se conserva sin sobrescribir hasta que el usuario descargue respaldo o confirme iniciar datos nuevos.
 - Si existe conflicto entre pestañas o falla una escritura, la operacion se bloquea y el intento queda disponible como respaldo antes de reintentar o cargar la ultima version guardada.
 - Una pestana pasiva sin cambios propios se sincroniza automaticamente con el ultimo snapshot guardado por otra pestana.
+- Cada candidato debe coincidir entre `package.json`, `CHANGELOG.md` y la etiqueta Git.
+- Preparar localmente una version no autoriza push ni despliegue.
+- La version online de prueba seguira teniendo `localStorage` aislado por navegador hasta implementar el adaptador remoto.
 - Modales compartidos encierran el foco, cierran con `Escape` y restauran el foco anterior; avisos y tablas exponen estado accesible.
 - Localhost se levanta solo con `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 - Si el puerto 5173 queda ocupado, se libera con `detener-poseidon.bat`.

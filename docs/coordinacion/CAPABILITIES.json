@@ -134,6 +134,21 @@
       "externalAccess": false
     },
     {
+      "id": "CAP-VALIDATOR-RELEASE",
+      "name": "Preflight local de versiones",
+      "type": "VALIDATOR",
+      "owner": "poseidon-central",
+      "status": "ACTIVE",
+      "riskLevel": "C2",
+      "paths": [
+        "scripts/check-release-readiness.mjs",
+        "scripts/release-readiness.mjs",
+        "docs/RELEASES_Y_DESPLIEGUES.md"
+      ],
+      "validationCommand": "pnpm run release:check",
+      "externalAccess": false
+    },
+    {
       "id": "CAP-VALIDATOR-GOVERNANCE",
       "name": "Validador de gobierno operativo",
       "type": "VALIDATOR",

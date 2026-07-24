@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-24
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -45,6 +45,12 @@ scripts/validate-design-system.mjs          validador de gobierno visual
 scripts/capture-visual-references.mjs       capturas aprobadas reproducibles
 scripts/validate-governance.mjs             validador ejecutable de gobierno SOPM-Lite
 scripts/governance-config-validation.mjs    reglas puras de estado, decisiones, migraciones y capacidades
+scripts/check-release-readiness.mjs         preflight local de version y entrega
+scripts/release-readiness.mjs               reglas puras del preflight
+.github/workflows/quality.yml               CI preparada, inactiva hasta un push autorizado
+.node-version                               runtime reproducible
+CHANGELOG.md                                contenido de versiones
+docs/RELEASES_Y_DESPLIEGUES.md              ramas, etiquetas, ambientes y rollback
 ```
 
 - El proyecto no fija cantidad de hilos ni profundidad; aplica la capacidad disponible de Codex y el protocolo de no superposicion.
@@ -53,6 +59,7 @@ scripts/governance-config-validation.mjs    reglas puras de estado, decisiones, 
 - `Poseidon Calidad y Pruebas` es un workstream permanente aislado: prueba commits exactos y asesora a Central, sin decidir producto ni editar contratos compartidos.
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
 - `pnpm run check:agents` valida perfiles; `check:workstreams` valida chats y gobierno SOPM-Lite; `check:governance` valida solo sus registros; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta todos antes del codigo.
+- `pnpm run release:check` exige un worktree limpio y valida version, changelog, secretos rastreados, runtime, package manager, Vercel, workflow y etiqueta esperada.
 - `.githooks/pre-commit` y `scripts/precommit-hook.ps1` ejecutan `pnpm run check:commit` con el runtime disponible en Windows.
 - Todo subagente terminado se registra; no se considera un perfil nuevo sin tres delegaciones utiles de la misma especialidad.
 
@@ -298,6 +305,7 @@ Completado en navegacion: React Router, URL estable por pantalla, ruta directa, 
 
 - Objetivo: `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
 - Secuencia: `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`.
+- Entrega y recuperacion: `docs/RELEASES_Y_DESPLIEGUES.md`.
 - Ambos son diseño; el estado real sigue siendo local.
 
 ## Validacion
@@ -305,6 +313,7 @@ Completado en navegacion: React Router, URL estable por pantalla, ruta directa, 
 ```text
 pnpm run check
 pnpm run build
+pnpm run release:check
 iniciar-poseidon.bat
 pnpm run smoke:localhost
 pnpm run check:commit
