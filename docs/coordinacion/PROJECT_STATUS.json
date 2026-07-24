@@ -4,24 +4,24 @@
     "id": "poseidon",
     "name": "Poseidon Sistema de Gestion",
     "status": "ACTIVE",
-    "mode": "LOCAL_ONLY",
+    "mode": "HYBRID",
     "defaultBranch": "main",
     "updatedAt": "2026-07-24",
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-ci-node24-sincronizada",
-    "objective": "Preparar separadamente una futura prueba protegida en Vercel solo despues de una nueva autorizacion explicita.",
+    "phase": "beta-online-demo-controlada",
+    "objective": "Observar la beta demo publicada sin datos reales, conservar el desarrollo local y promover solamente candidatos autorizados desde release/test.",
     "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-24-CEN-04",
-    "title": "Sincronizacion y validacion de Actions con Node 24",
+    "id": "2026-07-24-CEN-05",
+    "title": "Publicacion controlada de la primera beta Vercel",
     "state": "INTEGRADA",
-    "evidence": "Central sincronizo main en 1151091b7164cf2735d537eb4dd13c90d09df312 con checkout, setup-node y pnpm/action-setup v6, upload-artifact v7 y preflight reforzado. Poseidon Quality #4 aprobo Check and build en 52 segundos sin anotaciones de Node 20. No hubo conexion a Vercel, backend remoto ni despliegue."
+    "evidence": "Central configuro release/test como rama de produccion, bloqueo despliegues automaticos de main y publico 0.1.0-beta.1 desde 0bb33965b8ea50b4f1c10b8863f73582b006f8ea. Vercel Cm9tbKqvERgd6bZEYbBZVTzWFHDC quedo Ready; rutas y tres roles aprobaron el smoke. FidTosTcMj6duffH3egjpu6dtk9W permanece disponible para Instant Rollback."
   },
   "health": {
     "overall": "YELLOW",
@@ -36,11 +36,17 @@
         "id": "RISK-002",
         "severity": "MEDIUM",
         "summary": "Locales, Maquinas, Personal, Clientes y Papelera aun no tienen recorridos E2E completos de alta, edicion y baja logica."
+      },
+      {
+        "id": "RISK-003",
+        "severity": "MEDIUM",
+        "summary": "El proyecto Vercel conserva variables historicas sin uso que requieren una limpieza externa autorizada."
       }
     ]
   },
   "nextActions": [
-    "Solicitar autorizacion explicita antes de vincular o desplegar un proyecto Vercel de prueba protegido sin datos reales.",
+    "Usar la beta publica solamente con datos demo y registrar incidencias reproducibles.",
+    "Solicitar autorizacion explicita antes de eliminar las variables historicas sin uso del proyecto Vercel.",
     "Antes de una beta operativa amplia, completar autorizacion uniforme y E2E de Locales, Maquinas, Personal, Clientes y Papelera.",
     "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."
   ],

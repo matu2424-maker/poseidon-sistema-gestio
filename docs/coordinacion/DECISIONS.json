@@ -40,6 +40,14 @@
       "date": "2026-07-18",
       "document": "docs/coordinacion/decisiones/DEC-2026-005-chrome-canonico.md",
       "scope": "Validacion manual, persistencia local y separacion de datos automatizados"
+    },
+    {
+      "id": "DEC-2026-006",
+      "title": "Beta Vercel controlada desde release test",
+      "status": "APPROVED",
+      "date": "2026-07-24",
+      "document": "docs/coordinacion/decisiones/DEC-2026-006-beta-vercel-release-test.md",
+      "scope": "Versionado, despliegue demo, visibilidad publica y rollback"
     }
   ]
 }

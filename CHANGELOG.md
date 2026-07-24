@@ -7,13 +7,14 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 - CI actualizado a `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7`, compatibles con el runtime interno Node 24 de GitHub Actions.
 - El preflight de release rechaza volver a versiones anteriores de esas cuatro Actions, incluida la carga de evidencia que solo se ejecuta cuando falla un E2E.
 - Vercel deja de desplegar automaticamente los cambios diarios de `main`; la entrega online queda reservada para `release/test`.
+- La beta `0.1.0-beta.1` fue publicada explicitamente desde `release/test` en el dominio demo de Vercel.
 - Sin cambios funcionales en la aplicacion.
 
 ## [0.1.0-beta.1] - 2026-07-24
 
-Estado: candidato sincronizado con GitHub el 2026-07-24; todavia no desplegado.
+Estado: beta demo publicada en Vercel el 2026-07-24.
 
-Referencias: `main`, `release/test` y `v0.1.0-beta.1` quedaron publicados sobre el commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+Referencias: `release/test` y `v0.1.0-beta.1` permanecen congelados sobre el commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`; `main` contiene controles y documentacion posteriores sin cambios funcionales.
 
 ### Incluye
 

@@ -2,7 +2,7 @@
 
 Ultima actualizacion: 2026-07-24
 
-Estado: beta `0.1.0-beta.1` sincronizada con GitHub. El proyecto Vercel existente se encuentra vinculado y en reconfiguracion controlada; no existe backend remoto activo.
+Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel. No existe backend remoto activo.
 
 ## Objetivo
 
@@ -19,7 +19,7 @@ Permitir que Poseidon siga evolucionando localmente y que cada version enviada a
 | Ambiente | Codigo | Datos | Estado |
 | --- | --- | --- | --- |
 | Local | `main` y ramas `codex/*` | `localStorage` de Chrome en `127.0.0.1` | Activo |
-| Prueba online | `release/test` | Al inicio, `localStorage` aislado por navegador/origen | Rama de produccion configurada; candidato pendiente de promocion controlada |
+| Prueba online | `release/test` | `localStorage` aislado por navegador/origen | Activa en `https://poseidon-sistema-gestio.vercel.app` |
 | Produccion | Version estable aprobada | PostgreSQL/Supabase futuro | No creado |
 
 La URL online y `http://127.0.0.1:5173/` nunca comparten `localStorage`. Durante la primera beta no se cargan datos reales ni se interpreta una copia del navegador como base multiusuario.
@@ -88,25 +88,25 @@ Se usa SemVer:
 - El preflight tambien controla `upload-artifact`, aunque ese paso solo se ejecuta cuando falla un E2E y por eso una version obsoleta puede quedar oculta durante una corrida exitosa.
 - `vercel.json` desactiva los despliegues automaticos de `main`; `release:check` impide quitar accidentalmente ese control.
 
-## Candidato sincronizado
+## Candidato publicado
 
 - Version: `0.1.0-beta.1`.
 - Commit congelado: `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
-- Referencias remotas: `main`, `release/test` y `v0.1.0-beta.1`.
+- Referencias congeladas: `release/test` y `v0.1.0-beta.1`.
 - Respaldo local previo: `backup/pre-beta-2026-07-24`.
 - La etiqueta y `release/test` no se moveran; cualquier correccion genera un nuevo candidato.
-- La sincronizacion no autoriza ni implica un despliegue.
 - Evidencia remota: [Poseidon Quality #3](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30116340060) aprobo `Check and build` y `Release E2E` sobre `release/test` y el commit congelado.
 - La modernizacion posterior de Actions se sincronizo en `main` mediante `1151091`; [Poseidon Quality #4](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30117602834) aprobo `Check and build` sin anotaciones de Node 20.
+- [Poseidon Quality #6](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30121806269) aprobo los controles de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
 - El cambio de CI no mueve `release/test`, la etiqueta ni el candidato ya validado.
 
 ## Publicacion de prueba
 
-La primera publicacion debe:
+La primera publicacion aplica estas condiciones:
 
-1. usar un proyecto Vercel exclusivo de prueba;
+1. usar el proyecto Vercel existente exclusivamente como demo;
 2. vincularse con `release/test`, no desplegar cada cambio local;
-3. mantener acceso protegido;
+3. declarar que el dominio de produccion Hobby es publico;
 4. usar datos demo;
 5. validar Cajero, Encargado y Administrador;
 6. registrar URL, version, commit, fecha y resultado;
@@ -115,6 +115,19 @@ La primera publicacion debe:
 La configuracion local `vercel.json` compila Vite con lockfile congelado, publica `dist` y conserva el fallback de React Router. `.vercel/` y las variables privadas quedan fuera de Git.
 
 El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a GitHub. El 2026-07-24 Central cambio su rama de produccion de `main` a `release/test`; el dominio de produccion del plan Hobby permanece publico y solo debe usar datos demo. Las variables historicas de Supabase/Postgres no forman parte del frontend vigente y quedan pendientes de una limpieza externa autorizada.
+
+### Evidencia de publicacion 2026-07-24
+
+- URL: `https://poseidon-sistema-gestio.vercel.app`.
+- Version: `0.1.0-beta.1`.
+- Fuente: `release/test`.
+- Commit: `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Despliegue Vercel: `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`.
+- Estado: `Ready` en 26 segundos.
+- Rutas HTTP `200`: `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales`.
+- Smoke Chrome: Cajero, Encargado y Administrador ingresaron a sus paneles; Administrador abrio `/locales`.
+- Control de rama: el push de `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85` a `main` no creo un despliegue Vercel.
+- Rollback ensayado sin alterar produccion: el despliegue anterior `FidTosTcMj6duffH3egjpu6dtk9W`, commit `e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`, permanece `Ready` y ofrece `Instant Rollback`.
 
 ## Rollback
 
@@ -130,6 +143,7 @@ El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a Git
 - Volver a promover el despliegue anterior o desplegar nuevamente la etiqueta conocida.
 - Confirmar rutas, login y smoke de los tres roles.
 - Registrar el incidente y la version restaurada.
+- Punto de restauracion vigente: `FidTosTcMj6duffH3egjpu6dtk9W` (`e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`).
 
 ### Datos
 
@@ -155,7 +169,7 @@ El rollback del frontend no revierte datos.
 
 - Push y CI aprobados.
 - Proyecto y ambiente identificados como prueba.
-- Acceso protegido y datos demo.
+- Visibilidad declarada; si el dominio es publico, usar exclusivamente datos demo.
 - Variables revisadas sin exponer secretos.
 - Plan de rollback probado.
 - Confirmacion explicita separada para desplegar.

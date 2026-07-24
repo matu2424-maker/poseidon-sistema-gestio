@@ -1,8 +1,8 @@
 # Poseidon Sistema de Gestion
 
-Aplicacion web local para operar y controlar caja diaria, maquinas, movimientos, tesoreria, salarios, clientes, cierres, reportes, cuentas corrientes y auditoria del local Poseidon.
+Aplicacion web para operar y controlar caja diaria, maquinas, movimientos, tesoreria, salarios, clientes, cierres, reportes, cuentas corrientes y auditoria del local Poseidon.
 
-El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remota ni almacenamiento real de archivos. La primera beta fue sincronizada con GitHub, pero todavia no fue desplegada.
+El proyecto sigue en etapa de prueba controlada. El desarrollo y los datos operativos permanecen locales; la beta publica `0.1.0-beta.1` esta disponible como demo en [poseidon-sistema-gestio.vercel.app](https://poseidon-sistema-gestio.vercel.app). No usa autenticacion real, base remota ni almacenamiento real de archivos.
 
 ## Stack
 
@@ -29,8 +29,9 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - La evidencia automatizada vigente y sus conteos se mantienen en `docs/VALIDACION_LOCAL.md`.
 - Version candidata: `0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - Node y pnpm fijados para builds reproducibles.
-- `main`, `release/test` y la etiqueta `v0.1.0-beta.1` sincronizados con GitHub.
+- `release/test` y la etiqueta `v0.1.0-beta.1` permanecen congelados en el commit candidato; `main` continua con documentacion y controles posteriores.
 - Workflow CI activo con Actions compatibles con Node 24; la evidencia remota vigente se registra en `docs/VALIDACION_LOCAL.md`.
+- Vercel publica explicitamente desde `release/test`; los cambios diarios de `main` no generan despliegues automaticos.
 
 ## Modelo financiero vigente
 
@@ -231,14 +232,14 @@ src/types.ts                         Contratos de datos
 
 ## Publicacion
 
-La beta sincronizada incluye `vercel.json`, CI, preflight y reglas de versionado. No existe todavia un proyecto Vercel vinculado desde este checkout ni un despliegue activo.
+La beta `0.1.0-beta.1` esta desplegada en el proyecto Vercel existente `poseidon-sistema-gestio`. La rama de produccion de ese proyecto es `release/test`, y `vercel.json` impide que `main` genere despliegues automaticos.
 
-Flujo previsto:
+Flujo vigente:
 
 ```text
-main validado -> release/test -> v0.1.0-beta.N -> prueba online autorizada
+main validado -> candidato congelado en release/test + v0.1.0-beta.N -> despliegue explicito
 ```
 
-La primera publicacion conserva datos separados en el `localStorage` de cada navegador. No representa una base compartida ni debe recibir datos reales. Consultar `docs/RELEASES_Y_DESPLIEGUES.md`.
+La publicacion conserva datos separados en el `localStorage` de cada navegador. El dominio del plan Hobby es publico: funciona solamente como demo, no representa una base compartida y no debe recibir datos reales. Consultar `docs/RELEASES_Y_DESPLIEGUES.md`.
 
-No hacer nuevos push, publicar en Vercel, conectar Supabase ni activar otro servicio externo sin pedido explicito.
+No hacer nuevos push, desplegar otra version, conectar Supabase ni activar otro servicio externo sin pedido explicito.

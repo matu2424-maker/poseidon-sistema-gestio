@@ -76,7 +76,7 @@ Agregar:
 
 - Decisiones: `docs/coordinacion/DECISIONS.json` y documento individual referenciado.
 - Migraciones/reparaciones: `docs/coordinacion/MIGRATIONS.json` y `docs/plantillas/MIGRACION_REPARACION.md`.
-- Agentes, skills y validadores: `docs/coordinacion/CAPABILITIES.json`.
+- Agentes, skills, validadores, herramientas y conexiones: `docs/coordinacion/CAPABILITIES.json`.
 - Validar con `pnpm run check:governance`; `check:workstreams` y `check:commit` tambien lo ejecutan cuando corresponde.
 
 ### Ejecutar un procedimiento repetible de Codex
@@ -124,7 +124,7 @@ Agregar:
 | Estado operativo multiagente | `docs/coordinacion/PROJECT_STATUS.json` | Retomar, prompts, contextos funcionales |
 | Decisiones transversales | `docs/coordinacion/DECISIONS.json` y documento individual | Reglas funcionales o modulos |
 | Migraciones y reparaciones de datos | `docs/coordinacion/MIGRATIONS.json` | Planes generales, handoff |
-| Inventario de agentes, skills y validadores | `docs/coordinacion/CAPABILITIES.json` | Prompts y contextos funcionales |
+| Inventario de agentes, skills, validadores, herramientas y conexiones | `docs/coordinacion/CAPABILITIES.json` | Prompts y contextos funcionales |
 | Skills reutilizables de Codex | `docs/SKILLS_POSEIDON.md` | Perfiles TOML, contextos funcionales |
 | Medicion de subagentes | `docs/REGISTRO_DELEGACIONES_AGENTES.md` | Pilotos y documentos funcionales |
 | Revisiones de diseno | `docs/REVISIONES_DE_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |

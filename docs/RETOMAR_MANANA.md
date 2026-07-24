@@ -6,17 +6,22 @@ Ultima actualizacion: 2026-07-24
 
 - Proyecto local React/Vite/TypeScript con React Router.
 - Snapshot local esquema `5` y clave `poseidon-sistema-gestion-v2`.
-- Sin Supabase, Auth, Storage remoto ni despliegue.
+- Sin Supabase, Auth ni Storage remoto.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
-- Beta `0.1.0-beta.1` sincronizada con GitHub: `main`, `release/test` y la etiqueta apuntan al commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`; no hay despliegue.
-- GitHub Actions `#3` aprobo el candidato sobre `release/test`. `main` sincronizo las cuatro Actions compatibles con Node 24 en `1151091` y Poseidon Quality `#4` aprobo `Check and build` sin anotaciones de Node 20.
+- Beta demo `0.1.0-beta.1` activa en `https://poseidon-sistema-gestio.vercel.app`; `release/test` y la etiqueta permanecen en `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Vercel usa `release/test` como rama de produccion y `vercel.json` bloquea despliegues automaticos de `main`.
+- GitHub Actions `#3` aprobo el candidato sobre `release/test`; Poseidon Quality `#6` aprobo los controles posteriores de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
 
 ## Ultimo bloque tecnico
 
+- Publicacion controlada creada en Vercel desde `release/test`, despliegue `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`, estado `Ready`.
+- El dominio principal quedo asociado al commit beta `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`; las rutas directas y los tres roles fueron comprobados.
+- El despliegue anterior `FidTosTcMj6duffH3egjpu6dtk9W` (`e4f0b4d`) permanece listo y ofrece `Instant Rollback`.
+- La beta online es publica y usa datos aislados por navegador; Chrome local sigue siendo la fuente canonica operativa.
 - Cierre periodico y control administrativo de gastos ya delegan generacion, revision y anulacion a comandos atomicos sobre el snapshot vigente.
 - React recibe la funcion activa y no construye auditorias, fechas, IDs ni reversos de esos flujos.
 - Playwright usa helpers y fixtures compartidos y cubre tesoreria, cierre periodico, formularios administrativos y recuperacion/importacion.
@@ -68,8 +73,9 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Solicitar autorizacion separada antes de vincular o desplegar Vercel de prueba protegido.
-2. Mantener el backend Supabase, multi-local completo y datos reales fuera de esta primera beta frontend.
+1. Usar la beta solamente con datos demo y registrar incidencias reproducibles.
+2. Solicitar autorizacion separada antes de eliminar las variables historicas sin uso de Vercel.
+3. Mantener el backend Supabase, multi-local completo y datos reales fuera de esta primera beta frontend.
 
 ## Ruta de inicio
 

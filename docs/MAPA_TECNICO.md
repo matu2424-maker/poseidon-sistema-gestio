@@ -14,6 +14,8 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 - Playwright con Chrome para caja, diferencias/auditoria y navegacion por rol.
 - Entrada: `src/main.tsx` -> `BrowserRouter` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
+- Beta demo: Vercel publica `release/test` en `https://poseidon-sistema-gestio.vercel.app`.
+- Datos online: `localStorage` aislado por origen y navegador; no existe backend compartido.
 
 ## Infraestructura Codex
 
@@ -51,6 +53,7 @@ scripts/release-readiness.mjs               reglas puras del preflight
 .node-version                               runtime reproducible
 CHANGELOG.md                                contenido de versiones
 docs/RELEASES_Y_DESPLIEGUES.md              ramas, etiquetas, ambientes y rollback
+vercel.json                                  build Vite, fallback SPA y bloqueo de despliegues desde main
 ```
 
 - El proyecto no fija cantidad de hilos ni profundidad; aplica la capacidad disponible de Codex y el protocolo de no superposicion.
@@ -60,6 +63,7 @@ docs/RELEASES_Y_DESPLIEGUES.md              ramas, etiquetas, ambientes y rollba
 - Para implementacion se usa inicialmente el `worker` integrado de Codex con propiedad explicita de archivos.
 - `pnpm run check:agents` valida perfiles; `check:workstreams` valida chats y gobierno SOPM-Lite; `check:governance` valida solo sus registros; `check:skills` valida procedimientos; `check:design` valida patrones visuales; `pnpm run check` ejecuta todos antes del codigo.
 - `pnpm run release:check` exige un worktree limpio y valida version, changelog, secretos rastreados, runtime, package manager, Vercel, workflow, Actions compatibles con Node 24 y etiqueta esperada.
+- Vercel toma produccion desde `release/test`; publicar otra version requiere una promocion explicita y no ocurre al actualizar `main`.
 - `.githooks/pre-commit` y `scripts/precommit-hook.ps1` ejecutan `pnpm run check:commit` con el runtime disponible en Windows.
 - Todo subagente terminado se registra; no se considera un perfil nuevo sin tres delegaciones utiles de la misma especialidad.
 

@@ -121,6 +121,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 
 - GitHub Actions: [Poseidon Quality #3](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30116340060) aprobo `Check and build` y `Release E2E` sobre `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, en 2 min 26 s.
 - GitHub Actions: [Poseidon Quality #4](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30117602834) aprobo `Check and build` sobre `main`, commit `1151091b7164cf2735d537eb4dd13c90d09df312`, en 52 s y sin anotaciones de Node 20.
+- GitHub Actions: [Poseidon Quality #6](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30121806269) aprobo `Check and build` sobre `main`, commit `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`, en 58 s.
 - El workflow vigente en `main` usa `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7`; `release:check` exige esas referencias para impedir una regresion al runtime interno Node 20.
 - 42 archivos de pruebas y 213 casos aprobados, incluidos gobierno SOPM-Lite, preflight de release, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, cierres periodicos atomicos, revision/anulacion administrativa de gastos, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
 - La validacion profunda cubre las 22 colecciones de `AppData`, campos, enums, importes finitos, IDs, referencias, asociaciones de local/recaudacion y preservacion del snapshot rechazado.
@@ -141,6 +142,10 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Chrome canonico: control recuperado; acceso como Encargado, Control de gastos, detalle operativo y Cierre periodico aprobados sin errores de consola.
+- Beta Vercel: despliegue `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`, fuente `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, estado `Ready` en 26 s.
+- Beta Vercel: dominio principal y rutas `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales` respondieron HTTP `200`.
+- Beta Chrome: Cajero, Encargado y Administrador ingresaron correctamente; Administrador abrio `/locales`.
+- Rollback: despliegue anterior `FidTosTcMj6duffH3egjpu6dtk9W` (`e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`) permanece `Ready` con `Instant Rollback` disponible; no se altero la beta vigente.
 - Cierre desconciliado: aviso con caja/libro/delta visible, aporte ordinario ausente y cierre deshabilitado; QA visual aprobada en 1280 x 720 y 390 x 844 sin overflow horizontal.
 - Cuentas corrientes: grupos Caja, Principal, Socios y Otras; selector, movimientos y tabla ordenable aprobados en 1024 x 768 y 390 x 844 sin overflow global.
 - Control de gastos: alta desde Principal con selector Efectivo/Banco, saldos disponibles, tabla ordenable y modal aprobados en 1366 x 768 y 390 x 844 sin errores de consola.

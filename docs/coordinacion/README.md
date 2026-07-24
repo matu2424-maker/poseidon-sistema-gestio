@@ -11,7 +11,7 @@ Poseidon adopta solo las partes verificables y de bajo costo operativo del model
 - `docs/coordinacion/PROJECT_STATUS.json`: estado, riesgos y proximas acciones.
 - `docs/coordinacion/DECISIONS.json`: indice verificable de decisiones transversales.
 - `docs/coordinacion/MIGRATIONS.json`: migraciones y reparaciones de datos aplicadas o pendientes.
-- `docs/coordinacion/CAPABILITIES.json`: agentes, skills y validadores activos.
+- `docs/coordinacion/CAPABILITIES.json`: agentes, skills, validadores, herramientas y conexiones activas.
 
 Los estados normales de una orden son `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA` e `INTEGRADA`. `BLOQUEADA` y `DESCARTADA` son auxiliares.
 
