@@ -2,7 +2,7 @@
 
 Ultima actualizacion: 2026-07-24
 
-Estado: beta `0.1.0-beta.1` sincronizada con GitHub. No existe proyecto Vercel vinculado, despliegue ni backend remoto activo.
+Estado: beta `0.1.0-beta.1` sincronizada con GitHub. El proyecto Vercel existente se encuentra vinculado y en reconfiguracion controlada; no existe backend remoto activo.
 
 ## Objetivo
 
@@ -19,7 +19,7 @@ Permitir que Poseidon siga evolucionando localmente y que cada version enviada a
 | Ambiente | Codigo | Datos | Estado |
 | --- | --- | --- | --- |
 | Local | `main` y ramas `codex/*` | `localStorage` de Chrome en `127.0.0.1` | Activo |
-| Prueba online | `release/test` | Al inicio, `localStorage` aislado por navegador/origen | Rama sincronizada, no desplegada |
+| Prueba online | `release/test` | Al inicio, `localStorage` aislado por navegador/origen | Rama de produccion configurada; candidato pendiente de promocion controlada |
 | Produccion | Version estable aprobada | PostgreSQL/Supabase futuro | No creado |
 
 La URL online y `http://127.0.0.1:5173/` nunca comparten `localStorage`. Durante la primera beta no se cargan datos reales ni se interpreta una copia del navegador como base multiusuario.
@@ -86,6 +86,7 @@ Se usa SemVer:
 - Los E2E se ejecutan en `release/test` y bajo disparo manual. En CI Playwright inicia un servidor aislado y usa Chromium; localmente conserva Chrome y el servidor oficial.
 - `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7` evitan depender del runtime interno Node 20 retirado por GitHub.
 - El preflight tambien controla `upload-artifact`, aunque ese paso solo se ejecuta cuando falla un E2E y por eso una version obsoleta puede quedar oculta durante una corrida exitosa.
+- `vercel.json` desactiva los despliegues automaticos de `main`; `release:check` impide quitar accidentalmente ese control.
 
 ## Candidato sincronizado
 
@@ -112,6 +113,8 @@ La primera publicacion debe:
 7. ensayar rollback antes de aceptar la beta.
 
 La configuracion local `vercel.json` compila Vite con lockfile congelado, publica `dist` y conserva el fallback de React Router. `.vercel/` y las variables privadas quedan fuera de Git.
+
+El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a GitHub. El 2026-07-24 Central cambio su rama de produccion de `main` a `release/test`; el dominio de produccion del plan Hobby permanece publico y solo debe usar datos demo. Las variables historicas de Supabase/Postgres no forman parte del frontend vigente y quedan pendientes de una limpieza externa autorizada.
 
 ## Rollback
 

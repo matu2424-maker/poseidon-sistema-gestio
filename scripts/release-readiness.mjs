@@ -56,6 +56,9 @@ export function validateReleaseConfiguration({
   if (!Array.isArray(vercelConfig?.rewrites) || !vercelConfig.rewrites.some((rewrite) => rewrite?.destination === "/index.html")) {
     errors.push("Vercel debe conservar el fallback de React Router.");
   }
+  if (vercelConfig?.git?.deploymentEnabled?.main !== false) {
+    errors.push("Vercel no debe desplegar automaticamente la rama main.");
+  }
 
   if (!changelog.includes(`## [${version}]`)) errors.push(`CHANGELOG.md debe registrar ${version}.`);
   for (const fragment of ["release/test", "vMAJOR.MINOR.PATCH", "rollback", "localStorage"]) {

@@ -18,6 +18,7 @@ const validInput = {
     installCommand: "pnpm install --frozen-lockfile",
     buildCommand: "pnpm run build",
     outputDirectory: "dist",
+    git: { deploymentEnabled: { main: false } },
     rewrites: [{ source: "/(.*)", destination: "/index.html" }],
   },
   changelog: "## [0.1.0-beta.1] - 2026-07-24",
@@ -37,12 +38,17 @@ describe("preparacion de releases", () => {
       ...validInput,
       packageJson: { ...validInput.packageJson, packageManager: "pnpm@latest" },
       gitignore: "dist/\n",
-      vercelConfig: { ...validInput.vercelConfig, installCommand: "pnpm install" },
+      vercelConfig: {
+        ...validInput.vercelConfig,
+        installCommand: "pnpm install",
+        git: { deploymentEnabled: { main: true } },
+      },
       changelog: "",
     });
 
     expect(errors).toContain("packageManager debe fijar una version exacta de pnpm.");
     expect(errors).toContain("Vercel debe instalar con lockfile congelado.");
+    expect(errors).toContain("Vercel no debe desplegar automaticamente la rama main.");
     expect(errors).toContain("CHANGELOG.md debe registrar 0.1.0-beta.1.");
     expect(errors).toContain(".gitignore debe contener .vercel/.");
   });
