@@ -96,7 +96,8 @@ Se usa SemVer:
 - La etiqueta y `release/test` no se moveran; cualquier correccion genera un nuevo candidato.
 - La sincronizacion no autoriza ni implica un despliegue.
 - Evidencia remota: [Poseidon Quality #3](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30116340060) aprobo `Check and build` y `Release E2E` sobre `release/test` y el commit congelado.
-- La modernizacion posterior de Actions se conserva en `main`; no cambia la etiqueta ni el candidato ya validado.
+- La modernizacion posterior de Actions se sincronizo en `main` mediante `1151091`; [Poseidon Quality #4](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30117602834) aprobo `Check and build` sin anotaciones de Node 20.
+- El cambio de CI no mueve `release/test`, la etiqueta ni el candidato ya validado.
 
 ## Publicacion de prueba
 

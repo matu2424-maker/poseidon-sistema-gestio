@@ -10,18 +10,18 @@
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-validada-ci-ajuste-actions-local",
-    "objective": "Sincronizar la modernizacion de GitHub Actions al runtime Node 24 y luego preparar separadamente una futura prueba protegida en Vercel.",
+    "phase": "beta-ci-node24-sincronizada",
+    "objective": "Preparar separadamente una futura prueba protegida en Vercel solo despues de una nueva autorizacion explicita.",
     "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-24-CEN-03",
-    "title": "Validacion remota de beta y modernizacion local de Actions",
+    "id": "2026-07-24-CEN-04",
+    "title": "Sincronizacion y validacion de Actions con Node 24",
     "state": "INTEGRADA",
-    "evidence": "Poseidon Quality #3 aprobo Check and build y Release E2E sobre release/test en 0bb33965b8ea50b4f1c10b8863f73582b006f8ea. Central actualizo localmente checkout, setup-node y pnpm/action-setup a v6, upload-artifact a v7 y reforzo el preflight; este bloque aun no fue enviado. No hubo conexion a Vercel, backend remoto ni despliegue."
+    "evidence": "Central sincronizo main en 1151091b7164cf2735d537eb4dd13c90d09df312 con checkout, setup-node y pnpm/action-setup v6, upload-artifact v7 y preflight reforzado. Poseidon Quality #4 aprobo Check and build en 52 segundos sin anotaciones de Node 20. No hubo conexion a Vercel, backend remoto ni despliegue."
   },
   "health": {
     "overall": "YELLOW",
@@ -40,7 +40,6 @@
     ]
   },
   "nextActions": [
-    "Solicitar autorizacion antes de sincronizar la modernizacion local de Actions y verificar un CI sin advertencias de Node 20.",
     "Solicitar autorizacion explicita antes de vincular o desplegar un proyecto Vercel de prueba protegido sin datos reales.",
     "Antes de una beta operativa amplia, completar autorizacion uniforme y E2E de Locales, Maquinas, Personal, Clientes y Papelera.",
     "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."

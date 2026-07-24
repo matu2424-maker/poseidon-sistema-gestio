@@ -17,7 +17,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
 - Sin Auth, base de datos remota, storage real ni despliegue.
 - Candidato `0.1.0-beta.1` sincronizado con GitHub: `main`, `release/test` y la etiqueta apuntan al commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
-- El candidato aprobo `Check and build` y `Release E2E` en GitHub Actions; `main` incorpora localmente las cuatro Actions compatibles con Node 24 (`checkout@v6`, `setup-node@v6`, `pnpm/action-setup@v6` y `upload-artifact@v7`), todavia sin un nuevo push.
+- El candidato aprobo `Check and build` y `Release E2E` en GitHub Actions. `main` ya sincronizo las cuatro Actions compatibles con Node 24 (`checkout@v6`, `setup-node@v6`, `pnpm/action-setup@v6` y `upload-artifact@v7`) en `1151091`; Poseidon Quality `#4` aprobo el cambio sin anotaciones de Node 20.
 - Runtime fijado, preflight de release y CI versionado; Vercel y el backend remoto siguen sin conectar.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
@@ -105,8 +105,7 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Prioridades pendientes
 
-1. Sincronizar, con autorizacion, la modernizacion local de Actions y verificar un CI sin advertencias de Node 20.
-2. Solicitar autorizacion separada antes de vincular Vercel o desplegar la prueba protegida.
-3. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
-4. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
+1. Solicitar autorizacion separada antes de vincular Vercel o desplegar la prueba protegida.
+2. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
+3. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
 5. No iniciar multi-local ni backend Supabase sin una etapa y autorizacion propias.
