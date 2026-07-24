@@ -141,8 +141,10 @@
       "status": "ACTIVE",
       "riskLevel": "C2",
       "paths": [
+        ".github/workflows/quality.yml",
         "scripts/check-release-readiness.mjs",
         "scripts/release-readiness.mjs",
+        "scripts/release-readiness.test.mjs",
         "docs/RELEASES_Y_DESPLIEGUES.md"
       ],
       "validationCommand": "pnpm run release:check",

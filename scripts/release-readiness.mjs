@@ -68,6 +68,10 @@ export function validateReleaseConfiguration({
     "pnpm run release:check",
     "pnpm run test:e2e",
     "release/test",
+    "actions/checkout@v6",
+    "actions/setup-node@v6",
+    "pnpm/action-setup@v6",
+    "actions/upload-artifact@v7",
   ]) {
     if (!workflow.includes(fragment)) errors.push(`El workflow de calidad debe incluir ${fragment}.`);
   }

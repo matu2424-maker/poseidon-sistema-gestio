@@ -30,7 +30,7 @@ El proyecto sigue en etapa de prueba local. No usa autenticacion real, base remo
 - Version candidata: `0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - Node y pnpm fijados para builds reproducibles.
 - `main`, `release/test` y la etiqueta `v0.1.0-beta.1` sincronizados con GitHub.
-- Workflow CI activo para validar `main` y `release/test`.
+- Workflow CI activo con Actions compatibles con Node 24; la evidencia remota vigente se registra en `docs/VALIDACION_LOCAL.md`.
 
 ## Modelo financiero vigente
 

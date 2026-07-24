@@ -22,7 +22,8 @@ const validInput = {
   },
   changelog: "## [0.1.0-beta.1] - 2026-07-24",
   releaseGuide: "release/test vMAJOR.MINOR.PATCH rollback localStorage",
-  workflow: "release/test pnpm install --frozen-lockfile pnpm run check pnpm run build pnpm run release:check pnpm run test:e2e",
+  workflow:
+    "release/test actions/checkout@v6 actions/setup-node@v6 pnpm/action-setup@v6 actions/upload-artifact@v7 pnpm install --frozen-lockfile pnpm run check pnpm run build pnpm run release:check pnpm run test:e2e",
 };
 
 describe("preparacion de releases", () => {
@@ -44,5 +45,18 @@ describe("preparacion de releases", () => {
     expect(errors).toContain("Vercel debe instalar con lockfile congelado.");
     expect(errors).toContain("CHANGELOG.md debe registrar 0.1.0-beta.1.");
     expect(errors).toContain(".gitignore debe contener .vercel/.");
+  });
+
+  it("rechaza Actions que no usan el runtime Node 24 vigente", () => {
+    const errors = validateReleaseConfiguration({
+      ...validInput,
+      workflow:
+        "release/test actions/checkout@v4 actions/setup-node@v4 pnpm/action-setup@v4 actions/upload-artifact@v4 pnpm install --frozen-lockfile pnpm run check pnpm run build pnpm run release:check pnpm run test:e2e",
+    });
+
+    expect(errors).toContain("El workflow de calidad debe incluir actions/checkout@v6.");
+    expect(errors).toContain("El workflow de calidad debe incluir actions/setup-node@v6.");
+    expect(errors).toContain("El workflow de calidad debe incluir pnpm/action-setup@v6.");
+    expect(errors).toContain("El workflow de calidad debe incluir actions/upload-artifact@v7.");
   });
 });

@@ -81,9 +81,11 @@ Se usa SemVer:
 - `.node-version` fija el runtime reproducible.
 - `packageManager` fija pnpm.
 - `pnpm install --frozen-lockfile` evita una resolucion distinta durante la entrega.
-- `pnpm run release:check` verifica version, changelog, archivos sensibles, build de Vercel, workflow, etiqueta y limpieza Git.
+- `pnpm run release:check` verifica version, changelog, archivos sensibles, build de Vercel, workflow, Actions compatibles con Node 24, etiqueta y limpieza Git.
 - `.github/workflows/quality.yml` ejecuta `check` y `build` en pull requests, `main` y `release/test`.
 - Los E2E se ejecutan en `release/test` y bajo disparo manual. En CI Playwright inicia un servidor aislado y usa Chromium; localmente conserva Chrome y el servidor oficial.
+- `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7` evitan depender del runtime interno Node 20 retirado por GitHub.
+- El preflight tambien controla `upload-artifact`, aunque ese paso solo se ejecuta cuando falla un E2E y por eso una version obsoleta puede quedar oculta durante una corrida exitosa.
 
 ## Candidato sincronizado
 
@@ -93,6 +95,8 @@ Se usa SemVer:
 - Respaldo local previo: `backup/pre-beta-2026-07-24`.
 - La etiqueta y `release/test` no se moveran; cualquier correccion genera un nuevo candidato.
 - La sincronizacion no autoriza ni implica un despliegue.
+- Evidencia remota: [Poseidon Quality #3](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30116340060) aprobo `Check and build` y `Release E2E` sobre `release/test` y el commit congelado.
+- La modernizacion posterior de Actions se conserva en `main`; no cambia la etiqueta ni el candidato ya validado.
 
 ## Publicacion de prueba
 
