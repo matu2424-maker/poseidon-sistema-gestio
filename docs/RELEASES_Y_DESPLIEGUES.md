@@ -114,7 +114,9 @@ La primera publicacion aplica estas condiciones:
 
 La configuracion local `vercel.json` compila Vite con lockfile congelado, publica `dist` y conserva el fallback de React Router. `.vercel/` y las variables privadas quedan fuera de Git.
 
-El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a GitHub. El 2026-07-24 Central cambio su rama de produccion de `main` a `release/test`; el dominio de produccion del plan Hobby permanece publico y solo debe usar datos demo. Las variables historicas de Supabase/Postgres no forman parte del frontend vigente y quedan pendientes de una limpieza externa autorizada.
+El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a GitHub. El 2026-07-24 Central cambio su rama de produccion de `main` a `release/test`; el dominio de produccion del plan Hobby permanece publico y solo debe usar datos demo.
+
+Ese mismo dia, con autorizacion separada, se eliminaron las 16 variables historicas de PostgreSQL/Supabase que el frontend vigente no consume. El inventario de variables del proyecto quedo en cero y la beta se reconstruyo sin cache desde el mismo commit congelado. Esta limpieza no revoca las credenciales en sus proveedores: rotarlas o revocarlas es una operacion externa diferente que requiere otra autorizacion. El archivo local `.env.local` existe y esta ignorado por Git; no se inspecciono ni modifico durante esta limpieza.
 
 ### Evidencia de publicacion 2026-07-24
 
@@ -122,12 +124,15 @@ El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a Git
 - Version: `0.1.0-beta.1`.
 - Fuente: `release/test`.
 - Commit: `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
-- Despliegue Vercel: `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`.
-- Estado: `Ready` en 26 segundos.
+- Despliegue Vercel vigente: `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`.
+- URL generada: `https://poseidon-sistema-gestio-2nro7tskp-mathias13.vercel.app`.
+- Estado: `Ready` en 30 segundos.
+- Configuracion: 0 variables de entorno del proyecto despues de eliminar las 16 variables historicas de PostgreSQL/Supabase.
 - Rutas HTTP `200`: `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales`.
 - Smoke Chrome: Cajero, Encargado y Administrador ingresaron a sus paneles; Administrador abrio `/locales`.
 - Control de rama: el push de `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85` a `main` no creo un despliegue Vercel.
-- Rollback ensayado sin alterar produccion: el despliegue anterior `FidTosTcMj6duffH3egjpu6dtk9W`, commit `e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`, permanece `Ready` y ofrece `Instant Rollback`.
+- Despliegue reemplazado: `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`, construido desde el mismo commit antes de limpiar las variables.
+- Los despliegues anteriores se conservan como evidencia, no como destino de promocion, porque fueron construidos con la configuracion retirada.
 
 ## Rollback
 
@@ -140,10 +145,11 @@ El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a Git
 
 ### Frontend desplegado
 
-- Volver a promover el despliegue anterior o desplegar nuevamente la etiqueta conocida.
+- Desplegar nuevamente una etiqueta o commit conocido usando la configuracion vigente del proyecto.
+- No promover mediante `Instant Rollback` un despliegue construido antes de una limpieza o rotacion de variables.
 - Confirmar rutas, login y smoke de los tres roles.
 - Registrar el incidente y la version restaurada.
-- Punto de restauracion vigente: `FidTosTcMj6duffH3egjpu6dtk9W` (`e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`).
+- Punto de restauracion de codigo vigente: `v0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 
 ### Datos
 

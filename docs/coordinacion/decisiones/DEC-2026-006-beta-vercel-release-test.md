@@ -22,14 +22,16 @@ Poseidon necesita una beta online reversible mientras el desarrollo continua en 
 
 - Version: `0.1.0-beta.1`.
 - Commit: `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
-- Despliegue: `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`.
+- Despliegue vigente: `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`.
 - URL: `https://poseidon-sistema-gestio.vercel.app`.
-- Rollback disponible: `FidTosTcMj6duffH3egjpu6dtk9W`, commit `e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`.
+- Fuente congelada y punto de restauracion: `v0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Configuracion Vercel: 0 variables del proyecto despues de eliminar 16 variables historicas de PostgreSQL/Supabase.
 
 ## Consecuencias
 
 - La beta online y localhost no comparten datos.
 - No se cargan datos reales hasta implementar Auth, base y storage remotos.
 - Una correccion crea un candidato nuevo; no mueve la etiqueta publicada.
-- Las variables historicas sin uso de Vercel requieren autorizacion separada antes de eliminarlas.
+- Eliminar variables de Vercel no revoca las credenciales en sus proveedores; la rotacion o revocacion externa requiere autorizacion separada.
+- Un rollback posterior a una limpieza de configuracion reconstruye una etiqueta o commit conocido con los ajustes vigentes; no promueve despliegues antiguos creados con variables retiradas.
 - El rollback del frontend no revierte ni combina snapshots de `localStorage`.

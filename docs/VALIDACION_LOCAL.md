@@ -142,10 +142,11 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Chrome canonico: control recuperado; acceso como Encargado, Control de gastos, detalle operativo y Cierre periodico aprobados sin errores de consola.
-- Beta Vercel: despliegue `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`, fuente `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, estado `Ready` en 26 s.
-- Beta Vercel: dominio principal y rutas `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales` respondieron HTTP `200`.
-- Beta Chrome: Cajero, Encargado y Administrador ingresaron correctamente; Administrador abrio `/locales`.
-- Rollback: despliegue anterior `FidTosTcMj6duffH3egjpu6dtk9W` (`e4f0b4d2ff5649c45f77e7fffb8076215a872b6c`) permanece `Ready` con `Instant Rollback` disponible; no se altero la beta vigente.
+- Beta Vercel limpia: despliegue `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`, fuente `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, estado `Ready` en 30 s.
+- Configuracion Vercel: se eliminaron 16 variables historicas de PostgreSQL/Supabase; el inventario de variables del proyecto quedo en 0 y el frontend no consume variables remotas.
+- Beta Vercel posterior a la limpieza: dominio principal y rutas `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales` respondieron HTTP `200`.
+- Beta Chrome posterior a la limpieza: Cajero, Encargado y Administrador ingresaron correctamente; la navegacion finalizo en `/panel`.
+- Rollback seguro: redesplegar `v0.1.0-beta.1` o su commit con la configuracion vigente. Los despliegues anteriores a la limpieza se conservan como evidencia, pero no deben promoverse.
 - Cierre desconciliado: aviso con caja/libro/delta visible, aporte ordinario ausente y cierre deshabilitado; QA visual aprobada en 1280 x 720 y 390 x 844 sin overflow horizontal.
 - Cuentas corrientes: grupos Caja, Principal, Socios y Otras; selector, movimientos y tabla ordenable aprobados en 1024 x 768 y 390 x 844 sin overflow global.
 - Control de gastos: alta desde Principal con selector Efectivo/Banco, saldos disponibles, tabla ordenable y modal aprobados en 1366 x 768 y 390 x 844 sin errores de consola.

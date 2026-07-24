@@ -18,10 +18,10 @@
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-24-CEN-05",
-    "title": "Publicacion controlada de la primera beta Vercel",
+    "id": "2026-07-24-CEN-06",
+    "title": "Limpieza de variables Vercel y redespliegue de beta",
     "state": "INTEGRADA",
-    "evidence": "Central configuro release/test como rama de produccion, bloqueo despliegues automaticos de main y publico 0.1.0-beta.1 desde 0bb33965b8ea50b4f1c10b8863f73582b006f8ea. Vercel Cm9tbKqvERgd6bZEYbBZVTzWFHDC quedo Ready; rutas y tres roles aprobaron el smoke. FidTosTcMj6duffH3egjpu6dtk9W permanece disponible para Instant Rollback."
+    "evidence": "Central elimino 16 variables historicas de PostgreSQL/Supabase del proyecto Vercel y confirmo un inventario final de 0 variables. La beta 0.1.0-beta.1 se reconstruyo sin cache desde 0bb33965b8ea50b4f1c10b8863f73582b006f8ea; PHp675DwSQ6Sy3VrC7p6SoBgkSsE quedo Ready y las rutas y los tres roles aprobaron el smoke."
   },
   "health": {
     "overall": "YELLOW",
@@ -40,13 +40,13 @@
       {
         "id": "RISK-003",
         "severity": "MEDIUM",
-        "summary": "El proyecto Vercel conserva variables historicas sin uso que requieren una limpieza externa autorizada."
+        "summary": "Las credenciales historicas eliminadas de Vercel deben revocarse o rotarse en sus proveedores; el .env.local ignorado tambien requiere revision controlada."
       }
     ]
   },
   "nextActions": [
     "Usar la beta publica solamente con datos demo y registrar incidencias reproducibles.",
-    "Solicitar autorizacion explicita antes de eliminar las variables historicas sin uso del proyecto Vercel.",
+    "Solicitar autorizacion explicita separada antes de rotar o revocar las credenciales historicas en sus proveedores.",
     "Antes de una beta operativa amplia, completar autorizacion uniforme y E2E de Locales, Maquinas, Personal, Clientes y Papelera.",
     "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."
   ],

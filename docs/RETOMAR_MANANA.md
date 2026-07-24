@@ -18,9 +18,11 @@ Ultima actualizacion: 2026-07-24
 
 ## Ultimo bloque tecnico
 
-- Publicacion controlada creada en Vercel desde `release/test`, despliegue `Cm9tbKqvERgd6bZEYbBZVTzWFHDC`, estado `Ready`.
+- Las 16 variables historicas de PostgreSQL/Supabase fueron eliminadas del proyecto Vercel; el inventario de variables del proyecto quedo vacio.
+- La beta se reconstruyo sin cache desde el mismo commit congelado. El despliegue vigente es `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`, estado `Ready` en 30 segundos.
 - El dominio principal quedo asociado al commit beta `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`; las rutas directas y los tres roles fueron comprobados.
-- El despliegue anterior `FidTosTcMj6duffH3egjpu6dtk9W` (`e4f0b4d`) permanece listo y ofrece `Instant Rollback`.
+- Los despliegues anteriores permanecen como evidencia historica, pero no deben promoverse: fueron construidos antes de retirar las variables.
+- El rollback seguro consiste en redesplegar una etiqueta o commit conocido con la configuracion vigente y repetir el smoke de rutas y roles.
 - La beta online es publica y usa datos aislados por navegador; Chrome local sigue siendo la fuente canonica operativa.
 - Cierre periodico y control administrativo de gastos ya delegan generacion, revision y anulacion a comandos atomicos sobre el snapshot vigente.
 - React recibe la funcion activa y no construye auditorias, fechas, IDs ni reversos de esos flujos.
@@ -74,7 +76,7 @@ El modelo financiero vigente conserva:
 ## Proximas prioridades
 
 1. Usar la beta solamente con datos demo y registrar incidencias reproducibles.
-2. Solicitar autorizacion separada antes de eliminar las variables historicas sin uso de Vercel.
+2. Solicitar autorizacion separada antes de rotar o revocar las credenciales historicas en sus proveedores y revisar el `.env.local` ignorado; eliminarlas de Vercel no las invalida en origen.
 3. Mantener el backend Supabase, multi-local completo y datos reales fuera de esta primera beta frontend.
 
 ## Ruta de inicio

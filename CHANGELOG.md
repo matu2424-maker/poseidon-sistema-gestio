@@ -8,6 +8,8 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 - El preflight de release rechaza volver a versiones anteriores de esas cuatro Actions, incluida la carga de evidencia que solo se ejecuta cuando falla un E2E.
 - Vercel deja de desplegar automaticamente los cambios diarios de `main`; la entrega online queda reservada para `release/test`.
 - La beta `0.1.0-beta.1` fue publicada explicitamente desde `release/test` en el dominio demo de Vercel.
+- Se eliminaron del proyecto Vercel las 16 variables historicas de PostgreSQL/Supabase que el frontend vigente no consume.
+- La beta fue redesplegada desde el mismo commit congelado con la configuracion limpia, sin usar cache de compilacion.
 - Sin cambios funcionales en la aplicacion.
 
 ## [0.1.0-beta.1] - 2026-07-24
@@ -27,4 +29,4 @@ Referencias: `release/test` y `v0.1.0-beta.1` permanecen congelados sobre el com
 
 - Persistencia exclusiva en `localStorage`.
 - Login local sin autenticacion real.
-- Sin archivos remotos, backend multiusuario ni despliegue activo.
+- Sin archivos remotos ni backend multiusuario; el despliegue activo es exclusivamente una demo publica.

@@ -17,6 +17,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
 - Sin Auth, base de datos remota ni storage real.
 - Beta demo `0.1.0-beta.1` publicada en `https://poseidon-sistema-gestio.vercel.app` desde `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- El proyecto Vercel no conserva variables de entorno: las 16 variables historicas de PostgreSQL/Supabase se eliminaron y la beta se reconstruyo desde el mismo commit congelado.
 - El dominio online usa un `localStorage` propio y publico; no comparte los datos operativos de Chrome en `127.0.0.1` y no admite datos reales.
 - El candidato aprobo `Check and build` y `Release E2E` en GitHub Actions. `main` ya sincronizo las cuatro Actions compatibles con Node 24 (`checkout@v6`, `setup-node@v6`, `pnpm/action-setup@v6` y `upload-artifact@v7`) en `1151091`; Poseidon Quality `#4` aprobo el cambio sin anotaciones de Node 20.
 - Runtime fijado, preflight de release y CI versionado. Vercel publica solo por promocion controlada de `release/test`; `main` no despliega automaticamente. El backend remoto sigue sin conectar.
@@ -107,7 +108,7 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 ## Prioridades pendientes
 
 1. Observar la beta demo y registrar incidencias sin cargar datos reales.
-2. Solicitar autorizacion separada antes de limpiar las variables historicas sin uso del proyecto Vercel.
+2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de Vercel, solamente con autorizacion separada.
 3. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
 4. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
 5. No iniciar multi-local ni backend Supabase sin una etapa y autorizacion propias.
