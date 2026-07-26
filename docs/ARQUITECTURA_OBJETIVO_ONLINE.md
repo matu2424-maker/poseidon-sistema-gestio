@@ -1,12 +1,18 @@
 # Poseidon - Arquitectura objetivo online
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
-Estado: diseno futuro. Nada de este documento esta conectado o desplegado actualmente.
+Estado: implementacion preparatoria local. El esquema, configuracion y gateway
+se versionan sin activar todavia un backend remoto.
 
-Base local ya implementada: `AppDataRepository` asincrono, codec de respaldo, adaptador `localStorage` y cola de escrituras ordenadas. No existe adaptador online ni conexion externa.
+Base local ya implementada: `AppDataRepository` asincrono, codec de respaldo,
+adaptador `localStorage` y cola de escrituras ordenadas. La frontera remota se
+implementa mediante `PoseidonCommandGateway`; no existe conexion operativa.
 
-Decision vigente: cuando se autorice la etapa online, la evolucion sera directa desde el adaptador `localStorage` hacia PostgreSQL/Supabase. No se incorpora PGlite, IndexedDB como base relacional ni otro almacenamiento intermedio salvo una decision futura y explicita de producto que requiera operacion offline-first.
+Decision vigente: la evolucion es directa desde el modo `localStorage` hacia
+PostgreSQL/Supabase mediante comandos transaccionales especificos. No se
+persiste `AppData` completo como una fila remota. La fuente completa es
+`DEC-2026-007`.
 
 Preparacion de entrega ya implementada localmente: runtime y package manager fijados, build reproducible, CI versionado, preflight, changelog y flujo `main -> release/test`. Esto no activa hosting ni modifica la persistencia.
 
@@ -16,11 +22,32 @@ Preparar una evolucion desde la aplicacion local actual hacia un sistema online 
 
 ## Limites
 
-- El sistema sigue usando `localStorage` hasta que el usuario autorice otra etapa.
+- El sistema sigue usando `localStorage` por defecto hasta que el ambiente
+  remoto completo apruebe sus criterios de activacion.
 - No guardar credenciales, URLs privadas ni claves en documentacion o codigo versionado.
-- No activar Supabase, autenticacion, Storage, Vercel ni servicios externos por anticipado.
+- No activar Supabase, Auth, Storage o Vercel solo por tener el esquema o el
+  gateway preparados.
 - No agregar una base local intermedia: `AppDataRepository` es la frontera de reemplazo y evita acoplar la aplicacion al proveedor futuro.
 - La migracion debe preservar IDs visibles, relaciones, saldos, estados e historial.
+
+## Implementacion preparatoria disponible
+
+- `supabase/migrations/`: seis migraciones atomicas para tipos, identidad,
+  maestros, caja/libro, salarios/cierres, adjuntos, auditoria, idempotencia y
+  RLS.
+- `supabase/tests/database/`: pgTAP de estructura, restricciones, append-only,
+  permisos por rol/local y helpers internos.
+- `src/application/ports/PoseidonCommandGateway.ts`: frontera de mutaciones
+  remotas tipadas.
+- `src/infrastructure/remote/`: seleccion explicita de backend, transporte RPC
+  autenticado y contrato de migracion.
+- `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md`: correspondencia de las 22
+  colecciones y reglas de conciliacion.
+- `.github/workflows/quality.yml`: base PostgreSQL descartable y pgTAP como
+  puerta del candidato `release/test`.
+
+Esta implementacion se registra como `VALIDATING`: no contiene aun las RPC de
+negocio ni habilita el modo remoto en React.
 
 ## Arquitectura propuesta
 
@@ -29,9 +56,8 @@ React / Vite
   -> capa de presentacion
   -> comandos y consultas de aplicacion
   -> reglas de dominio puras
-  -> interfaces de repositorios
-       -> adaptador localStorage (actual)
-       -> adaptador Supabase (futuro)
+  -> modo local: AppDataRepository -> localStorage
+  -> modo remoto: PoseidonCommandGateway -> RPC especifica
 
 Supabase futuro
   -> Auth
@@ -75,9 +101,14 @@ Cada comando recibe actor, local, fecha/ID y datos de entrada; devuelve resultad
 - Subida/lectura de archivos.
 - Exportacion, respaldo y restauracion.
 
-## Repositorios objetivo
+## Fronteras de persistencia
 
-El contrato transversal actual vive en `src/application/ports/AppDataRepository.ts` y permite cambiar el adaptador sin acoplar `App` a `localStorage`. Durante el diseno online se evaluara dividirlo en repositorios de dominio sin perder transacciones atomicas.
+`AppDataRepository` conserva snapshot, respaldo e importacion del modo local.
+No se implementara un adaptador remoto que lea y reemplace el snapshot completo.
+
+`PoseidonCommandGateway` define las mutaciones remotas. Cada nombre de comando
+se traduce a una RPC dedicada, exige idempotencia y obtiene la identidad real
+del token de sesion. La UI no envia un `userId` confiable.
 
 Interfaces iniciales sugeridas:
 
@@ -92,7 +123,8 @@ Interfaces iniciales sugeridas:
 - `AuditRepository`
 - `AttachmentRepository`
 
-No es obligatorio crear una interfaz por tabla. Deben representar operaciones de negocio y permitir transacciones consistentes.
+No es obligatorio crear una interfaz por tabla. Las consultas pueden agruparse
+por dominio, pero las mutaciones deben conservar transacciones consistentes.
 
 ## Identidad y permisos
 
@@ -100,9 +132,16 @@ No es obligatorio crear una interfaz por tabla. Deben representar operaciones de
 - El perfil interno define rol y locales asignados.
 - La funcion usada (`ENCARGADO` trabajando como `CAJERO`) se registra aparte del rol real.
 - RLS valida permisos en base de datos; ocultar botones no cuenta como seguridad.
+- La funcion activa enviada por el frontend es una solicitud; el servidor
+  verifica que el rol real pueda ejercerla.
+- Ninguna RPC confia en actor, rol o locales derivados solo del payload.
 - `CAJERO`: opera cajas y entidades permitidas de locales asignados.
 - `ENCARGADO`: consulta y controla locales asignados; puede operar como cajero.
 - `ADMINISTRADOR`: administra el sistema completo; puede operar como cajero.
+- Cajero no recibe filas completas de personal, cuentas personales, gastos de
+  Principal ni sus comprobantes.
+- Un evento o cierre con varios locales es visible solamente cuando el usuario
+  tiene acceso a todos ellos.
 
 ## Persistencia y transacciones
 
@@ -117,6 +156,10 @@ Las siguientes operaciones deben ser atomicas:
 - resetear contadores con auditoria.
 
 Si una parte falla, ninguna parte de la operacion debe quedar aplicada.
+
+Cada mutacion guarda una clave de idempotencia unica por usuario y comando. Un
+reintento devuelve el resultado previo o un rechazo consistente; no duplica
+asientos, entidades ni auditoria.
 
 ## Auditoria
 
@@ -150,12 +193,14 @@ Si una parte falla, ninguna parte de la operacion debe quedar aplicada.
 
 ## Seguridad y configuracion
 
-- Variables publicas del frontend solo contienen valores anonimos permitidos.
+- Variables publicas del frontend solo contienen URL y clave publicable.
 - Claves de servicio viven exclusivamente en backend/entorno seguro.
 - RLS activa antes de importar datos reales.
 - Ambientes separados: local, prueba y produccion.
 - Backups y restauracion probados antes del corte final.
 - Version de frontend, etiqueta Git, migracion de esquema y compatibilidad de datos deben poder rastrearse de forma independiente.
+- Las credenciales historicas retiradas del checkout deben revocarse o rotarse
+  en su proveedor antes de reutilizar un proyecto remoto.
 
 ## Observabilidad
 
@@ -163,10 +208,14 @@ Si una parte falla, ninguna parte de la operacion debe quedar aplicada.
 - Registro de fallos de comandos sin exponer datos sensibles.
 - Indicadores minimos: fallos de guardado, cierres incompletos, diferencias pendientes y errores de archivos.
 
-## Criterios para iniciar la implementacion
+## Criterios para activar un flujo remoto
 
 - Flujos principales aceptados funcionalmente.
 - Comandos contables cubiertos por pruebas.
 - Modelo de datos y RLS revisados.
 - Estrategia de migracion y rollback aprobada.
 - Entorno Supabase de prueba autorizado por el usuario.
+- Migraciones reproducibles desde una base vacia.
+- Pruebas negativas de permisos por los tres roles.
+- Pruebas de idempotencia y concurrencia del comando.
+- Conciliacion local/remota sin diferencias no explicadas.

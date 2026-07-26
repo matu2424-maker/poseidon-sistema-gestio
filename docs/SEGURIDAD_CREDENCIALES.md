@@ -16,9 +16,9 @@ tokens, URLs con credenciales ni valores de variables.
   reescribe ese historial porque ya fue compartido y los secretos se invalidan
   en origen.
 - `pnpm run release:check` inspecciona los archivos de texto versionados y
-  rechaza claves privadas, claves Supabase secretas, URLs PostgreSQL con
-  credenciales y asignaciones reales de secretos de servidor. El error informa
-  rutas, nunca valores.
+  rechaza claves privadas, claves Supabase secretas/personales (`sb_secret_` y
+  `sbp_`), URLs PostgreSQL con credenciales y asignaciones reales de secretos
+  de servidor o JWT. El error informa rutas, nunca valores.
 
 ## Pendiente externo
 

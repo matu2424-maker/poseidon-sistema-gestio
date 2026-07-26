@@ -28,7 +28,7 @@ const validInput = {
   changelog: "## [0.1.0-beta.1] - 2026-07-24",
   releaseGuide: "release/test vMAJOR.MINOR.PATCH rollback localStorage",
   workflow:
-    "release/test actions/checkout@v6 actions/setup-node@v6 pnpm/action-setup@v6 actions/upload-artifact@v7 pnpm install --frozen-lockfile pnpm run check pnpm run build pnpm run release:check pnpm run test:e2e",
+    "release/test actions/checkout@v6 actions/setup-node@v6 pnpm/action-setup@v6 actions/upload-artifact@v7 pnpm install --frozen-lockfile pnpm run check pnpm run build pnpm run release:check pnpm run test:e2e pnpm exec supabase start pnpm run backend:check pnpm exec supabase stop --no-backup",
 };
 
 describe("preparacion de releases", () => {
@@ -81,6 +81,12 @@ describe("preparacion de releases", () => {
         ["SUPABASE_SERVICE", "_ROLE_KEY=sb_", "secret_1234567890123456"].join(""),
       ),
     ).toBe(true);
+    expect(
+      containsSensitiveReleaseContent(
+        ["SUPABASE_ACCESS", "_TOKEN=sb", "p_1234567890123456"].join(""),
+      ),
+    ).toBe(true);
+    expect(containsSensitiveReleaseContent(["JWT", "_SECRET=do-not-commit"].join(""))).toBe(true);
     expect(containsSensitiveReleaseContent(["-----BEGIN PRIVATE", " KEY-----"].join(""))).toBe(true);
     expect(containsSensitiveReleaseContent(["DATABASE", "_URL=<configurar-en-el-proveedor>"].join(""))).toBe(false);
     expect(containsSensitiveReleaseContent("VITE_SUPABASE_PUBLISHABLE_KEY=public-key")).toBe(false);

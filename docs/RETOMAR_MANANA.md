@@ -1,12 +1,14 @@
 # Poseidon - Retomar trabajo
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
 ## Estado inmediato
 
 - Proyecto local React/Vite/TypeScript con React Router.
 - Snapshot local esquema `5` y clave `poseidon-sistema-gestion-v2`.
-- Sin Supabase, Auth ni Storage remoto.
+- Sin Supabase conectado, Auth ni Storage remoto.
+- Backend preparatorio `VALIDATING`: seis migraciones, 37 tablas, RLS, pgTAP,
+  gateway RPC y matriz AppData/PostgreSQL; no esta activo en React.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
@@ -15,6 +17,8 @@ Ultima actualizacion: 2026-07-24
 - Beta demo `0.1.0-beta.1` activa en `https://poseidon-sistema-gestio.vercel.app`; `release/test` y la etiqueta permanecen en `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - Vercel usa `release/test` como rama de produccion y `vercel.json` bloquea despliegues automaticos de `main`.
 - GitHub Actions `#3` aprobo el candidato sobre `release/test`; Poseidon Quality `#6` aprobo los controles posteriores de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
+- CAL-01 esta integrada: Locales, Maquinas, Personal, Clientes y Papelera pasan
+  `10/10` recorridos dirigidos.
 
 ## Ultimo bloque tecnico
 
@@ -77,7 +81,10 @@ El modelo financiero vigente conserva:
 
 1. Usar la beta solamente con datos demo y registrar incidencias reproducibles.
 2. Solicitar autorizacion separada antes de rotar o revocar las credenciales historicas en sus proveedores y revisar el `.env.local` ignorado; eliminarlas de Vercel no las invalida en origen.
-3. Mantener el backend Supabase, multi-local completo y datos reales fuera de esta primera beta frontend.
+3. Mantener el modo Supabase desactivado hasta ejecutar pgTAP, Auth, RPC,
+   concurrencia, importacion, conciliacion y rollback en un ambiente autorizado.
+4. Preparar `0.1.0-beta.2` con datos demo y sin mover `release/test` ni publicar
+   hasta recibir autorizacion.
 
 ## Ruta de inicio
 

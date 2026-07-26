@@ -188,6 +188,22 @@
       ],
       "validationCommand": "pnpm run release:check",
       "externalAccess": true
+    },
+    {
+      "id": "CAP-TOOL-SUPABASE-SCHEMA",
+      "name": "Esquema transaccional Supabase local",
+      "type": "TOOL",
+      "owner": "poseidon-central",
+      "status": "VALIDATING",
+      "riskLevel": "C4",
+      "paths": [
+        "supabase/config.toml",
+        "supabase/migrations",
+        "supabase/tests/database",
+        "src/infrastructure/remote"
+      ],
+      "validationCommand": "pnpm run backend:check",
+      "externalAccess": false
     }
   ]
 }

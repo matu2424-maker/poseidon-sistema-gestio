@@ -1,13 +1,14 @@
 # Poseidon - Indice de documentacion
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
 Este archivo es la puerta de entrada a la documentacion. Su objetivo es cargar solo el contexto necesario y evitar que una misma regla quede copiada en varios lugares.
 
 ## Estado y limite actual
 
 - Poseidon funciona localmente con React, TypeScript, Vite y `localStorage`.
-- No hay autenticacion, base de datos ni almacenamiento remoto activos.
+- No hay autenticacion, base de datos ni almacenamiento remoto activos. Existe
+  una base preparatoria inactiva bajo `supabase/**`.
 - No publicar, desplegar ni conectar servicios externos sin autorizacion explicita.
 - La arquitectura online esta documentada como objetivo futuro, no como estado implementado.
 
@@ -85,13 +86,17 @@ Agregar:
 2. Skill correspondiente en `.agents/skills/`.
 3. Fuentes dirigidas por esa skill.
 
-### Preparar futura migracion online
+### Preparar o implementar migracion online
 
 1. `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`.
 2. `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md`.
-3. `docs/RELEASES_Y_DESPLIEGUES.md`.
-4. `docs/REGLAS_CONTABLES.md`.
-5. `docs/MAPA_TECNICO.md`.
+3. `docs/coordinacion/decisiones/DEC-2026-007-backend-transaccional-por-comandos.md`.
+4. `docs/contextos/CODEX_BACKEND_REMOTO.md`.
+5. `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md`.
+6. `docs/SEGURIDAD_CREDENCIALES.md`.
+7. `docs/RELEASES_Y_DESPLIEGUES.md`.
+8. `docs/REGLAS_CONTABLES.md`.
+9. `docs/MAPA_TECNICO.md`.
 
 ### Preparar una version o despliegue
 
@@ -130,6 +135,8 @@ Agregar:
 | Revisiones de diseno | `docs/REVISIONES_DE_DISENO_POSEIDON.md` | Reglas visuales, modulos funcionales |
 | Arquitectura futura online | `docs/ARQUITECTURA_OBJETIVO_ONLINE.md` | Estado actual |
 | Secuencia de migracion futura | `docs/PLAN_MIGRACION_LOCAL_A_ONLINE.md` | Codigo actual |
+| Correspondencia AppData/PostgreSQL | `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md` | Plan general, contextos |
+| Credenciales y cierre de exposiciones | `docs/SEGURIDAD_CREDENCIALES.md` | Valores de entorno, prompts, logs |
 | Versiones, ambientes y rollback | `docs/RELEASES_Y_DESPLIEGUES.md` y `CHANGELOG.md` | Modulos funcionales |
 
 ## Modulos funcionales
@@ -163,6 +170,7 @@ Agregar:
 - `CODEX_AUDITORIA`: trazabilidad.
 - `CODEX_LAYOUT_BASE`: navegacion, roles y layout.
 - `CODEX_CALIDAD_PRUEBAS`: validacion independiente y flujo de sugerencias a Central.
+- `CODEX_BACKEND_REMOTO`: esquema, gateway, migracion, RLS y puertas de activacion.
 
 Todos viven en `docs/contextos/`.
 

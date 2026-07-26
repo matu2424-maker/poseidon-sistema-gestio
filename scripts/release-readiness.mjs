@@ -3,9 +3,9 @@ const SEMVER_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z
 export const expectedReleaseTag = (version) => `v${version}`;
 
 const secretAssignment =
-  /\b(?:SUPABASE_SERVICE_ROLE_KEY|POSTGRES_URL(?:_NON_POOLING)?|DATABASE_URL|PGPASSWORD)\s*[:=]\s*["']?([^\s"'`]+)/gi;
+  /\b(?:SUPABASE_(?:SERVICE_ROLE_KEY|SECRET_KEY|ACCESS_TOKEN|DB_PASSWORD)|POSTGRES_(?:URL(?:_NON_POOLING)?|PASSWORD)|DATABASE_URL|PGPASSWORD|JWT_SECRET)\s*[:=]\s*["']?([^\s"'`]+)/gi;
 const privateKeyMarker = /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/;
-const secretSupabaseKey = /\bsb_secret_[a-zA-Z0-9_-]{12,}/;
+const secretSupabaseKey = /\b(?:sb_secret_|sbp_)[a-zA-Z0-9_-]{12,}/;
 const postgresCredentialUrl = /\bpostgres(?:ql)?:\/\/[^/\s:@]+:[^@\s/]+@/i;
 
 const placeholderValue = (value) =>
@@ -93,6 +93,9 @@ export function validateReleaseConfiguration({
     "pnpm run build",
     "pnpm run release:check",
     "pnpm run test:e2e",
+    "pnpm exec supabase start",
+    "pnpm run backend:check",
+    "pnpm exec supabase stop --no-backup",
     "release/test",
     "actions/checkout@v6",
     "actions/setup-node@v6",

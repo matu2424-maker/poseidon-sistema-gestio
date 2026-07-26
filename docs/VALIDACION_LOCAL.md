@@ -1,6 +1,6 @@
 # Poseidon - Validacion local
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
 Este documento define la validacion tecnica y funcional minima. Es la unica fuente canonica para conteos y evidencia vigente; otros documentos deben referenciarlo sin copiar esas cifras. No reemplaza las pruebas especificas de cada modulo.
 
@@ -24,7 +24,7 @@ pnpm run check:commit
 
 1. Validacion de 28 controles de agentes Codex.
 2. Validacion de 67 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
-3. Validacion de 43 controles SOPM-Lite: 5 decisiones, 2 migraciones, 15 capacidades, estado y rutas.
+3. Validacion de 52 controles SOPM-Lite: 7 decisiones, 2 migraciones, 17 capacidades, estado y rutas.
 4. Validacion de cuatro skills y sus contratos.
 5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 6. TypeScript sin emitir archivos.
@@ -34,6 +34,29 @@ pnpm run check:commit
 `check:agents`, `check:governance`, `check:workstreams`, `check:skills` y `check:design` pueden ejecutarse por separado. `check:workstreams` incluye gobierno para evitar una coordinacion parcialmente validada. `check:commit` selecciona el control proporcional a las rutas preparadas y es la entrada obligatoria antes de un commit.
 
 `pnpm run release:check` se ejecuta despues del commit candidato. Exige un worktree limpio y valida version, changelog, runtime, package manager, rutas sensibles, Vercel, workflow y etiqueta esperada.
+
+## Backend preparatorio
+
+La comprobacion completa requiere Docker:
+
+```bash
+pnpm exec supabase start
+pnpm run backend:check
+pnpm exec supabase stop --no-backup
+```
+
+`backend:check` ejecuta lint de base y cuatro archivos pgTAP. El workflow de
+`release/test` reproduce estos pasos en una base descartable.
+
+En el equipo local actual no estan disponibles Docker ni `psql`. Por eso:
+
+- las seis migraciones y cuatro pruebas SQL fueron parseadas sin error;
+- los cuatro planes pgTAP coinciden con sus aserciones;
+- Vitest controla orden, transacciones, permisos, RLS y contratos sensibles;
+- no se declara lint PostgreSQL ni pgTAP local aprobado.
+
+La activacion remota permanece bloqueada hasta contar con una ejecucion real
+desde base vacia.
 
 ## Rendimiento de la validacion profunda
 
@@ -156,4 +179,11 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 
 ## Cobertura pendiente
 
-Los flujos criticos de cajero, tesoreria, diferencias/auditoria, cierre periodico, cierre salarial, recuperacion y navegacion por los tres roles tienen E2E. Usuarios y categorias ofrecen una muestra administrativa estable; Locales, Maquinas, Personal, Clientes y Papelera conservan cobertura de integracion y smoke manual por rol.
+Los flujos criticos de cajero, tesoreria, diferencias/auditoria, cierre
+periodico, cierre salarial, recuperacion y navegacion por los tres roles tienen
+E2E. Los recorridos nuevos de Locales, Maquinas, Personal, Clientes y Papelera
+aprobaron `10/10`; personal conserva el bloqueo deliberado de eliminacion
+definitiva cuando existe historial salarial.
+
+El backend preparatorio aun requiere PostgreSQL real, RPC por flujo, Auth,
+concurrencia, importacion/conciliacion y rollback antes de habilitarse.

@@ -24,6 +24,8 @@
     "measure:snapshot-validation": "node scripts/measure-app-data-validation.mjs",
     "smoke:localhost": "node scripts/smoke-localhost.mjs",
     "release:check": "node scripts/check-release-readiness.mjs",
+    "backend:status": "supabase status",
+    "backend:check": "supabase db lint --local --level error && supabase test db --local",
     "ci": "pnpm run check && pnpm run build",
     "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
     "check": "pnpm run check:agents && pnpm run check:workstreams && pnpm run check:skills && pnpm run check:design && pnpm run typecheck && pnpm run lint && pnpm test"
@@ -44,6 +46,7 @@
     "eslint": "^10.6.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.7.0",
+    "supabase": "2.109.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.63.0",
     "vite": "^6.0.5",

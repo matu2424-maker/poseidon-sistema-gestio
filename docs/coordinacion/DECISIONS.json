@@ -48,6 +48,14 @@
       "date": "2026-07-24",
       "document": "docs/coordinacion/decisiones/DEC-2026-006-beta-vercel-release-test.md",
       "scope": "Versionado, despliegue demo, visibilidad publica y rollback"
+    },
+    {
+      "id": "DEC-2026-007",
+      "title": "Backend transaccional por comandos",
+      "status": "APPROVED",
+      "date": "2026-07-26",
+      "document": "docs/coordinacion/decisiones/DEC-2026-007-backend-transaccional-por-comandos.md",
+      "scope": "Persistencia remota, identidad, RLS, idempotencia y transacciones"
     }
   ]
 }

@@ -2,7 +2,11 @@
 
 Aplicacion web para operar y controlar caja diaria, maquinas, movimientos, tesoreria, salarios, clientes, cierres, reportes, cuentas corrientes y auditoria del local Poseidon.
 
-El proyecto sigue en etapa de prueba controlada. El desarrollo y los datos operativos permanecen locales; la beta publica `0.1.0-beta.1` esta disponible como demo en [poseidon-sistema-gestio.vercel.app](https://poseidon-sistema-gestio.vercel.app). No usa autenticacion real, base remota ni almacenamiento real de archivos.
+El proyecto sigue en etapa de prueba controlada. El desarrollo y los datos
+operativos permanecen locales; la beta publica `0.1.0-beta.1` esta disponible
+como demo en [poseidon-sistema-gestio.vercel.app](https://poseidon-sistema-gestio.vercel.app).
+No usa autenticacion real, base remota ni almacenamiento real de archivos. El
+esquema Supabase versionado es preparatorio y permanece desactivado.
 
 ## Stack
 
@@ -13,6 +17,8 @@ El proyecto sigue en etapa de prueba controlada. El desarrollo y los datos opera
 - CSS por capas y features.
 - Vitest y Playwright.
 - Persistencia local versionada sobre `localStorage` mediante `AppDataRepository`.
+- Supabase CLI, SQL y pgTAP para preparar el backend transaccional sin
+  conectarlo al frontend.
 
 ## Estado actual
 
@@ -32,6 +38,8 @@ El proyecto sigue en etapa de prueba controlada. El desarrollo y los datos opera
 - `release/test` y la etiqueta `v0.1.0-beta.1` permanecen congelados en el commit candidato; `main` continua con documentacion y controles posteriores.
 - Workflow CI activo con Actions compatibles con Node 24; la evidencia remota vigente se registra en `docs/VALIDACION_LOCAL.md`.
 - Vercel publica explicitamente desde `release/test`; los cambios diarios de `main` no generan despliegues automaticos.
+- Seis migraciones SQL, RLS, pgTAP, gateway RPC y matriz de migracion estan en
+  estado `VALIDATING`; `VITE_POSEIDON_BACKEND` sigue en `local`.
 
 ## Modelo financiero vigente
 
@@ -162,6 +170,17 @@ pnpm run release:check
 pnpm run check:commit
 ```
 
+Con Docker y Supabase local disponible:
+
+```bash
+pnpm exec supabase start
+pnpm run backend:check
+pnpm exec supabase stop --no-backup
+```
+
+Sin Docker, `backend:check` no puede ejecutar PostgreSQL. La CI de
+`release/test` y el disparo manual crean una base descartable para esa puerta.
+
 Con el servidor oficial activo:
 
 ```bash
@@ -190,8 +209,12 @@ src/application/treasury/           Traspasos Caja/Principal y socios
 src/application/expenses/           Gastos administrativos desde Principal
 src/application/movements/          Movimientos operativos de Caja
 src/application/salaries/           Liquidaciones y cierres salariales
+src/application/ports/              Repositorio local y gateway remoto
 src/data/                            Seed, normalizacion y migraciones
 src/infrastructure/storage/          Snapshot y adaptador local
+src/infrastructure/remote/           Configuracion, RPC y mapeo de migracion
+supabase/migrations/                 Esquema relacional preparatorio
+supabase/tests/database/             Pruebas pgTAP
 src/lib/currentAccounts.ts           Definicion y saldos de cuentas
 src/lib/accountMovements.ts          Asientos y contramovimientos
 src/lib/cashTotals.ts                Totales de una recaudacion
@@ -219,6 +242,7 @@ src/types.ts                         Contratos de datos
 - `docs/contextos/CODEX_CALIDAD_PRUEBAS.md`: contrato del workstream permanente que prueba y asesora a Central.
 - `docs/VALIDACION_LOCAL.md`: validacion automatica y manual.
 - `docs/RELEASES_Y_DESPLIEGUES.md`: versiones, ambientes, candidatos y rollback.
+- `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md`: correspondencia local/remota.
 - `CHANGELOG.md`: contenido de cada version.
 
 ## Limites actuales
@@ -228,7 +252,10 @@ src/types.ts                         Contratos de datos
 - Chrome en `http://127.0.0.1:5173/` es la referencia operativa temporal; otros navegadores, perfiles u origenes conservan bases independientes.
 - Los adjuntos no conservan el archivo real.
 - La autorizacion es local y simulada.
-- Multi-local completo, Auth, base remota y storage real quedan pendientes. La ruta futura de persistencia es directa desde `AppDataRepository` hacia PostgreSQL/Supabase, sin base local intermedia.
+- Multi-local completo, Auth, RPC de negocio, base remota activa y storage real
+  quedan pendientes. El modo local usa `AppDataRepository`; la ruta remota usa
+  `PoseidonCommandGateway` hacia PostgreSQL/Supabase, sin snapshot unico ni
+  base local intermedia.
 
 ## Publicacion
 

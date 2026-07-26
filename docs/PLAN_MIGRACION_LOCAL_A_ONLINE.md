@@ -1,25 +1,29 @@
 # Poseidon - Plan de migracion local a online
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
-Estado: plan futuro. No autoriza conexiones, despliegues ni cambios de persistencia.
+Estado: preparacion local iniciada. No hay conexion, despliegue ni cambio de
+persistencia operativa.
 
 ## Objetivo
 
 Migrar Poseidon desde `localStorage` hacia la arquitectura definida en `docs/ARQUITECTURA_OBJETIVO_ONLINE.md`, manteniendo el sistema local disponible hasta que la version online sea verificada y aprobada.
 
-Ruta aprobada de preparacion: `localStorage` -> `AppDataRepository` -> PostgreSQL/Supabase. PGlite u otra base intermedia quedan fuera del plan para evitar una migracion adicional sin necesidad offline confirmada.
+Ruta aprobada: modo local mediante `AppDataRepository` y modo remoto mediante
+`PoseidonCommandGateway` hacia RPC transaccionales en PostgreSQL/Supabase.
+`AppData` no se guarda ni reemplaza como una unica fila remota. PGlite u otra
+base intermedia quedan fuera del plan.
 
 ## Principios
 
 - Migrar por etapas reversibles.
 - No usar datos reales para diseñar el primer esquema.
-- No hacer dual-write prolongado entre local y online.
+- No hacer dual-write entre local y online.
 - No perder auditoria, historial, IDs visibles ni relaciones.
 - Conciliar saldos antes y despues de importar.
 - Hacer el corte final solo con autorizacion explicita.
 
-## Mapa preliminar de datos
+## Mapa de datos
 
 | Coleccion actual | Tabla futura sugerida | Relaciones principales |
 | --- | --- | --- |
@@ -48,7 +52,9 @@ Ruta aprobada de preparacion: `localStorage` -> `AppDataRepository` -> PostgreSQ
 | `periodicClosures` | `periodic_closures` | local, rango |
 | `audit` | `audit_events` | actor, entidad |
 
-El nombre definitivo de tablas y columnas se decide durante el diseno del esquema. Esta tabla fija correspondencias funcionales, no SQL final.
+El esquema preparatorio ya contiene estas tablas. La correspondencia completa
+de las 22 colecciones, transformaciones incompatibles y criterios de
+conciliacion vive en `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md`.
 
 ## Fase previa - Entrega versionada
 
@@ -84,11 +90,15 @@ Salida: la aplicacion sigue local, pero la UI deja de depender del almacenamient
 
 ## Fase 2 - Disenar base de datos
 
-- Crear diagrama entidad-relacion.
-- Definir UUID como claves primarias y restricciones unicas para IDs visibles/documentos.
-- Definir claves foraneas, estados y checks de montos.
-- Definir indices por local, fecha, caja, empleado, maquina y cuenta.
-- Definir operaciones que requieren funciones/transacciones.
+Estado: esquema preparatorio `VALIDATING` bajo `supabase/migrations/`.
+
+- Implementado: 37 tablas relacionales publicas, UUID, IDs legacy/visibles,
+  claves foraneas, indices y checks base.
+- Implementado: tablas append-only y bloqueo de borrado para libro, auditoria,
+  historiales, fotos de cierre y entidades operativas principales.
+- Implementado: staging conceptual de idempotencia y helpers privados.
+- Pendiente: ejecutar desde cero en PostgreSQL real y cerrar invariantes de
+  estados/formulas dentro de las RPC.
 
 Salida: migraciones SQL revisables, aun sin datos reales.
 
@@ -102,14 +112,32 @@ Salida: migraciones SQL revisables, aun sin datos reales.
 
 Salida: matriz de permisos demostrada en pruebas.
 
-## Fase 4 - Adaptador Supabase
+Estado actual: estructura SQL de perfiles, asignaciones y RLS en preparacion;
+Auth real y ambiente remoto siguen inactivos.
 
-- Implementar repositorios online respetando los contratos locales.
+La revision contable cerro exposiciones conocidas: Cajero no lee personal
+completo, cuentas personales, gastos de Principal ni sus comprobantes; un
+evento multilocal exige acceso a todos sus locales. Falta demostrar la matriz
+en PostgreSQL real.
+
+## Fase 4 - Gateway Supabase
+
+- Implementar consultas remotas por dominio y mutaciones mediante
+  `PoseidonCommandGateway`.
 - Usar transacciones/funciones para comandos atomicos.
 - Mantener seleccion de adaptador por configuracion de entorno.
+- Derivar identidad desde Auth en el servidor.
+- Exigir idempotencia y rechazar escritura directa en tablas financieras.
 - No activar produccion.
 
 Salida: aplicacion funcional contra datos de prueba online.
+
+Estado actual: contrato, resolucion de configuracion y transporte RPC preparados
+localmente; no estan conectados a React ni a un proyecto remoto.
+
+Las RPC enumeradas por el gateway son un contrato, no funciones disponibles.
+Ningun flujo se puede habilitar hasta implementar su RPC, fondos, dos piernas,
+auditoria, idempotencia y pruebas concurrentes.
 
 ## Fase 5 - Archivos
 
@@ -130,6 +158,8 @@ El exportador debe incluir:
 - checksum o resumen de cantidades;
 - referencias de archivos locales disponibles;
 - reporte de datos invalidos o sin relacion.
+- reporte de compatibilidad producido por
+  `inspectRemoteMigrationCompatibility`.
 
 No modificar el snapshot durante la exportacion.
 
@@ -140,6 +170,9 @@ No modificar el snapshot durante la exportacion.
 - Importar cuentas, movimientos derivados, cierres y auditoria.
 - Importar archivos al final.
 - Registrar tabla de correspondencia ID local -> UUID.
+- No importar `User.password`; crear identidades mediante Auth.
+- Bloquear el lote si existen cargos sin equivalencia, aliases de retiro
+  contradictorios o cuentas salariales pagadoras sin resolver.
 
 Salida: informe de filas importadas, rechazadas y reconciliadas.
 
@@ -203,6 +236,7 @@ Requiere autorizacion explicita antes de ejecutarse.
 ## Decisiones pendientes
 
 - Proyecto/region Supabase definitivos.
+- Mecanismo de ingreso y recuperacion de cuenta para usuarios reales.
 - Politica de retencion y backups.
 - Limites de archivos.
 - Estrategia offline posterior a la migracion.

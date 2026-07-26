@@ -15,12 +15,14 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Los snapshots de esquema actual se validan de forma estricta antes de cargar, importar o guardar; los heredados migran primero y luego deben cumplir las mismas relaciones.
 - Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
-- Sin Auth, base de datos remota ni storage real.
+- Sin Auth, base de datos remota conectada ni storage real.
+- Existe una base preparatoria inactiva: seis migraciones Supabase, pgTAP,
+  `PoseidonCommandGateway` y matriz de migracion. Estado `VALIDATING`.
 - Beta demo `0.1.0-beta.1` publicada en `https://poseidon-sistema-gestio.vercel.app` desde `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - El proyecto Vercel no conserva variables de entorno: las 16 variables historicas de PostgreSQL/Supabase se eliminaron y la beta se reconstruyo desde el mismo commit congelado.
 - El dominio online usa un `localStorage` propio y publico; no comparte los datos operativos de Chrome en `127.0.0.1` y no admite datos reales.
 - El candidato aprobo `Check and build` y `Release E2E` en GitHub Actions. `main` ya sincronizo las cuatro Actions compatibles con Node 24 (`checkout@v6`, `setup-node@v6`, `pnpm/action-setup@v6` y `upload-artifact@v7`) en `1151091`; Poseidon Quality `#4` aprobo el cambio sin anotaciones de Node 20.
-- Runtime fijado, preflight de release y CI versionado. Vercel publica solo por promocion controlada de `release/test`; `main` no despliega automaticamente. El backend remoto sigue sin conectar.
+- Runtime fijado, preflight de release y CI versionado. Vercel publica solo por promocion controlada de `release/test`; `main` no despliega automaticamente. El backend remoto sigue sin conectar y la CI de `release/test` reserva una base descartable para lint/pgTAP.
 - Adjuntos: solo metadatos.
 - `src/App.tsx` orquesta; `src/navigation/screens.ts` define rutas, titulos, roles y requisito de caja.
 - Normalizacion en `src/data/normalizeData.ts`; migraciones en `src/data/migrateData.ts`.
@@ -109,7 +111,7 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 ## Prioridades pendientes
 
 1. Observar la beta demo y registrar incidencias sin cargar datos reales.
-2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de Vercel y eliminar la configuracion local obsoleta sin exponer valores.
-3. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
-4. Estabilizar un nuevo candidato beta exclusivamente con datos demo.
-5. Migrar hacia un backend transaccional por comandos, Auth y politicas de acceso; no guardar `AppData` completo como una fila remota.
+2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de Vercel; `.env.local` obsoleto ya fue eliminado sin exponer valores.
+3. Conservar los E2E de maestros en `10/10`.
+4. Estabilizar `0.1.0-beta.2` exclusivamente con datos demo.
+5. Validar el esquema transaccional en PostgreSQL real, implementar RPC por flujo, Auth y conciliacion antes de activar Supabase.

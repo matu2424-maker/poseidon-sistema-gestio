@@ -1,8 +1,10 @@
 # Poseidon - Versiones, despliegues y rollback
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
-Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel. No existe backend remoto activo.
+Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel. No
+existe backend remoto activo; el esquema Supabase preparatorio esta en
+`VALIDATING`.
 
 ## Objetivo
 
@@ -84,9 +86,15 @@ Se usa SemVer:
 - `pnpm run release:check` verifica version, changelog, archivos sensibles, build de Vercel, workflow, Actions compatibles con Node 24, etiqueta y limpieza Git.
 - `.github/workflows/quality.yml` ejecuta `check` y `build` en pull requests, `main` y `release/test`.
 - Los E2E se ejecutan en `release/test` y bajo disparo manual. En CI Playwright inicia un servidor aislado y usa Chromium; localmente conserva Chrome y el servidor oficial.
+- El job `Backend schema` se ejecuta en `release/test` y bajo disparo manual:
+  inicia Supabase descartable, ejecuta lint/pgTAP y lo detiene siempre.
+- `Release E2E` depende tambien de esa puerta; una migracion o politica SQL
+  invalida bloquea el candidato.
 - `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7` evitan depender del runtime interno Node 20 retirado por GitHub.
 - El preflight tambien controla `upload-artifact`, aunque ese paso solo se ejecuta cuando falla un E2E y por eso una version obsoleta puede quedar oculta durante una corrida exitosa.
 - `vercel.json` desactiva los despliegues automaticos de `main`; `release:check` impide quitar accidentalmente ese control.
+- El candidato frontend sigue usando `localStorage`. Incluir SQL inactivo en una
+  version no autoriza configurar variables ni seleccionar el modo Supabase.
 
 ## Candidato publicado
 

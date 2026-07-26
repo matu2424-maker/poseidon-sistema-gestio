@@ -15,7 +15,9 @@ Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. N
 - Entrada: `src/main.tsx` -> `BrowserRouter` -> `src/App.tsx`.
 - Servidor: `iniciar-poseidon.bat` en `http://127.0.0.1:5173/`.
 - Beta demo: Vercel publica `release/test` en `https://poseidon-sistema-gestio.vercel.app`.
-- Datos online: `localStorage` aislado por origen y navegador; no existe backend compartido.
+- Datos operativos: `localStorage` aislado por origen y navegador.
+- Backend: esquema Supabase y gateway en estado `VALIDATING`, sin conexion ni
+  activacion en React.
 
 ## Infraestructura Codex
 
@@ -50,6 +52,8 @@ scripts/governance-config-validation.mjs    reglas puras de estado, decisiones, 
 scripts/check-release-readiness.mjs         preflight local de version y entrega
 scripts/release-readiness.mjs               reglas puras del preflight
 .github/workflows/quality.yml               CI activa para main/release con Actions Node 24
+supabase/migrations/                        esquema relacional remoto preparatorio
+supabase/tests/database/                    pgTAP de estructura, permisos y comandos internos
 .node-version                               runtime reproducible
 CHANGELOG.md                                contenido de versiones
 docs/RELEASES_Y_DESPLIEGUES.md              ramas, etiquetas, ambientes y rollback
@@ -97,7 +101,7 @@ src/
     movements/              movimientos operativos de Caja
     salaries/               liquidaciones y cierres salariales
     system/                 mantenimiento destructivo controlado del entorno local
-    ports/                  contrato de repositorio y cola asincrona ordenada
+    ports/                  repositorio local, cola y gateway remoto de comandos
   types.ts                 tipos de dominio actuales
   data/appData.ts          seed demo, reset y fachada de normalizacion
   data/normalizeData.ts    normalizacion estructural del snapshot
@@ -105,6 +109,7 @@ src/
   data/schemaVersion.ts    version canonica del snapshot local
   data/appDataIds.ts       IDs tecnicos compartidos de local/taller
   infrastructure/storage/ snapshot, validacion y adaptador local
+  infrastructure/remote/  configuracion, transporte RPC y mapeo de migracion
   infrastructure/session/ sesion local de pestaña para usuario y funcion
   lib/                     reglas y helpers compartidos
   components/              UI reutilizable transversal
@@ -142,9 +147,13 @@ src/
 | `infrastructure/storage/appDataValidation.ts` | IDs unicos, referencias, asociaciones local/recaudacion e informe tipado con rutas concretas |
 | `infrastructure/storage/snapshot.ts` | Formato versionado; valida esquema actual al decodificar y todos los datos antes de crear un snapshot |
 | `application/ports/AppDataRepository.ts` | Puerto asincrono, resultado de conflicto/fallo, suscripcion opcional a cambios y codec de respaldo |
+| `application/ports/PoseidonCommandGateway.ts` | Contrato tipado de mutaciones remotas, funcion solicitada e idempotencia |
 | `application/ports/asyncOperationQueue.ts` | Ordena escrituras y permite continuar tras un fallo |
 | `hooks/useAppDataRepository.ts` | Hidratacion, version esperada, sincronizacion pasiva entre pestanas, bloqueo y recuperacion sin acoplar App al adaptador |
 | `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, eventos de cambio, comparacion optimista, importacion y exportacion local |
+| `infrastructure/remote/backendConfiguration.ts` | Seleccion explicita `local`/`supabase`; local es el valor predeterminado |
+| `infrastructure/remote/supabaseCommandGateway.ts` | Transporte RPC con token, clave publicable, errores tipados e idempotencia |
+| `infrastructure/remote/appDataMigrationMapping.ts` | Manifiesto de 22 colecciones y transformaciones incompatibles controladas |
 | `currentAccounts.ts` | IDs, creacion y saldos de Caja, Principal, socios, personal y transferencias |
 | `accountMovements.ts` | Asientos dobles, saldo corrido, contramovimientos y ajustes append-only |
 | `cashTotals.ts` | Totales de Caja por recaudacion, excluyendo pagos administrativos desde Principal |
@@ -167,6 +176,19 @@ src/
 | `docs/coordinacion/DECISIONS.json` | Registro de decisiones transversales con documentos individuales |
 | `docs/coordinacion/MIGRATIONS.json` | Historial verificable de migraciones y reparaciones de datos |
 | `docs/coordinacion/CAPABILITIES.json` | Inventario de agentes, skills y validadores activos |
+| `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md` | Correspondencia y conciliacion del snapshot con PostgreSQL |
+
+## Backend remoto preparatorio
+
+- Seis migraciones SQL crean 37 tablas publicas y RLS.
+- El frontend autenticado no tiene escritura directa sobre tablas financieras
+  ni auditoria.
+- Cajero no lee personal completo, cuentas personales, Principal ni sus
+  comprobantes.
+- El gateway enumera RPC futuras, pero ninguna mutacion remota esta activa.
+- El modo remoto no se conecta desde `App.tsx`; no existe dual-write.
+- `backend:check` requiere Supabase local/Docker. CI lo ejecuta en una base
+  descartable para `release/test` y ejecuciones manuales.
 
 ## Comandos de aplicacion
 
