@@ -1,6 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import { expectedReleaseTag, validateReleaseConfiguration } from "./release-readiness.mjs";
+import {
+  containsSensitiveReleaseContent,
+  expectedReleaseTag,
+  validateReleaseConfiguration,
+} from "./release-readiness.mjs";
 
 const readText = (path) => readFile(path, "utf8");
 const readJson = async (path) => JSON.parse(await readText(path));
@@ -43,6 +47,37 @@ const forbiddenTracked = tracked.filter(
     path.startsWith("dist/"),
 );
 if (forbiddenTracked.length) errors.push(`Hay rutas sensibles o generadas versionadas: ${forbiddenTracked.join(", ")}.`);
+
+const textExtensions = new Set([
+  ".bat",
+  ".css",
+  ".env",
+  ".html",
+  ".js",
+  ".json",
+  ".md",
+  ".mjs",
+  ".sql",
+  ".toml",
+  ".ts",
+  ".tsx",
+  ".txt",
+  ".yml",
+  ".yaml",
+]);
+const sensitiveFiles = [];
+for (const path of tracked) {
+  const extension = path.includes(".") ? `.${path.split(".").pop()?.toLowerCase()}` : "";
+  if (!textExtensions.has(extension)) continue;
+  try {
+    if (containsSensitiveReleaseContent(await readText(path))) sensitiveFiles.push(path);
+  } catch {
+    // Git can retain a path while another process replaces it; the clean-tree check reports that state.
+  }
+}
+if (sensitiveFiles.length) {
+  errors.push(`Hay contenido sensible en archivos versionados: ${sensitiveFiles.join(", ")}.`);
+}
 
 const branch = git("branch", "--show-current") || "(detached)";
 const commit = git("rev-parse", "HEAD");

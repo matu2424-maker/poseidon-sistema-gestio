@@ -2,6 +2,29 @@ const SEMVER_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z
 
 export const expectedReleaseTag = (version) => `v${version}`;
 
+const secretAssignment =
+  /\b(?:SUPABASE_SERVICE_ROLE_KEY|POSTGRES_URL(?:_NON_POOLING)?|DATABASE_URL|PGPASSWORD)\s*[:=]\s*["']?([^\s"'`]+)/gi;
+const privateKeyMarker = /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/;
+const secretSupabaseKey = /\bsb_secret_[a-zA-Z0-9_-]{12,}/;
+const postgresCredentialUrl = /\bpostgres(?:ql)?:\/\/[^/\s:@]+:[^@\s/]+@/i;
+
+const placeholderValue = (value) =>
+  !value ||
+  value.startsWith("<") ||
+  value.startsWith("${") ||
+  /^(?:example|placeholder|changeme|redacted|none|null)$/i.test(value);
+
+export function containsSensitiveReleaseContent(source) {
+  const text = String(source ?? "");
+  if (privateKeyMarker.test(text) || secretSupabaseKey.test(text) || postgresCredentialUrl.test(text)) return true;
+  secretAssignment.lastIndex = 0;
+  let match;
+  while ((match = secretAssignment.exec(text))) {
+    if (!placeholderValue(match[1])) return true;
+  }
+  return false;
+}
+
 const normalizedLines = (source) =>
   new Set(
     source

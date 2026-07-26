@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { expectedReleaseTag, validateReleaseConfiguration } from "./release-readiness.mjs";
+import {
+  containsSensitiveReleaseContent,
+  expectedReleaseTag,
+  validateReleaseConfiguration,
+} from "./release-readiness.mjs";
 
 const validInput = {
   packageJson: {
@@ -64,5 +68,21 @@ describe("preparacion de releases", () => {
     expect(errors).toContain("El workflow de calidad debe incluir actions/setup-node@v6.");
     expect(errors).toContain("El workflow de calidad debe incluir pnpm/action-setup@v6.");
     expect(errors).toContain("El workflow de calidad debe incluir actions/upload-artifact@v7.");
+  });
+
+  it("detecta credenciales privadas sin marcar placeholders ni claves publicables", () => {
+    expect(
+      containsSensitiveReleaseContent(
+        ["DATABASE", "_URL=postgres", "ql://poseidon:secret@db.example.com/db"].join(""),
+      ),
+    ).toBe(true);
+    expect(
+      containsSensitiveReleaseContent(
+        ["SUPABASE_SERVICE", "_ROLE_KEY=sb_", "secret_1234567890123456"].join(""),
+      ),
+    ).toBe(true);
+    expect(containsSensitiveReleaseContent(["-----BEGIN PRIVATE", " KEY-----"].join(""))).toBe(true);
+    expect(containsSensitiveReleaseContent(["DATABASE", "_URL=<configurar-en-el-proveedor>"].join(""))).toBe(false);
+    expect(containsSensitiveReleaseContent("VITE_SUPABASE_PUBLISHABLE_KEY=public-key")).toBe(false);
   });
 });
