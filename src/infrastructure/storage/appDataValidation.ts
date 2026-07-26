@@ -160,6 +160,11 @@ function referenceIssues(data: AppData): AppDataValidationIssue[] {
   const transferIds = new Set(data.transfers.map((item) => item.id));
   const giftIds = new Set(data.gifts.map((item) => item.id));
   const capitalMovementIds = new Set(data.capitalMovements.map((item) => item.id));
+  const deletedMachineIds = new Set(
+    data.machineLocalHistory
+      .filter((event) => event.action === "QUITADA")
+      .map((event) => event.machineId),
+  );
   const balanceById = new Map(data.balances.map((item) => [item.id, item]));
   const expenseById = new Map(data.expenses.map((item) => [item.id, item]));
   const settlementById = new Map(data.salarySettlements.map((item) => [item.id, item]));
@@ -544,14 +549,14 @@ function referenceIssues(data: AppData): AppDataValidationIssue[] {
 
   data.audit.forEach((event, index) => {
     requireUser(`audit[${index}].userId`, event.userId);
-    requireLocal(`audit[${index}].localId`, event.localId);
-    event.localIds?.forEach((localId, localIndex) => requireLocal(`audit[${index}].localIds[${localIndex}]`, localId));
+    // Local IDs in audit are immutable scope snapshots. They may reference the
+    // virtual workshop or a local that was removed after the event was created.
   });
 
   data.machineLocalHistory.forEach((event, index) => {
     requireLocal(`machineLocalHistory[${index}].localId`, event.localId, true);
     requireUser(`machineLocalHistory[${index}].userId`, event.userId);
-    if (event.action !== "QUITADA") {
+    if (!deletedMachineIds.has(event.machineId)) {
       requireReference(issues, `machineLocalHistory[${index}].machineId`, event.machineId, machineIds, "machines");
     }
   });

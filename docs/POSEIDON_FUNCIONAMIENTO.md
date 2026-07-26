@@ -410,10 +410,14 @@ Cuentas corrientes tambien es la entrada administrativa para:
 - Asociacion de maquinas disponibles desde Taller.
 - Cerrar local envia sus maquinas al Taller.
 - Con caja abierta no se cierra el local ni se mueven maquinas.
+- Quitar un local permitido no borra sus auditorias; los IDs de alcance quedan
+  congelados aunque el maestro deje de existir.
 
 ### Maquinas
 
 - Alta en Taller con IN/OUT inicial cero.
+- Taller es una ubicacion virtual valida en maquinas, historial y auditoria; no
+  se modela como un local operativo.
 - Asignacion a local, mantenimiento, taller y desuso.
 - Desuso solo desde Taller y no aparece en listado operativo.
 - Para eliminar debe estar en Taller y no tener recaudaciones.

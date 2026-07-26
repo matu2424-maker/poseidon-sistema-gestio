@@ -37,6 +37,12 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 - Bajas y correcciones se resuelven con estado, anulacion, contramovimiento, papelera o ajuste auditado.
 - Una entidad referenciada por operaciones no se elimina fisicamente.
 - El snapshot local es versionado y no recorta auditoria ni movimientos para ahorrar espacio.
+- Los IDs de local congelados dentro de una auditoria son alcance historico, no
+  una referencia viva: pueden identificar el Taller virtual o un local
+  eliminado posteriormente sin invalidar el snapshot.
+- La baja definitiva permitida de una maquina conserva toda su cadena de
+  historial; el evento `QUITADA` actua como tombstone y valida los IDs
+  historicos anteriores sin recrear el maestro.
 - Un snapshot del esquema vigente debe contener todas las colecciones y respetar tipos, campos, enums, importes finitos, IDs unicos, referencias y asociaciones de local/caja antes de entrar al sistema.
 - Un snapshot heredado se migra por `schemaVersion` y se somete a la misma validacion profunda antes de hidratar la aplicacion.
 - Un snapshot corrupto no se sobrescribe automaticamente.

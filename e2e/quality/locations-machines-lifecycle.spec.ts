@@ -99,11 +99,6 @@ test("crea, ordena, edita y cierra un local sin referencias con auditoria persis
 });
 
 test("quita un local sin referencias y conserva la auditoria", async ({ page }) => {
-  test.fail(
-    true,
-    "FALLO_CONFIRMADO CAL-01: la auditoria conserva el ID del local quitado y la validacion rechaza el snapshot.",
-  );
-
   await loginPoseidon(page, "user-admin");
   await page.goto("/locales");
   await page.getByRole("button", { name: "Agregar", exact: true }).click();
@@ -135,11 +130,6 @@ test("quita un local sin referencias y conserva la auditoria", async ({ page }) 
 test("crea una maquina en Taller, la asigna, edita, devuelve, marca Desuso y elimina", async ({
   page,
 }) => {
-  test.fail(
-    true,
-    "FALLO_CONFIRMADO CAL-01: crear o mover una maquina hacia Taller genera auditoria con localId taller y el snapshot se rechaza.",
-  );
-
   await loginPoseidon(page, "user-admin");
   await page.goto("/maquinas");
 
@@ -173,7 +163,9 @@ test("crea una maquina en Taller, la asigna, edita, devuelve, marca Desuso y eli
   acceptConfirmation(page);
   await picker.getByRole("button", { name: "Asignar seleccionadas", exact: true }).click();
   await expect(page.getByText("1 maquina(s) asignada(s) a Poseidon.", { exact: true })).toBeVisible();
-  await expect(localMachinesDialog.getByRole("row").filter({ hasText: MACHINE_NAME })).toBeVisible();
+  await expect(
+    localMachinesDialog.getByRole("table").first().getByRole("row").filter({ hasText: MACHINE_NAME }),
+  ).toBeVisible();
   await localMachinesDialog.getByRole("button", { name: "Cerrar", exact: true }).click();
 
   await page.goto("/maquinas");
@@ -293,11 +285,6 @@ test("edita una maquina existente sin cambiarla de local y persiste la auditoria
 });
 
 test("mantiene bloqueada la eliminacion de una maquina con recaudaciones", async ({ page }) => {
-  test.fail(
-    true,
-    "FALLO_CONFIRMADO CAL-01: devolver la maquina con recaudaciones a Taller se rechaza antes de poder verificar el boton de eliminacion.",
-  );
-
   await loginPoseidon(page, "user-admin");
   await page.goto("/maquinas");
 

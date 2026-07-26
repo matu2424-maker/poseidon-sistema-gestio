@@ -92,10 +92,42 @@ describe("validacion profunda de AppData", () => {
           createdAt: "2026-07-19T10:00:00.000Z",
           userId: seed.users[0].id,
         },
+        {
+          id: "history-deleted-machine-previous",
+          machineId: deletedMachineId,
+          machineVisibleId: "999",
+          machineName: "Maquina eliminada",
+          localId: WORKSHOP_LOCAL_ID,
+          action: "AGREGADA",
+          detail: "Alta historica",
+          createdAt: "2026-07-18T10:00:00.000Z",
+          userId: seed.users[0].id,
+        },
         ...seed.machineLocalHistory,
       ],
     };
     expect(validateAppData(data).ok).toBe(true);
+  });
+
+  it("permite conservar el alcance de auditoria de Taller y de un local eliminado", () => {
+    const seed = createSeedData();
+    const historicalLocalId = "99";
+    const data: AppData = {
+      ...seed,
+      audit: [
+        {
+          ...seed.audit[0],
+          id: "audit-local-eliminado",
+          entity: "Local",
+          entityId: historicalLocalId,
+          localId: historicalLocalId,
+          localIds: [historicalLocalId, WORKSHOP_LOCAL_ID],
+        },
+        ...seed.audit,
+      ],
+    };
+
+    expect(validateAppData(data)).toMatchObject({ ok: true });
   });
 
   it("rechaza dos cajas abiertas para el mismo local", () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createSeedData, POSEIDON_LOCAL_ID } from "../../data/appData";
 import { WORKSHOP_LOCAL_ID } from "../../data/appDataIds";
+import { validateAppData } from "../../infrastructure/storage/appDataValidation";
 import { localBankAccountId, localCashAccountId } from "../../lib/currentAccounts";
 import { commandContext } from "../command";
 import { deleteLocalCommand, saveLocalCommand } from "../locations/localCommands";
@@ -148,6 +149,7 @@ describe("comandos de locales y maquinas", () => {
     if (!deleted.ok) return;
     expect(deleted.data.locals.some((local) => local.id === "3")).toBe(false);
     expect(deleted.data.currentAccounts.some((account) => account.entityId === "3")).toBe(false);
+    expect(validateAppData(deleted.data)).toMatchObject({ ok: true });
 
     const protectedResult = deleteLocalCommand(base.data, POSEIDON_LOCAL_ID, base.context);
     expect(protectedResult).toEqual({ ok: false, error: "El local principal no se puede quitar." });
@@ -172,6 +174,7 @@ describe("comandos de locales y maquinas", () => {
     expect(created.ok).toBe(true);
     if (!created.ok) return;
     expect(created.value).toMatchObject({ localId: WORKSHOP_LOCAL_ID, lastIn: 0, lastOut: 0 });
+    expect(validateAppData(created.data)).toMatchObject({ ok: true });
 
     const assigned = assignMachinesToLocalCommand(
       created.data,
@@ -249,11 +252,13 @@ describe("comandos de locales y maquinas", () => {
     const workshop = moveMachineToWorkshopCommand(reset.data, assignedMachine.id, base.context);
     expect(workshop.ok).toBe(true);
     if (!workshop.ok) return;
+    expect(validateAppData(workshop.data)).toMatchObject({ ok: true });
     const deleted = deleteMachineCommand(workshop.data, assignedMachine.id, base.context);
     expect(deleted.ok).toBe(true);
     if (!deleted.ok) return;
     expect(deleted.data.machines.some((machine) => machine.id === assignedMachine.id)).toBe(false);
     expect(deleted.data.machineLocalHistory[0]).toMatchObject({ action: "QUITADA", userId: base.context.user.id });
+    expect(validateAppData(deleted.data)).toMatchObject({ ok: true });
   });
 
   it("bloquea asignaciones y cierre de local mientras exista una caja abierta", () => {

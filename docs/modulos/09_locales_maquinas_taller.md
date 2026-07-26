@@ -23,6 +23,8 @@
 - Agregar/editar abre ventana flotante.
 - Desde agregar/editar se pueden asociar maquinas del Taller.
 - Alta, edicion, cierre y baja exigen usuario Administrador real, funcion Administrador y estado activo; actualizan local, cuentas, maquinas, historial y auditoria en un unico comando.
+- La baja permitida elimina el maestro y sus cuentas vacias, pero conserva los
+  eventos de auditoria con el ID historico del local.
 
 ## Cierre de local
 
@@ -46,6 +48,8 @@
 
 ## Taller
 
+- `taller` es una ubicacion virtual valida para maquinas, historial y alcance de
+  auditoria; no debe existir como fila en `locals`.
 - Locales, maquinas, historiales y taller usan tablas compactas con encabezado claro y pesos maximos de `600`.
 - Contiene maquinas disponibles.
 - Contiene apartado de maquinas en desuso.
@@ -59,6 +63,8 @@
 - Primero debe estar en Taller.
 - No puede eliminarse si tiene recaudaciones.
 - Si no tiene recaudaciones, puede eliminarse con confirmacion y auditoria.
+- La fila se quita de `machines`, pero toda su cadena de historial permanece
+  asociada al tombstone `QUITADA`.
 
 ## Reset de contadores
 
