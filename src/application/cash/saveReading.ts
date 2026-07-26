@@ -3,6 +3,7 @@ import { syncMachineResultAccountMovement } from "../../lib/accountMovements";
 import { balanceCashReconciliationError } from "../../lib/cashAvailability";
 import { calcReading } from "../../lib/cashTotals";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { localCommandAccessError } from "../localAccess";
 
 export type ReadingPatch = Partial<Pick<Reading, "inActual" | "outActual" | "status" | "observation">>;
 
@@ -41,6 +42,14 @@ export function saveReadingsCommand(
 ): CommandResult<Reading[]> {
   const balance = data.balances.find((item) => item.id === balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return commandError("La caja ya no esta abierta.");
+  const accessError = localCommandAccessError(
+    data,
+    balance.localId,
+    context,
+    ["CAJERO"],
+    "Los contadores solo se guardan desde la funcion Cajero.",
+  );
+  if (accessError) return commandError(accessError);
   const reconciliationError = balanceCashReconciliationError(data, balance.id);
   if (reconciliationError) return commandError(reconciliationError);
   if (!updates.length) return commandError("No hay contadores para guardar.");

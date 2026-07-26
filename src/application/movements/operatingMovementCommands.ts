@@ -33,12 +33,9 @@ import {
   type CommandContext,
   type CommandResult,
 } from "../command";
+import { commandFunctionAccessError, localCommandAccessError } from "../localAccess";
 
 const CASHIER_ONLY: readonly Role[] = ["CAJERO"];
-
-const actorRoleBelongsToUser = (context: CommandContext) =>
-  context.actorRole === context.user.role ||
-  (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role));
 
 function openCash(
   data: AppData,
@@ -46,18 +43,15 @@ function openCash(
   context: CommandContext,
   allowedRoles: readonly Role[] = CASHIER_ONLY,
 ): Balance | string {
-  if (!actorRoleBelongsToUser(context)) return "La funcion activa no corresponde al usuario autenticado.";
-  if (!allowedRoles.includes(context.actorRole)) {
-    return allowedRoles.includes("ENCARGADO")
-      ? "Esta operacion requiere funcion Cajero o Encargado."
-      : "Para operar movimientos hay que trabajar con la funcion Cajero.";
-  }
-  if (context.user.status !== "ACTIVO") return "El usuario no esta activo.";
+  const deniedMessage = allowedRoles.includes("ENCARGADO")
+    ? "Esta operacion requiere funcion Cajero o Encargado."
+    : "Para operar movimientos hay que trabajar con la funcion Cajero.";
+  const functionError = commandFunctionAccessError(context, allowedRoles, deniedMessage);
+  if (functionError) return functionError;
   const balance = data.balances.find((item) => item.id === balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return "La caja ya no esta abierta.";
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(balance.localId)) {
-    return "El usuario no esta asignado al local de esta caja.";
-  }
+  const localError = localCommandAccessError(data, balance.localId, context, allowedRoles, deniedMessage);
+  if (localError) return localError;
   return balance;
 }
 

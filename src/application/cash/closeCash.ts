@@ -17,6 +17,7 @@ import { balanceVisibleId } from "../../lib/display";
 import { machineHistoryEvent } from "../../lib/machineHistory";
 import { counter, money } from "../../lib/money";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { localCommandAccessError } from "../localAccess";
 
 export type CloseCashInput = {
   balanceId: string;
@@ -30,14 +31,14 @@ export type CloseCashInput = {
 export function closeCashCommand(data: AppData, input: CloseCashInput, context: CommandContext): CommandResult<Balance> {
   const balance = data.balances.find((item) => item.id === input.balanceId);
   if (!balance || balance.status !== "EN_PROCESO") return commandError("La caja ya no esta abierta.");
-  const canActAsCashier =
-    context.actorRole === "CAJERO" &&
-    (context.user.role === "CAJERO" || ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role));
-  if (!canActAsCashier) return commandError("La caja solo se cierra desde la funcion Cajero.");
-  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(balance.localId)) {
-    return commandError("El usuario no esta asignado al local de la caja.");
-  }
+  const accessError = localCommandAccessError(
+    data,
+    balance.localId,
+    context,
+    ["CAJERO"],
+    "La caja solo se cierra desde la funcion Cajero.",
+  );
+  if (accessError) return commandError(accessError);
   const inputAmounts = [
     input.declaredCash,
     input.declaredBank,

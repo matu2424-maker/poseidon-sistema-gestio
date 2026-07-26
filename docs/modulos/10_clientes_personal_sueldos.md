@@ -41,6 +41,10 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - El pago del cajero sale de la caja actual por `balanceId`, pero se muestra en liquidacion y cuenta personal segun el periodo trabajado elegido.
 - Una liquidacion administrativa se paga desde `Principal / Efectivo` o `Principal / Banco`, no usa `balanceId` y puede registrarse aunque no exista caja abierta.
 - Una liquidacion cargada por el Cajero se paga desde `Caja / Efectivo`, exige caja abierta y usa su `balanceId`.
+- Toda alta, correccion o anulacion valida nuevamente rol real, funcion activa, usuario activo y acceso al local del empleado.
+- Una liquidacion de Caja solo puede usar una caja abierta del mismo local del empleado.
+- Una liquidacion existente no puede corregirse cambiando su empleado o local.
+- El origen Caja/Principal y el `balanceId` de una liquidacion existente no se cambian mediante una correccion.
 - Corregir una liquidacion con entrega de dinero conserva la cuenta original y valida fondos solo por el incremento neto.
 - `EXTRA` queda como codigo tecnico interno; en la interfaz se muestra `Premio / Gratificacion` y no pertenece al modulo Regalos de clientes.
 - HORAS_EXTRAS significa pago por horas trabajadas fuera del horario/base.
@@ -95,6 +99,7 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - El cierre ordinario es revision `R0` y no se anula ni se reescribe.
 - Un periodo cerrado bloquea alta, edicion y anulacion ordinaria tanto en liquidacion administrativa como desde caja.
 - No se permite cerrar el periodo si contiene pagos asociados a una caja abierta.
+- Cerrar o gestionar una revision correctiva exige acceso a todos los locales congelados en la foto salarial.
 - Para modificar un periodo cerrado, encargado/admin debe abrir un ajuste correctivo con motivo obligatorio sobre el ultimo cierre vigente.
 - Durante el ajuste, las operaciones quedan enlazadas por `correctionClosureId` o `annulledInCorrectionClosureId`.
 - Al cerrar el ajuste se crea una nueva foto `R1`, `R2`, etc. con `parentClosureId`; todas las revisiones anteriores permanecen inmutables.
@@ -106,6 +111,7 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - Cajero carga pago simple desde caja abierta.
 - Salarios de una caja nueva siempre inician en 0.
 - Anular conserva el movimiento original y agrega contramovimientos que dejan el impacto neto en cero; si el pago era de Caja, solo puede anularse dentro de su caja abierta.
+- Esa restriccion se deriva del origen guardado por el comando y tambien se aplica cuando la anulacion se solicita desde la pantalla administrativa.
 
 ## Papelera
 

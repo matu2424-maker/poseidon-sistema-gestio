@@ -1,6 +1,6 @@
 # Poseidon - Contexto rapido para Codex
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
 Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea. No releer todo el repositorio por defecto.
 
@@ -30,6 +30,7 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Gobierno SOPM-Lite: estado, decisiones, migraciones y capacidades en `docs/coordinacion/`, validados sin dependencias externas.
 - Workstreams permanentes: Central, Cajero, Encargado, Administrador y Calidad/Pruebas; este ultimo valida y asesora, pero no decide ni integra.
 - Regla de propiedad: todo cambio no trivial de una experiencia de rol se ejecuta en su chat permanente; la autorizacion del usuario no reasigna esa propiedad a Central.
+- Los comandos criticos de apertura, contadores, cierre y salarios comparten la validacion de rol real, funcion activa, usuario activo y locales antes de mutar.
 
 ## Modelo financiero
 
@@ -108,7 +109,7 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 ## Prioridades pendientes
 
 1. Observar la beta demo y registrar incidencias sin cargar datos reales.
-2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de Vercel, solamente con autorizacion separada.
-3. Uniformar usuario real, funcion activa y local dentro de apertura, contadores, cierre y salarios.
-4. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
-5. No iniciar multi-local ni backend Supabase sin una etapa y autorizacion propias.
+2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de Vercel y eliminar la configuracion local obsoleta sin exponer valores.
+3. Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera antes de una beta operativa amplia.
+4. Estabilizar un nuevo candidato beta exclusivamente con datos demo.
+5. Migrar hacia un backend transaccional por comandos, Auth y politicas de acceso; no guardar `AppData` completo como una fila remota.

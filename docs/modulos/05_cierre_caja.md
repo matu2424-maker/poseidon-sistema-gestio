@@ -63,6 +63,7 @@ diferencia banco = banco declarado - banco esperado final
 ## Bloqueos
 
 - Funcion distinta de Cajero.
+- Funcion Cajero incompatible con el rol real o usuario inactivo.
 - Caja inexistente o ya cerrada.
 - Usuario/local no autorizado.
 - Maquinas pendientes sin observacion.

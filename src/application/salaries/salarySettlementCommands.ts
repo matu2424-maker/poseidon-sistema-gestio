@@ -29,6 +29,7 @@ import {
 } from "../../lib/salaryRules";
 import { salaryPeriodMutationError } from "../../lib/salaryClosures";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { localCommandAccessError } from "../localAccess";
 
 export type SaveSalarySettlementInput = {
   settlementId?: string;
@@ -50,23 +51,18 @@ export function saveSalarySettlementCommand(
 ): CommandResult<SalarySettlement> {
   const staff = data.staff.find((item) => item.id === input.staffId && item.status === "ACTIVO");
   if (!staff) return commandError("Selecciona una persona activa.");
-  const actorMatchesUser =
-    context.actorRole === context.user.role ||
-    (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role)) ||
-    (context.actorRole === "ENCARGADO" && context.user.role === "ADMINISTRADOR");
-  if (!actorMatchesUser) return commandError("La funcion activa no corresponde al usuario autenticado.");
-  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
-  if (input.origin === "CAJA" && context.actorRole !== "CAJERO") {
-    return commandError("Los pagos de Caja se registran desde la funcion Cajero.");
-  }
-  if (input.origin === "LIQUIDACION" && !["ENCARGADO", "ADMINISTRADOR"].includes(context.actorRole)) {
-    return commandError("La funcion activa no permite liquidar salarios desde Principal.");
-  }
+  const accessError = localCommandAccessError(
+    data,
+    staff.localId,
+    context,
+    input.origin === "CAJA" ? ["CAJERO"] : ["ENCARGADO", "ADMINISTRADOR"],
+    input.origin === "CAJA"
+      ? "Los pagos de Caja se registran desde la funcion Cajero."
+      : "La funcion activa no permite liquidar salarios desde Principal.",
+  );
+  if (accessError) return commandError(accessError);
   if (input.origin === "LIQUIDACION" && input.balanceId) {
     return commandError("Las liquidaciones desde Principal no se asocian a una caja operativa.");
-  }
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(staff.localId)) {
-    return commandError("El usuario no esta asignado al local del empleado.");
   }
   const concept = normalizeSalaryConcept(input.concept);
   if (!isValidSalaryPeriod(input.period)) return commandError("Selecciona un periodo trabajado valido.");
@@ -75,10 +71,26 @@ export function saveSalarySettlementCommand(
     if (!cashierSalaryConceptOptions.includes(concept)) return commandError("Desde caja solo se permite Salario o Adelanto.");
     const balance = data.balances.find((item) => item.id === input.balanceId);
     if (!balance || balance.status !== "EN_PROCESO") return commandError("La caja ya no esta abierta.");
+    if (balance.localId !== staff.localId) {
+      return commandError("La caja seleccionada no pertenece al local del empleado.");
+    }
   }
   const existing = input.settlementId ? data.salarySettlements.find((item) => item.id === input.settlementId) : undefined;
   if (input.settlementId && !existing) return commandError("No se encontro la liquidacion a corregir.");
   if (existing?.status === "ANULADA") return commandError("Una liquidacion anulada no se edita; crea una nueva liquidacion.");
+  if (existing && (existing.staffId !== staff.id || existing.localId !== staff.localId)) {
+    return commandError("Una liquidacion existente no puede reasignarse a otro empleado o local.");
+  }
+  const existingOrigin = existing?.origin ?? (existing?.balanceId ? "CAJA" : "LIQUIDACION");
+  const requestedBalanceId =
+    input.origin === "CAJA" ? input.balanceId ?? existing?.balanceId : undefined;
+  if (
+    existing &&
+    (existingOrigin !== input.origin ||
+      (existingOrigin === "CAJA" && existing.balanceId !== requestedBalanceId))
+  ) {
+    return commandError("Una liquidacion existente no puede cambiar de origen ni de recaudacion.");
+  }
   const targetPeriodError = salaryPeriodMutationError(data, input.period, input.correctionClosureId);
   if (targetPeriodError) return commandError(targetPeriodError);
   if (existing && existing.period !== input.period) {
@@ -224,24 +236,26 @@ export function annulSalarySettlementCommand(
 ): CommandResult<SalarySettlement> {
   const previous = data.salarySettlements.find((item) => item.id === settlementId);
   if (!previous) return commandError("No se encontro la liquidacion.");
-  const actorMatchesUser =
-    context.actorRole === context.user.role ||
-    (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role)) ||
-    (context.actorRole === "ENCARGADO" && context.user.role === "ADMINISTRADOR");
-  if (!actorMatchesUser) return commandError("La funcion activa no corresponde al usuario autenticado.");
-  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
-  if (options.requireOpenBalance ? context.actorRole !== "CAJERO" : !["ENCARGADO", "ADMINISTRADOR"].includes(context.actorRole)) {
-    return commandError("La funcion activa no permite anular esta liquidacion.");
-  }
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(previous.localId)) {
-    return commandError("El usuario no esta asignado al local del empleado.");
-  }
+  const requiresOpenBalance =
+    options.requireOpenBalance ||
+    (previous.origin ?? (previous.balanceId ? "CAJA" : "LIQUIDACION")) === "CAJA";
+  const accessError = localCommandAccessError(
+    data,
+    previous.localId,
+    context,
+    options.requireOpenBalance ? ["CAJERO"] : ["ENCARGADO", "ADMINISTRADOR"],
+    "La funcion activa no permite anular esta liquidacion.",
+  );
+  if (accessError) return commandError(accessError);
   if (previous.status === "ANULADA") return commandError("La liquidacion ya esta anulada.");
   const periodError = salaryPeriodMutationError(data, previous.period, options.correctionClosureId);
   if (periodError) return commandError(periodError);
-  if (options.requireOpenBalance) {
+  if (requiresOpenBalance) {
     const balance = data.balances.find((item) => item.id === previous.balanceId);
     if (!balance || balance.status !== "EN_PROCESO") return commandError("Solo se pueden eliminar salarios antes de cerrar la caja.");
+    if (balance.localId !== previous.localId) {
+      return commandError("La liquidacion no coincide con el local de la caja asociada.");
+    }
   }
   const previousPaymentAccountId = previous.paymentAccountId ?? localCashAccountId(previous.localId);
   const previousCashOutflow = activeAccountSourceOutflow(data, previousPaymentAccountId, previous.id);
@@ -277,7 +291,7 @@ export function annulSalarySettlementCommand(
   const nextData = auditCommand(
     { ...data, accountMovements, salarySettlements, staff },
     context,
-    options.requireOpenBalance ? "Anular pago salario antes de cierre" : "Eliminar liquidacion salario",
+    requiresOpenBalance ? "Anular pago salario antes de cierre" : "Eliminar liquidacion salario",
     "LiquidacionSalario",
     settlementId,
     previous,

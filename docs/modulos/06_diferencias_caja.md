@@ -1,6 +1,6 @@
 # Modulo 06 - Diferencias de caja
 
-La gestion atomica vive en `src/application/differences/manageDifference.ts`; valida rol, local, estado, caja abierta, observacion e importes, y aplica declarados, delta contable append-only y auditoria.
+La gestion atomica vive en `src/application/differences/manageDifference.ts`; valida rol real, funcion activa, usuario activo, local, estado, caja abierta, observacion e importes, y aplica declarados, delta contable append-only y auditoria.
 
 ## Objetivo
 

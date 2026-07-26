@@ -66,6 +66,8 @@ La auditoria diferencia siempre:
 - rol real;
 - funcion activa utilizada.
 
+Los permisos no dependen solo de la navegacion. Antes de mutar el snapshot, los comandos de Caja, movimientos, tesoreria, diferencias, salarios y maestros administrativos validan que la funcion activa sea compatible con el rol real, que el usuario este activo y que tenga acceso a todos los locales involucrados. Un rechazo no crea datos, movimientos ni auditoria parcial.
+
 ## 4. Modelo de dinero
 
 Solo se opera en pesos uruguayos (`UYU`).
@@ -324,6 +326,8 @@ El remanente declarado abre la proxima caja. Lo transferido queda disponible en 
 Un efectivo esperado negativo se cubre con fondos reales de Principal y traspaso Principal -> Caja. Un desacople tecnico exige una reconciliacion auditada y no se corrige con un traspaso ordinario.
 
 Todo bloqueo ocurre antes de mutar datos. El cierre exitoso actualiza maquinas, crea traspasos finales, diferencias, asientos, auditoria y navega a Resumen de cajas.
+
+Apertura, contadores y cierre usan la misma frontera de autorizacion de comandos y exigen funcion Cajero. En salarios, los pagos de Caja verifican ademas que empleado y caja pertenezcan al mismo local; las fotos salariales validan todos los locales congelados antes de cerrar o corregir.
 
 ## 16. Diferencias de caja
 

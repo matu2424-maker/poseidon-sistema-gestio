@@ -22,7 +22,7 @@
 - El historial de maquinas dentro de esa ventana permite ordenar por fecha, ID, maquina, movimiento y detalle.
 - Agregar/editar abre ventana flotante.
 - Desde agregar/editar se pueden asociar maquinas del Taller.
-- Alta, edicion, cierre y baja validan rol administrador y actualizan local, cuentas, maquinas, historial y auditoria en un unico comando.
+- Alta, edicion, cierre y baja exigen usuario Administrador real, funcion Administrador y estado activo; actualizan local, cuentas, maquinas, historial y auditoria en un unico comando.
 
 ## Cierre de local
 

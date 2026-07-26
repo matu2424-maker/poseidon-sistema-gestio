@@ -10,7 +10,8 @@ Crear una recaudacion para el local con saldos de Caja trazables y una foto de l
 
 - Solo puede existir una caja abierta por local.
 - Solo la funcion `CAJERO` puede abrirla.
-- El usuario debe estar activo y autorizado para el local.
+- El comando valida que la funcion `CAJERO` sea compatible con el rol real, que el usuario este activo y autorizado para el local.
+- Un rechazo de identidad, funcion, estado o local ocurre antes de crear balance, lecturas, movimientos o auditoria.
 - Cada caja tiene ID visible: cuatro letras del local y correlativo, por ejemplo `POSE-1`.
 - Registra fecha operativa, hora, usuario real, rol real y funcion usada.
 - La apertura toma una foto de maquinas activas/no desuso y crea sus lecturas iniciales.
@@ -54,3 +55,4 @@ El socio se selecciona porque existe un aporte patrimonial real. No representa c
 - Apertura posterior hereda Caja sin crear otro aporte de socio.
 - Segunda caja abierta se rechaza sin mutar datos.
 - Saldo heredado incorrecto se rechaza sin balance, lecturas ni auditoria.
+- Funcion suplantada, usuario inactivo y local no asignado se rechazan sin mutar el snapshot.

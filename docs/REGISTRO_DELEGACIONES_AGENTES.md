@@ -1,6 +1,6 @@
 # Poseidon - Registro de delegaciones Codex
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-26
 
 Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica vive en `docs/plantillas/REPORTE_DELEGACION_AGENTES.md`.
 
@@ -29,6 +29,9 @@ Registro operativo de subagentes utilizados en Poseidon. La plantilla canonica v
 | `2026-07-19-EFI-ALCANCE-01` | `poseidon_scope_mapper` nominal | Mapear mutaciones sensibles de cierres periodicos y control de gastos | `UTIL` | No disponible | No disponible | Propiedad Encargado, contratos compartidos, riesgo multi-local y matriz de pruebas | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-19-EFI-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar invariantes contables de cierres periodicos y anulacion administrativa de gastos | `UTIL` | No disponible | No disponible | Deltas monetarios, foto inmutable, reversos append-only, actor/funcion/local y casos de rechazo atomico | BAJA | Completado, cerrado, solo lectura |
 | `2026-07-19-ENC-01` | Chat permanente `Poseidon Encargado` con recuperacion de Central | Conectar los controles periodicos y de gastos con comandos atomicos | `UTIL` | No disponible | No disponible | Componentes sin mutacion contable directa, funcion activa explicita y validacion sobre snapshot vigente | BAJA | Integrado; el sandbox bloqueo el task y Central ejecuto la orden exacta en su worktree aislado |
+| `2026-07-26-SEG-ALCANCE-01` | `poseidon_scope_mapper` nominal | Mapear autorizacion critica y frontera correcta del backend remoto | `UTIL` | No disponible | No disponible | Falta de autorizacion en contadores, asociaciones cruzadas de salarios y necesidad de comandos transaccionales remotos en vez de un snapshot unico | BAJA | Completado, cerrado, solo lectura |
+| `2026-07-26-E2E-ALCANCE-01` | `explorer` integrado | Inventariar cobertura E2E y propiedad de maestros | `UTIL` | No disponible | No disponible | Cuatro recorridos faltantes bajo propiedad de Calidad y reutilizacion de helpers descartables existentes | BAJA | Completado, cerrado, solo lectura |
+| `2026-07-26-SEG-CONTABLE-01` | `poseidon_accounting_reviewer` nominal | Revisar invariantes del cierre de autorizacion y riesgos previos al backend | `UTIL` | No disponible | No disponible | Anulacion tardia de salarios de Caja, matrices fragmentadas, concurrencia, identidad de servidor y proyeccion mutable de contadores | BAJA | Completado, cerrado, solo lectura |
 
 ## Evaluacion de perfiles nuevos
 

@@ -8,6 +8,7 @@ import {
   normalizeDifferenceStatus,
 } from "../../lib/differences";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { commandFunctionAccessError, localCommandAccessError } from "../localAccess";
 
 export type ManageDifferenceInput = {
   balanceId: string;
@@ -22,9 +23,12 @@ export function manageDifferenceCommand(
   input: ManageDifferenceInput,
   context: CommandContext,
 ): CommandResult<Balance> {
-  if (context.actorRole !== "ENCARGADO" && context.actorRole !== "ADMINISTRADOR") {
-    return commandError("Solo administrador o encargado pueden gestionar diferencias.");
-  }
+  const functionError = commandFunctionAccessError(
+    context,
+    ["ENCARGADO", "ADMINISTRADOR"],
+    "Solo administrador o encargado pueden gestionar diferencias.",
+  );
+  if (functionError) return commandError(functionError);
   if (!(["VERIFICADA", "CORREGIDA", "ANULADA"] as DifferenceStatus[]).includes(input.status)) {
     return commandError("Selecciona una accion valida para gestionar la diferencia.");
   }
@@ -33,9 +37,14 @@ export function manageDifferenceCommand(
   const previous = data.balances.find((balance) => balance.id === input.balanceId);
   if (!previous) return commandError("No se encontro la recaudacion.");
   if (previous.status !== "CERRADO") return commandError("Solo se gestionan diferencias de cajas cerradas.");
-  if (context.actorRole === "ENCARGADO" && !context.user.localIds.includes(previous.localId)) {
-    return commandError("El encargado solo puede gestionar diferencias de sus locales asignados.");
-  }
+  const localError = localCommandAccessError(
+    data,
+    previous.localId,
+    context,
+    ["ENCARGADO", "ADMINISTRADOR"],
+    "Solo administrador o encargado pueden gestionar diferencias.",
+  );
+  if (localError) return commandError(localError);
   if (data.balances.some((balance) => balance.localId === previous.localId && balance.status === "EN_PROCESO")) {
     return commandError("No se pueden gestionar diferencias mientras exista una caja abierta en el mismo local.");
   }

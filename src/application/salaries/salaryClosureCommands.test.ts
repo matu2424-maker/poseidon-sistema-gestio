@@ -40,6 +40,32 @@ const withPrincipalCash = (data: AppData, amount: number): AppData => {
 };
 
 describe("cierre salarial definitivo", () => {
+  it("valida identidad, funcion activa, estado y locales antes de cerrar", () => {
+    const data = clearOperationalData(createSeedData());
+    const cashier = data.users.find((item) => item.role === "CAJERO")!;
+    const manager = data.users.find((item) => item.role === "ENCARGADO")!;
+    const before = JSON.stringify(data);
+
+    expect(
+      closeSalaryPeriodCommand(data, { period: "2026-07" }, commandContext(cashier, "ENCARGADO")),
+    ).toEqual({ ok: false, error: "La funcion activa no corresponde al usuario autenticado." });
+    expect(
+      closeSalaryPeriodCommand(
+        data,
+        { period: "2026-07" },
+        commandContext({ ...manager, status: "INACTIVO" }, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta activo." });
+    expect(
+      closeSalaryPeriodCommand(
+        data,
+        { period: "2026-07" },
+        commandContext({ ...manager, localIds: [] }, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta asignado al local seleccionado." });
+    expect(JSON.stringify(data)).toBe(before);
+  });
+
   it("congela importes por empleado y bloquea operaciones ordinarias", () => {
     const data = withPrincipalCash(clearOperationalData(createSeedData()), 5_000);
     const staff = data.staff.find((item) => item.status === "ACTIVO")!;

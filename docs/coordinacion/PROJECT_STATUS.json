@@ -6,14 +6,14 @@
     "status": "ACTIVE",
     "mode": "HYBRID",
     "defaultBranch": "main",
-    "updatedAt": "2026-07-24",
+    "updatedAt": "2026-07-26",
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-online-demo-controlada",
-    "objective": "Observar la beta demo publicada sin datos reales, conservar el desarrollo local y promover solamente candidatos autorizados desde release/test.",
-    "activeWorkOrders": [],
-    "queuedWorkOrders": [],
+    "phase": "endurecimiento-y-backend-transaccional",
+    "objective": "Cerrar seguridad historica, autorizacion uniforme, E2E de maestros, nueva beta demo y migracion controlada hacia un backend transaccional.",
+    "activeWorkOrders": ["2026-07-26-CEN-SEG-01"],
+    "queuedWorkOrders": ["2026-07-26-CAL-E2E-01", "2026-07-26-CEN-BETA-01", "2026-07-26-CEN-BACKEND-01"],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
@@ -45,10 +45,11 @@
     ]
   },
   "nextActions": [
-    "Usar la beta publica solamente con datos demo y registrar incidencias reproducibles.",
-    "Solicitar autorizacion explicita separada antes de rotar o revocar las credenciales historicas en sus proveedores.",
-    "Antes de una beta operativa amplia, completar autorizacion uniforme y E2E de Locales, Maquinas, Personal, Clientes y Papelera.",
-    "Mantener preparada la migracion directa de AppDataRepository a PostgreSQL/Supabase sin activarla."
+    "Cerrar y commitear la autorizacion uniforme de comandos criticos.",
+    "Rotar o revocar credenciales historicas en el proveedor y retirar la configuracion local obsoleta sin exponer valores.",
+    "Completar E2E de Locales, Maquinas, Personal, Clientes y Papelera con Calidad.",
+    "Estabilizar un nuevo candidato beta solo con datos demo.",
+    "Implementar backend transaccional con identidad de servidor, RLS, idempotencia y conciliacion; no persistir AppData completo como una fila."
   ],
   "registries": {
     "workstreams": "docs/coordinacion/WORKSTREAMS.json",

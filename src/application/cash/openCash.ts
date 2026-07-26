@@ -15,6 +15,7 @@ import { openBalanceForLocal } from "../../lib/balanceReferences";
 import { ensureFinancialCurrentAccounts, localAccountBalances } from "../../lib/currentAccounts";
 import { nextBalanceVisibleId } from "../../data/appData";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { localCommandAccessError } from "../localAccess";
 
 export type OpenCashInput = {
   localId: string;
@@ -27,16 +28,14 @@ export type OpenCashInput = {
 };
 
 export function openCashCommand(data: AppData, input: OpenCashInput, context: CommandContext): CommandResult<Balance> {
-  const local = data.locals.find((item) => item.id === input.localId);
-  if (!local) return commandError("No se encontro el local activo.");
-  const canActAsCashier =
-    context.actorRole === "CAJERO" &&
-    (context.user.role === "CAJERO" || ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role));
-  if (!canActAsCashier) return commandError("La caja solo se abre desde la funcion Cajero.");
-  if (context.user.status !== "ACTIVO") return commandError("El usuario no esta activo.");
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(input.localId)) {
-    return commandError("El usuario no esta asignado al local seleccionado.");
-  }
+  const accessError = localCommandAccessError(
+    data,
+    input.localId,
+    context,
+    ["CAJERO"],
+    "La caja solo se abre desde la funcion Cajero.",
+  );
+  if (accessError) return commandError(accessError);
   if (!input.operatingDate) return commandError("La fecha operativa es obligatoria.");
   if (![input.initialFund, input.initialBankFund].every(Number.isFinite)) {
     return commandError("Los saldos iniciales deben ser numeros finitos.");

@@ -11,6 +11,7 @@ Cargar IN/OUT de maquinas para calcular resultado de recaudacion.
 
 ## Reglas
 
+- Solo la funcion `CAJERO` puede guardar; el comando valida rol real, usuario activo y asignacion al local de la caja.
 - No hay guardado automatico.
 - El usuario edita y luego presiona Guardar.
 - El mensaje de exito solo aparece si el lote completo fue aceptado.
@@ -20,6 +21,7 @@ Cargar IN/OUT de maquinas para calcular resultado de recaudacion.
 - Los contadores se actualizan definitivamente al cerrar caja.
 - La tabla permite ordenar por ID, maquina, estado, IN/OUT anterior, IN/OUT actual, resultado y observacion.
 - No hay columna de accion en esta tabla; el guardado sigue siendo por boton general.
+- Un rechazo de autorizacion o de una fila invalida el lote completo y no crea auditoria parcial.
 
 ## Calculo
 

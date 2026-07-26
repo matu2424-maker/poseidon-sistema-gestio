@@ -12,9 +12,14 @@ import {
   type CommandContext,
   type CommandResult,
 } from "../command";
+import { commandFunctionAccessError } from "../localAccess";
 
 const requireAdministrator = (context: CommandContext) =>
-  context.actorRole === "ADMINISTRADOR" ? "" : "Solo el administrador puede gestionar maquinas.";
+  commandFunctionAccessError(
+    context,
+    ["ADMINISTRADOR"],
+    "Solo el administrador puede gestionar maquinas.",
+  );
 
 const historyEvent = (
   machine: Machine,

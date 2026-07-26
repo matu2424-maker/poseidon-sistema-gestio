@@ -6,6 +6,35 @@ import { commandContext } from "../command";
 import { manageDifferenceCommand } from "./manageDifference";
 
 describe("comando de diferencias", () => {
+  it("valida identidad, estado y local con la matriz compartida antes de mutar", () => {
+    const data = createSeedData();
+    const balance = data.balances.find((item) => item.differenceStatus === "PENDIENTE")!;
+    const cashier = data.users.find((item) => item.role === "CAJERO")!;
+    const manager = data.users.find((item) => item.role === "ENCARGADO")!;
+    const input = { balanceId: balance.id, status: "VERIFICADA" as const, reviewNote: "No debe aplicarse" };
+    const before = JSON.stringify(data);
+
+    expect(manageDifferenceCommand(data, input, commandContext(cashier, "ENCARGADO"))).toEqual({
+      ok: false,
+      error: "La funcion activa no corresponde al usuario autenticado.",
+    });
+    expect(
+      manageDifferenceCommand(
+        data,
+        input,
+        commandContext({ ...manager, status: "INACTIVO" }, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta activo." });
+    expect(
+      manageDifferenceCommand(
+        data,
+        input,
+        commandContext({ ...manager, localIds: [] }, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta asignado al local seleccionado." });
+    expect(JSON.stringify(data)).toBe(before);
+  });
+
   it("corrige una diferencia con delta contable y auditoria", () => {
     const data = createSeedData();
     const balance = data.balances.find((item) => item.differenceStatus === "PENDIENTE")!;
@@ -103,7 +132,7 @@ describe("comando de diferencias", () => {
         { balanceId: balance.id, status: "VERIFICADA", reviewNote: "No corresponde" },
         commandContext(manager, "ENCARGADO"),
       ),
-    ).toMatchObject({ ok: false, error: "El encargado solo puede gestionar diferencias de sus locales asignados." });
+    ).toMatchObject({ ok: false, error: "El usuario no esta asignado al local seleccionado." });
   });
 
   it("bloquea una caja abierta del mismo local pero no una de otro local", () => {

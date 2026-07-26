@@ -26,6 +26,64 @@ const fixedContext = () => {
 };
 
 describe("comandos de caja", () => {
+  it("autoriza apertura, contadores y cierre por usuario, funcion activa y local", () => {
+    const data = clearOperationalData(createSeedData());
+    const cashier = data.users.find((item) => item.role === "CAJERO")!;
+    const manager = data.users.find((item) => item.role === "ENCARGADO")!;
+    const input = {
+      localId: "1",
+      operatingDate: "2026-07-10",
+      initialFund: 0,
+      initialBankFund: 0,
+      initialNote: "",
+      openingCapitalPerson: "MATHIAS" as const,
+      firstOpening: true,
+    };
+
+    expect(openCashCommand(data, input, commandContext(cashier, "ENCARGADO"))).toEqual({
+      ok: false,
+      error: "La funcion activa no corresponde al usuario autenticado.",
+    });
+    expect(openCashCommand(data, input, commandContext({ ...cashier, status: "INACTIVO" }, "CAJERO"))).toEqual({
+      ok: false,
+      error: "El usuario no esta activo.",
+    });
+    expect(openCashCommand(data, input, commandContext({ ...cashier, localIds: [] }, "CAJERO"))).toEqual({
+      ok: false,
+      error: "El usuario no esta asignado al local seleccionado.",
+    });
+
+    const opened = openCashCommand(data, input, fixedContext());
+    if (!opened.ok) throw new Error(opened.error);
+    const reading = opened.data.readings.find((item) => item.balanceId === opened.value.id)!;
+    const managerContext = commandContext(manager, "ENCARGADO");
+    const before = JSON.stringify(opened.data);
+    expect(
+      saveReadingCommand(
+        opened.data,
+        opened.value.id,
+        reading.id,
+        { inActual: reading.inPrevious, outActual: reading.outPrevious, status: "CARGADA" },
+        managerContext,
+      ),
+    ).toEqual({ ok: false, error: "Los contadores solo se guardan desde la funcion Cajero." });
+    expect(
+      closeCashCommand(
+        opened.data,
+        {
+          balanceId: opened.value.id,
+          declaredCash: 0,
+          declaredBank: 0,
+          transferToPrincipalCash: 0,
+          transferToPrincipalBank: 0,
+          differenceNote: "",
+        },
+        managerContext,
+      ),
+    ).toEqual({ ok: false, error: "La caja solo se cierra desde la funcion Cajero." });
+    expect(JSON.stringify(opened.data)).toBe(before);
+  });
+
   it("abre caja, crea lecturas, aportes y auditoria de forma atomica", () => {
     const data = clearOperationalData(createSeedData());
     const result = openCashCommand(

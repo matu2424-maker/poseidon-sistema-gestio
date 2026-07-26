@@ -22,27 +22,24 @@ import {
   principalAccountIdForMedium,
 } from "../../lib/currentAccounts";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { localCommandAccessError } from "../localAccess";
 
 const TREASURY_ROLES: readonly Role[] = ["ENCARGADO", "ADMINISTRADOR"];
 const TRANSFER_ROLES: readonly Role[] = ["CAJERO", "ENCARGADO", "ADMINISTRADOR"];
 
-function actorRoleBelongsToUser(context: CommandContext) {
-  return (
-    context.actorRole === context.user.role ||
-    (context.actorRole === "CAJERO" && ["ENCARGADO", "ADMINISTRADOR"].includes(context.user.role))
+const treasuryAccessError = (
+  data: AppData,
+  localId: string,
+  context: CommandContext,
+  allowedRoles: readonly Role[],
+) =>
+  localCommandAccessError(
+    data,
+    localId,
+    context,
+    allowedRoles,
+    "La funcion activa no permite operar estas cuentas.",
   );
-}
-
-function localAccessError(data: AppData, localId: string, context: CommandContext, allowedRoles: readonly Role[]) {
-  if (!actorRoleBelongsToUser(context)) return "La funcion activa no corresponde al usuario autenticado.";
-  if (!allowedRoles.includes(context.actorRole)) return "La funcion activa no permite operar estas cuentas.";
-  if (context.user.status !== "ACTIVO") return "El usuario no esta activo.";
-  if (!data.locals.some((local) => local.id === localId)) return "No se encontro el local.";
-  if (context.user.role !== "ADMINISTRADOR" && !context.user.localIds.includes(localId)) {
-    return "El usuario no esta asignado al local seleccionado.";
-  }
-  return "";
-}
 
 function linkedOpenBalanceError(data: AppData, localId: string, balanceId: string | undefined, actorRole: Role) {
   const openBalance = data.balances.find((balance) => balance.localId === localId && balance.status === "EN_PROCESO");
@@ -76,7 +73,7 @@ export function createTreasuryTransferCommand(
   input: CreateTreasuryTransferInput,
   context: CommandContext,
 ): CommandResult<TreasuryTransfer> {
-  const accessError = localAccessError(data, input.localId, context, TRANSFER_ROLES);
+  const accessError = treasuryAccessError(data, input.localId, context, TRANSFER_ROLES);
   if (accessError) return commandError(accessError);
   const balanceError = linkedOpenBalanceError(data, input.localId, input.balanceId, context.actorRole);
   if (balanceError) return commandError(balanceError);
@@ -152,7 +149,7 @@ export function annulTreasuryTransferCommand(
 ): CommandResult<TreasuryTransfer> {
   const previous = data.treasuryTransfers.find((item) => item.id === transferId);
   if (!previous) return commandError("No se encontro el traspaso.");
-  const accessError = localAccessError(data, previous.localId, context, TRANSFER_ROLES);
+  const accessError = treasuryAccessError(data, previous.localId, context, TRANSFER_ROLES);
   if (accessError) return commandError(accessError);
   if (previous.status === "ANULADO") return commandError("El traspaso ya esta anulado.");
   if (previous.timing !== "OPERATIVO") {
@@ -223,7 +220,7 @@ export function createPartnerMovementCommand(
   input: CreatePartnerMovementInput,
   context: CommandContext,
 ): CommandResult<PartnerMovement> {
-  const accessError = localAccessError(data, input.localId, context, TREASURY_ROLES);
+  const accessError = treasuryAccessError(data, input.localId, context, TREASURY_ROLES);
   if (accessError) return commandError(accessError);
   if (!(input.partner === "MATHIAS" || input.partner === "RICARDO")) return commandError("Selecciona un socio.");
   if (!(input.type === "APORTE_SOCIO" || input.type === "RETIRO_SOCIO")) {
@@ -286,7 +283,7 @@ export function annulPartnerMovementCommand(
 ): CommandResult<PartnerMovement> {
   const previous = data.partnerMovements.find((item) => item.id === movementId);
   if (!previous) return commandError("No se encontro el movimiento del socio.");
-  const accessError = localAccessError(data, previous.localId, context, TREASURY_ROLES);
+  const accessError = treasuryAccessError(data, previous.localId, context, TREASURY_ROLES);
   if (accessError) return commandError(accessError);
   if (previous.status === "ANULADO") return commandError("El movimiento ya esta anulado.");
   const note = reason.trim();

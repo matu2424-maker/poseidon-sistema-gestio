@@ -1,6 +1,6 @@
 # Poseidon - Mapa tecnico
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
 Fuente canonica de propiedad de archivos, capas, dependencias y deuda tecnica. No contiene reglas funcionales completas; consultar `docs/POSEIDON_FUNCIONAMIENTO.md` y `docs/modulos/`.
 
@@ -179,7 +179,7 @@ src/
 | `application/expenses/principalExpenseCommands.ts` | Alta/anulacion de gastos desde Principal/Efectivo o Principal/Banco, sin `balanceId` |
 | `application/expenses/expenseReviewCommands.ts` | Revision y anulacion administrativa atomica de gastos de Caja o Principal |
 | `application/reports/periodicClosureCommands.ts` | Generacion/anulacion atomica de fotos periodicas por local |
-| `application/localAccess.ts` | Validacion compartida de usuario real, funcion activa, local y asignacion |
+| `application/localAccess.ts` | Matriz compartida de rol real/funcion activa, usuario activo, existencia de uno o varios locales y asignacion; devuelve errores antes de toda mutacion |
 | `application/locations/localCommands.ts` | Alta, edicion, cierre y baja de locales con cuentas, maquinas, historial y auditoria |
 | `application/machines/machineCommands.ts` | Alta, edicion, reset, taller, asignacion y baja de maquinas |
 | `application/cash/closeCash.ts` | Cierre, traspasos Caja -> Principal, remanente declarado, diferencias, maquinas e historial |
@@ -226,6 +226,8 @@ src/
 - Una accion contable puede modificar entidad operativa, movimientos de cuenta y auditoria; no deben separarse al extraer comandos.
 - Cuenta personal usa periodo salarial; caja usa `balanceId`.
 - Rol real y funcion usada son datos distintos de auditoria.
+- Apertura, contadores, movimientos, tesoreria, diferencias, cierre, liquidaciones, cierres salariales, locales y maquinas consumen la misma matriz de acceso; React no es la frontera de autorizacion.
+- Las liquidaciones de Caja verifican que empleado, liquidacion y caja pertenezcan al mismo local; una correccion no puede reasignar un registro existente a otro empleado o local.
 
 ## Cruces actuales entre features
 

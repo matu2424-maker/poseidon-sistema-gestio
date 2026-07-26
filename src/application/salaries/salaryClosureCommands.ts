@@ -10,9 +10,23 @@ import {
 } from "../../lib/salaryClosures";
 import { isValidSalaryPeriod } from "../../lib/salaryRules";
 import { auditCommand, commandError, commandSuccess, type CommandContext, type CommandResult } from "../command";
+import { commandFunctionAccessError, commandLocalsAccessError } from "../localAccess";
 
-const canManageSalaryClosures = (context: CommandContext) =>
-  context.actorRole === "ENCARGADO" || context.actorRole === "ADMINISTRADOR";
+const salaryClosureFunctionError = (context: CommandContext) =>
+  commandFunctionAccessError(
+    context,
+    ["ENCARGADO", "ADMINISTRADOR"],
+    "Solo encargado o administrador pueden gestionar cierres salariales.",
+  );
+
+const salaryClosureLocalError = (data: AppData, localIds: readonly string[], context: CommandContext) =>
+  commandLocalsAccessError(
+    data,
+    localIds,
+    context,
+    ["ENCARGADO", "ADMINISTRADOR"],
+    "Solo encargado o administrador pueden gestionar cierres salariales.",
+  );
 
 const nextSalaryClosureVisibleId = (data: Pick<AppData, "salaryClosures">) => {
   const maximum = data.salaryClosures.reduce((highest, closure) => {
@@ -39,7 +53,8 @@ export function closeSalaryPeriodCommand(
   input: { period: string; note?: string },
   context: CommandContext,
 ): CommandResult<SalaryClosure> {
-  if (!canManageSalaryClosures(context)) return commandError("Solo encargado o administrador pueden cerrar salarios.");
+  const functionError = salaryClosureFunctionError(context);
+  if (functionError) return commandError(functionError);
   if (!isValidSalaryPeriod(input.period)) return commandError("Selecciona un periodo salarial valido.");
   if (latestClosedSalaryClosure(data, input.period)) return commandError("Este periodo ya tiene un cierre salarial definitivo.");
   if (openSalaryCorrection(data, input.period)) return commandError("Este periodo tiene un ajuste correctivo abierto.");
@@ -51,6 +66,12 @@ export function closeSalaryPeriodCommand(
 
   const snapshot = closureSnapshot(data, input.period);
   if (!snapshot.rows.length) return commandError("No hay empleados ni liquidaciones para cerrar en este periodo.");
+  const localError = salaryClosureLocalError(
+    data,
+    snapshot.employeeSnapshots.map((employee) => employee.localId),
+    context,
+  );
+  if (localError) return commandError(localError);
   const timestamp = context.now();
   const range = periodRange(input.period);
   const closure: SalaryClosure = {
@@ -94,11 +115,18 @@ export function startSalaryCorrectionCommand(
   input: { parentClosureId: string; note: string },
   context: CommandContext,
 ): CommandResult<SalaryClosure> {
-  if (!canManageSalaryClosures(context)) return commandError("Solo encargado o administrador pueden corregir cierres salariales.");
+  const functionError = salaryClosureFunctionError(context);
+  if (functionError) return commandError(functionError);
   const parent = data.salaryClosures.find(
     (closure) => closure.id === input.parentClosureId && closure.status === "CERRADO",
   );
   if (!parent) return commandError("No se encontro el cierre salarial a corregir.");
+  const localError = salaryClosureLocalError(
+    data,
+    parent.employeeSnapshots.map((employee) => employee.localId),
+    context,
+  );
+  if (localError) return commandError(localError);
   const period = salaryClosurePeriod(parent);
   const latest = latestClosedSalaryClosure(data, period);
   if (latest?.id !== parent.id) return commandError(`La correccion debe partir del ultimo cierre ${latest?.visibleId ?? "vigente"}.`);
@@ -144,11 +172,18 @@ export function closeSalaryCorrectionCommand(
   correctionClosureId: string,
   context: CommandContext,
 ): CommandResult<SalaryClosure> {
-  if (!canManageSalaryClosures(context)) return commandError("Solo encargado o administrador pueden cerrar ajustes salariales.");
+  const functionError = salaryClosureFunctionError(context);
+  if (functionError) return commandError(functionError);
   const previous = data.salaryClosures.find(
     (closure) => closure.id === correctionClosureId && closure.status === "CORRECCION_ABIERTA",
   );
   if (!previous) return commandError("No se encontro un ajuste correctivo abierto.");
+  const localError = salaryClosureLocalError(
+    data,
+    previous.employeeSnapshots.map((employee) => employee.localId),
+    context,
+  );
+  if (localError) return commandError(localError);
   const period = salaryClosurePeriod(previous);
   const linkedChanges = data.salarySettlements.filter(
     (settlement) =>
@@ -192,11 +227,18 @@ export function cancelSalaryCorrectionCommand(
   correctionClosureId: string,
   context: CommandContext,
 ): CommandResult<SalaryClosure> {
-  if (!canManageSalaryClosures(context)) return commandError("Solo encargado o administrador pueden cancelar ajustes salariales.");
+  const functionError = salaryClosureFunctionError(context);
+  if (functionError) return commandError(functionError);
   const previous = data.salaryClosures.find(
     (closure) => closure.id === correctionClosureId && closure.status === "CORRECCION_ABIERTA",
   );
   if (!previous) return commandError("No se encontro un ajuste correctivo abierto.");
+  const localError = salaryClosureLocalError(
+    data,
+    previous.employeeSnapshots.map((employee) => employee.localId),
+    context,
+  );
+  if (localError) return commandError(localError);
   const linkedChanges = data.salarySettlements.some(
     (settlement) =>
       settlement.correctionClosureId === correctionClosureId ||

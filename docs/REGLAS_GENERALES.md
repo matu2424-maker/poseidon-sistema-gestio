@@ -1,6 +1,6 @@
 # Poseidon - Reglas generales
 
-Ultima actualizacion: 2026-07-24
+Ultima actualizacion: 2026-07-26
 
 Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditoria. Las formulas y movimientos de cuentas viven en `docs/REGLAS_CONTABLES.md`.
 
@@ -64,10 +64,14 @@ Fuente canonica de reglas transversales de producto, trabajo, interfaz y auditor
 
 - `src/navigation/screens.ts` es la fuente de rutas, titulos, menus, roles y requisito de caja abierta.
 - Rol real y funcion activa son distintos y ambos se auditan.
+- Ocultar una accion en React no autoriza ni protege la operacion: todo comando sensible vuelve a validar usuario real, funcion activa, estado `ACTIVO`, local existente y asignacion al local antes de mutar.
+- La funcion activa debe pertenecer a la matriz del rol real: Cajero solo usa Cajero; Encargado usa Encargado o Cajero; Administrador usa Administrador, Encargado o Cajero.
+- Un rechazo de autorizacion ocurre antes de crear entidades, movimientos, diferencias, cierres o auditoria.
 - Encargado y Administrador pueden consultar recaudaciones y trabajar como Cajero mediante un cambio explicito de funcion.
 - Apertura, contadores, movimientos propios de Caja y cierre exigen funcion Cajero.
 - Desde funcion administrativa, Encargado y Administrador operan gastos, salarios y tesoreria desde Principal.
 - Un Encargado solo accede a sus locales asignados.
+- Locales y maquinas exigen usuario Administrador real, funcion Administrador y estado activo; no alcanza con enviar `actorRole: ADMINISTRADOR`.
 - Los avisos se limpian al navegar, salvo una confirmacion que deba llegar al destino.
 
 ## Caja y operacion

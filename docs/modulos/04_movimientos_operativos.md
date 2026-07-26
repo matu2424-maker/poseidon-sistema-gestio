@@ -7,7 +7,7 @@
 - Gastos desde Principal: `src/application/expenses/principalExpenseCommands.ts`.
 - Salarios: `src/application/salaries/salarySettlementCommands.ts`.
 
-Los comandos validan actor, rol real, funcion, usuario, local, cuenta, fondos, asociaciones, auditoria y atomicidad. React solo presenta formularios y resultados.
+Los comandos usan la matriz compartida para validar actor, rol real, funcion, usuario activo y local; luego validan cuenta, fondos, asociaciones, auditoria y atomicidad. React solo presenta formularios y resultados.
 
 ## Disponibilidad de fondos
 

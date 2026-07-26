@@ -42,6 +42,44 @@ function setup() {
 }
 
 describe("tesoreria Caja, Principal y socios", () => {
+  it("aplica la matriz compartida de identidad, estado y local sin mutar", () => {
+    const setupData = setup();
+    const cashier = setupData.data.users.find((user) => user.role === "CAJERO")!;
+    const manager = setupData.data.users.find((user) => user.role === "ENCARGADO")!;
+    const input = {
+      localId: POSEIDON_LOCAL_ID,
+      partner: "MATHIAS" as const,
+      type: "APORTE_SOCIO" as const,
+      medium: "EFECTIVO" as const,
+      amount: 100,
+      note: "No debe registrarse",
+    };
+    const before = JSON.stringify(setupData.data);
+
+    expect(
+      createPartnerMovementCommand(
+        setupData.data,
+        input,
+        commandContext(cashier, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "La funcion activa no corresponde al usuario autenticado." });
+    expect(
+      createPartnerMovementCommand(
+        setupData.data,
+        input,
+        commandContext({ ...manager, status: "INACTIVO" }, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta activo." });
+    expect(
+      createPartnerMovementCommand(
+        setupData.data,
+        input,
+        commandContext({ ...manager, localIds: [] }, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta asignado al local seleccionado." });
+    expect(JSON.stringify(setupData.data)).toBe(before);
+  });
+
   it("registra el primer aporte pasando por Principal y deja los fondos asignados a Caja", () => {
     const { data } = setup();
     expect(localAccountBalances(data, POSEIDON_LOCAL_ID)).toEqual({ cash: 10_000, bank: 5_000 });

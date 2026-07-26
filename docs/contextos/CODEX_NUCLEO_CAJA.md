@@ -1,6 +1,6 @@
 # Contexto Codex - Nucleo de caja y tesoreria
 
-Ultima actualizacion: 2026-07-17
+Ultima actualizacion: 2026-07-26
 
 Leer antes de modificar comandos, formulas, cuentas, saldos, cierre, diferencias o auditoria financiera. La experiencia visual del cajero vive en `CODEX_CAJERO.md`; las reglas completas, en `docs/REGLAS_CONTABLES.md`.
 
@@ -45,6 +45,7 @@ Central asigna propietario temporal unico antes de editar estos contratos desde 
 ## Invariantes
 
 - Una sola caja abierta por local.
+- Apertura, guardado de contadores y cierre exigen funcion `CAJERO`; el comando valida que esa funcion sea compatible con el rol real, que el usuario este activo y que pueda operar el local.
 - Caja abierta: `efectivo esperado === Caja / Efectivo`.
 - Toda salida valida la cuenta monetaria real antes de mutar.
 - Caja y Principal no admiten una nueva salida que deje saldo negativo.
@@ -72,5 +73,6 @@ Central asigna propietario temporal unico antes de editar estos contratos desde 
 - Gasto y salario desde Caja y desde Principal.
 - Cierre con traspasos no cero, remanente, diferencias y reapertura.
 - Rechazo por rol, usuario inactivo, local ajeno y suplantacion de funcion.
+- Rechazo de autorizacion sin balance, lectura, asiento ni auditoria nueva.
 - Migracion 4 -> 5 e idempotencia.
 - `pnpm run check`, `pnpm run build`, E2E y smoke por roles afectados.

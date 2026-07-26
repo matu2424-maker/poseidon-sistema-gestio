@@ -24,6 +24,53 @@ function setup() {
 }
 
 describe("comandos de locales y maquinas", () => {
+  it("exige administrador real, funcion Administrador y usuario activo sin mutar", () => {
+    const base = setup();
+    const manager = base.data.users.find((item) => item.role === "ENCARGADO")!;
+    const admin = base.data.users.find((item) => item.role === "ADMINISTRADOR")!;
+    const input = {
+      id: "9",
+      name: "Local no autorizado",
+      tenantName: "",
+      phone: "",
+      email: "",
+      address: "",
+      googleMapsUrl: "",
+      images: [],
+      status: "ACTIVO" as const,
+    };
+    const before = JSON.stringify(base.data);
+
+    expect(saveLocalCommand(base.data, input, commandContext(manager, "ADMINISTRADOR"))).toEqual({
+      ok: false,
+      error: "La funcion activa no corresponde al usuario autenticado.",
+    });
+    expect(
+      saveLocalCommand(
+        base.data,
+        input,
+        commandContext({ ...admin, status: "INACTIVO" }, "ADMINISTRADOR"),
+      ),
+    ).toEqual({ ok: false, error: "El usuario no esta activo." });
+    expect(
+      saveMachineCommand(
+        base.data,
+        {
+          visibleId: "99",
+          name: "Maquina no autorizada",
+          localId: WORKSHOP_LOCAL_ID,
+          location: "Taller",
+          status: "ACTIVA",
+          lastIn: 0,
+          lastOut: 0,
+          notes: "",
+        },
+        commandContext(admin, "ENCARGADO"),
+      ),
+    ).toEqual({ ok: false, error: "Solo el administrador puede gestionar maquinas." });
+    expect(JSON.stringify(base.data)).toBe(before);
+  });
+
   it("crea un local con maquina del taller y al cerrarlo devuelve la maquina", () => {
     const base = setup();
     const workshopMachine = { ...base.data.machines[0], localId: WORKSHOP_LOCAL_ID, location: "Taller" };
