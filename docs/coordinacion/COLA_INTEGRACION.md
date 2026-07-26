@@ -1,6 +1,6 @@
 # Poseidon - Cola de integracion
 
-Ultima actualizacion: 2026-07-19
+Ultima actualizacion: 2026-07-26
 
 Estados permitidos: `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA`, `INTEGRADA`, `BLOQUEADA`, `DESCARTADA`.
 
@@ -12,6 +12,7 @@ Estados permitidos: `PROPUESTA`, `ASIGNADA`, `EN_CURSO`, `LISTA`, `INTEGRADA`, `
 | 2026-07-18-ADM-01 | Poseidon Administrador | Cargar un escenario integral de pruebas desde Datos locales con respaldo previo | `codex/administrador` / `9d3ded5`, integrado en `main` / `e0f4565` | Consume el comando central de carga demo; propiedad temporal de `LocalDataMaintenance.tsx` | `INTEGRADA` | 191 pruebas, check:design, build, smoke, check:commit, Chrome canonico y persistencia tras recarga |
 | 2026-07-18-CAJ-02 | Poseidon Cajero | Formularios resilientes, saldos visibles, responsive de resumen y consolidacion del panel real | `codex/cajero` / `2a823aa`, integrado en `main` / `baeacaa` | Consume anulaciones append-only y guardado atomico definidos por Central | `INTEGRADA` | 192 pruebas, 16/16 E2E, build, smoke, check:commit del propietario y Chrome canonico en escritorio/movil sin errores ni overflow global |
 | 2026-07-19-ENC-01 | Poseidon Encargado | Conectar Cierre periodico y Control de gastos con comandos atomicos | `codex/encargado` / `89e7af4`, integrado en `main` / `5c1f518` | Consume comandos compartidos de cierres periodicos y revision/anulacion de gastos | `INTEGRADA` | Check, build, pruebas dirigidas y Chrome como Encargado; evidencia vigente en `docs/VALIDACION_LOCAL.md` |
+| 2026-07-26-CAL-01 | Poseidon Calidad y Pruebas | E2E de Locales, Maquinas, Personal, Clientes y Papelera | `codex/calidad-pruebas` / base `a42df35` | Solo pruebas descartables; no modifica contratos compartidos | `ASIGNADA` | Pendiente de entrega estructurada |
 
 ## Uso
 

@@ -12,8 +12,8 @@
   "current": {
     "phase": "endurecimiento-y-backend-transaccional",
     "objective": "Cerrar seguridad historica, autorizacion uniforme, E2E de maestros, nueva beta demo y migracion controlada hacia un backend transaccional.",
-    "activeWorkOrders": ["2026-07-26-CEN-SEG-01"],
-    "queuedWorkOrders": ["2026-07-26-CAL-E2E-01", "2026-07-26-CEN-BETA-01", "2026-07-26-CEN-BACKEND-01"],
+    "activeWorkOrders": ["2026-07-26-CEN-SEG-01", "2026-07-26-CAL-01"],
+    "queuedWorkOrders": ["2026-07-26-CEN-BETA-01", "2026-07-26-CEN-BACKEND-01"],
     "blockedWorkOrders": [],
     "pendingIntegrations": []
   },
