@@ -39,6 +39,30 @@
       "appendOnly": true,
       "reversible": false,
       "summary": "Incorpora Principal/Efectivo, Principal/Banco y cuentas patrimoniales de socios preservando Caja e historial."
+    },
+    {
+      "id": "MIG-2026-07-26-001",
+      "runtimeId": "postgresql-v1-poseidon-transactional",
+      "status": "READY",
+      "type": "SCHEMA",
+      "risk": "HIGH",
+      "sourceSchema": 0,
+      "targetSchema": 1,
+      "implementation": "supabase/migrations",
+      "tests": [
+        "supabase/tests/database/001_structure_and_security.test.sql",
+        "supabase/tests/database/002_constraints_and_append_only.test.sql",
+        "supabase/tests/database/003_rls_role_and_local.test.sql",
+        "supabase/tests/database/004_server_command_contract.test.sql",
+        "scripts/supabase-schema-contract.test.mjs",
+        "src/infrastructure/remote/appDataMigrationMapping.test.ts"
+      ],
+      "introducedByCommit": "4d7095779fcd60334a99a2f3915cdb3a015c6f44",
+      "legacyRecord": false,
+      "financialData": true,
+      "appendOnly": true,
+      "reversible": false,
+      "summary": "Versiona el esquema PostgreSQL preparatorio e inactivo; requiere PostgreSQL real, RPC transaccionales, Auth, importacion conciliada y rollback antes de pasar a APPLIED."
     }
   ]
 }
