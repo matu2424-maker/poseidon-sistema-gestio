@@ -10,18 +10,18 @@
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "endurecimiento-y-backend-transaccional",
-    "objective": "Cerrar seguridad historica, autorizacion uniforme, E2E de maestros, nueva beta demo y migracion controlada hacia un backend transaccional.",
-    "activeWorkOrders": ["2026-07-26-CEN-SEG-01", "2026-07-26-CEN-BACKEND-01"],
-    "queuedWorkOrders": ["2026-07-26-CEN-BETA-01"],
-    "blockedWorkOrders": [],
+    "phase": "beta-local-validada-y-backend-preparatorio",
+    "objective": "Conservar el candidato local 0.1.0-beta.2 reproducible y completar las precondiciones transaccionales antes de activar un backend remoto.",
+    "activeWorkOrders": [],
+    "queuedWorkOrders": ["2026-07-26-CEN-BACKEND-02"],
+    "blockedWorkOrders": ["2026-07-26-CEN-SEG-01"],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-26-CAL-01",
-    "title": "E2E e integridad historica de maestros",
+    "id": "2026-07-26-CEN-BETA-01",
+    "title": "Candidato local 0.1.0-beta.2",
     "state": "INTEGRADA",
-    "evidence": "Commit 871f868 conserva alcance historico de auditoria y maquinas eliminadas; los recorridos descartables de Locales, Maquinas, Personal, Clientes y Papelera aprobaron 10/10."
+    "evidence": "Autorizacion, secretos, E2E de maestros y backend preparatorio quedaron versionados; 240/240 pruebas, 30/30 E2E, build y smoke local aprobaron sin activar Supabase ni mover release/test."
   },
   "health": {
     "overall": "YELLOW",
@@ -35,12 +35,12 @@
       {
         "id": "RISK-002",
         "severity": "LOW",
-        "summary": "Los ciclos E2E de maestros pasan 10/10; personal conserva bloqueo de eliminacion definitiva cuando existe historial salarial."
+        "summary": "Los ciclos E2E de maestros pasan 10/10; el candidato completo pasa 30/30 recorridos locales."
       },
       {
         "id": "RISK-003",
         "severity": "MEDIUM",
-        "summary": "Las credenciales historicas eliminadas de Vercel deben revocarse o rotarse en sus proveedores; el .env.local obsoleto ya fue eliminado."
+        "summary": "Las credenciales historicas eliminadas de Vercel y del equipo deben revocarse o rotarse en sus proveedores; el acceso externo controlable no esta disponible."
       },
       {
         "id": "RISK-004",
@@ -50,10 +50,9 @@
     ]
   },
   "nextActions": [
-    "Rotar o revocar credenciales historicas en el proveedor sin exponer valores.",
-    "Conservar 10/10 E2E de Locales, Maquinas, Personal, Clientes y Papelera como puerta de la beta.",
-    "Estabilizar un nuevo candidato beta solo con datos demo.",
-    "Validar el esquema en PostgreSQL real e implementar RPC, Auth, concurrencia y conciliacion; no persistir AppData completo como una fila."
+    "Rotar o revocar credenciales historicas en el proveedor sin exponer valores cuando vuelva a estar disponible un acceso externo controlable.",
+    "No mover release/test, publicar ni desplegar 0.1.0-beta.2 sin autorizacion explicita.",
+    "Validar el esquema en PostgreSQL real e implementar RPC, Auth, concurrencia, importacion conciliada y rollback; no persistir AppData completo como una fila."
   ],
   "registries": {
     "workstreams": "docs/coordinacion/WORKSTREAMS.json",

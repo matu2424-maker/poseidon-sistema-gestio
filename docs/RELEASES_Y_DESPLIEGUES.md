@@ -2,9 +2,10 @@
 
 Ultima actualizacion: 2026-07-26
 
-Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel. No
-existe backend remoto activo; el esquema Supabase preparatorio esta en
-`VALIDATING`.
+Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel y
+candidato `0.1.0-beta.2` validado solamente en local. No existe backend remoto
+activo; el esquema Supabase preparatorio esta registrado como `READY` y la
+capacidad permanece en `VALIDATING`.
 
 ## Objetivo
 
@@ -108,6 +109,19 @@ Se usa SemVer:
 - [Poseidon Quality #6](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30121806269) aprobo los controles de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
 - El cambio de CI no mueve `release/test`, la etiqueta ni el candidato ya validado.
 
+## Candidato local
+
+- Version: `0.1.0-beta.2`.
+- Estado: validado y etiquetado solo en el repositorio local.
+- Evidencia: `240/240` pruebas unitarias/integracion, `30/30` E2E, build y
+  smoke HTTP aprobados.
+- Incluye autorizacion uniforme, control de secretos, E2E completos de maestros,
+  preservacion del historial eliminado y base PostgreSQL preparatoria.
+- La aplicacion conserva `localStorage`; el backend remoto no se selecciona ni
+  recibe datos.
+- `release/test`, GitHub y Vercel permanecen sin cambios hasta una autorizacion
+  explicita posterior.
+
 ## Publicacion de prueba
 
 La primera publicacion aplica estas condiciones:
@@ -124,7 +138,7 @@ La configuracion local `vercel.json` compila Vite con lockfile congelado, public
 
 El proyecto Vercel `poseidon-sistema-gestio` ya existia y estaba conectado a GitHub. El 2026-07-24 Central cambio su rama de produccion de `main` a `release/test`; el dominio de produccion del plan Hobby permanece publico y solo debe usar datos demo.
 
-Ese mismo dia, con autorizacion separada, se eliminaron las 16 variables historicas de PostgreSQL/Supabase que el frontend vigente no consume. El inventario de variables del proyecto quedo en cero y la beta se reconstruyo sin cache desde el mismo commit congelado. Esta limpieza no revoca las credenciales en sus proveedores: rotarlas o revocarlas es una operacion externa diferente que requiere otra autorizacion. El archivo local `.env.local` existe y esta ignorado por Git; no se inspecciono ni modifico durante esta limpieza.
+Ese mismo dia, con autorizacion separada, se eliminaron las 16 variables historicas de PostgreSQL/Supabase que el frontend vigente no consume. El inventario de variables del proyecto quedo en cero y la beta se reconstruyo sin cache desde el mismo commit congelado. Esta limpieza no revoca las credenciales en sus proveedores: rotarlas o revocarlas es una operacion externa diferente. El archivo local obsoleto `.env.local` fue eliminado sin leer ni exponer sus valores.
 
 ### Evidencia de publicacion 2026-07-24
 

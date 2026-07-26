@@ -4,13 +4,49 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 
 ## [Sin publicar]
 
-- CI actualizado a `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7`, compatibles con el runtime interno Node 24 de GitHub Actions.
-- El preflight de release rechaza volver a versiones anteriores de esas cuatro Actions, incluida la carga de evidencia que solo se ejecuta cuando falla un E2E.
-- Vercel deja de desplegar automaticamente los cambios diarios de `main`; la entrega online queda reservada para `release/test`.
-- La beta `0.1.0-beta.1` fue publicada explicitamente desde `release/test` en el dominio demo de Vercel.
-- Se eliminaron del proyecto Vercel las 16 variables historicas de PostgreSQL/Supabase que el frontend vigente no consume.
-- La beta fue redesplegada desde el mismo commit congelado con la configuracion limpia, sin usar cache de compilacion.
-- Sin cambios funcionales en la aplicacion.
+- Sin cambios posteriores al candidato local `0.1.0-beta.2`.
+
+## [0.1.0-beta.2] - 2026-07-26
+
+Estado: candidato local validado. No fue enviado a GitHub, no mueve
+`release/test` y no reemplaza la beta publica `0.1.0-beta.1`.
+
+### Seguridad y autorizacion
+
+- Los comandos criticos de apertura, contadores, cierre, salarios, maestros y
+  movimientos validan usuario activo, rol real, funcion utilizada y alcance de
+  local antes de mutar datos.
+- El preflight rechaza secretos de Supabase/PostgreSQL, claves privadas y URLs
+  con credenciales en cualquier archivo versionado.
+- El archivo local obsoleto `.env.local` fue eliminado sin leer ni exponer sus
+  valores. La rotacion o revocacion en los proveedores sigue pendiente.
+
+### Calidad e historial
+
+- La suite E2E incorpora los ciclos completos de Locales, Maquinas, Personal,
+  Clientes y Papelera.
+- Las auditorias de locales eliminados y el historial de maquinas quitadas se
+  preservan mediante referencias historicas y tombstones append-only.
+- El candidato aprobo `240/240` pruebas unitarias/integracion y `30/30`
+  recorridos E2E.
+
+### Backend preparatorio
+
+- Se versionan seis migraciones PostgreSQL/Supabase, RLS, cuatro suites pgTAP,
+  un gateway de comandos y la matriz completa de las 22 colecciones de
+  `AppData`.
+- La CI reserva una base descartable para lint y pgTAP antes del E2E de release.
+- El backend permanece `VALIDATING` e inactivo. Esta beta sigue usando
+  `localStorage`, login local y metadatos de adjuntos.
+- La activacion requiere PostgreSQL real, RPC transaccionales por flujo, Auth,
+  idempotencia concurrente, importacion conciliada y rollback ensayado.
+
+### Entrega
+
+- CI actualizado a `actions/checkout@v6`, `actions/setup-node@v6`,
+  `pnpm/action-setup@v6` y `actions/upload-artifact@v7`.
+- Vercel no despliega automaticamente `main`; una futura publicacion debe salir
+  de `release/test` y requiere autorizacion explicita.
 
 ## [0.1.0-beta.1] - 2026-07-24
 

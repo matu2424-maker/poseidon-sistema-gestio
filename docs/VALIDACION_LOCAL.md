@@ -24,7 +24,7 @@ pnpm run check:commit
 
 1. Validacion de 28 controles de agentes Codex.
 2. Validacion de 67 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
-3. Validacion de 52 controles SOPM-Lite: 7 decisiones, 2 migraciones, 17 capacidades, estado y rutas.
+3. Validacion de 58 controles SOPM-Lite: 7 decisiones, 3 migraciones, 17 capacidades, estado y rutas.
 4. Validacion de cuatro skills y sus contratos.
 5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 6. TypeScript sin emitir archivos.
@@ -140,16 +140,31 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia vigente al 2026-07-24
+## Evidencia vigente al 2026-07-26
 
 - GitHub Actions: [Poseidon Quality #3](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30116340060) aprobo `Check and build` y `Release E2E` sobre `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, en 2 min 26 s.
 - GitHub Actions: [Poseidon Quality #4](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30117602834) aprobo `Check and build` sobre `main`, commit `1151091b7164cf2735d537eb4dd13c90d09df312`, en 52 s y sin anotaciones de Node 20.
 - GitHub Actions: [Poseidon Quality #6](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30121806269) aprobo `Check and build` sobre `main`, commit `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`, en 58 s.
 - El workflow vigente en `main` usa `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6` y `actions/upload-artifact@v7`; `release:check` exige esas referencias para impedir una regresion al runtime interno Node 20.
-- 42 archivos de pruebas y 213 casos aprobados, incluidos gobierno SOPM-Lite, preflight de release, workstream de Calidad, reinicio operativo, carga demo integral, tesoreria Caja/Principal, movimientos de socios, gastos desde Principal, cierres periodicos atomicos, revision/anulacion administrativa de gastos, migracion esquema 5, disponibilidad, reconciliacion, prioridad de cuentas de efectivo, caja, salarios, diferencias, resumen del Encargado, rutas, snapshot y conflictos de escritura.
+- 46 archivos de pruebas y 240 casos aprobados, incluidos gobierno SOPM-Lite,
+  preflight de release, secretos, autorizacion uniforme, backend preparatorio,
+  migracion AppData/PostgreSQL, maestros, tesoreria, caja, salarios,
+  diferencias, rutas, snapshot y conflictos de escritura.
 - La validacion profunda cubre las 22 colecciones de `AppData`, campos, enums, importes finitos, IDs, referencias, asociaciones de local/recaudacion y preservacion del snapshot rechazado.
-- La suite E2E en 9 archivos aprobo 20 de 20 casos: caja, fondos Caja/Principal en ambos sentidos, efectivo negativo, desacople caja/libro, formularios y anulaciones, panel responsive del Encargado, diferencias/auditoria, gasto administrativo desde Principal, cierre periodico, usuarios/categorias, importacion invalida, navegacion por roles, sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo con respaldo.
-- La misma suite aprobo 20 de 20 en modo CI con servidor aislado y Chromium, ademas del recorrido local con Chrome.
+- La suite E2E en 13 archivos aprobo 30 de 30 casos: caja, fondos
+  Caja/Principal en ambos sentidos, efectivo negativo, desacople caja/libro,
+  formularios y anulaciones, panel responsive del Encargado,
+  diferencias/auditoria, gasto administrativo desde Principal, cierre
+  periodico, usuarios/categorias, importacion invalida, ciclos de Locales,
+  Maquinas, Personal, Clientes y Papelera, navegacion por roles,
+  sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo.
+- La evidencia remota anterior aprobo 20 de 20 en CI. Los 30 casos vigentes
+  estan aprobados localmente; la nueva matriz de CI se ejecutara solamente si
+  se autoriza mover `release/test`.
+- Las seis migraciones y cuatro pruebas SQL parsearon correctamente, los planes
+  pgTAP coinciden con sus aserciones y el contrato estatico paso en Vitest. No
+  se declara PostgreSQL/pgTAP ejecutado porque Docker y `psql` no estan
+  disponibles en este equipo.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
@@ -165,6 +180,10 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Chrome canonico: control recuperado; acceso como Encargado, Control de gastos, detalle operativo y Cierre periodico aprobados sin errores de consola.
+- El candidato `0.1.0-beta.2` no agrega una nueva certificacion manual del
+  estado operativo de Chrome: el enlace nativo del plugin no estuvo disponible.
+  Playwright aprobo comportamiento con datos descartables, no los datos del
+  perfil habitual del usuario.
 - Beta Vercel limpia: despliegue `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`, fuente `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, estado `Ready` en 30 s.
 - Configuracion Vercel: se eliminaron 16 variables historicas de PostgreSQL/Supabase; el inventario de variables del proyecto quedo en 0 y el frontend no consume variables remotas.
 - Beta Vercel posterior a la limpieza: dominio principal y rutas `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales` respondieron HTTP `200`.

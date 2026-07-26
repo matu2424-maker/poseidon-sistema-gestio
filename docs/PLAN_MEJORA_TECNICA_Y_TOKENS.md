@@ -183,7 +183,9 @@ Postergado por decision de producto: contexto operativo multi-local. Mientras el
 - Fuente canonica: `docs/coordinacion/README.md`.
 - Completado 2026-07-18: gobierno SOPM-Lite integrado sin prompts gigantes ni estructura paralela.
 - `PROJECT_STATUS.json`, `DECISIONS.json`, `MIGRATIONS.json` y `CAPABILITIES.json` conservan estado verificable y referencias dirigidas.
-- `pnpm run check:governance` valida 5 decisiones, 2 migraciones, 14 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan cuando corresponde.
+- `pnpm run check:governance` valida actualmente 7 decisiones, 3 migraciones,
+  17 capacidades y sus rutas; `check:workstreams` y `check:commit` lo ejecutan
+  cuando corresponde.
 
 ## Skills y control previo al commit
 
