@@ -13,7 +13,7 @@ describe("SupabaseSessionGateway", () => {
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
         jsonResponse({
-          schema_version: 3,
+          schema_version: 4,
           profile: {
             id: "12000000-0000-4000-8000-000000000001",
             legacy_id: "encargado",
@@ -42,7 +42,7 @@ describe("SupabaseSessionGateway", () => {
     await expect(gateway.load()).resolves.toEqual({
       ok: true,
       value: {
-        schemaVersion: 3,
+        schemaVersion: 4,
         profile: {
           id: "12000000-0000-4000-8000-000000000001",
           legacyId: "encargado",
@@ -82,7 +82,7 @@ describe("SupabaseSessionGateway", () => {
       .mockResolvedValueOnce(jsonResponse({}))
       .mockResolvedValueOnce(
         jsonResponse({
-          schema_version: 2,
+          schema_version: 3,
           profile: {},
           locals: [],
         }),

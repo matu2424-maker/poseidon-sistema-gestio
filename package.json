@@ -27,6 +27,7 @@
     "security:history": "node scripts/history-secret-audit.mjs",
     "backend:status": "supabase status",
     "backend:check": "supabase db lint --local --level error && supabase test db --local",
+    "backend:postgres": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/postgres-compat-check.ps1",
     "ci": "pnpm run check && pnpm run build",
     "typecheck": "tsc -p tsconfig.app.json --noEmit --pretty false",
     "check": "pnpm run check:agents && pnpm run check:workstreams && pnpm run check:skills && pnpm run check:design && pnpm run typecheck && pnpm run lint && pnpm test"

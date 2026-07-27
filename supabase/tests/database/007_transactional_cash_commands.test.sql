@@ -280,8 +280,8 @@ select set_config(
 
 select is(
   (public.poseidon_session_context() ->> 'schema_version')::integer,
-  3,
-  'session context advertises remote schema 3'
+  4,
+  'session context advertises the final remote schema'
 );
 
 select set_config(

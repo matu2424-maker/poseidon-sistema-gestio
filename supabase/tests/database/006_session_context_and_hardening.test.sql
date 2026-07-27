@@ -98,7 +98,7 @@ select is(
 
 select is(
   (public.poseidon_session_context() ->> 'schema_version')::integer,
-  2,
+  4,
   'session context declares the remote schema contract'
 );
 

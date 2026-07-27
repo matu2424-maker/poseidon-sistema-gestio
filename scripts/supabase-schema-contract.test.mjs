@@ -33,8 +33,13 @@ describe("contrato estatico del esquema Supabase", () => {
       "20260726000700_transactional_command_runtime.sql",
       "20260726000800_session_context_and_security_hardening.sql",
       "20260726000900_transactional_cash_commands.sql",
+      "20260726001000_transactional_cash_movements.sql",
+      "20260726001100_transactional_salaries_differences.sql",
+      "20260726001200_transactional_master_commands.sql",
+      "20260726001300_transactional_periodic_closures.sql",
+      "20260726001400_restore_rls_helper_privileges.sql",
     ]);
-    expect(tests).toHaveLength(7);
+    expect(tests).toHaveLength(11);
     migrations.forEach(({ content }) => {
       expect(content.trimStart().startsWith("begin;")).toBe(true);
       expect(content.trimEnd().endsWith("commit;")).toBe(true);
@@ -130,6 +135,67 @@ describe("contrato estatico del esquema Supabase", () => {
     expect(cashRuntime).toContain("private.finish_command");
     expect(cashRuntime).toContain("private.append_command_audit");
     expect(cashRuntime).toContain("'schema_version', 3");
+  });
+
+  it("expone todos los comandos restantes y negocia el esquema remoto 4", async () => {
+    const files = await Promise.all(
+      [
+        "20260726001000_transactional_cash_movements.sql",
+        "20260726001100_transactional_salaries_differences.sql",
+        "20260726001200_transactional_master_commands.sql",
+        "20260726001300_transactional_periodic_closures.sql",
+      ].map((name) => readFile(path.join(migrationsDir, name), "utf8")),
+    );
+    const sql = files.join("\n");
+
+    [
+      "poseidon_create_transfer",
+      "poseidon_annul_transfer",
+      "poseidon_create_gift",
+      "poseidon_annul_gift",
+      "poseidon_save_salary_settlement",
+      "poseidon_annul_salary_settlement",
+      "poseidon_close_salary_period",
+      "poseidon_start_salary_correction",
+      "poseidon_close_salary_correction",
+      "poseidon_cancel_salary_correction",
+      "poseidon_manage_difference",
+      "poseidon_save_local",
+      "poseidon_delete_local",
+      "poseidon_save_machine",
+      "poseidon_reset_machine_counters",
+      "poseidon_move_machine_to_workshop",
+      "poseidon_delete_machine",
+      "poseidon_assign_machines_to_local",
+      "poseidon_create_periodic_closure",
+      "poseidon_annul_periodic_closure",
+    ].forEach((rpcName) => {
+      expect(sql).toContain(`function public.${rpcName}(`);
+    });
+    expect(files.at(-1)).toContain("'schema_version', 4");
+  });
+
+  it("restaura solo los predicados privados requeridos por RLS", async () => {
+    const rlsPrivileges = await readFile(
+      path.join(migrationsDir, "20260726001400_restore_rls_helper_privileges.sql"),
+      "utf8",
+    );
+
+    [
+      "private.is_active_user()",
+      "private.is_admin()",
+      "private.is_control_user()",
+      "private.can_access_local(uuid)",
+      "private.can_access_all_locals(uuid[])",
+      "private.can_access_salary_closure(uuid)",
+      "private.can_access_audit_event(uuid)",
+    ].forEach((signature) => {
+      expect(rlsPrivileges).toContain(
+        `grant execute on function ${signature} to authenticated`,
+      );
+    });
+    expect(rlsPrivileges).not.toContain("append_account_movement");
+    expect(rlsPrivileges).not.toContain("claim_command");
   });
 
   it("mantiene sincronizados los planes pgTAP y sus aserciones", async () => {
