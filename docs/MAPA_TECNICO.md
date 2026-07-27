@@ -182,16 +182,16 @@ src/
 
 ## Backend remoto preparatorio
 
-- Nueve migraciones SQL crean 37 tablas publicas, RLS, sesion y el primer
-  runtime transaccional.
+- Catorce migraciones SQL crean 37 tablas publicas, RLS, sesion y el runtime
+  transaccional completo del gateway.
 - El frontend autenticado no tiene escritura directa sobre tablas financieras
   ni auditoria.
 - Cajero no lee personal completo, cuentas personales, Principal ni sus
   comprobantes.
-- El gateway enumera 31 RPC; 11 financieras estan implementadas y probadas,
-  pero ninguna mutacion remota esta activa en React.
-- Las nueve migraciones aplicaron desde cero en PostgreSQL 18 local; 113
-  aserciones de comandos, sesion y caja aprobaron en una base descartable.
+- El gateway enumera 31 RPC; las 31 estan implementadas y probadas, pero
+  ninguna mutacion remota esta activa en React.
+- Las catorce migraciones aplicaron desde cero en PostgreSQL 18 local; las once
+  suites aprobaron 414 aserciones en una base descartable.
 - `remoteMigrationExecutor.ts` aporta ejecucion ordenada, reanudacion,
   checkpoints y conciliacion; requiere un gateway concreto antes de importar.
 - El modo remoto no se conecta desde `App.tsx`; no existe dual-write.

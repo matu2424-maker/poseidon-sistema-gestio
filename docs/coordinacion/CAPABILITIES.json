@@ -202,7 +202,7 @@
         "supabase/tests/database",
         "src/infrastructure/remote"
       ],
-      "validationCommand": "pnpm run backend:check",
+      "validationCommand": "pnpm run backend:postgres",
       "externalAccess": false
     }
   ]

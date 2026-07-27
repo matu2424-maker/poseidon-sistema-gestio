@@ -111,6 +111,32 @@
       "appendOnly": true,
       "reversible": false,
       "summary": "Agrega apertura, guardado integral de contadores y cierre de caja como RPC atomicas, idempotentes y conciliadas; incorpora el ejecutor reanudable de importacion, pero permanece READY e inactivo hasta completar el backend y sus puertas externas."
+    },
+    {
+      "id": "MIG-2026-07-26-004",
+      "runtimeId": "postgresql-v4-complete-command-runtime",
+      "status": "READY",
+      "type": "SCHEMA",
+      "risk": "HIGH",
+      "sourceSchema": 3,
+      "targetSchema": 4,
+      "implementation": "supabase/migrations",
+      "tests": [
+        "supabase/tests/database/008_transactional_cash_movements.test.sql",
+        "supabase/tests/database/009_transactional_salaries_differences.test.sql",
+        "supabase/tests/database/010_transactional_master_commands.test.sql",
+        "supabase/tests/database/011_transactional_periodic_closures.test.sql",
+        "scripts/supabase-schema-contract.test.mjs",
+        "scripts/postgres-compat-check.ps1",
+        "src/infrastructure/remote/backendConfiguration.test.ts",
+        "src/infrastructure/remote/supabaseSessionGateway.test.ts"
+      ],
+      "introducedByCommit": "5063a02897b87e08a4516d2ae521db7ba08ad15b",
+      "legacyRecord": false,
+      "financialData": true,
+      "appendOnly": true,
+      "reversible": false,
+      "summary": "Completa las 31 RPC transaccionales del gateway para movimientos de Caja, salarios, diferencias, maestros y cierres periodicos; restaura solo los helpers RLS requeridos y permanece READY e inactivo hasta completar Auth, consultas, importacion, Storage y rollback."
     }
   ]
 }

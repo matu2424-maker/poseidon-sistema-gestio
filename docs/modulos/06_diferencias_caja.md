@@ -69,3 +69,12 @@ Controlar diferencias de efectivo y banco sin ocultarlas y sin mezclarlas con el
 ## Revision tecnica cerrada
 
 Los riesgos priorizados del piloto de subagentes del 2026-07-11 quedaron resueltos en este bloque: perfiles validados en tarea nueva, matriz de estados, bloqueo por caja abierta, historial append-only, IDs inyectables, finitud, periodo operativo, alcance local y auditoria contable autosuficiente.
+
+## Backend remoto preparatorio
+
+- `poseidon_manage_difference` replica verificacion, correccion y anulacion en
+  una transaccion con locks sobre recaudacion y cuentas.
+- Una diferencia ajusta el medio declarado sin crear resultado economico.
+- Correcciones sucesivas conservan la cadena de ajustes y una auditoria
+  autosuficiente; no reescriben cajas posteriores.
+- El modo remoto continua desactivado.

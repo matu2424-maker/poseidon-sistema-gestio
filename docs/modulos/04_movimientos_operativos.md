@@ -95,3 +95,13 @@ Los comandos usan la matriz compartida para validar actor, rol real, funcion, us
 - El alta de `CapitalMovement` heredado esta deshabilitada.
 - Los objetos anteriores siguen disponibles para lectura, migracion y anulacion compatible.
 - Un `RETIRO` legacy se interpreta como Caja -> Principal, no como retiro patrimonial de socio.
+
+## Backend remoto preparatorio
+
+- Transferencias y regalos de Caja tienen RPC atomicas de alta y anulacion.
+- Cada RPC valida sesion, funcion activa, local, caja, conciliacion y fondos
+  antes de mutar.
+- Alta, libro, asociaciones y auditoria se confirman en la misma transaccion;
+  la anulacion agrega reversos append-only.
+- El modo remoto continua desactivado hasta completar Auth, consultas e
+  importacion conciliada.

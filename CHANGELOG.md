@@ -8,7 +8,7 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 
 - Auditoria segura de secretos sobre todos los blobs alcanzables del historial
   Git, integrada al preflight sin imprimir valores detectados.
-- Negociacion explicita del esquema remoto `3`, contexto de sesion derivado de
+- Negociacion explicita del esquema remoto `4`, contexto de sesion derivado de
   `auth.uid()` y rechazo local de IDs de local que no sean UUID remotos.
 - Ocho RPC financieras transaccionales para gastos, revision, traspasos de
   tesoreria y movimientos de socios, con fondos, idempotencia serializada,
@@ -20,9 +20,12 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
   traspasos finales.
 - Ejecutor determinista y reanudable del plan de importacion, con checkpoints,
   idempotencia por lote, conciliacion y evidencia sin contrasenas ni adjuntos.
-- Tres migraciones y tres suites SQL nuevas. Las nueve migraciones aplicaron
-  desde cero en PostgreSQL 18 y 113 aserciones de comandos, sesion y caja
-  aprobaron en una base descartable.
+- Cuatro bloques transaccionales adicionales para transferencias y regalos de
+  Caja, salarios y diferencias, maestros y cierres periodicos.
+- Cinco migraciones y cuatro suites SQL adicionales completan las 31 RPC del
+  gateway y reparan exclusivamente los permisos de helpers RLS requeridos.
+- Las catorce migraciones aplicaron desde cero en PostgreSQL 18 y las once
+  suites aprobaron 414 aserciones en una base descartable reproducible.
 
 ### Seguridad
 
@@ -31,8 +34,8 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 
 ### Pendiente
 
-- El backend sigue inactivo. Faltan Auth real, consultas remotas, las 20 RPC
-  restantes, el gateway concreto de importacion, Storage y rollback ensayado.
+- El backend sigue inactivo. Faltan Auth real, consultas remotas, el gateway
+  concreto de importacion, Storage y rollback ensayado.
 
 ## [0.1.0-beta.2] - 2026-07-26
 

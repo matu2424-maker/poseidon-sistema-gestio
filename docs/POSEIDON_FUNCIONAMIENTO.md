@@ -20,7 +20,8 @@ Poseidon gestiona:
 
 El sistema funciona localmente con datos de prueba. Supabase/Auth/Storage,
 publicacion y operacion multi-equipo no estan activos. El backend preparatorio
-ya replica apertura, contadores y cierre en RPC atomicas, pero React no las usa.
+ya replica las 31 mutaciones contratadas en RPC atomicas, pero React no las usa
+y las consultas remotas siguen pendientes.
 
 ## 2. Arquitectura funcional
 

@@ -10,22 +10,22 @@
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-local-validada-y-backend-transaccional-en-expansion",
-    "objective": "Conservar el candidato local 0.1.0-beta.2 reproducible y completar por etapas el backend transaccional antes de cualquier activacion remota.",
-    "activeWorkOrders": ["2026-07-26-CEN-BACKEND-03"],
+    "phase": "beta-local-validada-y-contratos-remotos-completos",
+    "objective": "Conservar el candidato local 0.1.0-beta.2 reproducible y mantener inactivo el backend hasta completar consultas, Auth, importacion, Storage y rollback.",
+    "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": ["2026-07-26-CEN-SEG-01"],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-26-CEN-BACKEND-CAJA-03",
-    "title": "Esquema remoto 3 y flujo critico de caja",
+    "id": "2026-07-26-CEN-BACKEND-04",
+    "title": "Esquema remoto 4 y contratos transaccionales completos",
     "state": "INTEGRADA",
-    "evidence": "Nueve migraciones aplicaron desde cero; 54/54 aserciones nuevas de caja, 262/262 pruebas de aplicacion, build, secretos y smoke aprobaron. El backend permanece inactivo."
+    "evidence": "Catorce migraciones y once suites aplicaron desde cero en PostgreSQL 18 con 414/414 aserciones; 264/264 pruebas de aplicacion, build, secretos y smoke aprobaron. El backend permanece inactivo."
   },
   "health": {
     "overall": "YELLOW",
-    "mainRisk": "La persistencia operativa sigue en localStorage; el backend cubre 11 de 31 comandos y aun no materializa la importacion ni consulta datos remotos.",
+    "mainRisk": "La persistencia operativa sigue en localStorage; las 31 RPC existen, pero aun no hay consultas remotas, Auth, gateway concreto de importacion, Storage ni rollback ensayado.",
     "risks": [
       {
         "id": "RISK-001",
@@ -45,14 +45,14 @@
       {
         "id": "RISK-004",
         "severity": "HIGH",
-        "summary": "El esquema 3 aplico en PostgreSQL local y 11 RPC financieras aprobaron; aun faltan 20 RPC, Auth real, consultas, gateway de importacion, Storage y rollback."
+        "summary": "El esquema 4 y las 31 RPC aprobaron en PostgreSQL local; aun faltan Auth real, consultas, gateway de importacion, Storage y rollback."
       }
     ]
   },
   "nextActions": [
     "Rotar o revocar credenciales historicas en el proveedor sin exponer valores cuando vuelva a estar disponible un acceso externo controlable.",
     "No mover release/test, publicar ni desplegar 0.1.0-beta.2 sin autorizacion explicita.",
-    "Completar las 20 RPC restantes, Auth, consultas, gateway de importacion conciliada, Storage y rollback; no persistir AppData completo como una fila."
+    "Completar Auth, consultas, gateway de importacion conciliada, Storage y rollback; no persistir AppData completo como una fila."
   ],
   "registries": {
     "workstreams": "docs/coordinacion/WORKSTREAMS.json",

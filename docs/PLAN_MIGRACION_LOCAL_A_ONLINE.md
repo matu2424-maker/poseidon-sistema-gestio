@@ -84,7 +84,9 @@ Salida: snapshot local versionado, validable y exportable.
 - Completado como contrato transversal: crear `AppDataRepository` asincrono y codec de respaldo.
 - Completado: implementar adaptador `localStorage` con ese contrato y cola ordenada de escrituras.
 - Completado: mantener comportamiento y datos actuales con pruebas y E2E.
-- Pendiente futuro: decidir si el backend necesita repositorios por dominio o un gateway transaccional sobre `AppDataRepository`.
+- Completado: la decision vigente usa consultas por dominio y
+  `PoseidonCommandGateway` para mutaciones transaccionales; no reemplaza
+  `AppData` remoto como snapshot unico.
 
 Salida: la aplicacion sigue local, pero la UI deja de depender del almacenamiento concreto.
 
@@ -98,13 +100,16 @@ Estado: esquema preparatorio `VALIDATING` bajo `supabase/migrations/`.
   historiales, fotos de cierre y entidades operativas principales.
 - Implementado: idempotencia serializada, fondos y reversos append-only para el
   primer grupo de comandos financieros.
-- Validado: las nueve migraciones aplicaron desde cero en PostgreSQL 18 local.
+- Validado: las catorce migraciones aplicaron desde cero en PostgreSQL 18
+  local y las once suites SQL aprobaron 414 aserciones.
 - Implementado: apertura, contadores y cierre de caja como RPC atomicas,
   idempotentes y conciliadas con el libro.
 - Implementado: ejecutor determinista de importacion con reanudacion,
   checkpoints y conciliacion; falta el gateway que materializa cada lote.
-- Pendiente: cerrar invariantes de estados/formulas en las 20 RPC restantes y
-  repetir la puerta oficial con Supabase CLI/pgTAP.
+- Implementado: las 31 RPC enumeradas por `PoseidonCommandGateway`, con
+  autorizacion, idempotencia, locks, auditoria y reglas append-only.
+- Pendiente: repetir la puerta oficial con Supabase CLI/pgTAP y completar las
+  consultas remotas por dominio.
 
 Salida: migraciones SQL revisables, aun sin datos reales.
 
@@ -143,10 +148,9 @@ Estado actual: contrato, resolucion de configuracion, contexto de sesion y
 transporte RPC preparados localmente; no estan conectados a React ni a un
 proyecto remoto.
 
-Ocho RPC ya implementan gastos de Caja/Principal, revision, anulacion,
-traspasos Caja/Principal y movimientos patrimoniales de socios. Las otras 23
-siguen siendo contrato. Ningun flujo se habilita hasta completar todas las RPC
-que consume, sus consultas, pruebas concurrentes y conciliacion.
+Las 31 RPC del gateway estan implementadas y probadas localmente. Ningun flujo
+se habilita hasta completar las consultas que consume, Auth real, pruebas
+concurrentes en el proveedor y conciliacion.
 
 ## Fase 5 - Archivos
 

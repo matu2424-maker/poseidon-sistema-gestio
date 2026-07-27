@@ -83,6 +83,9 @@ Es la pantalla central de tesoreria:
 - Cada cierre periodico guarda una foto de un unico local mediante un comando atomico; una anulacion posterior no recalcula la foto.
 - Separa resultado economico, traspasos Caja/Principal y movimientos de socios.
 - La foto periodica no borra ni reinicia operaciones.
+- El backend preparatorio implementa alta y anulacion como RPC atomicas,
+  idempotentes e inmutables; conserva asociaciones y auditoria en el mismo
+  commit transaccional.
 
 ## Estetica
 

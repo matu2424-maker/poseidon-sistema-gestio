@@ -72,3 +72,14 @@
 - No puede hacerse si hay caja abierta para el local.
 - Pone IN y OUT en 0.
 - Queda en auditoria e historial de maquina.
+
+## Backend remoto preparatorio
+
+- Las siete operaciones maestras de Locales y Maquinas tienen RPC atomicas,
+  idempotentes y exclusivas de Administrador.
+- El cierre logico de local devuelve maquinas al Taller y desactiva sus cuentas
+  sin borrar historial.
+- Reset, traslado, asignacion y baja validan caja abierta antes de mutar.
+- La baja de maquina conserva un tombstone `QUITADA`; una maquina con
+  recaudaciones no se elimina.
+- El modo remoto continua desactivado.

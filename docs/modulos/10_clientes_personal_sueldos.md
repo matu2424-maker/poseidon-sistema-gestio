@@ -127,3 +127,13 @@ Alta, correccion y anulacion de liquidaciones viven en `src/application/salaries
 - El resumen salarial considera fecha de ingreso y fecha de baja para determinar si una persona trabajo en el periodo.
 - Una persona actualmente en baja o papelera conserva su base y movimientos en los meses trabajados.
 - Los cierres salariales son referencias operativas: una persona o local incluido en una foto no puede eliminarse definitivamente.
+
+## Backend remoto preparatorio
+
+- Alta y anulacion de liquidaciones, cierre mensual, apertura/cierre/cancelacion
+  de correcciones y sus fotos salariales tienen RPC atomicas e idempotentes.
+- El pago bloquea sobregiros, respeta el periodo trabajado y mueve Caja o
+  Principal segun la funcion activa.
+- Cierres y revisiones permanecen inmutables; correcciones y anulaciones agregan
+  historial, movimientos y auditoria sin borrar datos.
+- El modo remoto continua desactivado.
