@@ -17,6 +17,16 @@ describe("configuracion publica del backend", () => {
         VITE_SUPABASE_URL: "https://poseidon.example.supabase.co",
       }),
     ).toEqual({ ok: false, error: "Configura la clave publicable de Supabase." });
+    expect(
+      resolveBackendConfiguration({
+        VITE_POSEIDON_BACKEND: "supabase",
+        VITE_SUPABASE_URL: "https://poseidon.example.supabase.co",
+        VITE_SUPABASE_PUBLISHABLE_KEY: "public-key",
+      }),
+    ).toEqual({
+      ok: false,
+      error: "El backend remoto debe declarar el esquema 2.",
+    });
   });
 
   it("normaliza un backend Supabase habilitado explicitamente", () => {
@@ -25,6 +35,7 @@ describe("configuracion publica del backend", () => {
         VITE_POSEIDON_BACKEND: "SUPABASE",
         VITE_SUPABASE_URL: "https://poseidon.example.supabase.co/",
         VITE_SUPABASE_PUBLISHABLE_KEY: "public-key",
+        VITE_POSEIDON_REMOTE_SCHEMA: "2",
       }),
     ).toEqual({
       ok: true,
@@ -32,6 +43,7 @@ describe("configuracion publica del backend", () => {
         mode: "supabase",
         url: "https://poseidon.example.supabase.co",
         publishableKey: "public-key",
+        schemaVersion: 2,
       },
     });
   });

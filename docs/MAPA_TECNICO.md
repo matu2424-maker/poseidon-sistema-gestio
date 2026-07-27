@@ -153,7 +153,9 @@ src/
 | `infrastructure/storage/localAppDataRepository.ts` | Adaptador `localStorage`, eventos de cambio, comparacion optimista, importacion y exportacion local |
 | `infrastructure/remote/backendConfiguration.ts` | Seleccion explicita `local`/`supabase`; local es el valor predeterminado |
 | `infrastructure/remote/supabaseCommandGateway.ts` | Transporte RPC con token, clave publicable, errores tipados e idempotencia |
+| `infrastructure/remote/supabaseSessionGateway.ts` | Contexto remoto de perfil/locales derivado por una unica RPC del servidor |
 | `infrastructure/remote/appDataMigrationMapping.ts` | Manifiesto de 22 colecciones y transformaciones incompatibles controladas |
+| `infrastructure/remote/remoteMigrationPlan.ts` | Fases por FK, lotes de IDs legacy y conciliacion por conteos/huellas SHA-256 |
 | `currentAccounts.ts` | IDs, creacion y saldos de Caja, Principal, socios, personal y transferencias |
 | `accountMovements.ts` | Asientos dobles, saldo corrido, contramovimientos y ajustes append-only |
 | `cashTotals.ts` | Totales de Caja por recaudacion, excluyendo pagos administrativos desde Principal |
@@ -180,12 +182,16 @@ src/
 
 ## Backend remoto preparatorio
 
-- Seis migraciones SQL crean 37 tablas publicas y RLS.
+- Ocho migraciones SQL crean 37 tablas publicas, RLS, sesion y el primer
+  runtime transaccional.
 - El frontend autenticado no tiene escritura directa sobre tablas financieras
   ni auditoria.
 - Cajero no lee personal completo, cuentas personales, Principal ni sus
   comprobantes.
-- El gateway enumera RPC futuras, pero ninguna mutacion remota esta activa.
+- El gateway enumera 31 RPC; ocho financieras estan implementadas y probadas,
+  pero ninguna mutacion remota esta activa en React.
+- Las ocho migraciones aplicaron desde cero en PostgreSQL 18 local; 59
+  aserciones nuevas de comandos y sesion aprobaron en una base descartable.
 - El modo remoto no se conecta desde `App.tsx`; no existe dual-write.
 - `backend:check` requiere Supabase local/Docker. CI lo ejecuta en una base
   descartable para `release/test` y ejecuciones manuales.

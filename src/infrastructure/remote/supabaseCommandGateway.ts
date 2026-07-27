@@ -50,6 +50,10 @@ const rpcByCommand: Record<PoseidonCommandName, string> = {
 };
 
 const normalizedBaseUrl = (value: string) => value.trim().replace(/\/+$/, "");
+const validRemoteUuid = (value: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 
 const parseCommandResult = <Value>(value: unknown): PoseidonCommandResult<Value> => {
   if (!value || typeof value !== "object") {
@@ -86,6 +90,13 @@ export function createSupabaseCommandGateway(
       }
       if (!validIdempotencyKey(command.idempotencyKey)) {
         return { ok: false, error: "La clave de idempotencia no es valida.", retryable: false };
+      }
+      if (command.localId && !validRemoteUuid(command.localId)) {
+        return {
+          ok: false,
+          error: "El identificador remoto del local no es un UUID valido.",
+          retryable: false,
+        };
       }
       let token: string | null;
       try {

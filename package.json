@@ -24,6 +24,7 @@
     "measure:snapshot-validation": "node scripts/measure-app-data-validation.mjs",
     "smoke:localhost": "node scripts/smoke-localhost.mjs",
     "release:check": "node scripts/check-release-readiness.mjs",
+    "security:history": "node scripts/history-secret-audit.mjs",
     "backend:status": "supabase status",
     "backend:check": "supabase db lint --local --level error && supabase test db --local",
     "ci": "pnpm run check && pnpm run build",

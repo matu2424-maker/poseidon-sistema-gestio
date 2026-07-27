@@ -7,9 +7,9 @@ Ultima actualizacion: 2026-07-26
 - Proyecto local React/Vite/TypeScript con React Router.
 - Snapshot local esquema `5` y clave `poseidon-sistema-gestion-v2`.
 - Sin Supabase conectado, Auth ni Storage remoto.
-- Backend preparatorio: seis migraciones `READY`, 37 tablas, RLS, pgTAP,
-  gateway RPC y matriz AppData/PostgreSQL; la capacidad sigue `VALIDATING` y
-  no esta activa en React.
+- Backend preparatorio: ocho migraciones `READY`, 37 tablas, RLS, seis suites
+  SQL, ocho RPC financieras, sesion remota y plan AppData/PostgreSQL; la
+  capacidad sigue `VALIDATING` y no esta activa en React.
 - Local operativo: Poseidon.
 - Servidor oficial: `iniciar-poseidon.bat`.
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
@@ -24,6 +24,11 @@ Ultima actualizacion: 2026-07-26
   `10/10` recorridos dirigidos.
 - La validacion completa del candidato local pasa `240/240` pruebas y `30/30`
   recorridos E2E.
+- El trabajo posterior a `0.1.0-beta.2` agrego seguridad del historial, esquema
+  remoto `2`, sesion, ocho RPC financieras y plan determinista de migracion.
+- Las ocho migraciones aplicaron desde cero en PostgreSQL 18 local; 50
+  aserciones financieras y 9 de sesion/hardening aprobaron en una base
+  descartable.
 
 ## Ultimo bloque tecnico
 
@@ -89,11 +94,10 @@ El modelo financiero vigente conserva:
 2. Rotar o revocar las credenciales historicas en sus proveedores cuando vuelva
    a estar disponible un acceso externo controlable; eliminarlas de Vercel y
    del equipo no las invalida en origen.
-3. Mantener el modo Supabase desactivado hasta ejecutar pgTAP, Auth, RPC,
-   concurrencia, importacion, conciliacion y rollback en un ambiente autorizado.
-4. Implementar RPC transaccionales por caso de uso y probar importacion
-   conciliada contra una base PostgreSQL descartable antes de activar el modo
-   remoto.
+3. Mantener el modo Supabase desactivado hasta completar Auth, las 23 RPC
+   restantes, consultas, importacion, conciliacion, Storage y rollback.
+4. Convertir el plan de lotes en un importador ejecutable y probarlo contra una
+   base PostgreSQL descartable antes de activar el modo remoto.
 
 ## Ruta de inicio
 

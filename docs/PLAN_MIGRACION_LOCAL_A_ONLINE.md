@@ -96,9 +96,11 @@ Estado: esquema preparatorio `VALIDATING` bajo `supabase/migrations/`.
   claves foraneas, indices y checks base.
 - Implementado: tablas append-only y bloqueo de borrado para libro, auditoria,
   historiales, fotos de cierre y entidades operativas principales.
-- Implementado: staging conceptual de idempotencia y helpers privados.
-- Pendiente: ejecutar desde cero en PostgreSQL real y cerrar invariantes de
-  estados/formulas dentro de las RPC.
+- Implementado: idempotencia serializada, fondos y reversos append-only para el
+  primer grupo de comandos financieros.
+- Validado: las ocho migraciones aplicaron desde cero en PostgreSQL 18 local.
+- Pendiente: cerrar invariantes de estados/formulas en las 23 RPC restantes y
+  repetir la puerta oficial con Supabase CLI/pgTAP.
 
 Salida: migraciones SQL revisables, aun sin datos reales.
 
@@ -112,13 +114,14 @@ Salida: migraciones SQL revisables, aun sin datos reales.
 
 Salida: matriz de permisos demostrada en pruebas.
 
-Estado actual: estructura SQL de perfiles, asignaciones y RLS en preparacion;
-Auth real y ambiente remoto siguen inactivos.
+Estado actual: estructura SQL de perfiles, asignaciones, RLS y
+`poseidon_session_context()` implementada; Auth real y ambiente remoto siguen
+inactivos.
 
 La revision contable cerro exposiciones conocidas: Cajero no lee personal
 completo, cuentas personales, gastos de Principal ni sus comprobantes; un
-evento multilocal exige acceso a todos sus locales. Falta demostrar la matriz
-en PostgreSQL real.
+evento multilocal exige acceso a todos sus locales. Sesion, permisos y borrado
+logico de maestros fueron ejercitados en PostgreSQL local.
 
 ## Fase 4 - Gateway Supabase
 
@@ -132,12 +135,14 @@ en PostgreSQL real.
 
 Salida: aplicacion funcional contra datos de prueba online.
 
-Estado actual: contrato, resolucion de configuracion y transporte RPC preparados
-localmente; no estan conectados a React ni a un proyecto remoto.
+Estado actual: contrato, resolucion de configuracion, contexto de sesion y
+transporte RPC preparados localmente; no estan conectados a React ni a un
+proyecto remoto.
 
-Las RPC enumeradas por el gateway son un contrato, no funciones disponibles.
-Ningun flujo se puede habilitar hasta implementar su RPC, fondos, dos piernas,
-auditoria, idempotencia y pruebas concurrentes.
+Ocho RPC ya implementan gastos de Caja/Principal, revision, anulacion,
+traspasos Caja/Principal y movimientos patrimoniales de socios. Las otras 23
+siguen siendo contrato. Ningun flujo se habilita hasta completar todas las RPC
+que consume, sus consultas, pruebas concurrentes y conciliacion.
 
 ## Fase 5 - Archivos
 
@@ -173,6 +178,9 @@ No modificar el snapshot durante la exportacion.
 - No importar `User.password`; crear identidades mediante Auth.
 - Bloquear el lote si existen cargos sin equivalencia, aliases de retiro
   contradictorios o cuentas salariales pagadoras sin resolver.
+- Usar `createRemoteMigrationPlan`: ordena 36 tablas por claves foraneas,
+  divide lotes configurables y calcula conteos/huellas esperados sin incluir
+  filas completas, contrasenas ni archivos inline.
 
 Salida: informe de filas importadas, rechazadas y reconciliadas.
 

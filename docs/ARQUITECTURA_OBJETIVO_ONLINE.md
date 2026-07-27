@@ -32,22 +32,22 @@ Preparar una evolucion desde la aplicacion local actual hacia un sistema online 
 
 ## Implementacion preparatoria disponible
 
-- `supabase/migrations/`: seis migraciones atomicas para tipos, identidad,
+- `supabase/migrations/`: ocho migraciones atomicas para tipos, identidad,
   maestros, caja/libro, salarios/cierres, adjuntos, auditoria, idempotencia y
-  RLS.
+  RLS; la version remota negociada es `2`.
 - `supabase/tests/database/`: pgTAP de estructura, restricciones, append-only,
-  permisos por rol/local y helpers internos.
+  permisos por rol/local, comandos financieros y contexto de sesion.
 - `src/application/ports/PoseidonCommandGateway.ts`: frontera de mutaciones
   remotas tipadas.
 - `src/infrastructure/remote/`: seleccion explicita de backend, transporte RPC
-  autenticado y contrato de migracion.
+  autenticado, contexto de sesion y plan determinista de migracion/conciliacion.
 - `docs/MATRIZ_MIGRACION_APPDATA_POSTGRESQL.md`: correspondencia de las 22
   colecciones y reglas de conciliacion.
 - `.github/workflows/quality.yml`: base PostgreSQL descartable y pgTAP como
   puerta del candidato `release/test`.
 
-Esta implementacion se registra como `VALIDATING`: no contiene aun las RPC de
-negocio ni habilita el modo remoto en React.
+Esta implementacion se registra como `VALIDATING`: contiene ocho de las 31 RPC
+enumeradas por el gateway, pero no habilita el modo remoto en React.
 
 ## Arquitectura propuesta
 

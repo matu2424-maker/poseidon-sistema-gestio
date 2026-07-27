@@ -10,10 +10,10 @@
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-local-validada-y-backend-preparatorio",
-    "objective": "Conservar el candidato local 0.1.0-beta.2 reproducible y completar las precondiciones transaccionales antes de activar un backend remoto.",
+    "phase": "beta-local-validada-y-backend-transaccional-parcial",
+    "objective": "Conservar el candidato local 0.1.0-beta.2 reproducible y completar por etapas el backend transaccional antes de cualquier activacion remota.",
     "activeWorkOrders": [],
-    "queuedWorkOrders": ["2026-07-26-CEN-BACKEND-02"],
+    "queuedWorkOrders": ["2026-07-26-CEN-BACKEND-03"],
     "blockedWorkOrders": ["2026-07-26-CEN-SEG-01"],
     "pendingIntegrations": []
   },
@@ -25,7 +25,7 @@
   },
   "health": {
     "overall": "YELLOW",
-    "mainRisk": "La persistencia sigue limitada a localStorage y no ofrece transacciones multiusuario ni durabilidad de servidor.",
+    "mainRisk": "La persistencia operativa sigue en localStorage; el backend solo cubre ocho de 31 comandos y aun no importa ni consulta datos remotos.",
     "risks": [
       {
         "id": "RISK-001",
@@ -45,14 +45,14 @@
       {
         "id": "RISK-004",
         "severity": "HIGH",
-        "summary": "El esquema remoto aun necesita PostgreSQL real, RPC, Auth, concurrencia, conciliacion y rollback antes de activarse."
+        "summary": "El esquema aplico en PostgreSQL local y ocho RPC financieras aprobaron; aun faltan 23 RPC, Auth real, consultas, importacion, conciliacion, Storage y rollback."
       }
     ]
   },
   "nextActions": [
     "Rotar o revocar credenciales historicas en el proveedor sin exponer valores cuando vuelva a estar disponible un acceso externo controlable.",
     "No mover release/test, publicar ni desplegar 0.1.0-beta.2 sin autorizacion explicita.",
-    "Validar el esquema en PostgreSQL real e implementar RPC, Auth, concurrencia, importacion conciliada y rollback; no persistir AppData completo como una fila."
+    "Completar las 23 RPC restantes, Auth, consultas, importacion conciliada, Storage y rollback; no persistir AppData completo como una fila."
   ],
   "registries": {
     "workstreams": "docs/coordinacion/WORKSTREAMS.json",

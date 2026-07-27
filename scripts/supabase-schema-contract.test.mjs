@@ -30,8 +30,10 @@ describe("contrato estatico del esquema Supabase", () => {
       "20260726000400_salaries_and_closures.sql",
       "20260726000500_attachments_audit_idempotency.sql",
       "20260726000600_security_helpers_and_rls.sql",
+      "20260726000700_transactional_command_runtime.sql",
+      "20260726000800_session_context_and_security_hardening.sql",
     ]);
-    expect(tests).toHaveLength(4);
+    expect(tests).toHaveLength(6);
     migrations.forEach(({ content }) => {
       expect(content.trimStart().startsWith("begin;")).toBe(true);
       expect(content.trimEnd().endsWith("commit;")).toBe(true);
@@ -75,6 +77,41 @@ describe("contrato estatico del esquema Supabase", () => {
     expect(security).toContain("kind in ('LOCAL_EFECTIVO', 'LOCAL_BANCO')");
   });
 
+  it("expone solamente los comandos financieros transaccionales implementados", async () => {
+    const runtime = await readFile(
+      path.join(migrationsDir, "20260726000700_transactional_command_runtime.sql"),
+      "utf8",
+    );
+    const hardening = await readFile(
+      path.join(
+        migrationsDir,
+        "20260726000800_session_context_and_security_hardening.sql",
+      ),
+      "utf8",
+    );
+
+    [
+      "poseidon_create_expense",
+      "poseidon_create_principal_expense",
+      "poseidon_annul_expense",
+      "poseidon_review_expense",
+      "poseidon_create_treasury_transfer",
+      "poseidon_annul_treasury_transfer",
+      "poseidon_create_partner_movement",
+      "poseidon_annul_partner_movement",
+    ].forEach((rpcName) => {
+      expect(runtime).toContain(`function public.${rpcName}(`);
+    });
+    expect(runtime).toContain("pg_advisory_xact_lock");
+    expect(runtime).toContain("private.assert_available_funds");
+    expect(runtime).toContain("private.append_command_audit");
+
+    expect(hardening).toContain("function public.poseidon_session_context()");
+    expect(hardening).toContain("'schema_version'");
+    expect(hardening).toContain("create trigger locals_no_delete");
+    expect(hardening).toContain("create trigger machines_no_delete");
+  });
+
   it("mantiene sincronizados los planes pgTAP y sus aserciones", async () => {
     const tests = await readDirectorySql(testsDir);
 
@@ -82,7 +119,7 @@ describe("contrato estatico del esquema Supabase", () => {
       const plan = Number(content.match(/select plan\((\d+)\)/i)?.[1] ?? -1);
       const assertions = [
         ...content.matchAll(
-          /^select\s+(?:is|ok|throws_ok|pass)\s*\(/gim,
+          /^select\s+(?:is|ok|throws_ok|pass|has_trigger)\s*\(/gim,
         ),
       ].length;
       expect({ name, assertions }).toEqual({ name, assertions: plan });

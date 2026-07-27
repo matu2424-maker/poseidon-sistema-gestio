@@ -6,7 +6,10 @@ Ultima actualizacion: 2026-07-26
 
 - El modo operativo sigue siendo `local`.
 - `PoseidonCommandGateway` y `supabase/**` son una base preparatoria inactiva.
-- No existe proyecto Supabase conectado, Auth real ni RPC de negocio publica.
+- Ocho de 31 RPC financieras y `poseidon_session_context()` estan
+  implementadas localmente; no existe proyecto Supabase conectado ni Auth real.
+- El frontend remoto exige esquema `2`; IDs operativos de local deben ser UUID.
+- `remoteMigrationPlan.ts` prepara fases/lotes y conciliacion, pero no inserta.
 - No hacer dual-write ni persistir `AppData` completo como una fila.
 
 ## Lectura minima
@@ -39,6 +42,7 @@ Ultima actualizacion: 2026-07-26
 - Concurrencia e idempotencia.
 - Importacion y conciliacion sin diferencias.
 - Rollback ensayado.
+- Las 23 RPC restantes y consultas remotas del flujo a habilitar.
 
 ## Validacion
 
@@ -49,4 +53,6 @@ pnpm run backend:check
 ```
 
 `backend:check` requiere Docker y Supabase local activo. Si el entorno no los
-tiene, informar el limite; no declarar pgTAP aprobado.
+tiene, informar el limite; no declarar la puerta oficial pgTAP aprobada. Como
+control adicional del 2026-07-26, las ocho migraciones aplicaron desde cero en
+PostgreSQL 18 y 59 aserciones nuevas aprobaron con un arnes local descartable.

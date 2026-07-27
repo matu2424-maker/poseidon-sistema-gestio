@@ -84,7 +84,10 @@ Se usa SemVer:
 - `.node-version` fija el runtime reproducible.
 - `packageManager` fija pnpm.
 - `pnpm install --frozen-lockfile` evita una resolucion distinta durante la entrega.
-- `pnpm run release:check` verifica version, changelog, archivos sensibles, build de Vercel, workflow, Actions compatibles con Node 24, etiqueta y limpieza Git.
+- `pnpm run release:check` verifica version, changelog, archivos sensibles
+  vigentes e historicos, build de Vercel, workflow, Actions compatibles con
+  Node 24, etiqueta y limpieza Git. Los hallazgos historicos informan solamente
+  ruta, blob y categoria, nunca el valor.
 - `.github/workflows/quality.yml` ejecuta `check` y `build` en pull requests, `main` y `release/test`.
 - Los E2E se ejecutan en `release/test` y bajo disparo manual. En CI Playwright inicia un servidor aislado y usa Chromium; localmente conserva Chrome y el servidor oficial.
 - El job `Backend schema` se ejecuta en `release/test` y bajo disparo manual:

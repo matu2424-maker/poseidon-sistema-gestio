@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { createSupabaseCommandGateway } from "./supabaseCommandGateway";
 
+const localId = "22000000-0000-4000-8000-000000000001";
+
 describe("SupabaseCommandGateway", () => {
   it("envia identidad por token y no acepta usuario real desde el payload de transporte", async () => {
     const request = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -22,7 +24,7 @@ describe("SupabaseCommandGateway", () => {
       name: "open_cash",
       idempotencyKey: "cash-open:poseidon:20",
       actorFunction: "CAJERO",
-      localId: "1",
+      localId,
       payload: { operatingDate: "2026-07-26" },
     });
 
@@ -37,7 +39,7 @@ describe("SupabaseCommandGateway", () => {
     expect(JSON.parse(String(init?.body))).toEqual({
       p_idempotency_key: "cash-open:poseidon:20",
       p_actor_function: "CAJERO",
-      p_local_id: "1",
+      p_local_id: localId,
       p_payload: { operatingDate: "2026-07-26" },
     });
   });
@@ -81,6 +83,19 @@ describe("SupabaseCommandGateway", () => {
         payload: {},
       }),
     ).resolves.toEqual({ ok: false, error: "La sesion remota no esta autenticada.", retryable: false });
+    await expect(
+      configured.execute({
+        name: "close_cash",
+        idempotencyKey: "cash-close:invalid-local",
+        actorFunction: "CAJERO",
+        localId: "1",
+        payload: {},
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      error: "El identificador remoto del local no es un UUID valido.",
+      retryable: false,
+    });
     expect(request).not.toHaveBeenCalled();
   });
 
@@ -103,7 +118,7 @@ describe("SupabaseCommandGateway", () => {
         name: "create_expense",
         idempotencyKey: "expense:create:100",
         actorFunction: "ENCARGADO",
-        localId: "1",
+        localId,
         payload: { amount: 100 },
       }),
     ).resolves.toEqual({
@@ -128,7 +143,7 @@ describe("SupabaseCommandGateway", () => {
         name: "create_expense",
         idempotencyKey: "expense:create:101",
         actorFunction: "ENCARGADO",
-        localId: "1",
+        localId,
         payload: { amount: 100 },
       }),
     ).resolves.toEqual({
@@ -154,7 +169,7 @@ describe("SupabaseCommandGateway", () => {
         name: "review_expense",
         idempotencyKey: `expense:review:${"x".repeat(185)}`,
         actorFunction: "ENCARGADO",
-        localId: "1",
+        localId,
         payload: { expenseId: "expense-1" },
       }),
     ).resolves.toEqual({

@@ -19,6 +19,13 @@ tokens, URLs con credenciales ni valores de variables.
   rechaza claves privadas, claves Supabase secretas/personales (`sb_secret_` y
   `sbp_`), URLs PostgreSQL con credenciales y asignaciones reales de secretos
   de servidor o JWT. El error informa rutas, nunca valores.
+- `pnpm run security:history` inspecciona todos los blobs de texto alcanzables
+  por las referencias Git y reporta solamente ruta, hash abreviado y categoria.
+  La corrida del 2026-07-26 reviso 1.794 blobs y no encontro valores que
+  coincidan con los patrones sensibles conocidos.
+- Una auditoria historica sin hallazgos no demuestra que una credencial externa
+  ya fue revocada. Vercel y el antiguo `.env.local` pudieron contener valores
+  que nunca ingresaron en Git.
 
 ## Pendiente externo
 
@@ -37,6 +44,8 @@ el chat, documentacion, terminal compartida o codigo.
 6. Registrar solamente fecha, proveedor, tipo de credencial y resultado; nunca
    el valor nuevo ni el anterior.
 7. Ejecutar `pnpm run release:check` con el arbol limpio.
+8. Ejecutar `pnpm run security:history`; cualquier hallazgo se registra sin
+   copiar el valor y obliga a revisar el proveedor.
 
 ## Reglas permanentes
 

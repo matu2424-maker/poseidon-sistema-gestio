@@ -5,6 +5,7 @@ import {
   expectedReleaseTag,
   validateReleaseConfiguration,
 } from "./release-readiness.mjs";
+import { auditGitHistorySecrets } from "./history-secret-audit.mjs";
 
 const readText = (path) => readFile(path, "utf8");
 const readJson = async (path) => JSON.parse(await readText(path));
@@ -77,6 +78,17 @@ for (const path of tracked) {
 }
 if (sensitiveFiles.length) {
   errors.push(`Hay contenido sensible en archivos versionados: ${sensitiveFiles.join(", ")}.`);
+}
+
+const historicalSecrets = auditGitHistorySecrets();
+if (historicalSecrets.findings.length) {
+  const locations = historicalSecrets.findings.map(
+    ({ objectId, path, rules }) =>
+      `${path} (blob ${objectId.slice(0, 12)}; ${rules.join(", ")})`,
+  );
+  errors.push(
+    `El historial Git contiene patrones sensibles: ${locations.join("; ")}.`,
+  );
 }
 
 const branch = git("branch", "--show-current") || "(detached)";

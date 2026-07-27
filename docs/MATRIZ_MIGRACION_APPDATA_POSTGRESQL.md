@@ -2,8 +2,8 @@
 
 Ultima actualizacion: 2026-07-26
 
-Estado: contrato preparatorio validable. No ejecuta una importacion remota ni
-autoriza activar Supabase.
+Estado: contrato y plan de lotes preparatorio validable. Todavia no ejecuta una
+importacion remota ni autoriza activar Supabase.
 
 ## Principio
 
@@ -13,6 +13,11 @@ PostgreSQL usa UUID internos y mantiene por separado los IDs visibles.
 
 La implementacion ejecutable de las transformaciones no triviales vive en
 `src/infrastructure/remote/appDataMigrationMapping.ts`.
+
+El orden, los lotes y la conciliacion determinista viven en
+`src/infrastructure/remote/remoteMigrationPlan.ts`. El plan contiene solamente
+IDs legacy/compuestos, conteos y huellas; no transporta filas completas,
+contrasenas ni `dataUrl`.
 
 ## Colecciones
 
@@ -131,6 +136,9 @@ contra una base PostgreSQL vacia y repetirse de forma determinista.
   y aliases de retiro.
 - El seed demo vigente no presenta incompatibilidades detectadas por el
   inspector.
+- El plan cubre las 22 colecciones y 36 tablas en orden de claves foraneas,
+  produce lotes configurables y rechaza conteos o huellas remotas faltantes o
+  diferentes.
 
 Esto prueba el contrato local de transformacion. No reemplaza las pruebas SQL,
 la importacion real ni la conciliacion remota.

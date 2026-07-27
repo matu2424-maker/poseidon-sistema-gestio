@@ -1,6 +1,11 @@
 export type BackendConfiguration =
   | { mode: "local" }
-  | { mode: "supabase"; url: string; publishableKey: string };
+  | {
+      mode: "supabase";
+      url: string;
+      publishableKey: string;
+      schemaVersion: number;
+    };
 
 export type BackendConfigurationResult =
   | { ok: true; value: BackendConfiguration }
@@ -10,7 +15,10 @@ type PublicEnvironment = {
   VITE_POSEIDON_BACKEND?: string;
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
+  VITE_POSEIDON_REMOTE_SCHEMA?: string;
 };
+
+export const SUPPORTED_REMOTE_SCHEMA_VERSION = 2;
 
 const validSupabaseUrl = (value: string) => {
   try {
@@ -37,5 +45,20 @@ export function resolveBackendConfiguration(
   if (!publishableKey) {
     return { ok: false, error: "Configura la clave publicable de Supabase." };
   }
-  return { ok: true, value: { mode: "supabase", url: url.replace(/\/+$/, ""), publishableKey } };
+  const schemaVersion = Number(environment.VITE_POSEIDON_REMOTE_SCHEMA);
+  if (schemaVersion !== SUPPORTED_REMOTE_SCHEMA_VERSION) {
+    return {
+      ok: false,
+      error: `El backend remoto debe declarar el esquema ${SUPPORTED_REMOTE_SCHEMA_VERSION}.`,
+    };
+  }
+  return {
+    ok: true,
+    value: {
+      mode: "supabase",
+      url: url.replace(/\/+$/, ""),
+      publishableKey,
+      schemaVersion,
+    },
+  };
 }
