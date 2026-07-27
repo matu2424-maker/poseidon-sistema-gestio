@@ -25,7 +25,7 @@ pnpm run check:commit
 
 1. Validacion de 28 controles de agentes Codex.
 2. Validacion de 67 controles de chats, propietarios y referencias de workstreams, incluido Calidad y Pruebas.
-3. Validacion de 58 controles SOPM-Lite: 7 decisiones, 3 migraciones, 17 capacidades, estado y rutas.
+3. Validacion de 58 controles SOPM-Lite: 7 decisiones, 4 migraciones, 17 capacidades, estado y rutas.
 4. Validacion de cuatro skills y sus contratos.
 5. Validacion de 38 controles de gobierno visual, pilotos, referencias, tablas accesibles y pesos tipograficos funcionales.
 6. TypeScript sin emitir archivos.

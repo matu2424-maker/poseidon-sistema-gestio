@@ -63,6 +63,31 @@
       "appendOnly": true,
       "reversible": false,
       "summary": "Versiona el esquema PostgreSQL preparatorio e inactivo; requiere PostgreSQL real, RPC transaccionales, Auth, importacion conciliada y rollback antes de pasar a APPLIED."
+    },
+    {
+      "id": "MIG-2026-07-26-002",
+      "runtimeId": "postgresql-v2-financial-command-runtime",
+      "status": "READY",
+      "type": "SCHEMA",
+      "risk": "HIGH",
+      "sourceSchema": 1,
+      "targetSchema": 2,
+      "implementation": "supabase/migrations",
+      "tests": [
+        "supabase/tests/database/005_transactional_financial_commands.test.sql",
+        "supabase/tests/database/006_session_context_and_hardening.test.sql",
+        "scripts/supabase-schema-contract.test.mjs",
+        "src/infrastructure/remote/backendConfiguration.test.ts",
+        "src/infrastructure/remote/supabaseCommandGateway.test.ts",
+        "src/infrastructure/remote/supabaseSessionGateway.test.ts",
+        "src/infrastructure/remote/remoteMigrationPlan.test.ts"
+      ],
+      "introducedByCommit": "d18b33520bb6394debe0d4f152cab99fb52cac5d",
+      "legacyRecord": false,
+      "financialData": true,
+      "appendOnly": true,
+      "reversible": false,
+      "summary": "Agrega contexto de sesion remoto, hardening de maestros/RLS y ocho RPC financieras transaccionales con idempotencia, fondos, libro y auditoria; permanece READY hasta completar el resto del backend y activar un ambiente autorizado."
     }
   ]
 }
