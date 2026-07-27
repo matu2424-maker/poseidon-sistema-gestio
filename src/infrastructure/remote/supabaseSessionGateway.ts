@@ -1,4 +1,5 @@
 import type { Role } from "../../types";
+import { SUPPORTED_REMOTE_SCHEMA_VERSION } from "./backendConfiguration";
 
 type FetchLike = typeof fetch;
 
@@ -139,7 +140,7 @@ export function createSupabaseSessionGateway(
         const payload = record((await response.json()) as unknown);
         if (
           !payload ||
-          payload.schema_version !== 2 ||
+          payload.schema_version !== SUPPORTED_REMOTE_SCHEMA_VERSION ||
           !Array.isArray(payload.locals)
         ) {
           return {
@@ -160,7 +161,7 @@ export function createSupabaseSessionGateway(
         return {
           ok: true,
           value: {
-            schemaVersion: 2,
+            schemaVersion: SUPPORTED_REMOTE_SCHEMA_VERSION,
             profile,
             locals: locals as RemoteSessionLocal[],
           },

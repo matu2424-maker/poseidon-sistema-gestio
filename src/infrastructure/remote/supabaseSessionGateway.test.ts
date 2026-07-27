@@ -13,7 +13,7 @@ describe("SupabaseSessionGateway", () => {
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
         jsonResponse({
-          schema_version: 2,
+          schema_version: 3,
           profile: {
             id: "12000000-0000-4000-8000-000000000001",
             legacy_id: "encargado",
@@ -42,7 +42,7 @@ describe("SupabaseSessionGateway", () => {
     await expect(gateway.load()).resolves.toEqual({
       ok: true,
       value: {
-        schemaVersion: 2,
+        schemaVersion: 3,
         profile: {
           id: "12000000-0000-4000-8000-000000000001",
           legacyId: "encargado",
@@ -77,7 +77,16 @@ describe("SupabaseSessionGateway", () => {
   });
 
   it("rechaza perfiles ambiguos o payloads fuera del contrato", async () => {
-    const request = vi.fn<typeof fetch>().mockResolvedValueOnce(jsonResponse({}));
+    const request = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({}))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          schema_version: 2,
+          profile: {},
+          locals: [],
+        }),
+      );
     const gateway = createSupabaseSessionGateway({
       url: "https://poseidon.example.supabase.co",
       publishableKey: "public-key",
@@ -85,6 +94,11 @@ describe("SupabaseSessionGateway", () => {
       fetch: request,
     });
 
+    await expect(gateway.load()).resolves.toEqual({
+      ok: false,
+      error: "El backend devolvio un contexto de sesion invalido.",
+      retryable: false,
+    });
     await expect(gateway.load()).resolves.toEqual({
       ok: false,
       error: "El backend devolvio un contexto de sesion invalido.",

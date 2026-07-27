@@ -18,7 +18,9 @@ Poseidon gestiona:
 - clientes, personal y liquidacion salarial;
 - cuentas corrientes, reportes, cierres periodicos y auditoria.
 
-El sistema funciona localmente con datos de prueba. Supabase/Auth/Storage, publicacion y operacion multi-equipo no estan activos.
+El sistema funciona localmente con datos de prueba. Supabase/Auth/Storage,
+publicacion y operacion multi-equipo no estan activos. El backend preparatorio
+ya replica apertura, contadores y cierre en RPC atomicas, pero React no las usa.
 
 ## 2. Arquitectura funcional
 

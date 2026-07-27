@@ -39,3 +39,10 @@ resultado = entrada - salida
 - Entrada total en azul.
 - Salida total en rojo.
 - Resultado en verde si positivo y rojo si negativo.
+
+## Backend remoto preparatorio
+
+`poseidon_save_readings` valida el lote completo antes de actualizar una fila,
+reconcilia el resultado de maquinas mediante deltas append-only sobre
+`Caja / Efectivo` y conserva idempotencia y auditoria de servidor. El modo
+remoto continua desactivado.

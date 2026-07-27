@@ -51,19 +51,19 @@ pnpm run backend:check
 pnpm exec supabase stop --no-backup
 ```
 
-`backend:check` ejecuta lint de base y seis archivos pgTAP. El workflow de
+`backend:check` ejecuta lint de base y siete archivos pgTAP. El workflow de
 `release/test` reproduce estos pasos en una base descartable.
 
 Docker/Supabase CLI no estan disponibles como puerta local oficial. Sin
 embargo, PostgreSQL 18 y `psql` si permitieron una comprobacion adicional:
 
-- las ocho migraciones y seis pruebas SQL fueron parseadas sin error;
-- los seis planes pgTAP coinciden con sus 128 aserciones;
+- las nueve migraciones y siete pruebas SQL fueron parseadas sin error;
+- los siete planes pgTAP coinciden con sus 182 aserciones;
 - Vitest controla orden, transacciones, permisos, RLS y contratos sensibles;
-- las ocho migraciones aplicaron desde cero en una base PostgreSQL 18
+- las nueve migraciones aplicaron desde cero en una base PostgreSQL 18
   descartable;
-- las 50 aserciones financieras y 9 de sesion/hardening aprobaron sobre esa
-  base mediante un arnes local compatible;
+- las 50 aserciones financieras, 9 de sesion/hardening y 54 de caja aprobaron
+  sobre esa base mediante un arnes local compatible;
 - no se declara aprobado `supabase db lint` ni la extension pgTAP oficial.
 
 La activacion remota permanece bloqueada hasta completar Auth, las RPC y
@@ -172,10 +172,11 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - La evidencia remota anterior aprobo 20 de 20 en CI. Los 30 casos vigentes
   estan aprobados localmente; la nueva matriz de CI se ejecutara solamente si
   se autoriza mover `release/test`.
-- Las ocho migraciones y seis pruebas SQL parsearon correctamente, los planes
-  pgTAP coinciden con 128 aserciones y el contrato estatico paso en Vitest.
-  PostgreSQL 18 aplico el esquema desde cero y aprobo 59 aserciones nuevas con
-  un arnes compatible; la puerta oficial Supabase CLI/pgTAP sigue pendiente.
+- Las nueve migraciones y siete pruebas SQL parsearon correctamente, los planes
+  pgTAP coinciden con 182 aserciones y el contrato estatico paso en Vitest.
+  PostgreSQL 18 aplico el esquema desde cero y aprobo 113 aserciones de
+  comandos, sesion y caja con un arnes compatible; la puerta oficial Supabase
+  CLI/pgTAP sigue pendiente.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
@@ -215,5 +216,6 @@ E2E. Los recorridos nuevos de Locales, Maquinas, Personal, Clientes y Papelera
 aprobaron `10/10`; personal conserva el bloqueo deliberado de eliminacion
 definitiva cuando existe historial salarial.
 
-El backend preparatorio aun requiere las 23 RPC restantes, consultas remotas,
-Auth real, importacion/conciliacion, Storage y rollback antes de habilitarse.
+El backend preparatorio aun requiere las 20 RPC restantes, consultas remotas,
+Auth real, gateway concreto de importacion, Storage y rollback antes de
+habilitarse.

@@ -56,3 +56,11 @@ El socio se selecciona porque existe un aporte patrimonial real. No representa c
 - Segunda caja abierta se rechaza sin mutar datos.
 - Saldo heredado incorrecto se rechaza sin balance, lecturas ni auditoria.
 - Funcion suplantada, usuario inactivo y local no asignado se rechazan sin mutar el snapshot.
+
+## Backend remoto preparatorio
+
+`poseidon_open_cash` reproduce estas invariantes en una transaccion PostgreSQL:
+serializa el local, valida identidad/funcion/alcance, crea balance y lecturas,
+registra aportes/traspasos de primera apertura, exige herencia exacta en las
+siguientes y cierra idempotencia/auditoria en el mismo commit. El modo remoto
+continua desactivado.

@@ -100,3 +100,10 @@ Todo rechazo ocurre antes de cierre, diferencia, asientos o auditoria.
 - Traspaso excesivo se rechaza atomicamente.
 - Efectivo negativo y desacople tecnico se rechazan con errores distintos.
 - Principal y resultado economico permanecen coherentes.
+
+## Backend remoto preparatorio
+
+`poseidon_close_cash` bloquea pendientes, desacoples y efectivo esperado
+negativo antes de mutar. En una unica transaccion guarda la foto, traspasos,
+diferencias, contadores, historial, libro, auditoria e idempotencia; ninguna
+diferencia modifica el resultado economico. El modo remoto continua desactivado.

@@ -98,8 +98,12 @@ Estado: esquema preparatorio `VALIDATING` bajo `supabase/migrations/`.
   historiales, fotos de cierre y entidades operativas principales.
 - Implementado: idempotencia serializada, fondos y reversos append-only para el
   primer grupo de comandos financieros.
-- Validado: las ocho migraciones aplicaron desde cero en PostgreSQL 18 local.
-- Pendiente: cerrar invariantes de estados/formulas en las 23 RPC restantes y
+- Validado: las nueve migraciones aplicaron desde cero en PostgreSQL 18 local.
+- Implementado: apertura, contadores y cierre de caja como RPC atomicas,
+  idempotentes y conciliadas con el libro.
+- Implementado: ejecutor determinista de importacion con reanudacion,
+  checkpoints y conciliacion; falta el gateway que materializa cada lote.
+- Pendiente: cerrar invariantes de estados/formulas en las 20 RPC restantes y
   repetir la puerta oficial con Supabase CLI/pgTAP.
 
 Salida: migraciones SQL revisables, aun sin datos reales.

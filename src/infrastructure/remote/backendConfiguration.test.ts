@@ -25,7 +25,7 @@ describe("configuracion publica del backend", () => {
       }),
     ).toEqual({
       ok: false,
-      error: "El backend remoto debe declarar el esquema 2.",
+      error: "El backend remoto debe declarar el esquema 3.",
     });
   });
 
@@ -35,7 +35,7 @@ describe("configuracion publica del backend", () => {
         VITE_POSEIDON_BACKEND: "SUPABASE",
         VITE_SUPABASE_URL: "https://poseidon.example.supabase.co/",
         VITE_SUPABASE_PUBLISHABLE_KEY: "public-key",
-        VITE_POSEIDON_REMOTE_SCHEMA: "2",
+        VITE_POSEIDON_REMOTE_SCHEMA: "3",
       }),
     ).toEqual({
       ok: true,
@@ -43,7 +43,7 @@ describe("configuracion publica del backend", () => {
         mode: "supabase",
         url: "https://poseidon.example.supabase.co",
         publishableKey: "public-key",
-        schemaVersion: 2,
+        schemaVersion: 3,
       },
     });
   });

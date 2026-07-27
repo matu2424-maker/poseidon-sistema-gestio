@@ -16,10 +16,11 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
 - Login local por seleccion de usuario; sesion de pestana en `sessionStorage`.
 - Local operativo actual: Poseidon. Multi-local completo queda postergado.
 - Sin Auth, base de datos remota conectada ni storage real.
-- Existe una base preparatoria inactiva: ocho migraciones Supabase `READY`,
-  seis suites SQL, contexto de sesion, ocho RPC financieras,
-  `PoseidonCommandGateway` y plan/matriz de migracion. La capacidad permanece
-  `VALIDATING`; faltan 23 RPC, consultas remotas e importacion ejecutable.
+- Existe una base preparatoria inactiva: nueve migraciones Supabase `READY`,
+  siete suites SQL, contexto de sesion, 11 RPC financieras,
+  `PoseidonCommandGateway`, plan/matriz y ejecutor reanudable de migracion. La
+  capacidad permanece `VALIDATING`; faltan 20 RPC, consultas remotas y el
+  gateway concreto de importacion.
 - Beta demo `0.1.0-beta.1` publicada en `https://poseidon-sistema-gestio.vercel.app` desde `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - Candidato `0.1.0-beta.2` validado solo en local con `240/240` pruebas y
   `30/30` E2E; no fue publicado.
@@ -119,6 +120,6 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de
    Vercel; `.env.local` obsoleto ya fue eliminado sin exponer valores.
 3. Conservar los E2E de maestros en `10/10`.
-4. Completar las 23 RPC restantes, consultas remotas, Auth, importacion,
-   conciliacion y rollback antes de activar Supabase. Las ocho migraciones ya
+4. Completar las 20 RPC restantes, consultas remotas, Auth, gateway de
+   importacion, conciliacion y rollback antes de activar Supabase. Las nueve migraciones ya
    aplicaron desde cero en PostgreSQL 18 local.

@@ -32,8 +32,9 @@ describe("contrato estatico del esquema Supabase", () => {
       "20260726000600_security_helpers_and_rls.sql",
       "20260726000700_transactional_command_runtime.sql",
       "20260726000800_session_context_and_security_hardening.sql",
+      "20260726000900_transactional_cash_commands.sql",
     ]);
-    expect(tests).toHaveLength(6);
+    expect(tests).toHaveLength(7);
     migrations.forEach(({ content }) => {
       expect(content.trimStart().startsWith("begin;")).toBe(true);
       expect(content.trimEnd().endsWith("commit;")).toBe(true);
@@ -110,6 +111,25 @@ describe("contrato estatico del esquema Supabase", () => {
     expect(hardening).toContain("'schema_version'");
     expect(hardening).toContain("create trigger locals_no_delete");
     expect(hardening).toContain("create trigger machines_no_delete");
+  });
+
+  it("expone el flujo critico de caja en RPC transaccionales", async () => {
+    const cashRuntime = await readFile(
+      path.join(migrationsDir, "20260726000900_transactional_cash_commands.sql"),
+      "utf8",
+    );
+
+    [
+      "poseidon_open_cash",
+      "poseidon_save_readings",
+      "poseidon_close_cash",
+    ].forEach((rpcName) => {
+      expect(cashRuntime).toContain(`function public.${rpcName}(`);
+    });
+    expect(cashRuntime).toContain("private.claim_command");
+    expect(cashRuntime).toContain("private.finish_command");
+    expect(cashRuntime).toContain("private.append_command_audit");
+    expect(cashRuntime).toContain("'schema_version', 3");
   });
 
   it("mantiene sincronizados los planes pgTAP y sus aserciones", async () => {

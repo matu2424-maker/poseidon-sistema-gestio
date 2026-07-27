@@ -18,7 +18,7 @@ type PublicEnvironment = {
   VITE_POSEIDON_REMOTE_SCHEMA?: string;
 };
 
-export const SUPPORTED_REMOTE_SCHEMA_VERSION = 2;
+export const SUPPORTED_REMOTE_SCHEMA_VERSION = 3;
 
 const validSupabaseUrl = (value: string) => {
   try {

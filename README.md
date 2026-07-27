@@ -40,13 +40,13 @@ versionado es preparatorio y permanece desactivado.
 - `release/test` y la etiqueta `v0.1.0-beta.1` permanecen congelados en el commit candidato; `main` continua con documentacion y controles posteriores.
 - Workflow CI activo con Actions compatibles con Node 24; la evidencia remota vigente se registra en `docs/VALIDACION_LOCAL.md`.
 - Vercel publica explicitamente desde `release/test`; los cambios diarios de `main` no generan despliegues automaticos.
-- Ocho migraciones SQL preparatorias estan registradas como `READY`; incluyen
-  contexto de sesion derivado de Auth, RLS reforzada y ocho RPC financieras
+- Nueve migraciones SQL preparatorias estan registradas como `READY`; incluyen
+  contexto de sesion derivado de Auth, RLS reforzada y 11 RPC financieras
   transaccionales con idempotencia, fondos, libro y auditoria.
 - El plan de migracion local genera fases por dependencias, lotes de IDs legacy,
   conteos y huellas SHA-256 conciliables sin exportar contrasenas ni archivos
-  inline. El ejecutor de importacion, Auth real y las RPC restantes siguen en
-  `VALIDATING`.
+  inline. Existe un ejecutor puro, reanudable y conciliado; el gateway concreto
+  de importacion, Auth real y las RPC restantes siguen en `VALIDATING`.
   `VITE_POSEIDON_BACKEND` permanece en `local`.
 - Evidencia local del candidato: `240/240` pruebas y `30/30` recorridos E2E.
 
@@ -188,8 +188,8 @@ pnpm exec supabase stop --no-backup
 ```
 
 `backend:check` sigue requiriendo Supabase CLI y Docker. Como control adicional,
-las ocho migraciones fueron aplicadas desde cero en PostgreSQL 18 local y las
-59 aserciones nuevas de comandos/sesion aprobaron mediante un arnes compatible
+las nueve migraciones fueron aplicadas desde cero en PostgreSQL 18 local y 113
+aserciones de comandos, sesion y caja aprobaron mediante un arnes compatible
 descartable. La puerta oficial pgTAP continua siendo la de Supabase/CI.
 
 Con el servidor oficial activo:
@@ -263,8 +263,9 @@ src/types.ts                         Contratos de datos
 - Chrome en `http://127.0.0.1:5173/` es la referencia operativa temporal; otros navegadores, perfiles u origenes conservan bases independientes.
 - Los adjuntos no conservan el archivo real.
 - La autorizacion es local y simulada.
-- Multi-local completo, Auth, consultas remotas, 23 RPC de negocio restantes,
-  ejecutor de importacion, base remota activa y storage real quedan pendientes.
+- Multi-local completo, Auth, consultas remotas, 20 RPC de negocio restantes,
+  gateway concreto de importacion, base remota activa y storage real quedan
+  pendientes.
   El modo local usa `AppDataRepository`; la ruta remota usa
   `PoseidonCommandGateway` hacia PostgreSQL/Supabase, sin snapshot unico ni base
   local intermedia.
