@@ -88,6 +88,29 @@
       "appendOnly": true,
       "reversible": false,
       "summary": "Agrega contexto de sesion remoto, hardening de maestros/RLS y ocho RPC financieras transaccionales con idempotencia, fondos, libro y auditoria; permanece READY hasta completar el resto del backend y activar un ambiente autorizado."
+    },
+    {
+      "id": "MIG-2026-07-26-003",
+      "runtimeId": "postgresql-v3-transactional-cash-runtime",
+      "status": "READY",
+      "type": "SCHEMA",
+      "risk": "HIGH",
+      "sourceSchema": 2,
+      "targetSchema": 3,
+      "implementation": "supabase/migrations/20260726000900_transactional_cash_commands.sql",
+      "tests": [
+        "supabase/tests/database/007_transactional_cash_commands.test.sql",
+        "scripts/supabase-schema-contract.test.mjs",
+        "src/infrastructure/remote/backendConfiguration.test.ts",
+        "src/infrastructure/remote/supabaseSessionGateway.test.ts",
+        "src/infrastructure/remote/remoteMigrationExecutor.test.ts"
+      ],
+      "introducedByCommit": "93060b97f5fb63f527f117af115b1af48f358ea9",
+      "legacyRecord": false,
+      "financialData": true,
+      "appendOnly": true,
+      "reversible": false,
+      "summary": "Agrega apertura, guardado integral de contadores y cierre de caja como RPC atomicas, idempotentes y conciliadas; incorpora el ejecutor reanudable de importacion, pero permanece READY e inactivo hasta completar el backend y sus puertas externas."
     }
   ]
 }

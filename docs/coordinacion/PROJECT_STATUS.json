@@ -18,10 +18,10 @@
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-26-CEN-BETA-01",
-    "title": "Candidato local 0.1.0-beta.2",
+    "id": "2026-07-26-CEN-BACKEND-CAJA-03",
+    "title": "Esquema remoto 3 y flujo critico de caja",
     "state": "INTEGRADA",
-    "evidence": "Autorizacion, secretos, E2E de maestros y backend preparatorio quedaron versionados; 240/240 pruebas, 30/30 E2E, build y smoke local aprobaron sin activar Supabase ni mover release/test."
+    "evidence": "Nueve migraciones aplicaron desde cero; 54/54 aserciones nuevas de caja, 262/262 pruebas de aplicacion, build, secretos y smoke aprobaron. El backend permanece inactivo."
   },
   "health": {
     "overall": "YELLOW",
