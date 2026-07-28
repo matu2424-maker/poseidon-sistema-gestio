@@ -194,7 +194,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Chrome canonico: control recuperado; acceso como Encargado, Control de gastos, detalle operativo y Cierre periodico aprobados sin errores de consola.
-- El candidato `0.1.0-beta.2` no agrega una nueva certificacion manual del
+- El candidato `0.1.0-beta.3` no agrega todavia una nueva certificacion manual del
   estado operativo de Chrome: el enlace nativo del plugin no estuvo disponible.
   Playwright aprobo comportamiento con datos descartables, no los datos del
   perfil habitual del usuario.

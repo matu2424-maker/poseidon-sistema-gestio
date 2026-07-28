@@ -6,13 +6,13 @@
     "status": "ACTIVE",
     "mode": "HYBRID",
     "defaultBranch": "main",
-    "updatedAt": "2026-07-26",
+    "updatedAt": "2026-07-28",
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "beta-local-validada-y-contratos-remotos-completos",
-    "objective": "Conservar el candidato local 0.1.0-beta.2 reproducible y mantener inactivo el backend hasta completar consultas, Auth, importacion, Storage y rollback.",
-    "activeWorkOrders": [],
+    "phase": "candidato-beta3-validado-para-publicacion",
+    "objective": "Publicar y verificar 0.1.0-beta.3 desde release/test para prueba remota con datos demo, manteniendo inactivo el backend.",
+    "activeWorkOrders": ["2026-07-28-CEN-RELEASE-BETA3"],
     "queuedWorkOrders": [],
     "blockedWorkOrders": ["2026-07-26-CEN-SEG-01"],
     "pendingIntegrations": []
@@ -51,7 +51,7 @@
   },
   "nextActions": [
     "Rotar o revocar credenciales historicas en el proveedor sin exponer valores cuando vuelva a estar disponible un acceso externo controlable.",
-    "No mover release/test, publicar ni desplegar 0.1.0-beta.2 sin autorizacion explicita.",
+    "Publicar y verificar 0.1.0-beta.3 desde release/test con backend local y datos demo.",
     "Completar Auth, consultas, gateway de importacion conciliada, Storage y rollback; no persistir AppData completo como una fila."
   ],
   "registries": {

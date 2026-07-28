@@ -4,6 +4,13 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 
 ## [Sin publicar]
 
+Sin cambios registrados despues de preparar `0.1.0-beta.3`.
+
+## [0.1.0-beta.3] - 2026-07-28
+
+Estado: candidato para prueba remota controlada desde el local fisico. Conserva
+`localStorage` aislado por navegador y no activa Auth, Supabase ni Storage.
+
 ### Agregado
 
 - Auditoria segura de secretos sobre todos los blobs alcanzables del historial

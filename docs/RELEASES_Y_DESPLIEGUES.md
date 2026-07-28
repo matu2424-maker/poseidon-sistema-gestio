@@ -3,9 +3,9 @@
 Ultima actualizacion: 2026-07-26
 
 Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel y
-candidato `0.1.0-beta.2` validado solamente en local. No existe backend remoto
-activo; el esquema Supabase preparatorio esta registrado como `READY` y la
-capacidad permanece en `VALIDATING`.
+candidato `0.1.0-beta.3` validado para su publicacion controlada. No existe
+backend remoto activo; el esquema Supabase preparatorio esta registrado como
+`READY` y la capacidad permanece en `VALIDATING`.
 
 ## Objetivo
 
@@ -51,6 +51,7 @@ Se usa SemVer:
 
 - `v0.1.0-beta.1`: primer candidato de prueba.
 - `v0.1.0-beta.2`: correccion compatible del candidato.
+- `v0.1.0-beta.3`: candidato para prueba remota desde el local fisico.
 - `v0.1.0`: primera version estable de esa linea.
 - `v0.1.1`: correccion compatible.
 - `v0.2.0`: cambio funcional compatible que amplía el sistema.
@@ -112,18 +113,19 @@ Se usa SemVer:
 - [Poseidon Quality #6](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30121806269) aprobo los controles de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
 - El cambio de CI no mueve `release/test`, la etiqueta ni el candidato ya validado.
 
-## Candidato local
+## Candidato validado para publicacion
 
-- Version: `0.1.0-beta.2`.
-- Estado: validado y etiquetado solo en el repositorio local.
-- Evidencia: `240/240` pruebas unitarias/integracion, `30/30` E2E, build y
-  smoke HTTP aprobados.
+- Version: `0.1.0-beta.3`.
+- Estado: validado localmente; la publicacion autorizada debe conservar el modo
+  `local` y usar exclusivamente datos demo.
+- Evidencia: `264/264` pruebas unitarias/integracion, `30/30` E2E,
+  `414/414` aserciones PostgreSQL, build y smoke HTTP aprobados.
 - Incluye autorizacion uniforme, control de secretos, E2E completos de maestros,
   preservacion del historial eliminado y base PostgreSQL preparatoria.
 - La aplicacion conserva `localStorage`; el backend remoto no se selecciona ni
   recibe datos.
-- `release/test`, GitHub y Vercel permanecen sin cambios hasta una autorizacion
-  explicita posterior.
+- La autorizacion del 2026-07-28 habilita preparar, pushear y desplegar este
+  candidato desde `release/test`.
 
 ## Publicacion de prueba
 

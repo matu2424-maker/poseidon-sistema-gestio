@@ -16,15 +16,15 @@ Ultima actualizacion: 2026-07-26
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
 - Beta demo `0.1.0-beta.1` activa en `https://poseidon-sistema-gestio.vercel.app`; `release/test` y la etiqueta permanecen en `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
-- Candidato `0.1.0-beta.2` validado y etiquetado solo en local; no fue enviado
-  a GitHub ni Vercel.
+- Candidato `0.1.0-beta.3` validado para publicacion controlada; conserva datos
+  demo por navegador y backend remoto desactivado.
 - Vercel usa `release/test` como rama de produccion y `vercel.json` bloquea despliegues automaticos de `main`.
 - GitHub Actions `#3` aprobo el candidato sobre `release/test`; Poseidon Quality `#6` aprobo los controles posteriores de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
 - CAL-01 esta integrada: Locales, Maquinas, Personal, Clientes y Papelera pasan
   `10/10` recorridos dirigidos.
-- La validacion completa del candidato local pasa `240/240` pruebas y `30/30`
-  recorridos E2E.
-- El trabajo posterior a `0.1.0-beta.2` agrego seguridad del historial, esquema
+- La validacion completa del candidato local pasa `264/264` pruebas, `30/30`
+  recorridos E2E y `414/414` aserciones PostgreSQL.
+- El candidato `0.1.0-beta.3` incorpora seguridad del historial, esquema
   remoto `4`, sesion, 31 RPC transaccionales, plan y ejecutor determinista de
   migracion.
 - Las catorce migraciones y once suites aplicaron desde cero en PostgreSQL 18
@@ -89,8 +89,8 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Mantener `0.1.0-beta.2` solamente en local hasta autorizar por separado push,
-   actualizacion de `release/test` y despliegue.
+1. Publicar y verificar `0.1.0-beta.3` desde `release/test` con datos demo y
+   sin activar el backend remoto.
 2. Rotar o revocar las credenciales historicas en sus proveedores cuando vuelva
    a estar disponible un acceso externo controlable; eliminarlas de Vercel y
    del equipo no las invalida en origen.

@@ -22,8 +22,9 @@ Usar `docs/INDICE_DOCUMENTACION.md` para elegir la fuente canonica de una tarea.
   capacidad permanece `VALIDATING`; faltan consultas remotas, Auth real y el
   gateway concreto de importacion.
 - Beta demo `0.1.0-beta.1` publicada en `https://poseidon-sistema-gestio.vercel.app` desde `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
-- Candidato `0.1.0-beta.2` validado solo en local con `240/240` pruebas y
-  `30/30` E2E; no fue publicado.
+- Candidato `0.1.0-beta.3` validado localmente con `264/264` pruebas,
+  `30/30` E2E y `414/414` aserciones PostgreSQL; queda preparado para
+  publicacion controlada.
 - El proyecto Vercel no conserva variables de entorno: las 16 variables historicas de PostgreSQL/Supabase se eliminaron y la beta se reconstruyo desde el mismo commit congelado.
 - El dominio online usa un `localStorage` propio y publico; no comparte los datos operativos de Chrome en `127.0.0.1` y no admite datos reales.
 - El candidato aprobo `Check and build` y `Release E2E` en GitHub Actions. `main` ya sincronizo las cuatro Actions compatibles con Node 24 (`checkout@v6`, `setup-node@v6`, `pnpm/action-setup@v6` y `upload-artifact@v7`) en `1151091`; Poseidon Quality `#4` aprobo el cambio sin anotaciones de Node 20.
@@ -115,8 +116,8 @@ Para liberar el puerto: `detener-poseidon.bat`. No usar servidores alternativos.
 
 ## Prioridades pendientes
 
-1. Mantener el candidato `0.1.0-beta.2` local hasta autorizacion de push y
-   despliegue.
+1. Publicar y verificar el candidato autorizado `0.1.0-beta.3` desde
+   `release/test`, conservando backend local y datos demo.
 2. Rotar o revocar en sus proveedores las credenciales historicas retiradas de
    Vercel; `.env.local` obsoleto ya fue eliminado sin exponer valores.
 3. Conservar los E2E de maestros en `10/10`.
