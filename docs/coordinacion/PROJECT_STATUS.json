@@ -10,18 +10,18 @@
     "updatedBy": "poseidon-central"
   },
   "current": {
-    "phase": "candidato-beta4-correctivo-en-validacion",
-    "objective": "Publicar y verificar 0.1.0-beta.4 desde release/test despues del rechazo PostgreSQL de beta.3, manteniendo inactivo el backend.",
-    "activeWorkOrders": ["2026-07-28-CEN-RELEASE-BETA4"],
+    "phase": "beta4-publicada-en-prueba-remota",
+    "objective": "Probar 0.1.0-beta.4 desde el local fisico con datos demo, manteniendo inactivo el backend remoto.",
+    "activeWorkOrders": [],
     "queuedWorkOrders": [],
     "blockedWorkOrders": ["2026-07-26-CEN-SEG-01"],
     "pendingIntegrations": []
   },
   "lastCompletedBlock": {
-    "id": "2026-07-26-CEN-BACKEND-04",
-    "title": "Esquema remoto 4 y contratos transaccionales completos",
+    "id": "2026-07-28-CEN-RELEASE-BETA4",
+    "title": "Beta 0.1.0-beta.4 publicada y verificada",
     "state": "INTEGRADA",
-    "evidence": "Catorce migraciones y once suites aplicaron desde cero en PostgreSQL 18 con 414/414 aserciones; 264/264 pruebas de aplicacion, build, secretos y smoke aprobaron. El backend permanece inactivo."
+    "evidence": "Commit e45a834 y tag v0.1.0-beta.4 publicados desde release/test. Poseidon Quality #11 aprobo build, Backend schema y 30/30 E2E; Vercel y seis rutas HTTP aprobaron. El backend permanece inactivo."
   },
   "health": {
     "overall": "YELLOW",
@@ -51,7 +51,7 @@
   },
   "nextActions": [
     "Rotar o revocar credenciales historicas en el proveedor sin exponer valores cuando vuelva a estar disponible un acceso externo controlable.",
-    "Publicar y verificar 0.1.0-beta.4 desde release/test con backend local y datos demo.",
+    "Ejecutar la prueba remota controlada de 0.1.0-beta.4 con datos demo y registrar hallazgos.",
     "Completar Auth, consultas, gateway de importacion conciliada, Storage y rollback; no persistir AppData completo como una fila."
   ],
   "registries": {

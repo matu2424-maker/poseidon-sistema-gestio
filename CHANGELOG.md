@@ -8,9 +8,10 @@ Sin cambios registrados despues de preparar `0.1.0-beta.4`.
 
 ## [0.1.0-beta.4] - 2026-07-28
 
-Estado: candidato correctivo para reemplazar `0.1.0-beta.3`, rechazado por la
-puerta PostgreSQL de GitHub Actions. No cambia el comportamiento del frontend,
-mantiene `localStorage` y conserva desactivados Auth, Supabase y Storage.
+Estado: beta demo publicada desde `release/test` para reemplazar
+`0.1.0-beta.3`, rechazado por la puerta PostgreSQL de GitHub Actions. No cambia
+el comportamiento del frontend, mantiene `localStorage` y conserva
+desactivados Auth, Supabase y Storage.
 
 ### Corregido
 

@@ -15,13 +15,15 @@ Ultima actualizacion: 2026-07-26
 - Evidencia y conteos vigentes: `docs/VALIDACION_LOCAL.md`.
 - Estado operativo multiagente: `docs/coordinacion/PROJECT_STATUS.json`.
 - Los cambios no triviales de una experiencia de rol se delegan al chat permanente propietario; Central coordina, integra y valida.
-- Demo activa en `https://poseidon-sistema-gestio.vercel.app`; la ultima beta
-  remota completamente validada sigue siendo `0.1.0-beta.1`.
+- Beta `0.1.0-beta.4` activa y validada en
+  `https://poseidon-sistema-gestio.vercel.app`, commit
+  `e45a834612bd4cb9b7ff81ebc235d403e6234240`.
 - `0.1.0-beta.3` fue rechazado por la puerta PostgreSQL de GitHub Actions `#10`
-  y su tag queda congelado. `0.1.0-beta.4` es el candidato correctivo para
-  publicacion controlada, con datos demo y backend remoto desactivado.
+  y su tag queda congelado. `0.1.0-beta.4` es la beta correctiva publicada, con
+  datos demo y backend remoto desactivado.
 - Vercel usa `release/test` como rama de produccion y `vercel.json` bloquea despliegues automaticos de `main`.
-- GitHub Actions `#3` aprobo el candidato sobre `release/test`; Poseidon Quality `#6` aprobo los controles posteriores de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
+- Poseidon Quality `#11` aprobo `Check and build`, `Backend schema` y
+  `Release E2E` sobre `release/test`.
 - CAL-01 esta integrada: Locales, Maquinas, Personal, Clientes y Papelera pasan
   `10/10` recorridos dirigidos.
 - La validacion completa del candidato local pasa `264/264` pruebas, `30/30`
@@ -35,8 +37,10 @@ Ultima actualizacion: 2026-07-26
 ## Ultimo bloque tecnico
 
 - Las 16 variables historicas de PostgreSQL/Supabase fueron eliminadas del proyecto Vercel; el inventario de variables del proyecto quedo vacio.
-- La beta se reconstruyo sin cache desde el mismo commit congelado. El despliegue vigente es `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`, estado `Ready` en 30 segundos.
-- El dominio principal quedo asociado al commit beta `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`; las rutas directas y los tres roles fueron comprobados.
+- El despliegue Vercel vigente es `5643198657`, asociado al commit
+  `e45a834612bd4cb9b7ff81ebc235d403e6234240`.
+- El dominio principal respondio HTTP `200` en seis rutas directas; Cajero,
+  Encargado y Administrador fueron comprobados en Chrome.
 - Los despliegues anteriores permanecen como evidencia historica, pero no deben promoverse: fueron construidos antes de retirar las variables.
 - El rollback seguro consiste en redesplegar una etiqueta o commit conocido con la configuracion vigente y repetir el smoke de rutas y roles.
 - La beta online es publica y usa datos aislados por navegador; Chrome local sigue siendo la fuente canonica operativa.
@@ -91,8 +95,8 @@ El modelo financiero vigente conserva:
 
 ## Proximas prioridades
 
-1. Publicar y verificar `0.1.0-beta.4` desde `release/test` con datos demo y
-   sin activar el backend remoto.
+1. Ejecutar la prueba remota controlada de `0.1.0-beta.4` con datos demo, sin
+   activar el backend remoto.
 2. Rotar o revocar las credenciales historicas en sus proveedores cuando vuelva
    a estar disponible un acceso externo controlable; eliminarlas de Vercel y
    del equipo no las invalida en origen.

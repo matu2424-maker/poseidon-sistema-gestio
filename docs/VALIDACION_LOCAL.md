@@ -154,7 +154,7 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - No debe haber superposiciones, texto fuera de controles ni scroll horizontal innecesario.
 - Todas las columnas visibles de datos deben ordenar; Acciones queda exceptuada.
 
-## Evidencia vigente al 2026-07-26
+## Evidencia vigente al 2026-07-28
 
 - GitHub Actions: [Poseidon Quality #3](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30116340060) aprobo `Check and build` y `Release E2E` sobre `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, en 2 min 26 s.
 - GitHub Actions: [Poseidon Quality #4](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30117602834) aprobo `Check and build` sobre `main`, commit `1151091b7164cf2735d537eb4dd13c90d09df312`, en 52 s y sin anotaciones de Node 20.
@@ -172,13 +172,15 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
   periodico, usuarios/categorias, importacion invalida, ciclos de Locales,
   Maquinas, Personal, Clientes y Papelera, navegacion por roles,
   sincronizacion/conflicto, cierre salarial correctivo y reinicio operativo.
-- La evidencia remota anterior aprobo 20 de 20 en CI. Los 30 casos vigentes
-  estan aprobados localmente; la nueva matriz de CI se ejecutara solamente si
-  se autoriza mover `release/test`.
+- [Poseidon Quality #11](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30376287777)
+  aprobo `Check and build`, `Backend schema` y `Release E2E` sobre
+  `release/test`, commit `e45a834612bd4cb9b7ff81ebc235d403e6234240`,
+  en 6 min 25 s. La matriz remota ejecuto los 30 casos vigentes.
 - Las catorce migraciones y once pruebas SQL parsearon correctamente, los
   planes coinciden con 414 aserciones y el contrato estatico paso en Vitest.
   PostgreSQL 18 aplico el esquema remoto `4` desde cero y aprobo las 31 RPC con
-  un arnes compatible; la puerta oficial Supabase CLI/pgTAP sigue pendiente.
+  un arnes compatible; la puerta oficial Supabase CLI/pgTAP aprobo las once
+  suites sobre una base descartable en GitHub Actions `#11`.
 - Datos locales: reinicio comprobado con 0 gastos, 0 movimientos, Caja/Principal/socios en $0 y una auditoria nueva del Administrador.
 - Datos locales: QA visual aprobada en 1366x768 y 390x844 sin overflow horizontal ni errores de consola.
 - `check:skills` aprobado para cuatro skills y `check:commit` aprobado con seleccion automatica de `check` y `build`.
@@ -202,8 +204,15 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - El arnes PostgreSQL compatible ya reproduce las firmas de dos y cuatro
   argumentos de `throws_ok`; las once suites vuelven a aprobar localmente
   `414/414` aserciones.
-  Playwright aprobo comportamiento con datos descartables, no los datos del
+- Playwright aprobo comportamiento con datos descartables, no los datos del
   perfil habitual del usuario.
+- Beta Vercel `0.1.0-beta.4`: deployment de produccion `5643198657`, fuente
+  `release/test`, commit `e45a834612bd4cb9b7ff81ebc235d403e6234240` y
+  estado `success`.
+- Dominio principal: `/`, `/ingresar`, `/panel`, `/caja/abrir`, `/locales` y
+  `/cuentas-corrientes` respondieron HTTP `200`.
+- Chrome: Cajero, Encargado y Administrador ingresaron correctamente; Locales
+  cargo la tabla demo como Administrador.
 - Beta Vercel limpia: despliegue `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`, fuente `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, estado `Ready` en 30 s.
 - Configuracion Vercel: se eliminaron 16 variables historicas de PostgreSQL/Supabase; el inventario de variables del proyecto quedo en 0 y el frontend no consume variables remotas.
 - Beta Vercel posterior a la limpieza: dominio principal y rutas `/`, `/ingresar`, `/panel`, `/caja/abrir` y `/locales` respondieron HTTP `200`.

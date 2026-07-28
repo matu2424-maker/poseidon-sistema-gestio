@@ -2,9 +2,8 @@
 
 Ultima actualizacion: 2026-07-28
 
-Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel y
-candidato correctivo `0.1.0-beta.4` preparado despues de que `beta.3` fuera
-rechazado por la puerta PostgreSQL de CI. No existe
+Estado: beta demo `0.1.0-beta.4` publicada desde `release/test` en Vercel
+despues de que `beta.3` fuera rechazado por la puerta PostgreSQL de CI. No existe
 backend remoto activo; el esquema Supabase preparatorio esta registrado como
 `READY` y la capacidad permanece en `VALIDATING`.
 
@@ -104,7 +103,7 @@ Se usa SemVer:
 - El candidato frontend sigue usando `localStorage`. Incluir SQL inactivo en una
   version no autoriza configurar variables ni seleccionar el modo Supabase.
 
-## Candidato publicado
+## Candidato publicado previo
 
 - Version: `0.1.0-beta.1`.
 - Commit congelado: `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
@@ -116,20 +115,27 @@ Se usa SemVer:
 - [Poseidon Quality #6](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30121806269) aprobo los controles de `main` en `b4ff2944db74de2dedcf7fb245ebbbe18db0cc85`.
 - El cambio de CI no mueve `release/test`, la etiqueta ni el candidato ya validado.
 
-## Candidato validado para publicacion
+## Candidato publicado vigente
 
 - Version: `0.1.0-beta.4`.
-- Estado: candidato correctivo validado localmente; la publicacion autorizada
-  debe conservar el modo
-  `local` y usar exclusivamente datos demo.
+- Commit y tag:
+  `e45a834612bd4cb9b7ff81ebc235d403e6234240` y `v0.1.0-beta.4`.
+- Fuente: `release/test`, congelada en el mismo commit.
+- Estado: publicada con modo `local` y exclusivamente para datos demo.
 - Evidencia: `264/264` pruebas unitarias/integracion, `30/30` E2E,
   `414/414` aserciones PostgreSQL, build y smoke HTTP aprobados.
 - Incluye autorizacion uniforme, control de secretos, E2E completos de maestros,
   preservacion del historial eliminado y base PostgreSQL preparatoria.
 - La aplicacion conserva `localStorage`; el backend remoto no se selecciona ni
   recibe datos.
-- La autorizacion del 2026-07-28 habilita preparar, pushear y desplegar este
-  candidato desde `release/test`.
+- [Poseidon Quality #11](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30376287777)
+  aprobo `Check and build`, `Backend schema` y `Release E2E`.
+- Despliegue Vercel de produccion `5643198657`, estado `success`; el alias
+  generado requiere SSO, mientras el dominio principal permanece publico.
+- El dominio principal y las rutas `/`, `/ingresar`, `/panel`, `/caja/abrir`,
+  `/locales` y `/cuentas-corrientes` respondieron HTTP `200`.
+- Chrome verifico ingreso y panel para Cajero, Encargado y Administrador; la
+  ruta `/locales` cargo la tabla demo como Administrador.
 
 ### Candidato rechazado `0.1.0-beta.3`
 
@@ -193,7 +199,9 @@ Ese mismo dia, con autorizacion separada, se eliminaron las 16 variables histori
 - No promover mediante `Instant Rollback` un despliegue construido antes de una limpieza o rotacion de variables.
 - Confirmar rutas, login y smoke de los tres roles.
 - Registrar el incidente y la version restaurada.
-- Punto de restauracion de codigo vigente: `v0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Punto de restauracion de codigo vigente: `v0.1.0-beta.4`, commit
+  `e45a834612bd4cb9b7ff81ebc235d403e6234240`. `v0.1.0-beta.1` se conserva
+  como punto historico anterior.
 
 ### Datos
 
