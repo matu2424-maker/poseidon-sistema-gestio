@@ -1,9 +1,10 @@
 # Poseidon - Versiones, despliegues y rollback
 
-Ultima actualizacion: 2026-07-26
+Ultima actualizacion: 2026-07-28
 
 Estado: beta demo `0.1.0-beta.1` publicada desde `release/test` en Vercel y
-candidato `0.1.0-beta.3` validado para su publicacion controlada. No existe
+candidato correctivo `0.1.0-beta.4` preparado despues de que `beta.3` fuera
+rechazado por la puerta PostgreSQL de CI. No existe
 backend remoto activo; el esquema Supabase preparatorio esta registrado como
 `READY` y la capacidad permanece en `VALIDATING`.
 
@@ -52,6 +53,8 @@ Se usa SemVer:
 - `v0.1.0-beta.1`: primer candidato de prueba.
 - `v0.1.0-beta.2`: correccion compatible del candidato.
 - `v0.1.0-beta.3`: candidato para prueba remota desde el local fisico.
+- `v0.1.0-beta.4`: correccion de las aserciones pgTAP y del arnes local luego
+  del rechazo de `beta.3`.
 - `v0.1.0`: primera version estable de esa linea.
 - `v0.1.1`: correccion compatible.
 - `v0.2.0`: cambio funcional compatible que amplía el sistema.
@@ -115,8 +118,9 @@ Se usa SemVer:
 
 ## Candidato validado para publicacion
 
-- Version: `0.1.0-beta.3`.
-- Estado: validado localmente; la publicacion autorizada debe conservar el modo
+- Version: `0.1.0-beta.4`.
+- Estado: candidato correctivo validado localmente; la publicacion autorizada
+  debe conservar el modo
   `local` y usar exclusivamente datos demo.
 - Evidencia: `264/264` pruebas unitarias/integracion, `30/30` E2E,
   `414/414` aserciones PostgreSQL, build y smoke HTTP aprobados.
@@ -126,6 +130,19 @@ Se usa SemVer:
   recibe datos.
 - La autorizacion del 2026-07-28 habilita preparar, pushear y desplegar este
   candidato desde `release/test`.
+
+### Candidato rechazado `0.1.0-beta.3`
+
+- Commit y tag inmutables:
+  `5b6c9d87642872dea513797f30c8f459b7acc543` y `v0.1.0-beta.3`.
+- [Poseidon Quality #10](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30374858296)
+  aprobo `Check and build`, pero rechazo `Backend schema`; `Release E2E` fue
+  omitido por dependencia.
+- Causa: 32 llamadas de las suites `002` a `006` usaban la descripcion del test
+  como mensaje exacto esperado de `throws_ok`. El arnes compatible local
+  interpretaba esa firma de otro modo y ocultaba el defecto.
+- Resolucion: no mover ni reutilizar el tag; publicar la correccion como
+  `0.1.0-beta.4`.
 
 ## Publicacion de prueba
 

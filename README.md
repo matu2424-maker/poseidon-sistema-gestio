@@ -3,9 +3,10 @@
 Aplicacion web para operar y controlar caja diaria, maquinas, movimientos, tesoreria, salarios, clientes, cierres, reportes, cuentas corrientes y auditoria del local Poseidon.
 
 El proyecto sigue en etapa de prueba controlada. El desarrollo y los datos
-operativos permanecen locales. La beta publica `0.1.0-beta.1` sigue disponible
-como demo en [poseidon-sistema-gestio.vercel.app](https://poseidon-sistema-gestio.vercel.app);
-`0.1.0-beta.3` es el candidato validado para reemplazarla. No usa autenticacion
+operativos permanecen locales. La demo esta disponible en
+[poseidon-sistema-gestio.vercel.app](https://poseidon-sistema-gestio.vercel.app);
+`0.1.0-beta.4` es el candidato correctivo que reemplaza al intento `beta.3`
+rechazado por la puerta PostgreSQL de CI. No usa autenticacion
 real, base remota ni almacenamiento real de archivos. El esquema Supabase
 versionado es preparatorio y permanece desactivado.
 
@@ -34,10 +35,11 @@ versionado es preparatorio y permanece desactivado.
 - Los archivos adjuntos conservan solamente nombre y tipo; no se guarda contenido pesado en `localStorage`.
 - Las migraciones financieras son incrementales, deterministas y auditables.
 - La evidencia automatizada vigente y sus conteos se mantienen en `docs/VALIDACION_LOCAL.md`.
-- Version candidata local: `0.1.0-beta.3`.
-- Version demo publica: `0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
+- Version candidata local: `0.1.0-beta.4`.
+- Ultima beta remota validada: `0.1.0-beta.1`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`.
 - Node y pnpm fijados para builds reproducibles.
-- `release/test` y la etiqueta `v0.1.0-beta.1` permanecen congelados en el commit candidato; `main` continua con documentacion y controles posteriores.
+- La etiqueta rechazada `v0.1.0-beta.3` permanece congelada en
+  `5b6c9d87642872dea513797f30c8f459b7acc543`; no se mueve ni se reutiliza.
 - Workflow CI activo con Actions compatibles con Node 24; la evidencia remota vigente se registra en `docs/VALIDACION_LOCAL.md`.
 - Vercel publica explicitamente desde `release/test`; los cambios diarios de `main` no generan despliegues automaticos.
 - Catorce migraciones SQL preparatorias estan registradas como `READY`;

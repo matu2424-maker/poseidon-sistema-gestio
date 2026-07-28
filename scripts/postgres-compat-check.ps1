@@ -154,7 +154,7 @@ $$;
 
 create or replace function extensions.throws_ok(
   statement text,
-  description text
+  expected_message text
 ) returns text language plpgsql as $$
 declare
   caught_message text;
@@ -167,7 +167,53 @@ begin
   if caught_message is null then
     raise exception
       'ASSERTION FAILED: expected error but statement succeeded: %',
+      expected_message;
+  end if;
+  if caught_message is distinct from expected_message then
+    raise exception
+      'ASSERTION FAILED: unexpected error message (actual=%, expected=%)',
+      caught_message,
+      expected_message;
+  end if;
+  return 'ok - ' || expected_message;
+end
+$$;
+
+create or replace function extensions.throws_ok(
+  statement text,
+  expected_code text,
+  expected_message text,
+  description text
+) returns text language plpgsql as $$
+declare
+  caught_code text;
+  caught_message text;
+begin
+  begin
+    execute statement;
+  exception when others then
+    get stacked diagnostics
+      caught_code = returned_sqlstate,
+      caught_message = message_text;
+  end;
+  if caught_message is null then
+    raise exception
+      'ASSERTION FAILED: expected error but statement succeeded: %',
       description;
+  end if;
+  if expected_code is not null and caught_code is distinct from expected_code then
+    raise exception
+      'ASSERTION FAILED: unexpected error code for % (actual=%, expected=%)',
+      description,
+      caught_code,
+      expected_code;
+  end if;
+  if expected_message is not null and caught_message is distinct from expected_message then
+    raise exception
+      'ASSERTION FAILED: unexpected error message for % (actual=%, expected=%)',
+      description,
+      caught_message,
+      expected_message;
   end if;
   return 'ok - ' || description;
 end

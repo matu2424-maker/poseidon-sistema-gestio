@@ -73,6 +73,8 @@ select throws_ok(
       '22000000-0000-0000-0000-000000000001'
     )
   $$,
+  null,
+  null,
   'a manager cannot request the administrator function'
 );
 
@@ -84,6 +86,8 @@ select throws_ok(
       '22000000-0000-0000-0000-000000000002'
     )
   $$,
+  null,
+  null,
   'a non-admin cannot operate an unassigned local'
 );
 
@@ -101,6 +105,8 @@ select throws_ok(
       '22000000-0000-0000-0000-000000000001'
     )
   $$,
+  null,
+  null,
   'an inactive profile cannot execute server commands'
 );
 
@@ -169,6 +175,8 @@ select throws_ok(
       repeat('b', 64)
     )
   $$,
+  null,
+  null,
   'an idempotency key cannot be reused with a different request hash'
 );
 

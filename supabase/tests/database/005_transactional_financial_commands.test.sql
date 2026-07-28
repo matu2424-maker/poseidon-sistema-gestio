@@ -386,6 +386,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'a cashier function cannot create a Principal expense'
 );
 
@@ -429,6 +431,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'a manager must explicitly request the cashier function for a cash expense'
 );
 
@@ -446,6 +450,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'an Encargado cannot impersonate the administrator function'
 );
 
@@ -463,6 +469,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'a manager cannot operate an unassigned local'
 );
 
@@ -574,6 +582,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'an idempotency key cannot be reused with a changed payload'
 );
 
@@ -725,6 +735,8 @@ select throws_ok(
     set detail = 'No permitido'
     where reversal_of is not null
   $sql$,
+  null,
+  null,
   'appended reversal rows remain immutable'
 );
 
@@ -772,6 +784,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'a Principal expense above available funds is rejected'
 );
 
@@ -1000,6 +1014,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'treasury source account cannot be overdrawn'
 );
 
@@ -1130,6 +1146,8 @@ select throws_ok(
       }'::jsonb
     )
   $sql$,
+  null,
+  null,
   'partner withdrawal cannot overdraw Principal'
 );
 

@@ -23,6 +23,8 @@ insert into public.locals (id, legacy_id, visible_id, name, is_primary) values
 
 select throws_ok(
   $$insert into public.locals (legacy_id, visible_id, name) values ('bad-local', 'ABC', 'Invalido')$$,
+  null,
+  null,
   'local visible IDs must be short numeric values'
 );
 
@@ -124,6 +126,8 @@ select throws_ok(
       'admin-sql', 'CAJERO'
     )
   $$,
+  null,
+  null,
   'a local cannot have two open cash balances'
 );
 
@@ -157,11 +161,15 @@ insert into public.expenses (
 
 select throws_ok(
   $$delete from public.expenses where legacy_id = 'expense-append-only'$$,
+  null,
+  null,
   'operational expenses cannot be deleted'
 );
 
 select throws_ok(
   $$delete from public.cash_balances where legacy_id = 'balance-1'$$,
+  null,
+  null,
   'cash balances cannot be deleted'
 );
 
@@ -193,6 +201,8 @@ select throws_ok(
       '20000000-0000-0000-0000-000000000001', 'Poseidon', 'DESUSO'
     )
   $$,
+  null,
+  null,
   'a machine can be marked as disused only in the workshop'
 );
 
@@ -212,6 +222,8 @@ select throws_ok(
       'admin-sql'
     )
   $$,
+  null,
+  null,
   'IN and OUT readings cannot go backwards'
 );
 
@@ -231,6 +243,8 @@ select throws_ok(
       'admin-sql'
     )
   $$,
+  null,
+  null,
   'a reading cannot bind a balance to another local'
 );
 
@@ -264,11 +278,15 @@ insert into public.account_movements (
 
 select throws_ok(
   $$update public.account_movements set amount = 1 where legacy_id = 'movement-1'$$,
+  null,
+  null,
   'financial ledger rows cannot be updated'
 );
 
 select throws_ok(
   $$delete from public.account_movements where legacy_id = 'movement-1'$$,
+  null,
+  null,
   'financial ledger rows cannot be deleted'
 );
 
@@ -285,6 +303,8 @@ select throws_ok(
       'No debe confirmar', 'admin-sql'
     )
   $$,
+  null,
+  null,
   'financial amounts must be finite'
 );
 
@@ -332,6 +352,8 @@ select throws_ok(
       '80000000-0000-0000-0000-000000000001'
     )
   $$,
+  null,
+  null,
   'an original ledger row can have only one reversal'
 );
 
@@ -361,6 +383,8 @@ insert into public.audit_events (
 
 select throws_ok(
   $$update public.audit_events set action = 'Alterada' where legacy_id = 'audit-1'$$,
+  null,
+  null,
   'audit events cannot be updated'
 );
 
@@ -379,6 +403,8 @@ select throws_ok(
       'SALARIO', 'LIQUIDACION', 'admin-sql', 'Administrador SQL'
     )
   $$,
+  null,
+  null,
   'Principal salary settlements cannot be linked to a cash balance'
 );
 
@@ -443,6 +469,8 @@ select throws_ok(
       45000, 0, 0, 0, 0, 0, 45000, 0, 0, 45000
     )
   $$,
+  null,
+  null,
   'salary snapshots cannot introduce a local outside the closure scope'
 );
 
@@ -461,6 +489,8 @@ select throws_ok(
       'not-a-sha256'
     )
   $$,
+  null,
+  null,
   'idempotency requests require a SHA-256 request hash'
 );
 
@@ -488,6 +518,8 @@ select throws_ok(
       'admin-sql'
     )
   $$,
+  null,
+  null,
   'attachment metadata cannot target a non-private bucket'
 );
 

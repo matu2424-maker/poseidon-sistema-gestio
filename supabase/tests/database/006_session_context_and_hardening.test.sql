@@ -139,6 +139,8 @@ select throws_ok(
     delete from public.locals
     where id = '26000000-0000-4000-8000-000000000002'
   $$,
+  null,
+  null,
   'direct master deletion is rejected even for privileged maintenance code'
 );
 

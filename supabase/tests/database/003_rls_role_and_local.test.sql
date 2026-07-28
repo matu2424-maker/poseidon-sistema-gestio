@@ -289,10 +289,14 @@ select is((select count(*) from public.expenses), 2::bigint, 'manager sees Caja 
 select is((select count(*) from public.attachments), 2::bigint, 'manager sees Caja and Principal expense attachments');
 select throws_ok(
   $$insert into public.expenses (legacy_id) values ('forbidden-write')$$,
+  null,
+  null,
   'manager cannot write an operational table directly'
 );
 select throws_ok(
   $$select * from public.command_requests$$,
+  null,
+  null,
   'manager cannot read idempotency internals'
 );
 

@@ -194,8 +194,14 @@ El perfil de Playwright es descartable: valida comportamiento reproducible y nun
 - Browser: Encargado > Cierres y reportes > Resumen de cajas aprobado.
 - Browser: Cajero sin caja > aviso, Clientes, Resumen y Abrir caja aprobado.
 - Chrome canonico: control recuperado; acceso como Encargado, Control de gastos, detalle operativo y Cierre periodico aprobados sin errores de consola.
-- El candidato `0.1.0-beta.3` no agrega todavia una nueva certificacion manual del
-  estado operativo de Chrome: el enlace nativo del plugin no estuvo disponible.
+- El intento `0.1.0-beta.3` aprobo `Check and build`, pero fallo en
+  [Poseidon Quality #10](https://github.com/matu2424-maker/poseidon-sistema-gestio/actions/runs/30374858296)
+  porque 32 llamadas pgTAP confundian descripcion con mensaje esperado;
+  `Release E2E` fue omitido. El tag queda inmutable y la correccion se publica
+  como `0.1.0-beta.4`.
+- El arnes PostgreSQL compatible ya reproduce las firmas de dos y cuatro
+  argumentos de `throws_ok`; las once suites vuelven a aprobar localmente
+  `414/414` aserciones.
   Playwright aprobo comportamiento con datos descartables, no los datos del
   perfil habitual del usuario.
 - Beta Vercel limpia: despliegue `PHp675DwSQ6Sy3VrC7p6SoBgkSsE`, fuente `release/test`, commit `0bb33965b8ea50b4f1c10b8863f73582b006f8ea`, estado `Ready` en 30 s.

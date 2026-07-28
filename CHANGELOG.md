@@ -4,12 +4,30 @@ Este archivo registra cambios incluidos en candidatos y versiones publicadas de 
 
 ## [Sin publicar]
 
-Sin cambios registrados despues de preparar `0.1.0-beta.3`.
+Sin cambios registrados despues de preparar `0.1.0-beta.4`.
+
+## [0.1.0-beta.4] - 2026-07-28
+
+Estado: candidato correctivo para reemplazar `0.1.0-beta.3`, rechazado por la
+puerta PostgreSQL de GitHub Actions. No cambia el comportamiento del frontend,
+mantiene `localStorage` y conserva desactivados Auth, Supabase y Storage.
+
+### Corregido
+
+- Las 32 aserciones pgTAP de las suites `002` a `006` separan ahora la
+  descripcion humana del código y mensaje opcionales de la excepcion.
+- El arnes PostgreSQL local reproduce las firmas de dos y cuatro argumentos de
+  `throws_ok`, por lo que deja de ocultar descripciones mal declaradas.
+- `v0.1.0-beta.3` permanece inmutable en
+  `5b6c9d87642872dea513797f30c8f459b7acc543` como evidencia del intento
+  rechazado; no se reutiliza ni se mueve.
 
 ## [0.1.0-beta.3] - 2026-07-28
 
-Estado: candidato para prueba remota controlada desde el local fisico. Conserva
-`localStorage` aislado por navegador y no activa Auth, Supabase ni Storage.
+Estado: candidato rechazado por la puerta `Backend schema` de GitHub Actions
+`#10`. El frontend se desplego de forma transitoria, pero la version no fue
+aceptada como beta validada. Conserva `localStorage` aislado por navegador y no
+activa Auth, Supabase ni Storage.
 
 ### Agregado
 
